@@ -1,0 +1,65 @@
+//
+//  ScnMemBlock.h
+//  ixtli-render
+//
+//  Created by Marcos Ortega on 26/7/25.
+//
+
+#ifndef ScnMemBlock_h
+#define ScnMemBlock_h
+
+#include "ixtli-defs.h"
+#include "core/ScnContext.h"
+#include "core/ScnSharedPtr.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//STScnAbsPtr, abstract pointer
+
+#define STScnAbsPtr_Zero { NULL, 0 }
+
+typedef struct STScnAbsPtr_ {
+    void*       ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
+    ScnUI32     idx;    //abstract address
+    //Note: possible 4-bytes padding here.
+} STScnAbsPtr;
+
+//STScnMemBlockCfg
+
+#define STScnMemBlockCfg_Zero { 0, 0, 0, SCN_FALSE }
+
+typedef struct STScnMemBlockCfg_ {
+    ScnUI32 size;           //ammount of bytes allocable (including the idx-0)
+    ScnUI32 sizeAlign;      //whole memory block size alignment
+    ScnUI32 idxsAlign;      //individual pointers alignment
+    ScnBOOL idxZeroIsValid; //idx=0 is an assignable address
+} STScnMemBlockCfg;
+
+//STScnMemBlockRef
+
+#define STScnMemBlockRef_Zero    { NULL }
+
+typedef struct STScnMemBlockRef_ {
+    STScnSharedPtr* ptr;
+} STScnMemBlockRef;
+
+SCN_STRUCT_REF_METHODS_DEC(ScnMemBlock)
+
+ScnBOOL     ScnMemBlock_prepare(STScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STScnAbsPtr* dstPtrAfterEnd);
+//allocations
+STScnAbsPtr ScnMemBlock_malloc(STScnMemBlockRef ref, const ScnUI32 usableSz);
+ScnBOOL     ScnMemBlock_mfree(STScnMemBlockRef ref, const STScnAbsPtr ptr);
+ScnUI32     ScnMemBlock_mAvailSz(STScnMemBlockRef ref);
+//
+void        ScnMemBlock_prepareForNewMallocsActions(STScnMemBlockRef ref, const ScnUI32 ammActions);   //increases the index's sz
+void        ScnMemBlock_clear(STScnMemBlockRef ref); //clears the index, all pointers are invalid after this call
+//dbg
+ScnBOOL     ScnMemBlock_validateIndex(STScnMemBlockRef ref);
+
+#ifdef __cplusplus
+} //extern "C"
+#endif
+
+#endif /* ScnMemBlock_h */
