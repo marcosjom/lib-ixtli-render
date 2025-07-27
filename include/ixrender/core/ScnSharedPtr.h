@@ -8,9 +8,9 @@
 #ifndef ScnSharedPtr_h
 #define ScnSharedPtr_h
 
-#include "ixtli-defs.h"
-#include "ScnMemory.h"
-#include "ScnMutex.h"
+#include "ixrender/ixtli-defs.h"
+#include "ixrender/core/ScnMemory.h"
+#include "ixrender/core/ScnMutex.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -8,9 +8,8 @@
 #ifndef ScnMemBlock_h
 #define ScnMemBlock_h
 
-#include "ixtli-defs.h"
-#include "core/ScnContext.h"
-#include "core/ScnSharedPtr.h"
+#include "ixrender/ixtli-defs.h"
+#include "ixrender/core/ScnObjRef.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,7 +27,7 @@ typedef struct STScnAbsPtr_ {
 
 //STScnMemBlockCfg
 
-#define STScnMemBlockCfg_Zero { 0, 0, 0, SCN_FALSE }
+#define STScnMemBlockCfg_Zero { 0, 0, 0, Scn_FALSE }
 
 typedef struct STScnMemBlockCfg_ {
     ScnUI32 size;           //ammount of bytes allocable (including the idx-0)
@@ -39,13 +38,7 @@ typedef struct STScnMemBlockCfg_ {
 
 //STScnMemBlockRef
 
-#define STScnMemBlockRef_Zero    { NULL }
-
-typedef struct STScnMemBlockRef_ {
-    STScnSharedPtr* ptr;
-} STScnMemBlockRef;
-
-SCN_STRUCT_REF_METHODS_DEC(ScnMemBlock)
+SCN_REF_STRUCT_METHODS_DEC(ScnMemBlock)
 
 ScnBOOL     ScnMemBlock_prepare(STScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STScnAbsPtr* dstPtrAfterEnd);
 //allocations

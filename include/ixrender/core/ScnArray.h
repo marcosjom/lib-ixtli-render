@@ -8,9 +8,9 @@
 #ifndef ScnArray_h
 #define ScnArray_h
 
-#include "ixtli-defs.h"
-#include "core/ScnContext.h"
-#include "core/ScnCompare.h"
+#include "ixrender/ixtli-defs.h"
+#include "ixrender/core/ScnContext.h"
+#include "ixrender/core/ScnCompare.h"
 #include <string.h> //memset
 
 #ifdef __cplusplus

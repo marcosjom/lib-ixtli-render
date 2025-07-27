@@ -8,9 +8,9 @@
 #ifndef ScnContext_h
 #define ScnContext_h
 
-#include "ixtli-defs.h"
-#include "ScnMemory.h"
-#include "ScnMutex.h"
+#include "ixrender/ixtli-defs.h"
+#include "ixrender/core/ScnMemory.h"
+#include "ixrender/core/ScnMutex.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,8 +34,8 @@ STScnContextRef ScnContext_alloc(struct STScnContextItf_* ctx);
 void            ScnContext_retain(STScnContextRef ref);
 void            ScnContext_release(STScnContextRef* ref);
 void            ScnContext_set(STScnContextRef* ref, STScnContextRef other);
-IX_INLN ScnBOOL ScnContext_isSame(STScnContextRef ref, STScnContextRef other) { return (ref.ptr == other.ptr); }
-IX_INLN ScnBOOL ScnContext_isNull(STScnContextRef ref) { return (ref.ptr == NULL); }
+SC_INLN ScnBOOL ScnContext_isSame(STScnContextRef ref, STScnContextRef other) { return (ref.ptr == other.ptr); }
+SC_INLN ScnBOOL ScnContext_isNull(STScnContextRef ref) { return (ref.ptr == NULL); }
 void            ScnContext_null(STScnContextRef* ref);
 //context (memory)
 void*           ScnContext_malloc(STScnContextRef ref, const ScnUI32 newSz, const char* dbgHintStr);

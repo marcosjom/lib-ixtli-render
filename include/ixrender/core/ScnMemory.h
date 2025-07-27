@@ -8,7 +8,7 @@
 #ifndef ScnMemory_h
 #define ScnMemory_h
 
-#include "ixtli-defs.h"
+#include "ixrender/ixtli-defs.h"
 
 #ifdef __cplusplus
 extern "C" {

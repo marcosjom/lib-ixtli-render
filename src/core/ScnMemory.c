@@ -5,7 +5,7 @@
 //  Created by Marcos Ortega on 26/7/25.
 //
 
-#include "ScnMemory.h"
+#include "ixrender/core/ScnMemory.h"
 #include <stdlib.h> //malloc, realloc, free
 
 //STScnMemoryItf (API)

@@ -5,8 +5,8 @@
 //  Created by Marcos Ortega on 26/7/25.
 //
 
-#include "memory/ScnMemBlock.h"
-#include "core/ScnArraySorted.h"
+#include "ixrender/core/ScnMemBlock.h"
+#include "ixrender/core/ScnArraySorted.h"
 
 //STScnMemBlockPtr
 
@@ -17,21 +17,21 @@ typedef struct STScnMemBlockPtr_ {
     ScnUI32     sz;   //size at 'ScnMemBlock_malloc' call
 } STScnMemBlockPtr;
 
-ScnBOOL NBCompare_ScnMemBlockPtr(const ENCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz){
+ScnBOOL ScnCompare_ScnMemBlockPtr(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz){
     SCN_ASSERT(dataSz == sizeof(STScnMemBlockPtr))
     if(dataSz == sizeof(STScnMemBlockPtr)){
         const STScnMemBlockPtr* d1 = (STScnMemBlockPtr*)data1;
         const STScnMemBlockPtr* d2 = (STScnMemBlockPtr*)data2;
         switch (mode) {
-            case ENCompareMode_Equal: return d1->ptr == d2->ptr;
-            case ENCompareMode_Lower: return d1->ptr < d2->ptr;
-            case ENCompareMode_LowerOrEqual: return d1->ptr <= d2->ptr;
-            case ENCompareMode_Greater: return d1->ptr > d2->ptr;
-            case ENCompareMode_GreaterOrEqual: return d1->ptr >= d2->ptr;
-            default: SCN_ASSERT(SCN_FALSE) break;
+            case ENScnCompareMode_Equal: return d1->ptr == d2->ptr;
+            case ENScnCompareMode_Lower: return d1->ptr < d2->ptr;
+            case ENScnCompareMode_LowerOrEqual: return d1->ptr <= d2->ptr;
+            case ENScnCompareMode_Greater: return d1->ptr > d2->ptr;
+            case ENScnCompareMode_GreaterOrEqual: return d1->ptr >= d2->ptr;
+            default: SCN_ASSERT(Scn_FALSE) break;
         }
     }
-    return SCN_FALSE;
+    return Scn_FALSE;
 }
 
 //STScnMemBlockGap
@@ -43,21 +43,21 @@ typedef struct STScnMemBlockGap_ {
     ScnUI32 sz;      //size of gap in bytes
 } STScnMemBlockGap;
 
-ScnBOOL NBCompare_ScnMemBlockGap(const ENCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz){
+ScnBOOL ScnCompare_ScnMemBlockGap(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz){
     SCN_ASSERT(dataSz == sizeof(STScnMemBlockGap))
     if(dataSz == sizeof(STScnMemBlockGap)){
         const STScnMemBlockGap* d1 = (STScnMemBlockGap*)data1;
         const STScnMemBlockGap* d2 = (STScnMemBlockGap*)data2;
         switch (mode) {
-            case ENCompareMode_Equal: return d1->iStart == d2->iStart;
-            case ENCompareMode_Lower: return d1->iStart < d2->iStart;
-            case ENCompareMode_LowerOrEqual: return d1->iStart <= d2->iStart;
-            case ENCompareMode_Greater: return d1->iStart > d2->iStart;
-            case ENCompareMode_GreaterOrEqual: return d1->iStart >= d2->iStart;
-            default: SCN_ASSERT(SCN_FALSE) break;
+            case ENScnCompareMode_Equal: return d1->iStart == d2->iStart;
+            case ENScnCompareMode_Lower: return d1->iStart < d2->iStart;
+            case ENScnCompareMode_LowerOrEqual: return d1->iStart <= d2->iStart;
+            case ENScnCompareMode_Greater: return d1->iStart > d2->iStart;
+            case ENScnCompareMode_GreaterOrEqual: return d1->iStart >= d2->iStart;
+            default: SCN_ASSERT(Scn_FALSE) break;
         }
     }
-    return SCN_FALSE;
+    return Scn_FALSE;
 }
 
 //STScnMemBlockChunk
@@ -104,8 +104,8 @@ void ScnMemBlock_initZeroedOpq(STScnContextRef ctx, void* obj) {
     ScnContext_set(&opq->ctx, ctx);
     opq->mutex = ScnContext_mutex_alloc(opq->ctx);
     //
-    ScnArraySorted_init(ctx, &opq->ptrs, 0, 256, STScnMemBlockPtr, NBCompare_ScnMemBlockPtr);
-    ScnArraySorted_init(ctx, &opq->gaps, 0, 128, STScnMemBlockGap, NBCompare_ScnMemBlockGap);
+    ScnArraySorted_init(ctx, &opq->ptrs, 0, 256, STScnMemBlockPtr, ScnCompare_ScnMemBlockPtr);
+    ScnArraySorted_init(ctx, &opq->gaps, 0, 128, STScnMemBlockGap, ScnCompare_ScnMemBlockGap);
 }
 
 void ScnMemBlock_destroyOpq(void* obj){
@@ -116,11 +116,11 @@ void ScnMemBlock_destroyOpq(void* obj){
             ScnContext_mfree(opq->ctx, opq->chunk.ptr);
             opq->chunk.ptr    = NULL;
         }
-        NBMemory_setZeroSt(opq->chunk, STScnMemBlockChunk);
+        ScnMemory_setZeroSt(opq->chunk, STScnMemBlockChunk);
     }
     {
         opq->cfg = (STScnMemBlockCfg)STScnMemBlockCfg_Zero;
-        //NBStruct_stRelease(ScnMemBlockCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
+        //ScnStruct_stRelease(ScnMemBlockCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
     }
     //
     ScnArraySorted_destroy(opq->ctx, &opq->ptrs);
@@ -144,7 +144,7 @@ ScnBOOL ScnMemBlock_validateIndexLockepOpq_(STScnMemBlockOpq* opq);
 //
 
 ScnBOOL ScnMemBlock_prepare(STScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STScnAbsPtr* dstPtrAfterEnd){
-    ScnBOOL r = SCN_FALSE;
+    ScnBOOL r = Scn_FALSE;
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     //
     ScnMutex_lock(opq->mutex);
@@ -168,8 +168,8 @@ ScnBOOL ScnMemBlock_prepare(STScnMemBlockRef ref, const STScnMemBlockCfg* cfg, S
             //copy cfg
             {
                 opq->cfg            = *cfg;
-                //NBStruct_stRelease(ScnMemBlockCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
-                //NBStruct_stClone(ScnMemBlockCfg_getSharedStructMap(), cfg, sizeof(*cfg), &opq->cfg, sizeof(opq->cfg));
+                //ScnStruct_stRelease(ScnMemBlockCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
+                //ScnStruct_stClone(ScnMemBlockCfg_getSharedStructMap(), cfg, sizeof(*cfg), &opq->cfg, sizeof(opq->cfg));
                 opq->cfg.sizeAlign  = sizeAlign;
                 opq->cfg.idxsAlign  = idxsAlign;
                 opq->cfg.size       = chunkN.rngAfterEnd;
@@ -179,13 +179,13 @@ ScnBOOL ScnMemBlock_prepare(STScnMemBlockRef ref, const STScnMemBlockCfg* cfg, S
                 ScnArraySorted_empty(&opq->ptrs);
                 ScnArraySorted_empty(&opq->gaps);
                 //reset state
-                NBMemory_setZeroSt(opq->state, STScnMemBlockState);
+                ScnMemory_setZeroSt(opq->state, STScnMemBlockState);
                 //register the whole range as the initial gap
                 if(chunkN.rngStart < chunkN.rngAfterEnd){
-                    STScnMemBlockGap gap = STScnMemBlockGap_Zero, *n;
+                    STScnMemBlockGap gap = STScnMemBlockGap_Zero;
                     gap.iStart  = chunkN.rngStart;
                     gap.sz      = chunkN.rngAfterEnd - chunkN.rngStart;
-                    ScnArraySorted_addValue(n, opq->ctx, &opq->gaps, gap, STScnMemBlockGap);
+                    ScnArraySorted_addPtr(opq->ctx, &opq->gaps, &gap, STScnMemBlockGap);
                     opq->state.szAvail = gap.sz;
                 }
             }
@@ -197,7 +197,7 @@ ScnBOOL ScnMemBlock_prepare(STScnMemBlockRef ref, const STScnMemBlockCfg* cfg, S
                 dstPtrAfterEnd->idx = chunkN.rngAfterEnd;
                 dstPtrAfterEnd->ptr = chunkN.ptr + chunkN.rngAfterEnd;
             }
-            r = SCN_TRUE;
+            r = Scn_TRUE;
         }
     }
     ScnMutex_unlock(opq->mutex);
@@ -220,10 +220,10 @@ STScnAbsPtr ScnMemBlock_malloc(STScnMemBlockRef ref, const ScnUI32 usableSz){
             while(g < gAfterEnd){
                 if(g->sz >= sz){
                     //register pointer
-                    STScnMemBlockPtr ptr = STScnMemBlockPtr_Zero, *n;
+                    STScnMemBlockPtr ptr = STScnMemBlockPtr_Zero;
                     ptr.ptr = &opq->chunk.ptr[g->iStart];
                     ptr.sz  = sz;
-                    ScnArraySorted_addValue(n, opq->ctx, &opq->ptrs, ptr, STScnMemBlockPtr);
+                    ScnArraySorted_addPtr(opq->ctx, &opq->ptrs, &ptr, STScnMemBlockPtr);
                     //remove/modify gap
                     if(g->sz == sz){
                         //remove gap
@@ -258,29 +258,27 @@ STScnAbsPtr ScnMemBlock_malloc(STScnMemBlockRef ref, const ScnUI32 usableSz){
 }
 
 ScnBOOL ScnMemBlock_mfree(STScnMemBlockRef ref, const STScnAbsPtr ptr){
-    ScnBOOL r = SCN_FALSE;
+    ScnBOOL r = Scn_FALSE;
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
         //search ptr
         STScnMemBlockPtr srchPtr = STScnMemBlockPtr_Zero;
         srchPtr.ptr = (void*)ptr.ptr;
-        ScnSI32 iFnd = -1;
-        ScnArraySorted_indexOf(iFnd, &opq->ptrs, &srchPtr);
+        const ScnSI32 iFnd = ScnArraySorted_indexOf(&opq->ptrs, &srchPtr);
         if(iFnd < 0){
             //not found
-            SCN_ASSERT(SCN_FALSE);
+            SCN_ASSERT(Scn_FALSE);
         } else {
             STScnMemBlockPtr* fndPtr = &opq->ptrs.arr[iFnd];
             SCN_ASSERT(fndPtr->ptr == ptr.ptr)
             //find gap
             {
-                ScnSI32 iNxtGap = -1;
                 ScnUI32 newGapSz = fndPtr->sz;
                 STScnMemBlockGap* gStart = opq->gaps.arr;
                 STScnMemBlockGap srchGap = STScnMemBlockGap_Zero;
                 srchGap.iStart = (ScnUI32)((ScnBYTE*)ptr.ptr - opq->chunk.ptr);
-                 ScnArraySorted_indexForNew(iNxtGap, &opq->gaps, &srchGap);
+                const ScnSI32 iNxtGap = ScnArraySorted_indexForNew(&opq->gaps, &srchGap);
                 if(iNxtGap < opq->gaps.use && ((ScnBYTE*)ptr.ptr + fndPtr->sz) == (opq->chunk.ptr + gStart[iNxtGap].iStart)){
                     //merge new gap with next gap
                     gStart[iNxtGap].iStart  -= fndPtr->sz;
@@ -292,10 +290,10 @@ ScnBOOL ScnMemBlock_mfree(STScnMemBlockRef ref, const STScnAbsPtr ptr){
                     newGapSz                = gStart[iNxtGap - 1].sz;
                 } else {
                     //create new gap
-                    STScnMemBlockGap gap = STScnMemBlockGap_Zero, *n;
+                    STScnMemBlockGap gap = STScnMemBlockGap_Zero;
                     gap.iStart  = (ScnUI32)((ScnBYTE*)ptr.ptr - opq->chunk.ptr);
                     gap.sz      = fndPtr->sz;
-                    ScnArraySorted_addValue(n, opq->ctx, &opq->gaps, gap, STScnMemBlockGap);
+                    ScnArraySorted_addPtr(opq->ctx, &opq->gaps, &gap, STScnMemBlockGap);
                 }
                 SCN_ASSERT(opq->state.szAvail + fndPtr->sz <= (opq->chunk.rngAfterEnd - opq->chunk.rngStart));
                 opq->state.szAvail += fndPtr->sz;
@@ -310,7 +308,7 @@ ScnBOOL ScnMemBlock_mfree(STScnMemBlockRef ref, const STScnAbsPtr ptr){
             //TMP
             //ScnMemBlock_validateIndexLockepOpq_(opq);
 #           endif
-            r = SCN_TRUE;
+            r = Scn_TRUE;
         }
     }
     ScnMutex_unlock(opq->mutex);
@@ -339,13 +337,13 @@ void ScnMemBlock_clear(STScnMemBlockRef ref){ //clears the index, all pointers a
         ScnArraySorted_empty(&opq->ptrs);
         ScnArraySorted_empty(&opq->gaps);
         //reset state
-        NBMemory_setZeroSt(opq->state, STScnMemBlockState);
+        ScnMemory_setZeroSt(opq->state, STScnMemBlockState);
         //register the whole range as the initial gap
         if(opq->chunk.rngStart < opq->chunk.rngAfterEnd){
-            STScnMemBlockGap gap = STScnMemBlockGap_Zero, *n;
+            STScnMemBlockGap gap = STScnMemBlockGap_Zero;
             gap.iStart  = opq->chunk.rngStart;
             gap.sz      = opq->chunk.rngAfterEnd - opq->chunk.rngStart;
-            ScnArraySorted_addValue(n, opq->ctx, &opq->gaps, gap, STScnMemBlockGap);
+            ScnArraySorted_addPtr(opq->ctx, &opq->gaps, &gap, STScnMemBlockGap);
             opq->state.szAvail = gap.sz;
         }
     }
@@ -355,7 +353,7 @@ void ScnMemBlock_clear(STScnMemBlockRef ref){ //clears the index, all pointers a
 //dgb
 
 ScnBOOL ScnMemBlock_validateIndexLockepOpq_(STScnMemBlockOpq* opq){
-    ScnBOOL r = SCN_FALSE;
+    ScnBOOL r = Scn_FALSE;
     ScnUI32 gapsTotalSz = 0, gapLargestSz = 0, ptrsTotalSz = 0;
     //
     ScnBYTE* ptr = opq->chunk.ptr + opq->chunk.rngStart;
@@ -386,9 +384,9 @@ ScnBOOL ScnMemBlock_validateIndexLockepOpq_(STScnMemBlockOpq* opq){
             const ScnSI64 pos = (ScnSI64)(ptr - opq->chunk.ptr);
             const ScnSI64 deltaGap = (g < gAfterEnd ? (ScnSI64)(opq->chunk.ptr + g->iStart) - (ScnSI64)ptr : -1);
             const ScnSI64 deltaPtr = (p < pAfterEnd ? (ScnSI64)p->ptr - (ScnSI64)ptr : -1);
-            SCN_PRINTF_ERROR("ScnMemBlock_validateIndexLockepOpq_ failes: pos %lld/%lld (%lld to next gap, %lld to next used-ptr).\n", pos, (ScnSI64)opq->chunk.rngAfterEnd, deltaGap, deltaPtr);
+            Scn_PRINTF_ERROR("ScnMemBlock_validateIndexLockepOpq_ failes: pos %lld/%lld (%lld to next gap, %lld to next used-ptr).\n", pos, (ScnSI64)opq->chunk.rngAfterEnd, deltaGap, deltaPtr);
 #           endif
-            SCN_ASSERT(SCN_FALSE); //indexes are not valid
+            SCN_ASSERT(Scn_FALSE); //indexes are not valid
             break;
         }
     }
@@ -396,13 +394,13 @@ ScnBOOL ScnMemBlock_validateIndexLockepOpq_(STScnMemBlockOpq* opq){
     SCN_ASSERT(g == gAfterEnd && p == pAfterEnd && ptr == ptrAfterEnd)
     SCN_ASSERT(gapsTotalSz == opq->state.szAvail && (opq->state.szSmallestMallocFailed == 0 || gapLargestSz < opq->state.szSmallestMallocFailed))
     if(gapsTotalSz + ptrsTotalSz == (opq->chunk.rngAfterEnd - opq->chunk.rngStart) && g == gAfterEnd && p == pAfterEnd && ptr == ptrAfterEnd && gapsTotalSz == opq->state.szAvail && (opq->state.szSmallestMallocFailed == 0 || gapLargestSz < opq->state.szSmallestMallocFailed)){
-        r = SCN_TRUE;
+        r = Scn_TRUE;
     }
     return r;
 }
     
 ScnBOOL ScnMemBlock_validateIndex(STScnMemBlockRef ref){
-    ScnBOOL r = SCN_FALSE;
+    ScnBOOL r = Scn_FALSE;
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {

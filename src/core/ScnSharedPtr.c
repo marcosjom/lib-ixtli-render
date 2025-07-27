@@ -5,10 +5,10 @@
 //  Created by Marcos Ortega on 26/7/25.
 //
 
-#include "ScnSharedPtr.h"
-#include "ScnMemory.h"
-#include "ScnMutex.h"
-#include "ScnContext.h"
+#include "ixrender/core/ScnSharedPtr.h"
+#include "ixrender/core/ScnMemory.h"
+#include "ixrender/core/ScnMutex.h"
+#include "ixrender/core/ScnContext.h"
 
 // STScnSharedPtr (provides retain/release model)
 
@@ -44,7 +44,7 @@ void ScnSharedPtr_retain(struct STScnSharedPtr_* obj){
     }
     ScnMutex_unlock(obj->mutex);
     /*
-#   ifdef SCN_DEBUG
+#   ifdef Scn_DEBUG
     if(obj->dbgItf.retainedBy != NULL){
         const STScnDbgThreadState* st = ScnDbgThreadState_get();
         (*obj->dbgItf.retainedBy)(obj, (st != NULL && st->stack.use > 0 ? st->stack.arr[st->stack.use - 1].className.str : NULL));
@@ -73,7 +73,7 @@ ScnSI32 ScnSharedPtr_release(struct STScnSharedPtr_* obj){
         obj->opq = NULL;
     }
     /*
-#   ifdef SCN_DEBUG
+#   ifdef Scn_DEBUG
     if(obj->dbgItf.releasedBy != NULL){
         const STScnDbgThreadState* st = ScnDbgThreadState_get();
         (*obj->dbgItf.releasedBy)(obj, (st != NULL && st->stack.use > 0 ? st->stack.arr[st->stack.use - 1].className.str : NULL));

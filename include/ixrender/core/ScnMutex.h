@@ -8,7 +8,7 @@
 #ifndef ScnMutex_h
 #define ScnMutex_h
 
-#include "ixtli-defs.h"
+#include "ixrender/ixtli-defs.h"
 
 #ifdef __cplusplus
 extern "C" {

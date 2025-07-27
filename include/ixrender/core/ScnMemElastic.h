@@ -8,10 +8,9 @@
 #ifndef ScnMemElastic_h
 #define ScnMemElastic_h
 
-#include "ixtli-defs.h"
-#include "core/ScnContext.h"
-#include "core/ScnSharedPtr.h"
-#include "memory/ScnMemBlock.h"
+#include "ixrender/ixtli-defs.h"
+#include "ixrender/core/ScnObjRef.h"
+#include "ixrender/core/ScnMemBlock.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,7 +18,7 @@ extern "C" {
 
 //STScnMemBlockCfg
 
-#define STScnMemElasticCfg_Zero { 0, 0, 0, 0, 0, SCN_FALSE }
+#define STScnMemElasticCfg_Zero { 0, 0, 0, 0, 0, Scn_FALSE }
 
 typedef struct STScnMemElasticCfg_ {
     ScnUI32 sizePerBlock;   //ammount of bytes allocable per block (including the idx-0)
@@ -32,13 +31,7 @@ typedef struct STScnMemElasticCfg_ {
 
 //STScnMemElasticRef
 
-#define STScnMemElasticRef_Zero    { NULL }
-
-typedef struct STScnMemElasticRef_ {
-    STScnSharedPtr* ptr;
-} STScnMemElasticRef;
-
-SCN_STRUCT_REF_METHODS_DEC(ScnMemElastic)
+SCN_REF_STRUCT_METHODS_DEC(ScnMemElastic)
 
 //
 

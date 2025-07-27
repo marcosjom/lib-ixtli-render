@@ -8,7 +8,7 @@
 #ifndef ixtli_render_h
 #define ixtli_render_h
 
-#include "ixtli-defs.h"
+#include "ixrender/ixtli-defs.h"
 
 #ifdef __cplusplus
 extern "C" {

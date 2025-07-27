@@ -5,27 +5,27 @@
 //  Created by Marcos Ortega on 26/7/25.
 //
 
-#include "ScnMutex.h"
-#include "ScnContext.h"
+#include "ixrender/core/ScnMutex.h"
+#include "ixrender/core/ScnContext.h"
 
 //STScnMutexItf (API)
 
-#if !defined(SCN_MUTEX_T) || !defined(SCN_MUTEX_INIT) || !defined(SCN_MUTEX_DESTROY) || !defined(SCN_MUTEX_LOCK) || !defined(SCN_MUTEX_UNLOCK)
+#if !defined(Scn_MUTEX_T) || !defined(Scn_MUTEX_INIT) || !defined(Scn_MUTEX_DESTROY) || !defined(Scn_MUTEX_LOCK) || !defined(Scn_MUTEX_UNLOCK)
 #   ifdef _WIN32
 //#     define WIN32_LEAN_AND_MEAN
 #       include <windows.h>             //for CRITICAL_SECTION
-#       define SCN_MUTEX_T              CRITICAL_SECTION
-#       define SCN_MUTEX_INIT(PTR)      InitializeCriticalSection(PTR)
-#       define SCN_MUTEX_DESTROY(PTR)   DeleteCriticalSection(PTR)
-#       define SCN_MUTEX_LOCK(PTR)      EnterCriticalSection(PTR)
-#       define SCN_MUTEX_UNLOCK(PTR)    LeaveCriticalSection(PTR)
+#       define Scn_MUTEX_T              CRITICAL_SECTION
+#       define Scn_MUTEX_INIT(PTR)      InitializeCriticalSection(PTR)
+#       define Scn_MUTEX_DESTROY(PTR)   DeleteCriticalSection(PTR)
+#       define Scn_MUTEX_LOCK(PTR)      EnterCriticalSection(PTR)
+#       define Scn_MUTEX_UNLOCK(PTR)    LeaveCriticalSection(PTR)
 #   else
 #       include <pthread.h>             //for pthread_mutex_t
-#       define SCN_MUTEX_T              pthread_mutex_t
-#       define SCN_MUTEX_INIT(PTR)      pthread_mutex_init(PTR, NULL)
-#       define SCN_MUTEX_DESTROY(PTR)   pthread_mutex_destroy(PTR)
-#       define SCN_MUTEX_LOCK(PTR)      pthread_mutex_lock(PTR)
-#       define SCN_MUTEX_UNLOCK(PTR)    pthread_mutex_unlock(PTR)
+#       define Scn_MUTEX_T              pthread_mutex_t
+#       define Scn_MUTEX_INIT(PTR)      pthread_mutex_init(PTR, NULL)
+#       define Scn_MUTEX_DESTROY(PTR)   pthread_mutex_destroy(PTR)
+#       define Scn_MUTEX_LOCK(PTR)      pthread_mutex_lock(PTR)
+#       define Scn_MUTEX_UNLOCK(PTR)    pthread_mutex_unlock(PTR)
 #   endif
 #endif
 
@@ -52,7 +52,7 @@ void ScnMutex_free(STScnMutexRef* ref){
 //STScnMutexOpq
 
 typedef struct STScnMutexOpq_ {
-    SCN_MUTEX_T             mutex;
+    Scn_MUTEX_T             mutex;
     struct STScnContextItf_ ctx;
 } STScnMutexOpq;
 
@@ -60,7 +60,7 @@ STScnMutexRef ScnMutexItf_default_alloc(struct STScnContextItf_* ctx){
     STScnMutexRef r = STScnMutexRef_Zero;
     STScnMutexOpq* obj = (STScnMutexOpq*)(*ctx->mem.malloc)(sizeof(STScnMutexOpq), "ScnMutexItf_default_alloc");
     if(obj != NULL){
-        SCN_MUTEX_INIT(&obj->mutex);
+        Scn_MUTEX_INIT(&obj->mutex);
         obj->ctx = *ctx;
         r.opq = obj;
         r.itf = &obj->ctx.mutex;
@@ -72,7 +72,7 @@ void ScnMutexItf_default_free(STScnMutexRef* pObj){
     if(pObj != NULL){
         STScnMutexOpq* obj = (STScnMutexOpq*)pObj->opq;
         if(obj != NULL){
-            SCN_MUTEX_DESTROY(&obj->mutex);
+            Scn_MUTEX_DESTROY(&obj->mutex);
             (*obj->ctx.mem.free)(obj);
         }
         pObj->opq = NULL;
@@ -83,14 +83,14 @@ void ScnMutexItf_default_free(STScnMutexRef* pObj){
 void ScnMutexItf_default_lock(STScnMutexRef pObj){
     if(pObj.opq != NULL){
         STScnMutexOpq* obj = (STScnMutexOpq*)pObj.opq;
-        SCN_MUTEX_LOCK(&obj->mutex);
+        Scn_MUTEX_LOCK(&obj->mutex);
     }
 }
 
 void ScnMutexItf_default_unlock(STScnMutexRef pObj){
     if(pObj.opq != NULL){
         STScnMutexOpq* obj = (STScnMutexOpq*)pObj.opq;
-        SCN_MUTEX_UNLOCK(&obj->mutex);
+        Scn_MUTEX_UNLOCK(&obj->mutex);
     }
 }
 

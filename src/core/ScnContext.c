@@ -5,8 +5,8 @@
 //  Created by Marcos Ortega on 26/7/25.
 //
 
-#include "ScnContext.h"
-#include "ScnSharedPtr.h"
+#include "ixrender/core/ScnContext.h"
+#include "ixrender/core/ScnSharedPtr.h"
 #include <string.h> //memset, memcpy
 
 //STScnContextRef
