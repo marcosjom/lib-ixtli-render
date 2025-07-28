@@ -67,7 +67,7 @@ void ScnGpuRenderbuff_destroyOpq(void* obj){
 //
 
 ScnBOOL ScnGpuRenderbuff_prepare(STScnGpuRenderbuffRef ref, const STScnGpuRenderbuffCfg* cfg, const STScnGpuRenderbuffApiItf* itf, void* itfParam) {
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnGpuRenderbuffOpq* opq = (STScnGpuRenderbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(cfg != NULL && cfg->width > 0 && cfg->height > 0 && opq->cfg.width == 0 && itf != NULL && itf->create != NULL && itf->destroy != NULL){

@@ -27,7 +27,7 @@ typedef struct STScnAbsPtr_ {
 
 //STScnMemBlockCfg
 
-#define STScnMemBlockCfg_Zero { 0, 0, 0, Scn_FALSE }
+#define STScnMemBlockCfg_Zero { 0, 0, 0, ScnFALSE }
 
 typedef struct STScnMemBlockCfg_ {
     ScnUI32 size;           //ammount of bytes allocable (including the idx-0)

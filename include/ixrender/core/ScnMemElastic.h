@@ -18,7 +18,7 @@ extern "C" {
 
 //STScnMemBlockCfg
 
-#define STScnMemElasticCfg_Zero { 0, 0, 0, 0, 0, Scn_FALSE }
+#define STScnMemElasticCfg_Zero { 0, 0, 0, 0, 0, ScnFALSE }
 
 typedef struct STScnMemElasticCfg_ {
     ScnUI32 sizePerBlock;   //ammount of bytes allocable per block (including the idx-0)

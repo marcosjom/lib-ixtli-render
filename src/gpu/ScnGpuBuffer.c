@@ -86,7 +86,7 @@ void ScnGpuBuffer_destroyOpq(void* obj){
 //
 
 ScnBOOL ScnGpuBuffer_prepare(STScnGpuBufferRef ref, const STScnGpuBufferCfg* cfg, const STScnGpuBufferApiItf* itf, void* itfParam) {
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnGpuBufferOpq* opq = (STScnGpuBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(cfg != NULL && ScnMemElastic_isNull(opq->mem) && itf != NULL && itf->create != NULL && itf->destroy != NULL){
@@ -108,7 +108,7 @@ ScnBOOL ScnGpuBuffer_prepare(STScnGpuBufferRef ref, const STScnGpuBufferCfg* cfg
                 }
                 //changes
                 {
-                    opq->changes.size = Scn_TRUE;
+                    opq->changes.size = ScnTRUE;
                     ScnArraySorted_empty(&opq->changes.rngs);
                 }
                 //api
@@ -129,7 +129,7 @@ ScnBOOL ScnGpuBuffer_prepare(STScnGpuBufferRef ref, const STScnGpuBufferCfg* cfg
                     //data
                     opq->api.data = data; data = NULL; //consume
                 }
-                r = Scn_TRUE;
+                r = ScnTRUE;
             }
             //relese (if not consumed)
             if(!ScnMemElastic_isNull(mem)){
@@ -147,12 +147,12 @@ ScnBOOL ScnGpuBuffer_prepare(STScnGpuBufferRef ref, const STScnGpuBufferCfg* cfg
 }
 
 ScnBOOL ScnGpuBuffer_clear(STScnGpuBufferRef ref){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnGpuBufferOpq* opq = (STScnGpuBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnMemElastic_isNull(opq->mem)){
         ScnMemElastic_clear(opq->mem);
-        r = Scn_TRUE;
+        r = ScnTRUE;
     }
     ScnMutex_unlock(opq->mutex);
     return r;
@@ -168,7 +168,7 @@ STScnAbsPtr ScnGpuBuffer_malloc(STScnGpuBufferRef ref, const ScnUI32 usableSz){
         if(opq->state.totalSzLast != totalSz){
             opq->state.totalSzLast = totalSz;
             //changes
-            opq->changes.size = Scn_TRUE;
+            opq->changes.size = ScnTRUE;
             ScnArraySorted_empty(&opq->changes.rngs);
         }
     }
@@ -177,7 +177,7 @@ STScnAbsPtr ScnGpuBuffer_malloc(STScnGpuBufferRef ref, const ScnUI32 usableSz){
 }
 
 ScnBOOL ScnGpuBuffer_mfree(STScnGpuBufferRef ref, const STScnAbsPtr ptr){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnGpuBufferOpq* opq = (STScnGpuBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnMemElastic_isNull(opq->mem)){
@@ -188,7 +188,7 @@ ScnBOOL ScnGpuBuffer_mfree(STScnGpuBufferRef ref, const STScnAbsPtr ptr){
 }
 
 ScnBOOL ScnGpuBuffer_mInvalidate(STScnGpuBufferRef ref, const STScnAbsPtr ptr, const ScnUI32 sz){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnGpuBufferOpq* opq = (STScnGpuBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnMemElastic_isNull(opq->mem) && opq->cfg.mem.sizeAlign > 0){
@@ -209,7 +209,7 @@ ScnBOOL ScnGpuBuffer_mInvalidate(STScnGpuBufferRef ref, const STScnAbsPtr ptr, c
                 ScnArraySorted_addPtr(opq->ctx, &opq->changes.rngs, &rng, STScnRangeU);
             }
         }
-        r = Scn_TRUE;
+        r = ScnTRUE;
     }
     ScnMutex_unlock(opq->mutex);
     return r;

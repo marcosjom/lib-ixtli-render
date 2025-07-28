@@ -28,10 +28,10 @@ ScnBOOL ScnCompare_ScnMemBlockPtr(const ENScnCompareMode mode, const void* data1
             case ENScnCompareMode_LowerOrEqual: return d1->ptr <= d2->ptr;
             case ENScnCompareMode_Greater: return d1->ptr > d2->ptr;
             case ENScnCompareMode_GreaterOrEqual: return d1->ptr >= d2->ptr;
-            default: SCN_ASSERT(Scn_FALSE) break;
+            default: SCN_ASSERT(ScnFALSE) break;
         }
     }
-    return Scn_FALSE;
+    return ScnFALSE;
 }
 
 //STScnMemBlockGap
@@ -54,10 +54,10 @@ ScnBOOL ScnCompare_ScnMemBlockGap(const ENScnCompareMode mode, const void* data1
             case ENScnCompareMode_LowerOrEqual: return d1->iStart <= d2->iStart;
             case ENScnCompareMode_Greater: return d1->iStart > d2->iStart;
             case ENScnCompareMode_GreaterOrEqual: return d1->iStart >= d2->iStart;
-            default: SCN_ASSERT(Scn_FALSE) break;
+            default: SCN_ASSERT(ScnFALSE) break;
         }
     }
-    return Scn_FALSE;
+    return ScnFALSE;
 }
 
 //STScnMemBlockChunk
@@ -144,7 +144,7 @@ ScnBOOL ScnMemBlock_validateIndexLockepOpq_(STScnMemBlockOpq* opq);
 //
 
 ScnBOOL ScnMemBlock_prepare(STScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STScnAbsPtr* dstPtrAfterEnd){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     //
     ScnMutex_lock(opq->mutex);
@@ -197,7 +197,7 @@ ScnBOOL ScnMemBlock_prepare(STScnMemBlockRef ref, const STScnMemBlockCfg* cfg, S
                 dstPtrAfterEnd->idx = chunkN.rngAfterEnd;
                 dstPtrAfterEnd->ptr = chunkN.ptr + chunkN.rngAfterEnd;
             }
-            r = Scn_TRUE;
+            r = ScnTRUE;
         }
     }
     ScnMutex_unlock(opq->mutex);
@@ -258,7 +258,7 @@ STScnAbsPtr ScnMemBlock_malloc(STScnMemBlockRef ref, const ScnUI32 usableSz){
 }
 
 ScnBOOL ScnMemBlock_mfree(STScnMemBlockRef ref, const STScnAbsPtr ptr){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
@@ -268,7 +268,7 @@ ScnBOOL ScnMemBlock_mfree(STScnMemBlockRef ref, const STScnAbsPtr ptr){
         const ScnSI32 iFnd = ScnArraySorted_indexOf(&opq->ptrs, &srchPtr);
         if(iFnd < 0){
             //not found
-            SCN_ASSERT(Scn_FALSE);
+            SCN_ASSERT(ScnFALSE);
         } else {
             STScnMemBlockPtr* fndPtr = &opq->ptrs.arr[iFnd];
             SCN_ASSERT(fndPtr->ptr == ptr.ptr)
@@ -308,7 +308,7 @@ ScnBOOL ScnMemBlock_mfree(STScnMemBlockRef ref, const STScnAbsPtr ptr){
             //TMP
             //ScnMemBlock_validateIndexLockepOpq_(opq);
 #           endif
-            r = Scn_TRUE;
+            r = ScnTRUE;
         }
     }
     ScnMutex_unlock(opq->mutex);
@@ -353,7 +353,7 @@ void ScnMemBlock_clear(STScnMemBlockRef ref){ //clears the index, all pointers a
 //dgb
 
 ScnBOOL ScnMemBlock_validateIndexLockepOpq_(STScnMemBlockOpq* opq){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     ScnUI32 gapsTotalSz = 0, gapLargestSz = 0, ptrsTotalSz = 0;
     //
     ScnBYTE* ptr = opq->chunk.ptr + opq->chunk.rngStart;
@@ -384,9 +384,9 @@ ScnBOOL ScnMemBlock_validateIndexLockepOpq_(STScnMemBlockOpq* opq){
             const ScnSI64 pos = (ScnSI64)(ptr - opq->chunk.ptr);
             const ScnSI64 deltaGap = (g < gAfterEnd ? (ScnSI64)(opq->chunk.ptr + g->iStart) - (ScnSI64)ptr : -1);
             const ScnSI64 deltaPtr = (p < pAfterEnd ? (ScnSI64)p->ptr - (ScnSI64)ptr : -1);
-            Scn_PRINTF_ERROR("ScnMemBlock_validateIndexLockepOpq_ failes: pos %lld/%lld (%lld to next gap, %lld to next used-ptr).\n", pos, (ScnSI64)opq->chunk.rngAfterEnd, deltaGap, deltaPtr);
+            SCN_PRINTF_ERROR("ScnMemBlock_validateIndexLockepOpq_ failes: pos %lld/%lld (%lld to next gap, %lld to next used-ptr).\n", pos, (ScnSI64)opq->chunk.rngAfterEnd, deltaGap, deltaPtr);
 #           endif
-            SCN_ASSERT(Scn_FALSE); //indexes are not valid
+            SCN_ASSERT(ScnFALSE); //indexes are not valid
             break;
         }
     }
@@ -394,13 +394,13 @@ ScnBOOL ScnMemBlock_validateIndexLockepOpq_(STScnMemBlockOpq* opq){
     SCN_ASSERT(g == gAfterEnd && p == pAfterEnd && ptr == ptrAfterEnd)
     SCN_ASSERT(gapsTotalSz == opq->state.szAvail && (opq->state.szSmallestMallocFailed == 0 || gapLargestSz < opq->state.szSmallestMallocFailed))
     if(gapsTotalSz + ptrsTotalSz == (opq->chunk.rngAfterEnd - opq->chunk.rngStart) && g == gAfterEnd && p == pAfterEnd && ptr == ptrAfterEnd && gapsTotalSz == opq->state.szAvail && (opq->state.szSmallestMallocFailed == 0 || gapLargestSz < opq->state.szSmallestMallocFailed)){
-        r = Scn_TRUE;
+        r = ScnTRUE;
     }
     return r;
 }
     
 ScnBOOL ScnMemBlock_validateIndex(STScnMemBlockRef ref){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {

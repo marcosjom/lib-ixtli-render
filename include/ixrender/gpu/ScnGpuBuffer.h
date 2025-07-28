@@ -10,27 +10,13 @@
 
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/core/ScnObjRef.h"
-#include "ixrender/core/ScnRange.h"
 #include "ixrender/core/ScnMemElastic.h"
+#include "ixrender/type/ScnRange.h"
 #include "ixrender/scene/ScnVertices.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-//ENScnBufferType
-
-typedef enum ENScnBufferType_ {
-    ENScnBufferType_Bytes = 0,    //random data
-    //
-    ENScnBufferType_Color,        //no texture
-    ENScnBufferType_Tex,          //one texture
-    ENScnBufferType_Tex2,         //two textures
-    ENScnBufferType_Tex3,         //three textures
-    ENScnBufferType_Index,        //index
-    //
-    ENScnBufferType_Count
-} ENScnBufferType;
 
 //STScnGpuBufferCfg
 

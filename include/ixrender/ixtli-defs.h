@@ -8,17 +8,17 @@
 #ifndef ixtli_defs_h
 #define ixtli_defs_h
 
-#define Scn_DEBUG
-//#define Scn_SILENT_MODE
-//#define Scn_VERBOSE_MODE
+#define SCN_DEBUG
+//#define SCN_SILENT_MODE
+//#define SCN_VERBOSE_MODE
 
-#ifdef Scn_DEBUG
+#ifdef SCN_DEBUG
 #   define SCN_ASSERTS_ACTIVATED
 #endif
 
 #ifdef SCN_ASSERTS_ACTIVATED
     #include <assert.h>         //assert
-#   define SCN_ASSERT(EVAL)     { if(!(EVAL)){ Scn_PRINTF_ERROR("ASSERT, cond '"#EVAL"'.\n"); Scn_PRINTF_ERROR("ASSERT, file '%s'\n", __FILE__); Scn_PRINTF_ERROR("ASSERT, line %d.\n", __LINE__); assert(0); }}
+#   define SCN_ASSERT(EVAL)     { if(!(EVAL)){ SCN_PRINTF_ERROR("ASSERT, cond '" #EVAL "'.\n"); SCN_PRINTF_ERROR("ASSERT, file '%s'\n", __FILE__); SCN_PRINTF_ERROR("ASSERT, line %d.\n", __LINE__); assert(0); }}
 #else
 #   define SCN_ASSERT(EVAL)     ((void)0);
 #endif
@@ -27,51 +27,67 @@
 
 #if defined(__ANDROID__) //Android
 #   include <android/log.h>
-#   define Scn_PRINTF_ALLWAYS(STR_FMT, ...)     __android_log_print(ANDROID_LOG_INFO, "Render", STR_FMT, ##__VA_ARGS__)
+#   define SCN_PRINTF_ALLWAYS(STR_FMT, ...)     __android_log_print(ANDROID_LOG_INFO, "Render", STR_FMT, ##__VA_ARGS__)
 #elif defined(__QNX__) //BB10
 #   include <stdio.h>
-#   define Scn_PRINTF_ALLWAYS(STR_FMT, ...)     fprintf(stdout, "Render, " STR_FMT, ##__VA_ARGS__); fflush(stdout)
+#   define SCN_PRINTF_ALLWAYS(STR_FMT, ...)     fprintf(stdout, "Render, " STR_FMT, ##__VA_ARGS__); fflush(stdout)
 #else
 #   include <stdio.h>
-#   define Scn_PRINTF_ALLWAYS(STR_FMT, ...)     printf("Render, " STR_FMT, ##__VA_ARGS__)
+#   define SCN_PRINTF_ALLWAYS(STR_FMT, ...)     printf("Render, " STR_FMT, ##__VA_ARGS__)
 #endif
 
-#if defined(Scn_SILENT_MODE)
-#   define Scn_PRINTF_INFO(STR_FMT, ...)        ((void)0)
-#   define Scn_PRINTF_ERROR(STR_FMT, ...)       ((void)0)
-#   define Scn_PRINTF_WARNING(STR_FMT, ...)     ((void)0)
+#if defined(SCN_SILENT_MODE)
+#   define SCN_PRINTF_INFO(STR_FMT, ...)        ((void)0)
+#   define SCN_PRINTF_ERROR(STR_FMT, ...)       ((void)0)
+#   define SCN_PRINTF_WARNING(STR_FMT, ...)     ((void)0)
 #else
 #   if defined(__ANDROID__) //Android
-#        ifndef Scn_VERBOSE_MODE
-#        define Scn_PRINTF_INFO(STR_FMT, ...)   ((void)0)
+#        ifndef SCN_VERBOSE_MODE
+#        define SCN_PRINTF_INFO(STR_FMT, ...)   ((void)0)
 #        else
-#        define Scn_PRINTF_INFO(STR_FMT, ...)   __android_log_print(ANDROID_LOG_INFO, "Render", STR_FMT, ##__VA_ARGS__)
+#        define SCN_PRINTF_INFO(STR_FMT, ...)   __android_log_print(ANDROID_LOG_INFO, "Render", STR_FMT, ##__VA_ARGS__)
 #        endif
-#        define Scn_PRINTF_ERROR(STR_FMT, ...)  __android_log_print(ANDROID_LOG_ERROR, "Render", "ERROR, "STR_FMT, ##__VA_ARGS__)
-#        define Scn_PRINTF_WARNING(STR_FMT, ...) __android_log_print(ANDROID_LOG_WARN, "Render", "WARNING, "STR_FMT, ##__VA_ARGS__)
+#        define SCN_PRINTF_ERROR(STR_FMT, ...)  __android_log_print(ANDROID_LOG_ERROR, "Render", "ERROR, "STR_FMT, ##__VA_ARGS__)
+#        define SCN_PRINTF_WARNING(STR_FMT, ...) __android_log_print(ANDROID_LOG_WARN, "Render", "WARNING, "STR_FMT, ##__VA_ARGS__)
 #   elif defined(__QNX__) //BB10
-#        ifndef Scn_VERBOSE_MODE
-#        define Scn_PRINTF_INFO(STR_FMT, ...)   ((void)0)
+#        ifndef SCN_VERBOSE_MODE
+#        define SCN_PRINTF_INFO(STR_FMT, ...)   ((void)0)
 #        else
-#        define Scn_PRINTF_INFO(STR_FMT, ...)   fprintf(stdout, "Render, " STR_FMT, ##__VA_ARGS__); fflush(stdout)
+#        define SCN_PRINTF_INFO(STR_FMT, ...)   fprintf(stdout, "Render, " STR_FMT, ##__VA_ARGS__); fflush(stdout)
 #        endif
-#        define Scn_PRINTF_ERROR(STR_FMT, ...)  fprintf(stderr, "Render ERROR, " STR_FMT, ##__VA_ARGS__); fflush(stderr)
-#        define Scn_PRINTF_WARNING(STR_FMT, ...) fprintf(stdout, "Render WARNING, " STR_FMT, ##__VA_ARGS__); fflush(stdout)
+#        define SCN_PRINTF_ERROR(STR_FMT, ...)  fprintf(stderr, "Render ERROR, " STR_FMT, ##__VA_ARGS__); fflush(stderr)
+#        define SCN_PRINTF_WARNING(STR_FMT, ...) fprintf(stdout, "Render WARNING, " STR_FMT, ##__VA_ARGS__); fflush(stdout)
 #   else
-#        ifndef Scn_VERBOSE_MODE
-#        define Scn_PRINTF_INFO(STR_FMT, ...)   ((void)0)
+#        ifndef SCN_VERBOSE_MODE
+#        define SCN_PRINTF_INFO(STR_FMT, ...)   ((void)0)
 #        else
-#        define Scn_PRINTF_INFO(STR_FMT, ...)   printf("Render, " STR_FMT, ##__VA_ARGS__)
+#        define SCN_PRINTF_INFO(STR_FMT, ...)   printf("Render, " STR_FMT, ##__VA_ARGS__)
 #        endif
-#       define Scn_PRINTF_ERROR(STR_FMT, ...)   printf("Render ERROR, " STR_FMT, ##__VA_ARGS__)
-#       define Scn_PRINTF_WARNING(STR_FMT, ...) printf("Render WARNING, " STR_FMT, ##__VA_ARGS__)
+#       define SCN_PRINTF_ERROR(STR_FMT, ...)   printf("Render ERROR, " STR_FMT, ##__VA_ARGS__)
+#       define SCN_PRINTF_WARNING(STR_FMT, ...) printf("Render WARNING, " STR_FMT, ##__VA_ARGS__)
 #   endif
 #endif
 
 #define SC_INLN             static inline
 
-#define Scn_FALSE           0
-#define Scn_TRUE            1
+#define ScnFALSE            0
+#define ScnTRUE             1
+
+//PI and PIx2
+#ifndef PI
+#    define PI              3.14159265359f //3.14159265f
+#endif
+#ifndef PIx2
+#    define PIx2            6.28318530718f //6.2831853f
+#endif
+
+#ifndef RAD_2_DEG
+#   define RAD_2_DEG(RAD)   ((RAD) * 180.f / PI)
+#endif
+
+#ifndef DEG_2_RAD
+#   define DEG_2_RAD(DEG)   ((DEG) * PI / 180.f)
+#endif
 
 //NULL
 #if !defined(__cplusplus) && !defined(NULL)

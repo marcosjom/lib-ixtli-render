@@ -10,9 +10,9 @@
 
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/core/ScnObjRef.h"
-#include "ixrender/scene/ScnPoint.h"
-#include "ixrender/scene/ScnRect.h"
-#include "ixrender/scene/ScnBitmap.h"
+#include "ixrender/type/ScnPoint.h"
+#include "ixrender/type/ScnRect.h"
+#include "ixrender/type/ScnBitmap.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,7 +49,7 @@ typedef enum ENScnGpuTexturePixelMode_ {
 
 //STScnGpuTextureCfg
 
-#define STScnGpuTextureCfg_Zero   { ENScnBitmapColor_undef, 0, 0, Scn_FALSE }
+#define STScnGpuTextureCfg_Zero   { ENScnBitmapColor_undef, 0, 0, ScnFALSE }
 
 typedef struct STScnGpuTextureCfg_ {
     ENScnBitmapColor    color;

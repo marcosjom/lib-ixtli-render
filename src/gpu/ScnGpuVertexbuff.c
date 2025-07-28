@@ -81,7 +81,7 @@ void ScnGpuVertexbuff_destroyOpq(void* obj){
 //
 
 ScnBOOL ScnGpuVertexbuff_prepare(STScnGpuVertexbuffRef ref, const STScnGpuVertexbuffCfg* cfg, STScnGpuBufferRef vertexBuff, STScnGpuBufferRef idxsBuff, const STScnGpuVertexbuffApiItf* itf, void* itfParam) {
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnGpuVertexbuffOpq* opq = (STScnGpuVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(cfg != NULL && itf != NULL && itf->create != NULL && itf->destroy != NULL && !ScnGpuBuffer_isNull(vertexBuff)){
@@ -121,7 +121,7 @@ ScnBOOL ScnGpuVertexbuff_prepare(STScnGpuVertexbuffRef ref, const STScnGpuVertex
                 ScnGpuBuffer_set(&opq->buffs.vertex, vertexBuff);
                 ScnGpuBuffer_set(&opq->buffs.idxs, idxsBuff);
             }
-            r = Scn_TRUE;
+            r = ScnTRUE;
         }
         //destroy (if not consumed)
         if(data != NULL && itf->destroy != NULL){
@@ -133,7 +133,7 @@ ScnBOOL ScnGpuVertexbuff_prepare(STScnGpuVertexbuffRef ref, const STScnGpuVertex
 }
 
 ScnBOOL ScnGpuVertexbuff_activate(STScnGpuVertexbuffRef ref){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnGpuVertexbuffOpq* opq = (STScnGpuVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(opq->api.itf.activate != NULL){
@@ -144,7 +144,7 @@ ScnBOOL ScnGpuVertexbuff_activate(STScnGpuVertexbuffRef ref){
 }
 
 ScnBOOL ScnGpuVertexbuff_deactivate(STScnGpuVertexbuffRef ref){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnGpuVertexbuffOpq* opq = (STScnGpuVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(opq->api.itf.deactivate != NULL){

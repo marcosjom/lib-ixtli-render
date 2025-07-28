@@ -5,7 +5,7 @@
 //  Created by Marcos Ortega on 27/7/25.
 //
 
-#include "ixrender/scene/ScnBitmap.h"
+#include "ixrender/type/ScnBitmap.h"
 
 
 //
@@ -100,7 +100,7 @@ void ScnBitmap_destroyOpq(void* obj){
 //
 
 ScnBOOL ScnBitmap_create(STScnBitmapRef ref, const ScnSI32 width, const ScnSI32 height, const ENScnBitmapColor color){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnBitmapOpq* opq = (STScnBitmapOpq*)ScnSharedPtr_getOpq(ref.ptr);
     if(width > 0 && height > 0){
         const STScnBitmapProps props = ScnBitmapProps_build(width, height, color);
@@ -115,7 +115,7 @@ ScnBOOL ScnBitmap_create(STScnBitmapRef ref, const ScnSI32 width, const ScnSI32 
             }
             if(szN == opq->dataSz){
                 opq->props = props;
-                r = Scn_TRUE;
+                r = ScnTRUE;
             }
         }
     }
@@ -123,8 +123,8 @@ ScnBOOL ScnBitmap_create(STScnBitmapRef ref, const ScnSI32 width, const ScnSI32 
 }
 
 ScnBOOL ScnBitmap_pasteBitmapData(STScnBitmapRef ref, const STScnPointI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnBitmapOpq* opq = (STScnBitmapOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    SCN_ASSERT(Scn_FALSE) //implement
+    SCN_ASSERT(ScnFALSE) //implement
     return r;
 }

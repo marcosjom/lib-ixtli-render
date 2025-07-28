@@ -5,4 +5,4 @@
 //  Created by Marcos Ortega on 27/7/25.
 //
 
-#include "ixrender/scene/ScnSize.h"
+#include "ixrender/type/ScnSize.h"

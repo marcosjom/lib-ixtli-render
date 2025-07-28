@@ -78,7 +78,7 @@ void ScnGpuFramebuff_destroyOpq(void* obj){
 //
 
 ScnBOOL ScnGpuFramebuff_prepare(STScnGpuFramebuffRef ref, const STScnGpuFramebuffCfg* cfg, const STScnGpuFramebuffApiItf* itf, void* itfParam) {
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnGpuFramebuffOpq* opq = (STScnGpuFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(cfg != NULL && itf != NULL && itf->create != NULL && itf->destroy != NULL){
@@ -116,7 +116,7 @@ ScnBOOL ScnGpuFramebuff_prepare(STScnGpuFramebuffRef ref, const STScnGpuFramebuf
 }
 
 ScnBOOL ScnGpuFramebuff_bindTo(STScnGpuFramebuffRef ref, const STScnObjRef dstRef, const ENScnGpuFramebuffDstType type){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnGpuFramebuffOpq* opq = (STScnGpuFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
@@ -125,23 +125,23 @@ ScnBOOL ScnGpuFramebuff_bindTo(STScnGpuFramebuffRef ref, const STScnObjRef dstRe
             if(!ScnObjRef_isNull(opq->bind.ref)){
                 ScnObjRef_release(&opq->bind.ref);
                 ScnObjRef_null(&opq->bind.ref);
-                opq->changes.bind = Scn_TRUE;
+                opq->changes.bind = ScnTRUE;
             }
-            r = Scn_TRUE;
+            r = ScnTRUE;
         } else if(type == ENScnGpuFramebuffDstType_Texture){
             opq->bind.type = ENScnGpuFramebuffDstType_Texture;
             if(!ScnObjRef_isSame(opq->bind.ref, dstRef)){
                 ScnObjRef_set(&opq->bind.ref, dstRef);
-                opq->changes.bind = Scn_TRUE;
+                opq->changes.bind = ScnTRUE;
             }
-            r = Scn_TRUE;
+            r = ScnTRUE;
         } else if(type == ENScnGpuFramebuffDstType_Renderbuffer){
             opq->bind.type = ENScnGpuFramebuffDstType_Renderbuffer;
             if(!ScnObjRef_isSame(opq->bind.ref, dstRef)){
                 ScnObjRef_set(&opq->bind.ref, dstRef);
-                opq->changes.bind = Scn_TRUE;
+                opq->changes.bind = ScnTRUE;
             }
-            r = Scn_TRUE;
+            r = ScnTRUE;
         }
     }
     ScnMutex_unlock(opq->mutex);

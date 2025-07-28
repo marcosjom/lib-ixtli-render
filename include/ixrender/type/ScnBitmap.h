@@ -10,8 +10,8 @@
 
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/core/ScnObjRef.h"
-#include "ixrender/scene/ScnSize.h"
-#include "ixrender/scene/ScnPoint.h"
+#include "ixrender/type/ScnPoint.h"
+#include "ixrender/type/ScnSize.h"
 
 #ifdef __cplusplus
 extern "C" {

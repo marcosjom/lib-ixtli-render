@@ -16,7 +16,8 @@ extern "C" {
 
 //ScnRenderApiItf
 
-#define STScnTransform_Zero   { 0.f, 0.f, 0.f, 0.f, 0.f }
+#define STScnTransform_Zero     { 0.f, 0.f, 0.f, 0.f, 0.f }
+#define STScnTransform_Identity { 1.f, 1.f, 0.f, 0.f, 0.f }
 
 typedef struct STScnTransform_ {
     ScnFLOAT sx;   //scale-x

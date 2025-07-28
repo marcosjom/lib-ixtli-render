@@ -18,7 +18,7 @@ typedef struct STScnObjRef_ {
     STScnSharedPtr* ptr;
 } STScnObjRef;
 
-SC_INLN ScnBOOL ScnObjRef_isNull(STScnObjRef ref) { return (ref.ptr != NULL); }
+SC_INLN ScnBOOL ScnObjRef_isNull(STScnObjRef ref) { return (ref.ptr == NULL); }
 SC_INLN ScnBOOL ScnObjRef_isSame(STScnObjRef ref, STScnObjRef other) { return (ref.ptr == other.ptr); }
 SC_INLN void    ScnObjRef_null(STScnObjRef* ref) { ref->ptr = NULL; }
 SC_INLN void    ScnObjRef_retain(STScnObjRef ref) { ScnSharedPtr_retain(ref.ptr); }
@@ -34,7 +34,7 @@ SC_INLN void    ScnObjRef_set(STScnObjRef* ref, STScnObjRef other) { if(!ScnObjR
     void                        STNAME ## _initZeroedOpq(STScnContextRef ctx, void* opq); \
     void                        STNAME ## _destroyOpq(void* opq); \
     \
-    SC_INLN ScnBOOL             STNAME ## _isNull(ST ## STNAME ## Ref ref) { return (ref.ptr != NULL); } \
+    SC_INLN ScnBOOL             STNAME ## _isNull(ST ## STNAME ## Ref ref) { return (ref.ptr == NULL); } \
     SC_INLN ScnBOOL             STNAME ## _isSame(ST ## STNAME ## Ref ref, ST ## STNAME ## Ref other) { return (ref.ptr == other.ptr); } \
     SC_INLN void                STNAME ## _null(ST ## STNAME ## Ref* ref) { ref->ptr = NULL; } \
     SC_INLN void                STNAME ## _retain(ST ## STNAME ## Ref ref) { ScnSharedPtr_retain(ref.ptr); } \

@@ -11,12 +11,13 @@
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/core/ScnObjRef.h"
 #include "ixrender/core/ScnCompare.h"
-#include "ixrender/core/ScnRange.h"
+#include "ixrender/type/ScnRange.h"
 #include "ixrender/gpu/ScnGpuBuffer.h"
 #include "ixrender/gpu/ScnGpuVertexbuff.h"
 #include "ixrender/gpu/ScnGpuTexture.h"
 #include "ixrender/gpu/ScnGpuRenderbuff.h"
 #include "ixrender/gpu/ScnGpuFramebuff.h"
+#include "ixrender/gpu/ScnGpuDevice.h"
 #include "ixrender/scene/ScnTransform.h"
 #include "ixrender/scene/ScnVertexbuffs.h"
 #include "ixrender/scene/ScnRenderCmd.h"
@@ -27,7 +28,7 @@ extern "C" {
 
 //ScnRenderNode
 
-#define STScnRenderNode_Zero  { 0, Scn_FALSE, 0, STScnTransform_Zero, STScnRangeI_Zero }
+#define STScnRenderNode_Zero  { 0, ScnFALSE, 0, STScnTransform_Zero, STScnRangeI_Zero }
 
 typedef struct STScnRenderNode_ {
     ScnUI16         iDepth;     //level in the tree
@@ -39,13 +40,14 @@ typedef struct STScnRenderNode_ {
 
 //ScnRenderApiItf
 
-typedef struct STScnRenderApiItf_ {
+typedef struct STScnApiItf_ {
+    STScnGpuDeviceApiItf        dev;    //device
     STScnGpuBufferApiItf        buff;   //buffers
     STScnGpuVertexbuffApiItf    vertexBuff;   //vertexBuff
     STScnGpuTextureApiItf       tex;    //textures
     STScnGpuRenderbuffApiItf    rbuff;  //render buffers
     STScnGpuFramebuffApiItf     fbuff;  //framebuffers
-} STScnRenderApiItf;
+} STScnApiItf;
 
 //STScnRenderRef
 
@@ -53,7 +55,11 @@ SCN_REF_STRUCT_METHODS_DEC(ScnRender)
 
 //Prepare
 
-ScnBOOL ScnRender_prepare(STScnRenderRef ref, const STScnRenderApiItf* itf, void* itfParam);
+ScnBOOL ScnRender_prepare(STScnRenderRef ref, const STScnApiItf* itf, void* itfParam);
+
+//Device
+
+ScnBOOL ScnRender_openDevice(STScnRenderRef ref, const STScnGpuDeviceCfg* cfg);
 
 //Vertices
 
@@ -83,7 +89,6 @@ void        ScnRender_cmdSetTexture(STScnRenderRef ref, const ScnUI32 index, con
 void        ScnRender_cmdSetVertsType(STScnRenderRef ref, const ENScnVertexType type);
 void        ScnRender_cmdDawVerts(STScnRenderRef ref, const ENScnRenderShape mode, const ScnUI32 iFirst, const ScnUI32 count);
 void        ScnRender_cmdDawIndexes(STScnRenderRef ref, const ENScnRenderShape mode, const ScnUI32 iFirst, const ScnUI32 count);
-
 
 #ifdef __cplusplus
 } //extern "C"

@@ -42,10 +42,10 @@ typedef struct STScnGpuFramebuffChanges_ {
 //STScnGpuFramebuffApiItf
 
 typedef struct STScnGpuFramebuffApiItf_ {
-    void* (*create)(const STScnGpuFramebuffCfg* cfg, void* usrData);
-    void  (*destroy)(void* data, void* usrData);
+    void*   (*create)(const STScnGpuFramebuffCfg* cfg, void* usrData);
+    void    (*destroy)(void* data, void* usrData);
     //
-    ScnBOOL  (*sync)(void* data, const STScnGpuFramebuffCfg* cfg, const STScnGpuFramebuffChanges* changes, void* usrData);
+    ScnBOOL (*sync)(void* data, const STScnGpuFramebuffCfg* cfg, const STScnGpuFramebuffChanges* changes, void* usrData);
 } STScnGpuFramebuffApiItf;
 
 

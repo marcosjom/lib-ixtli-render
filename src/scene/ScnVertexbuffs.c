@@ -55,11 +55,11 @@ void ScnVertexbuffs_destroyOpq(void* obj){
 //prepare
 
 ScnBOOL ScnVertexbuffs_prepare(STScnVertexbuffsRef ref, const STScnGpuVertexbuffRef* vBuffs, const ScnUI32 vBuffsSz){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
-        r = Scn_TRUE;
+        r = ScnTRUE;
         //validate
         {
             ScnSI32 i; for(i = 0; r && i < vBuffsSz && i < ENScnVertexType_Count; i++){
@@ -71,10 +71,10 @@ ScnBOOL ScnVertexbuffs_prepare(STScnVertexbuffsRef ref, const STScnGpuVertexbuff
                         case ENScnVertexType_Tex:     szPerRecordReq = sizeof(STScnVertexTex); break;
                         case ENScnVertexType_Tex2:    szPerRecordReq = sizeof(STScnVertexTex2); break;
                         case ENScnVertexType_Tex3:    szPerRecordReq = sizeof(STScnVertexTex3); break;
-                        default: r = Scn_FALSE; SCN_ASSERT(Scn_FALSE) break;
+                        default: r = ScnFALSE; SCN_ASSERT(ScnFALSE) break;
                     }
                     if(szPerRecord != szPerRecordReq){
-                        r = Scn_FALSE;
+                        r = ScnFALSE;
                         break;
                     }
                 }
@@ -124,7 +124,7 @@ ScnBOOL ScnVertexbuffs_prepare(STScnVertexbuffsRef ref, const STScnGpuVertexbuff
     ScnMutex_unlock(opq->mutex);
 
 #define ScnVertexbuffs_vNInvalidate(V_IDX, GET_BUFF_METHOD) \
-    ScnBOOL r = Scn_FALSE; \
+    ScnBOOL r = ScnFALSE; \
     STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)ScnSharedPtr_getOpq(ref.ptr); \
     ScnMutex_lock(opq->mutex); \
     { \
@@ -144,7 +144,7 @@ ScnBOOL ScnVertexbuffs_prepare(STScnVertexbuffsRef ref, const STScnGpuVertexbuff
     return r;
 
 #define ScnVertexbuffs_vNFree(V_IDX, GET_BUFF_METHOD) \
-    ScnBOOL r = Scn_FALSE; \
+    ScnBOOL r = ScnFALSE; \
     STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)ScnSharedPtr_getOpq(ref.ptr); \
     ScnMutex_lock(opq->mutex); \
     { \

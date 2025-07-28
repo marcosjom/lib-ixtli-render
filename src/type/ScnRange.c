@@ -5,7 +5,7 @@
 //  Created by Marcos Ortega on 27/7/25.
 //
 
-#include "ixrender/core/ScnRange.h"
+#include "ixrender/type/ScnRange.h"
 
 //STScnRange
 
@@ -20,10 +20,10 @@ ScnBOOL ScnCompare_STScnRange(const ENScnCompareMode mode, const void* data1, co
             case ENScnCompareMode_LowerOrEqual: return d1->start <= d2->start;
             case ENScnCompareMode_Greater: return d1->start > d2->start;
             case ENScnCompareMode_GreaterOrEqual: return d1->start >= d2->start;
-            default: SCN_ASSERT(Scn_FALSE) break;
+            default: SCN_ASSERT(ScnFALSE) break;
         }
     }
-    return Scn_FALSE;
+    return ScnFALSE;
 }
 
 //STScnRangeI
@@ -39,10 +39,10 @@ ScnBOOL ScnCompare_STScnRangeI(const ENScnCompareMode mode, const void* data1, c
             case ENScnCompareMode_LowerOrEqual: return d1->start <= d2->start;
             case ENScnCompareMode_Greater: return d1->start > d2->start;
             case ENScnCompareMode_GreaterOrEqual: return d1->start >= d2->start;
-            default: SCN_ASSERT(Scn_FALSE) break;
+            default: SCN_ASSERT(ScnFALSE) break;
         }
     }
-    return Scn_FALSE;
+    return ScnFALSE;
 }
 
 //STScnRangeU
@@ -58,9 +58,9 @@ ScnBOOL ScnCompare_STScnRangeU(const ENScnCompareMode mode, const void* data1, c
             case ENScnCompareMode_LowerOrEqual: return d1->start <= d2->start;
             case ENScnCompareMode_Greater: return d1->start > d2->start;
             case ENScnCompareMode_GreaterOrEqual: return d1->start >= d2->start;
-            default: SCN_ASSERT(Scn_FALSE) break;
+            default: SCN_ASSERT(ScnFALSE) break;
         }
     }
-    return Scn_FALSE;
+    return ScnFALSE;
 }
 

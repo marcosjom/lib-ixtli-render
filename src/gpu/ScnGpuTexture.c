@@ -7,7 +7,7 @@
 
 #include "ixrender/gpu/ScnGpuTexture.h"
 #include "ixrender/core/ScnArray.h"
-#include "ixrender/scene/ScnColor.h"
+#include "ixrender/type/ScnColor.h"
 
 //STScnGpuTextureOpq
 
@@ -84,7 +84,7 @@ void ScnGpuTexture_destroyOpq(void* obj){
 //
 
 ScnBOOL ScnGpuTexture_prepare(STScnGpuTextureRef ref, const STScnGpuTextureCfg* cfg, const STScnGpuTextureApiItf* itf, void* itfParam) {
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnGpuTextureOpq* opq = (STScnGpuTextureOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(cfg != NULL && cfg->width > 0 && cfg->height > 0 && opq->cfg.width == 0 && itf != NULL && itf->create != NULL && itf->destroy != NULL){
@@ -101,7 +101,7 @@ ScnBOOL ScnGpuTexture_prepare(STScnGpuTextureRef ref, const STScnGpuTextureCfg* 
                 //ScnStruct_stRelease(ScnGpuTextureCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
                 //ScnStruct_stClone(ScnGpuTextureCfg_getSharedStructMap(), cfg, sizeof(*cfg), &opq->cfg, sizeof(opq->cfg));
                 //changes
-                opq->changes.whole = Scn_TRUE;
+                opq->changes.whole = ScnTRUE;
                 ScnArray_empty(&opq->changes.rects);
                 //api
                 {
@@ -122,7 +122,7 @@ ScnBOOL ScnGpuTexture_prepare(STScnGpuTextureRef ref, const STScnGpuTextureCfg* 
                     opq->api.data = data; data = NULL; //consume
                 }
                 //
-                r = Scn_TRUE;
+                r = ScnTRUE;
             }
             ScnBitmap_release(&bmp);
         }
@@ -137,7 +137,7 @@ ScnBOOL ScnGpuTexture_prepare(STScnGpuTextureRef ref, const STScnGpuTextureCfg* 
 
 
 ScnBOOL ScnGpuTexture_setImage(STScnGpuTextureRef ref, const STScnBitmapProps srcProps, const ScnBYTE* srcData){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnGpuTextureOpq* opq = (STScnGpuTextureOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(opq->cfg.width == srcProps.size.width && opq->cfg.height == srcProps.size.height){
@@ -146,10 +146,10 @@ ScnBOOL ScnGpuTexture_setImage(STScnGpuTextureRef ref, const STScnBitmapProps sr
             //error
         } else {
             //changes
-            opq->changes.whole = Scn_TRUE;
+            opq->changes.whole = ScnTRUE;
             ScnArray_empty(&opq->changes.rects);
             //
-            r = Scn_TRUE;
+            r = ScnTRUE;
         }
     }
     ScnMutex_unlock(opq->mutex);
@@ -157,7 +157,7 @@ ScnBOOL ScnGpuTexture_setImage(STScnGpuTextureRef ref, const STScnBitmapProps sr
 }
 
 ScnBOOL ScnGpuTexture_setSubimage(STScnGpuTextureRef ref, const STScnPointI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData, const STScnRectI pSrcRect){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnGpuTextureOpq* opq = (STScnGpuTextureOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(opq->cfg.width >0 && opq->cfg.height > 0){
@@ -173,16 +173,16 @@ ScnBOOL ScnGpuTexture_setSubimage(STScnGpuTextureRef ref, const STScnPointI pos,
                 //already flagged
             } else if(opq->cfg.width == srcRect.width && opq->cfg.height == srcRect.height){
                 //whole image changed
-                opq->changes.whole = Scn_TRUE;
+                opq->changes.whole = ScnTRUE;
                 ScnArray_empty(&opq->changes.rects);
             } else {
                 //add rect
                 ScnArray_addValue(opq->ctx, &opq->changes.rects, srcRect, STScnRectI);
             }
             //
-            r = Scn_TRUE;
+            r = ScnTRUE;
         }*/
-        SCN_ASSERT(Scn_FALSE) //implement
+        SCN_ASSERT(ScnFALSE) //implement
     }
     ScnMutex_unlock(opq->mutex);
     return r;

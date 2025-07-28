@@ -5,7 +5,7 @@
 //  Created by Marcos Ortega on 27/7/25.
 //
 
-#include "ixrender/scene/ScnRender.h"
+#include "ixrender/ScnRender.h"
 #include "ixrender/core/ScnArray.h"
 #include "ixrender/core/ScnArraySorted.h"
 #include "ixrender/gpu/ScnGpuDataType.h"
@@ -32,10 +32,10 @@ ScnBOOL ScnCompare_NBScnRenderBuff(const ENScnCompareMode mode, const void* data
             case ENScnCompareMode_LowerOrEqual: return (d1->uid <= d2->uid);
             case ENScnCompareMode_Greater: return (d1->uid > d2->uid);
             case ENScnCompareMode_GreaterOrEqual: return (d1->uid >= d2->uid);
-            default: SCN_ASSERT(Scn_FALSE) break;
+            default: SCN_ASSERT(ScnFALSE) break;
         }
     }
-    return Scn_FALSE;
+    return ScnFALSE;
 }
 
 //STScnRenderVertexBuff
@@ -60,10 +60,10 @@ ScnBOOL ScnCompare_NBScnRenderVertexBuff(const ENScnCompareMode mode, const void
             case ENScnCompareMode_LowerOrEqual: return (d1->uid <= d2->uid);
             case ENScnCompareMode_Greater: return (d1->uid > d2->uid);
             case ENScnCompareMode_GreaterOrEqual: return (d1->uid >= d2->uid);
-            default: SCN_ASSERT(Scn_FALSE) break;
+            default: SCN_ASSERT(ScnFALSE) break;
         }
     }
-    return Scn_FALSE;
+    return ScnFALSE;
 }
 
 //STScnRenderOpq
@@ -73,10 +73,14 @@ typedef struct STScnRenderOpq_ {
     STScnMutexRef           mutex;
     //api
     struct {
-        STScnRenderApiItf   itf;
+        STScnApiItf         itf;
         void*               itfParam;
         void*               data;
     } api;
+    //dev
+    struct {
+        void* obj;
+    } dev;
     //buffs
     struct {
         ScnUI32             iSeq;   //uid seq
@@ -113,6 +117,10 @@ void ScnRender_initZeroedOpq(STScnContextRef ctx, void* obj) {
     ScnContext_set(&opq->ctx, ctx);
     opq->mutex = ScnContext_mutex_alloc(opq->ctx);
     //api
+    {
+        //
+    }
+    //dev
     {
         //
     }
@@ -171,12 +179,21 @@ void ScnRender_destroyOpq(void* obj){
         ScnArraySorted_destroy(opq->ctx, &opq->buffs.arr);
         opq->buffs.iSeq = 0;
     }
+    //dev
+    {
+        if(opq->dev.obj != NULL){
+            if(opq->api.itf.dev.free != NULL){
+                (*opq->api.itf.dev.free)(opq->dev.obj, opq->api.itfParam);
+            }
+            opq->dev.obj = NULL;
+        }
+    }
     //api
     {
         if(opq->api.data != NULL){
             opq->api.data = NULL;
         }
-        ScnMemory_setZeroSt(opq->api.itf, STScnRenderApiItf);
+        ScnMemory_setZeroSt(opq->api.itf, STScnApiItf);
         opq->api.itfParam = NULL;
     }
     //
@@ -195,18 +212,35 @@ void ScnRender_destroyOpq(void* obj){
 
 ScnBOOL ScnRender_createVertexbuffsLockedOpq_(STScnRenderOpq* opq, STScnVertexbuffsRef* dst);
 
-ScnBOOL ScnRender_prepare(STScnRenderRef ref, const STScnRenderApiItf* itf, void* itfParam){
-    ScnBOOL r = Scn_FALSE;
+ScnBOOL ScnRender_prepare(STScnRenderRef ref, const STScnApiItf* itf, void* itfParam){
+    ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(opq->buffs.arr.use == 0 && itf != NULL){
-        r = Scn_TRUE;
+        r = ScnTRUE;
         //
         opq->api.itf = *itf;
         opq->api.itfParam = itfParam;
         //initial bufffers
-        if(!ScnRender_createVertexbuffsLockedOpq_(opq, &opq->vertexBuffs.def)){
-            r = Scn_FALSE;
+        /*if(!ScnRender_createVertexbuffsLockedOpq_(opq, &opq->vertexBuffs.def)){
+            r = ScnFALSE;
+        }*/
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+//Device
+
+ScnBOOL ScnRender_openDevice(STScnRenderRef ref, const STScnGpuDeviceCfg* cfg){
+    ScnBOOL r = ScnFALSE;
+    STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(opq->dev.obj == NULL && opq->api.itf.dev.alloc != NULL){
+        void* dev = (*opq->api.itf.dev.alloc)(opq->ctx, cfg, opq->api.itfParam);
+        if(dev != NULL){
+            opq->dev.obj = dev;
+            r = ScnTRUE;
         }
     }
     ScnMutex_unlock(opq->mutex);
@@ -221,7 +255,7 @@ STScnVertexbuffsRef ScnRender_getDefaultVertexbuffs(STScnRenderRef ref){
 }
 
 ScnBOOL ScnRender_createVertexbuffs(STScnRenderRef ref, STScnVertexbuffsRef* dst){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
@@ -232,7 +266,7 @@ ScnBOOL ScnRender_createVertexbuffs(STScnRenderRef ref, STScnVertexbuffsRef* dst
 }
 
 ScnBOOL ScnRender_createVertexbuffsLockedOpq_(STScnRenderOpq* opq, STScnVertexbuffsRef* dst){
-    ScnBOOL r = Scn_TRUE;
+    ScnBOOL r = ScnTRUE;
     const ScnUI32 ammBuffsBef = opq->buffs.arr.use;
     const ScnUI32 ammVertsBuffsBef = opq->vertexBuffs.arr.use;
     //initial bufffers
@@ -260,7 +294,7 @@ ScnBOOL ScnRender_createVertexbuffsLockedOpq_(STScnRenderOpq* opq, STScnVertexbu
                     itmSz = sizeof(STScnVertexIdx);
                     ammPerBock = 2048;
                     break;
-                default: SCN_ASSERT(Scn_FALSE); r = Scn_FALSE; break;
+                default: SCN_ASSERT(ScnFALSE); r = ScnFALSE; break;
             }
             if(r){
                 STScnGpuBufferCfg cfg    = STScnGpuBufferCfg_Zero;
@@ -283,8 +317,8 @@ ScnBOOL ScnRender_createVertexbuffsLockedOpq_(STScnRenderOpq* opq, STScnVertexbu
                 b.buff = ScnGpuBuffer_alloc(opq->ctx);
                 if(!ScnGpuBuffer_prepare(b.buff, &cfg, &opq->api.itf.buff, opq->api.itfParam)){
                     //error
-                    SCN_ASSERT(Scn_FALSE)
-                    r = Scn_FALSE;
+                    SCN_ASSERT(ScnFALSE)
+                    r = ScnFALSE;
                 } else {
                     b.uid = ++opq->buffs.iSeq;
                     ScnArraySorted_addPtr(opq->ctx, &opq->buffs.arr, &b, STScnRenderBuff);
@@ -307,7 +341,7 @@ ScnBOOL ScnRender_createVertexbuffsLockedOpq_(STScnRenderOpq* opq, STScnVertexbu
                     case ENScnVertexType_Tex2: cfg.szPerRecord = sizeof(STScnVertexTex2); break;
                     case ENScnVertexType_Tex: cfg.szPerRecord = sizeof(STScnVertexTex); break;
                     case ENScnVertexType_Color: cfg.szPerRecord = sizeof(STScnVertex); break;
-                    default: SCN_ASSERT(Scn_FALSE) r = Scn_FALSE; break;
+                    default: SCN_ASSERT(ScnFALSE) r = ScnFALSE; break;
                 } SCN_ASSERT((cfg.szPerRecord % 4) == 0)
                 //elems
                 switch(i){
@@ -345,8 +379,8 @@ ScnBOOL ScnRender_createVertexbuffsLockedOpq_(STScnRenderOpq* opq, STScnVertexbu
                     b.buff = ScnGpuVertexbuff_alloc(opq->ctx);
                     if(!ScnGpuVertexbuff_prepare(b.buff, &cfg, vertexBuff, idxsBuff, &opq->api.itf.vertexBuff, opq->api.itfParam)){
                         //error
-                        SCN_ASSERT(Scn_FALSE)
-                        r = Scn_FALSE;
+                        SCN_ASSERT(ScnFALSE)
+                        r = ScnFALSE;
                     } else {
                         vbs[i] = b.buff;
                         b.uid = ++opq->vertexBuffs.iSeq;
@@ -361,7 +395,7 @@ ScnBOOL ScnRender_createVertexbuffsLockedOpq_(STScnRenderOpq* opq, STScnVertexbu
             if(ScnVertexbuffs_prepare(vbObj, vbs, sizeof(vbs) / sizeof(vbs[0]))){
                 ScnVertexbuffs_set(dst, vbObj);
             } else {
-                r = Scn_FALSE;
+                r = ScnFALSE;
             }
             ScnVertexbuffs_release(&vbObj);
             ScnVertexbuffs_null(&vbObj);
@@ -406,7 +440,7 @@ ScnUI32 ScnRender_bufferCreate(STScnRenderRef ref, const STScnGpuBufferCfg* cfg)
         b.buff = ScnGpuBuffer_alloc(opq->ctx);
         if(!ScnGpuBuffer_prepare(b.buff, cfg, NULL, NULL)){
             //error
-            SCN_ASSERT(Scn_FALSE)
+            SCN_ASSERT(ScnFALSE)
         } else {
             b.uid = ++opq->buffs.iSeq;
             ScnArraySorted_addPtr(opq->ctx, &opq->buffs.arr, &b, STScnRenderBuff);
@@ -417,7 +451,7 @@ ScnUI32 ScnRender_bufferCreate(STScnRenderRef ref, const STScnGpuBufferCfg* cfg)
 }
 
 ScnBOOL ScnRender_bufferDestroy(STScnRenderRef ref, const ScnUI32 bid){ //flags a buffer for destruction
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
@@ -449,7 +483,7 @@ void ScnRender_jobStart(STScnRenderRef ref){
 }
     
 ScnBOOL ScnRender_jobEnd(STScnRenderRef ref){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
@@ -461,7 +495,7 @@ ScnBOOL ScnRender_jobEnd(STScnRenderRef ref){
             while(opq->job.nodes.ammOpen > 0 && n >= nFist) {
                 if(!n->isPopped){
                     SCN_ASSERT(n->cmds.start <= opq->job.cmds.use)
-                    n->isPopped     = Scn_TRUE;
+                    n->isPopped     = ScnTRUE;
                     n->underCount   = (ScnUI32)(nAfterLast - n);
                     n->cmds.size    = (ScnUI32)(opq->job.cmds.use - n->cmds.start);
                     //
@@ -500,7 +534,7 @@ void ScnRender_nodePush(STScnRenderRef ref, const STScnTransform* tform){
 }
     
 ScnBOOL ScnRender_nodePop(STScnRenderRef ref){
-    ScnBOOL r = Scn_FALSE;
+    ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     SCN_ASSERT(opq->job.nodes.ammOpen > 0 && opq->job.nodes.arr.use > opq->job.nodes.ammPoppedAtEnd) //popping beyond limit
@@ -512,12 +546,12 @@ ScnBOOL ScnRender_nodePop(STScnRenderRef ref){
             ++opq->job.nodes.ammPoppedAtEnd;
             if(!n->isPopped){
                 SCN_ASSERT(n->cmds.start <= opq->job.cmds.use)
-                n->isPopped     = Scn_TRUE;
+                n->isPopped     = ScnTRUE;
                 n->underCount   = (ScnUI32)(nAfterLast - n);
                 n->cmds.size    = (ScnUI32)(opq->job.cmds.use - n->cmds.start);
                 //
                 --opq->job.nodes.ammOpen;
-                r = Scn_TRUE;
+                r = ScnTRUE;
                 break;
             }
             --n;

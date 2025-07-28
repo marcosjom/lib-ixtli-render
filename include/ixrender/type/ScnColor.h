@@ -53,6 +53,7 @@ typedef struct STScnColor_ {
 #define ScnColor8_getA(V32)          (((V32) / SCN_COLOR8_A_BIT_FIRST) % (SCN_COLOR8_A_MSK_MAX + 1u))
 
 #define STScnColor8_Zero  { 0, 0, 0, 0 }
+#define STScnColor8_255   { 255, 255, 255, 255 }
 
 typedef struct STScnColor8_ {
     union {

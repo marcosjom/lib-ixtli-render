@@ -10,7 +10,7 @@
 
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/core/ScnObjRef.h"
-#include "ixrender/scene/ScnBitmap.h"
+#include "ixrender/type/ScnBitmap.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,10 +35,10 @@ typedef struct STScnGpuRenderbuffChanges_ {
 //STScnGpuRenderbuffApiItf
 
 typedef struct STScnGpuRenderbuffApiItf_ {
-    void* (*create)(const STScnGpuRenderbuffCfg* cfg, void* usrData);
-    void  (*destroy)(void* data, void* usrData);
+    void*   (*create)(const STScnGpuRenderbuffCfg* cfg, void* usrData);
+    void    (*destroy)(void* data, void* usrData);
     //
-    ScnBOOL  (*sync)(void* data, const STScnGpuRenderbuffCfg* cfg, const STScnGpuRenderbuffChanges* changes, void* usrData);
+    ScnBOOL (*sync)(void* data, const STScnGpuRenderbuffCfg* cfg, const STScnGpuRenderbuffChanges* changes, void* usrData);
 } STScnGpuRenderbuffApiItf;
 
 //STScnGpuRenderbuffRef
@@ -47,7 +47,7 @@ SCN_REF_STRUCT_METHODS_DEC(ScnGpuRenderbuff)
 
 //
 
-ScnBOOL ScnGpuRenderbuff_prepare(STScnGpuRenderbuffRef ref, const STScnGpuRenderbuffCfg* cfg, const STScnGpuRenderbuffApiItf* itf, void* itfParam);
+ScnBOOL     ScnGpuRenderbuff_prepare(STScnGpuRenderbuffRef ref, const STScnGpuRenderbuffCfg* cfg, const STScnGpuRenderbuffApiItf* itf, void* itfParam);
 
 
 #ifdef __cplusplus
