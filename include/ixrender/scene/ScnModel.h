@@ -17,7 +17,7 @@
 #include "ixrender/scene/ScnTransform.h"
 #include "ixrender/scene/ScnModelProps.h"
 #include "ixrender/scene/ScnRenderCmd.h"
-#include "ixrender/ScnRender.h"
+#include "ixrender/scene/ScnVertexbuffs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,6 +26,10 @@ extern "C" {
 //STScnModelRef
 
 SCN_REF_STRUCT_METHODS_DEC(ScnModel)
+
+//
+
+ScnBOOL         ScnModel_setVertexBuffs(STScnModelRef ref, STScnVertexbuffsRef vbuffs);
 
 //props
 
@@ -53,17 +57,17 @@ void            ScnModel_setRotRad(STScnModelRef ref, const ScnFLOAT rad);
 
 //draw commands
 
-void            ScnModel_resetDrawCmds(STScnModelRef ref);
+void                ScnModel_resetDrawCmds(STScnModelRef ref);
 //
-ScnBOOL         ScnModel_addDrawCmd(STScnModelRef ref, const ENScnRenderShape shape, STScnVertexPtr verts, const ScnUI32 iFirst, const ScnUI32 count, STScnRenderRef rndr);
-ScnBOOL         ScnModel_addDrawTex(STScnModelRef ref, const ENScnRenderShape shape, STScnVertexTexPtr verts, const ScnUI32 iFirst, const ScnUI32 count, STScnGpuTextureRef t0, STScnRenderRef rndr);
-ScnBOOL         ScnModel_addDrawTex2(STScnModelRef ref, const ENScnRenderShape shape, STScnVertexTex2Ptr verts, const ScnUI32 iFirst, const ScnUI32 count, STScnGpuTextureRef t0, STScnGpuTextureRef t1, STScnRenderRef rndr);
-ScnBOOL         ScnModel_addDrawTex3(STScnModelRef ref, const ENScnRenderShape shape, STScnVertexTex3Ptr verts, const ScnUI32 iFirst, const ScnUI32 count, STScnGpuTextureRef t0, STScnGpuTextureRef t1, STScnGpuTextureRef t2, STScnRenderRef rndr);
+STScnVertexPtr      ScnModel_addDraw(STScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 count);
+STScnVertexTexPtr   ScnModel_addDrawTex(STScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 count, STScnGpuTextureRef t0);
+STScnVertexTex2Ptr  ScnModel_addDrawTex2(STScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 count, STScnGpuTextureRef t0, STScnGpuTextureRef t1);
+STScnVertexTex3Ptr  ScnModel_addDrawTex3(STScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 count, STScnGpuTextureRef t0, STScnGpuTextureRef t1, STScnGpuTextureRef t2);
 //
-ScnBOOL         ScnModel_addDrawIndexedCmd(STScnModelRef ref, const ENScnRenderShape shape, STScnVertexIdxPtr idxs, const ScnUI32 iFirst, const ScnUI32 count, STScnRenderRef rndr);
-ScnBOOL         ScnModel_addDrawIndexedTex(STScnModelRef ref, const ENScnRenderShape shape, STScnVertexIdxPtr idxs, const ScnUI32 iFirst, const ScnUI32 count, STScnGpuTextureRef t0, STScnRenderRef rndr);
-ScnBOOL         ScnModel_addDrawIndexedTex2(STScnModelRef ref, const ENScnRenderShape shape, STScnVertexIdxPtr idxs, const ScnUI32 iFirst, const ScnUI32 count, STScnGpuTextureRef t0, STScnGpuTextureRef t1, STScnRenderRef rndr);
-ScnBOOL         ScnModel_addDrawIndexedTex3(STScnModelRef ref, const ENScnRenderShape shape, STScnVertexIdxPtr idxs, const ScnUI32 iFirst, const ScnUI32 count, STScnGpuTextureRef t0, STScnGpuTextureRef t1, STScnGpuTextureRef t2, STScnRenderRef rndr);
+STScnVertexIdxPtr   ScnModel_addDrawIndexed(STScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, const ScnUI32 countVerts, STScnVertexPtr* dstVerts);
+STScnVertexIdxPtr   ScnModel_addDrawIndexedTex(STScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, STScnGpuTextureRef t0, const ScnUI32 countVerts, STScnVertexTexPtr* dstVerts);
+STScnVertexIdxPtr   ScnModel_addDrawIndexedTex2(STScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, STScnGpuTextureRef t0, STScnGpuTextureRef t1, const ScnUI32 countVerts, STScnVertexTex2Ptr* dstVerts);
+STScnVertexIdxPtr   ScnModel_addDrawIndexedTex3(STScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, STScnGpuTextureRef t0, STScnGpuTextureRef t1, STScnGpuTextureRef t2, const ScnUI32 countVerts, STScnVertexTex3Ptr* dstVerts);
 
 #ifdef __cplusplus
 } //extern "C"

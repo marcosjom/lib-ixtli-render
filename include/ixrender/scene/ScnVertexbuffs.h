@@ -5,13 +5,13 @@
 //  Created by Marcos Ortega on 27/7/25.
 //
 
-#ifndef ScnVertexbuff_h
-#define ScnVertexbuff_h
+#ifndef ScnVertexbuffs_h
+#define ScnVertexbuffs_h
 
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/core/ScnObjRef.h"
-#include "ixrender/gpu/ScnGpuVertexbuff.h"
 #include "ixrender/scene/ScnVertices.h"
+#include "ixrender/scene/ScnVertexbuff.h"
 
 
 #ifdef __cplusplus
@@ -71,7 +71,7 @@ SCN_REF_STRUCT_METHODS_DEC(ScnVertexbuffs)
 
 //Prepare
 
-ScnBOOL         ScnVertexbuffs_prepare(STScnVertexbuffsRef ref, const STScnGpuVertexbuffRef* vBuffs, const ScnUI32 vBuffsSz);
+ScnBOOL         ScnVertexbuffs_prepare(STScnVertexbuffsRef ref, const STScnVertexbuffRef* vBuffs, const ScnUI32 vBuffsSz);
 
 //ENScnVertexType_Color //no texture
 
@@ -80,38 +80,42 @@ ScnBOOL         ScnVertexbuffs_v0Invalidate(STScnVertexbuffsRef ref, const STScn
 ScnBOOL         ScnVertexbuffs_v0Free(STScnVertexbuffsRef ref, const STScnVertexPtr ptr);
 //
 STScnVertexIdxPtr ScnVertexbuffs_v0IdxsAlloc(STScnVertexbuffsRef ref, const ScnUI32 amm);
-ScnBOOL         ScnVertexbuffs_v0IdxsInvalidate(STScnVertexbuffsRef ref, const STScnVertexPtr ptr, const ScnUI32 sz);
-ScnBOOL         ScnVertexbuffs_v0IdxsFree(STScnVertexbuffsRef ref, const STScnVertexPtr ptr);
+ScnBOOL         ScnVertexbuffs_v0IdxsInvalidate(STScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz);
+ScnBOOL         ScnVertexbuffs_v0IdxsFree(STScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr);
 
 //ENScnVertexType_Tex  //one texture
 
 STScnVertexTexPtr ScnVertexbuffs_v1Alloc(STScnVertexbuffsRef ref, const ScnUI32 amm);
-ScnBOOL         ScnVertexbuffs_v1Invalidate(STScnVertexbuffsRef ref, const STScnVertexPtr ptr, const ScnUI32 sz);
-ScnBOOL         ScnVertexbuffs_v1Free(STScnVertexbuffsRef ref, const STScnVertexPtr ptr);
+ScnBOOL         ScnVertexbuffs_v1Invalidate(STScnVertexbuffsRef ref, const STScnVertexTexPtr ptr, const ScnUI32 sz);
+ScnBOOL         ScnVertexbuffs_v1Free(STScnVertexbuffsRef ref, const STScnVertexTexPtr ptr);
 //
 STScnVertexIdxPtr ScnVertexbuffs_v1IdxsAlloc(STScnVertexbuffsRef ref, const ScnUI32 amm);
-ScnBOOL         ScnVertexbuffs_v1IdxsInvalidate(STScnVertexbuffsRef ref, const STScnVertexPtr ptr, const ScnUI32 sz);
-ScnBOOL         ScnVertexbuffs_v1IdxsFree(STScnVertexbuffsRef ref, const STScnVertexPtr ptr);
+ScnBOOL         ScnVertexbuffs_v1IdxsInvalidate(STScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz);
+ScnBOOL         ScnVertexbuffs_v1IdxsFree(STScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr);
 
 //ENScnVertexType_Tex2 //two textures
 
 STScnVertexTex2Ptr ScnVertexbuffs_v2Alloc(STScnVertexbuffsRef ref, const ScnUI32 amm);
-ScnBOOL         ScnVertexbuffs_v2Invalidate(STScnVertexbuffsRef ref, const STScnVertexPtr ptr, const ScnUI32 sz);
-ScnBOOL         ScnVertexbuffs_v2Free(STScnVertexbuffsRef ref, const STScnVertexPtr ptr);
+ScnBOOL         ScnVertexbuffs_v2Invalidate(STScnVertexbuffsRef ref, const STScnVertexTex2Ptr ptr, const ScnUI32 sz);
+ScnBOOL         ScnVertexbuffs_v2Free(STScnVertexbuffsRef ref, const STScnVertexTex2Ptr ptr);
 //
 STScnVertexIdxPtr ScnVertexbuffs_v2IdxsAlloc(STScnVertexbuffsRef ref, const ScnUI32 amm);
-ScnBOOL         ScnVertexbuffs_v2IdxsInvalidate(STScnVertexbuffsRef ref, const STScnVertexPtr ptr, const ScnUI32 sz);
-ScnBOOL         ScnVertexbuffs_v2IdxsFree(STScnVertexbuffsRef ref, const STScnVertexPtr ptr);
+ScnBOOL         ScnVertexbuffs_v2IdxsInvalidate(STScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz);
+ScnBOOL         ScnVertexbuffs_v2IdxsFree(STScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr);
 
 //ENScnVertexType_Tex3 //three textures
 
 STScnVertexTex3Ptr ScnVertexbuffs_v3Alloc(STScnVertexbuffsRef ref, const ScnUI32 amm);
-ScnBOOL         ScnVertexbuffs_v3Invalidate(STScnVertexbuffsRef ref, const STScnVertexPtr ptr, const ScnUI32 sz);
-ScnBOOL         ScnVertexbuffs_v3Free(STScnVertexbuffsRef ref, const STScnVertexPtr ptr);
+ScnBOOL         ScnVertexbuffs_v3Invalidate(STScnVertexbuffsRef ref, const STScnVertexTex3Ptr ptr, const ScnUI32 sz);
+ScnBOOL         ScnVertexbuffs_v3Free(STScnVertexbuffsRef ref, const STScnVertexTex3Ptr ptr);
 //
 STScnVertexIdxPtr ScnVertexbuffs_v3IdxsAlloc(STScnVertexbuffsRef ref, const ScnUI32 amm);
-ScnBOOL         ScnVertexbuffs_v3IdxsInvalidate(STScnVertexbuffsRef ref, const STScnVertexPtr ptr, const ScnUI32 sz);
-ScnBOOL         ScnVertexbuffs_v3IdxsFree(STScnVertexbuffsRef ref, const STScnVertexPtr ptr);
+ScnBOOL         ScnVertexbuffs_v3IdxsInvalidate(STScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz);
+ScnBOOL         ScnVertexbuffs_v3IdxsFree(STScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr);
+
+//gpu-vertexbuffs
+
+ScnBOOL         ScnVertexbuffs_prepareNextRenderSlot(STScnVertexbuffsRef ref);
 
 #ifdef __cplusplus
 } //extern "C"

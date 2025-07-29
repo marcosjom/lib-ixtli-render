@@ -141,6 +141,79 @@ ScnBOOL ScnMemElastic_prepare(STScnMemElasticRef ref, const STScnMemElasticCfg* 
     return r;
 }
 
+ScnBOOL ScnMemElastic_hasPtrs(STScnMemElasticRef ref){ //allocations made?
+    ScnBOOL r = ScnFALSE;
+    STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    {
+        STScnMemElasticBlock* b = opq->blocks.arr;
+        const STScnMemElasticBlock* bAfterEnd = b + opq->blocks.use;
+        while(b < bAfterEnd){
+            if(ScnMemBlock_hasPtrs(b->block)){
+                r = ScnTRUE;
+                break;
+            }
+            ++b;
+        }
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnUI32 ScnMemElastic_getAddressableSize(STScnMemElasticRef ref){ //includes the address zero
+    ScnUI32 r = 0;
+    STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    {
+        STScnMemElasticBlock* b = opq->blocks.arr;
+        const STScnMemElasticBlock* bAfterEnd = b + opq->blocks.use;
+        while(b < bAfterEnd){
+            SCN_ASSERT(b->iOffset == r)
+            r += b->idxsSz;
+            ++b;
+        }
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+STScnAbsPtr ScnMemElastic_getNextContinuousAddress(STScnMemBlockRef ref, const ScnUI32 iAddress, ScnUI32* dstContinuousSz){
+    STScnAbsPtr r = STScnAbsPtr_Zero; ScnUI32 continuousSz = 0;
+    STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(iAddress == 0){
+        //frist block
+        STScnMemElasticBlock* b = opq->blocks.arr;
+        const STScnMemElasticBlock* bAfterEnd = b + opq->blocks.use;
+        if(b < bAfterEnd){
+            r = ScnMemBlock_getStarAddress(b->block);
+            continuousSz = b->idxsSz;
+        }
+    } else {
+        //next block
+        ScnUI32 iPos = 0;
+        STScnMemElasticBlock* b = opq->blocks.arr;
+        const STScnMemElasticBlock* bAfterEnd = b + opq->blocks.use;
+        while(b < bAfterEnd){
+            SCN_ASSERT(b->iOffset == iPos)
+            iPos += b->idxsSz;
+            if(iAddress < iPos){
+                const STScnAbsPtr ba = ScnMemBlock_getStarAddress(b->block);
+                continuousSz = iPos - iAddress;
+                r.idx = iAddress;
+                r.ptr = &((ScnBYTE*)ba.ptr)[b->idxsSz - continuousSz];
+                break;
+            }
+            ++b;
+        }
+    }
+    ScnMutex_unlock(opq->mutex);
+    if(dstContinuousSz != NULL){
+        *dstContinuousSz = continuousSz;
+    }
+    return r;
+}
+
 //allocations
 
 STScnAbsPtr ScnMemElastic_malloc(STScnMemElasticRef ref, const ScnUI32 usableSz, ScnUI32* optDstBlocksTotalSz){

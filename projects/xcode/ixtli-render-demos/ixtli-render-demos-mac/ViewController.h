@@ -6,8 +6,6 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#include "ixrender/ScnRender.h"
-#include "ixrender/api/ScnApiMetal.h"
 
 @import AppKit;
 

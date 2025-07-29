@@ -41,6 +41,9 @@ typedef struct STScnMemBlockCfg_ {
 SCN_REF_STRUCT_METHODS_DEC(ScnMemBlock)
 
 ScnBOOL     ScnMemBlock_prepare(STScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STScnAbsPtr* dstPtrAfterEnd);
+ScnBOOL     ScnMemBlock_hasPtrs(STScnMemBlockRef ref); //allocations made?
+ScnUI32     ScnMemBlock_getAddressableSize(STScnMemBlockRef ref); //includes the address zero
+STScnAbsPtr ScnMemBlock_getStarAddress(STScnMemBlockRef ref); //includes the address zero
 //allocations
 STScnAbsPtr ScnMemBlock_malloc(STScnMemBlockRef ref, const ScnUI32 usableSz);
 ScnBOOL     ScnMemBlock_mfree(STScnMemBlockRef ref, const STScnAbsPtr ptr);

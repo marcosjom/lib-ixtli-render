@@ -6,22 +6,46 @@
 //
 
 #include "ixrender/api/ScnApiMetal.h"
+#include "ixrender/gpu/ScnGpuDevice.h"
+#include "ixrender/gpu/ScnGpuBuffer.h"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
+
 //STScnGpuDeviceApiItf
 
-void*   ScnApiMetal_device_alloc(STScnContextRef ctx, const STScnGpuDeviceCfg* cfg, void* usrData);
-void    ScnApiMetal_device_free(void* data, void* usrData);
+STScnGpuDeviceRef   ScnApiMetal_allocDevice(STScnContextRef ctx, const STScnGpuDeviceCfg* cfg);
+void                ScnApiMetal_device_free(void* obj);
+STScnGpuBufferRef   ScnApiMetal_device_allocBuffer(void* obj, STScnMemElasticRef mem);
+STScnGpuVertexbuffRef ScnApiMetal_device_allocVertexBuff(void* obj, const STScnGpuVertexbuffCfg* cfg, STScnGpuBufferRef vBuff, STScnGpuBufferRef idxBuff);
+//buffer
+void                ScnApiMetal_buffer_free(void* data);
+ScnBOOL             ScnApiMetal_buffer_sync(void* data, const STScnGpuBufferCfg* cfg, STScnMemElasticRef mem, const STScnGpuBufferChanges* changes);
+//vertexbuff
+void                ScnApiMetal_vertexbuff_free(void* data);
+ScnBOOL             ScnApiMetal_vertexbuff_sync(void* data, const STScnGpuVertexbuffCfg* cfg, STScnGpuBufferRef vBuff, STScnGpuBufferRef idxBuff);
+ScnBOOL             ScnApiMetal_vertexbuff_activate(void* data);
+ScnBOOL             ScnApiMetal_vertexbuff_deactivate(void* data);
+
 
 ScnBOOL ScnApiMetal_getApiItf(STScnApiItf* dst){
     if(dst == NULL) return ScnFALSE;
     //
     memset(dst, 0, sizeof(*dst));
-    //
+    //gobal
+    dst->allocDevice        = ScnApiMetal_allocDevice;
     //device
-    dst->dev.alloc      = ScnApiMetal_device_alloc;
-    dst->dev.free       = ScnApiMetal_device_free;
+    dst->dev.free           = ScnApiMetal_device_free;
+    dst->dev.allocBuffer    = ScnApiMetal_device_allocBuffer;
+    dst->dev.allocVertexBuff = ScnApiMetal_device_allocVertexBuff;
+    //buffer
+    dst->buff.free          = ScnApiMetal_buffer_free;
+    dst->buff.sync          = ScnApiMetal_buffer_sync;
+    //vertexbuff
+    dst->vertexBuff.free    = ScnApiMetal_vertexbuff_free;
+    dst->vertexBuff.sync    = ScnApiMetal_vertexbuff_sync;
+    dst->vertexBuff.activate = ScnApiMetal_vertexbuff_activate;
+    dst->vertexBuff.deactivate = ScnApiMetal_vertexbuff_deactivate;
     //
     return ScnTRUE;
 }
@@ -30,14 +54,13 @@ ScnBOOL ScnApiMetal_getApiItf(STScnApiItf* dst){
 
 typedef struct STScnApiMetalDevice_ {
     STScnContextRef ctx;
-    void*           usrData;
-    //
+    STScnApiItf     itf;
     id<MTLDevice>   dev;
     id<MTLLibrary>  lib;
 } STScnApiMetalDevice;
 
-void* ScnApiMetal_device_alloc(STScnContextRef ctx, const STScnGpuDeviceCfg* cfg, void* usrData){
-    void* r = NULL;
+STScnGpuDeviceRef ScnApiMetal_allocDevice(STScnContextRef ctx, const STScnGpuDeviceCfg* cfg){
+    STScnGpuDeviceRef r = STScnObjRef_Zero;
     if(!ScnContext_isNull(ctx)){
         NSArray<id<MTLDevice>> *devs = MTLCopyAllDevices();
         if(devs == nil){
@@ -129,17 +152,36 @@ void* ScnApiMetal_device_alloc(STScnContextRef ctx, const STScnGpuDeviceCfg* cfg
                     } else {
                         memset(obj, 0, sizeof(*obj));
                         ScnContext_set(&obj->ctx, ctx);
-                        obj->usrData    = usrData;
-                        obj->dev        = dev; [dev retain];
-                        obj->lib        = defLib; [defLib retain];
-                        r = obj;
+                        obj->dev    = dev; [dev retain];
+                        obj->lib    = defLib; [defLib retain];
+                        //
+                        if(!ScnApiMetal_getApiItf(&obj->itf)){
+                            printf("ScnApiMetal_allocDevice::ScnApiMetal_getApiItf failed.\n");
+                        } else {
+                            STScnGpuDeviceRef d = ScnGpuDevice_alloc(ctx);
+                            if(!ScnGpuDevice_isNull(d)){
+                                if(!ScnGpuDevice_prepare(d, &obj->itf.dev, obj)){
+                                    printf("ScnApiMetal_allocDevice::ScnGpuDevice_prepare failed.\n");
+                                } else {
+                                    ScnGpuDevice_set(&r, d);
+                                    obj = NULL; //consume
+                                }
+                                ScnGpuDevice_release(&d);
+                                ScnGpuDevice_null(&d);
+                            }
+                        }
+                    }
+                    //release (if not consumed)
+                    if(obj != NULL){
+                        ScnApiMetal_device_free(obj);
+                        obj = NULL;
                     }
                 }
                 //release (if not consumed)
-                if(defLib != nil){
+                /*if(defLib != nil){
                     [defLib release];
                     defLib = nil;
-                }
+                }*/
             }
             //release (if not consumed)
             if(dev != nil){
@@ -155,18 +197,235 @@ void* ScnApiMetal_device_alloc(STScnContextRef ctx, const STScnGpuDeviceCfg* cfg
     return r;
 }
 
-void ScnApiMetal_device_free(void* data, void* usrData){
-    STScnApiMetalDevice* obj = (STScnApiMetalDevice*)data;
+void ScnApiMetal_device_free(void* pObj){
+    STScnApiMetalDevice* obj = (STScnApiMetalDevice*)pObj;
     STScnContextRef ctx = obj->ctx;
-    if(obj->lib != nil){
-        [obj->lib release];
-        obj->lib = nil;
+    {
+        if(obj->lib != nil){
+            [obj->lib release];
+            obj->lib = nil;
+        }
+        if(obj->dev != nil){
+            [obj->dev release];
+            obj->dev = nil;
+        }
+        ScnContext_null(&obj->ctx);
     }
-    if(obj->dev != nil){
-        [obj->dev release];
-        obj->dev = nil;
-    }
-    ScnContext_null(&obj->ctx);
     ScnContext_mfree(ctx, obj);
     ScnContext_release(&ctx);
 }
+
+//STScnApiMetalBuffer
+
+typedef struct STScnApiMetalBuffer_ {
+    STScnContextRef ctx;
+    STScnApiItf     itf;
+    id<MTLBuffer>   buff;
+} STScnApiMetalBuffer;
+
+ScnBOOL ScnApiMetal_buffer_syncAllRanges_(id<MTLBuffer> buff, STScnMemElasticRef mem);
+        
+STScnGpuBufferRef ScnApiMetal_device_allocBuffer(void* pObj, STScnMemElasticRef mem){
+    STScnGpuBufferRef r = STScnObjRef_Zero;
+    STScnApiMetalDevice* dev = (STScnApiMetalDevice*)pObj;
+    if(dev != NULL && dev->dev != NULL && !ScnMemElastic_isNull(mem)){
+        const ScnUI32 curSz = ScnMemElastic_getAddressableSize(mem);
+        if(curSz <= 0){
+            printf("ERROR, allocating zero-sz gpu buffer is not allowed.\n");
+        } else {
+            id<MTLBuffer> buff = [dev->dev newBufferWithLength:curSz options:MTLResourceStorageModeShared];
+            if(buff != nil){
+                if(!ScnApiMetal_buffer_syncAllRanges_(buff, mem)){
+                    printf("ERROR, ScnApiMetal_buffer_syncAllRanges_ failed.\n");
+                } else {
+                    //synced
+                    STScnApiMetalBuffer* obj = (STScnApiMetalBuffer*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalBuffer), "STScnApiMetalBuffer");
+                    if(obj == NULL){
+                        printf("ScnContext_malloc(STScnApiMetalBuffer) failed.\n");
+                    } else {
+                        memset(obj, 0, sizeof(*obj));
+                        ScnContext_set(&obj->ctx, dev->ctx);
+                        obj->itf        = dev->itf;
+                        obj->buff       = buff; [buff retain];
+                        //
+                        STScnGpuBufferRef d = ScnGpuBuffer_alloc(dev->ctx);
+                        if(!ScnGpuBuffer_isNull(d)){
+                            if(!ScnGpuBuffer_prepare(d, &obj->itf.buff, obj)){
+                                printf("ScnApiMetal_allocDevice::ScnGpuBuffer_prepare failed.\n");
+                            } else {
+                                ScnGpuBuffer_set(&r, d);
+                                obj = NULL; //consume
+                            }
+                            ScnGpuBuffer_release(&d);
+                            ScnGpuBuffer_null(&d);
+                        }
+                    }
+                    //release (if not consumed)
+                    if(obj != NULL){
+                        ScnApiMetal_buffer_free(obj);
+                        obj = NULL;
+                    }
+                }
+                [buff release];
+                buff = nil;
+            }
+        }
+    }
+    return r;
+}
+
+void ScnApiMetal_buffer_free(void* pObj){
+    STScnApiMetalBuffer* obj = (STScnApiMetalBuffer*)pObj;
+    STScnContextRef ctx = obj->ctx;
+    {
+        if(obj->buff != nil){
+            [obj->buff release];
+            obj->buff = nil;
+        }
+        ScnContext_null(&obj->ctx);
+    }
+    ScnContext_mfree(ctx, obj);
+    ScnContext_release(&ctx);
+}
+
+ScnBOOL ScnApiMetal_buffer_sync(void* pObj, const STScnGpuBufferCfg* cfg, STScnMemElasticRef mem, const STScnGpuBufferChanges* changes){
+    ScnBOOL r = ScnFALSE;
+    STScnApiMetalBuffer* obj = (STScnApiMetalBuffer*)pObj;
+    //ToDo: sync only changes regions
+    if(obj->buff == nil){
+        printf("ERROR, ScnApiMetal_buffer_sync obj->buff is nil.\n");
+    } else if(!ScnApiMetal_buffer_syncAllRanges_(obj->buff, mem)){
+        printf("ERROR, ScnApiMetal_buffer_sync::ScnApiMetal_buffer_syncAllRanges_ failed.\n");
+    } else {
+        r = ScnTRUE;
+    }
+    return r;
+}
+
+
+ScnBOOL ScnApiMetal_buffer_syncAllRanges_(id<MTLBuffer> buff, STScnMemElasticRef mem){
+    ScnBOOL r = ScnTRUE;
+    STScnAbsPtr ptr = STScnAbsPtr_Zero;
+    ScnUI32 iPos = 0, continuousSz = 0;
+    const ScnUI32 buffLen = (ScnUI32)buff.length;
+    ScnBYTE* buffPtr = (ScnBYTE*)buff.contents;
+    do {
+        ptr = ScnMemElastic_getNextContinuousAddress(mem, iPos, &continuousSz);
+        if(ptr.ptr == NULL){
+            r = (iPos == 0 ? ScnFALSE : ScnTRUE);
+            break;
+        }
+        SCN_ASSERT(ptr.idx == iPos);
+        SCN_ASSERT((iPos + continuousSz) <= buffLen);
+        if((iPos + continuousSz) > buffLen){
+            printf("ERROR, gpu-buffer is smaller than cpu-buffer.\n");
+            r = ScnFALSE;
+            break;
+        }
+        //copy
+        {
+            memcpy(&buffPtr[iPos], ptr.ptr, continuousSz);
+        }
+        iPos += continuousSz;
+    } while(1);
+    return r;
+}
+
+//STScnApiMetalVertexBuffer
+
+typedef struct STScnApiMetalVertexBuff_ {
+    STScnContextRef         ctx;
+    STScnGpuVertexbuffCfg   cfg;
+    STScnApiItf             itf;
+    STScnGpuBufferRef       vBuff;
+    STScnGpuBufferRef       idxBuff;
+} STScnApiMetalVertexBuff;
+
+STScnGpuVertexbuffRef ScnApiMetal_device_allocVertexBuff(void* pObj, const STScnGpuVertexbuffCfg* cfg, STScnGpuBufferRef vBuff, STScnGpuBufferRef idxBuff){
+    STScnGpuVertexbuffRef r = STScnObjRef_Zero;
+    STScnApiMetalDevice* dev = (STScnApiMetalDevice*)pObj;
+    if(dev != NULL && dev->dev != NULL && cfg != NULL && !ScnGpuBuffer_isNull(vBuff) && !ScnGpuBuffer_isNull(idxBuff)){
+        //synced
+        STScnApiMetalVertexBuff* obj = (STScnApiMetalVertexBuff*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalVertexBuff), "STScnApiMetalVertexBuff");
+        if(obj == NULL){
+            printf("ScnContext_malloc(STScnApiMetalVertexBuff) failed.\n");
+        } else {
+            memset(obj, 0, sizeof(*obj));
+            ScnContext_set(&obj->ctx, dev->ctx);
+            obj->itf        = dev->itf;
+            obj->cfg        = *cfg;
+            ScnGpuBuffer_set(&obj->vBuff, vBuff);
+            ScnGpuBuffer_set(&obj->idxBuff, idxBuff);
+            //
+            STScnGpuVertexbuffRef d = ScnGpuVertexbuff_alloc(dev->ctx);
+            if(!ScnGpuVertexbuff_isNull(d)){
+                if(!ScnGpuVertexbuff_prepare(d, &obj->itf.vertexBuff, obj)){
+                    printf("ScnApiMetal_device_allocVertexBuff::ScnGpuVertexbuff_prepare failed.\n");
+                } else {
+                    ScnGpuVertexbuff_set(&r, d);
+                    obj = NULL; //consume
+                }
+                ScnGpuVertexbuff_release(&d);
+                ScnGpuVertexbuff_null(&d);
+            }
+        }
+        //release (if not consumed)
+        if(obj != NULL){
+            ScnApiMetal_vertexbuff_free(obj);
+            obj = NULL;
+        }
+    }
+    return r;
+}
+
+void ScnApiMetal_vertexbuff_free(void* pObj){
+    STScnApiMetalVertexBuff* obj = (STScnApiMetalVertexBuff*)pObj;
+    STScnContextRef ctx = obj->ctx;
+    {
+        if(!ScnGpuBuffer_isNull(obj->vBuff)){
+            ScnGpuBuffer_release(&obj->vBuff);
+            ScnGpuBuffer_null(&obj->vBuff);
+        }
+        if(!ScnGpuBuffer_isNull(obj->idxBuff)){
+            ScnGpuBuffer_release(&obj->idxBuff);
+            ScnGpuBuffer_null(&obj->idxBuff);
+        }
+        ScnContext_null(&obj->ctx);
+    }
+    ScnContext_mfree(ctx, obj);
+    ScnContext_release(&ctx);
+}
+
+ScnBOOL ScnApiMetal_vertexbuff_sync(void* pObj, const STScnGpuVertexbuffCfg* cfg, STScnGpuBufferRef vBuff, STScnGpuBufferRef idxBuff){
+    ScnBOOL r = ScnFALSE;
+    STScnApiMetalVertexBuff* obj = (STScnApiMetalVertexBuff*)pObj;
+    {
+        obj->cfg = *cfg;
+        ScnGpuBuffer_set(&obj->vBuff, vBuff);
+        ScnGpuBuffer_set(&obj->idxBuff, idxBuff);
+        //ToDo: implement
+        r = ScnTRUE;
+    }
+    return r;
+}
+
+ScnBOOL ScnApiMetal_vertexbuff_activate(void* pObj){
+    ScnBOOL r = ScnFALSE;
+    STScnApiMetalVertexBuff* obj = (STScnApiMetalVertexBuff*)pObj;
+    {
+        //ToDo: implement
+        r = ScnTRUE;
+    }
+    return r;
+}
+
+ScnBOOL ScnApiMetal_vertexbuff_deactivate(void* pObj){
+    ScnBOOL r = ScnFALSE;
+    STScnApiMetalVertexBuff* obj = (STScnApiMetalVertexBuff*)pObj;
+    {
+        //ToDo: implement
+        r = ScnTRUE;
+    }
+    return r;
+}
+

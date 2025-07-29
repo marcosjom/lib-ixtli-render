@@ -204,6 +204,21 @@ ScnBOOL ScnMemBlock_prepare(STScnMemBlockRef ref, const STScnMemBlockCfg* cfg, S
     return r;
 }
 
+ScnBOOL ScnMemBlock_hasPtrs(STScnMemBlockRef ref){ //allocations made?
+    STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    return (opq->ptrs.use > 0);
+}
+
+ScnUI32 ScnMemBlock_getAddressableSize(STScnMemBlockRef ref){
+    STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    return opq->cfg.size;
+}
+
+STScnAbsPtr ScnMemBlock_getStarAddress(STScnMemBlockRef ref){ //includes the address zero
+    STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    return (STScnAbsPtr){ opq->chunk.ptr, 0 };
+}
+
 //allocations
 
 STScnAbsPtr ScnMemBlock_malloc(STScnMemBlockRef ref, const ScnUI32 usableSz){

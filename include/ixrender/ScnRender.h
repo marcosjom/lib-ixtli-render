@@ -19,8 +19,10 @@
 #include "ixrender/gpu/ScnGpuFramebuff.h"
 #include "ixrender/gpu/ScnGpuDevice.h"
 #include "ixrender/scene/ScnTransform.h"
+#include "ixrender/scene/ScnBuffer.h"
 #include "ixrender/scene/ScnVertexbuffs.h"
 #include "ixrender/scene/ScnRenderCmd.h"
+#include "ixrender/scene/ScnModel.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,6 +43,7 @@ typedef struct STScnRenderNode_ {
 //ScnRenderApiItf
 
 typedef struct STScnApiItf_ {
+    STScnGpuDeviceRef           (*allocDevice)(STScnContextRef ctx, const STScnGpuDeviceCfg* cfg);
     STScnGpuDeviceApiItf        dev;    //device
     STScnGpuBufferApiItf        buff;   //buffers
     STScnGpuVertexbuffApiItf    vertexBuff;   //vertexBuff
@@ -54,26 +57,18 @@ typedef struct STScnApiItf_ {
 SCN_REF_STRUCT_METHODS_DEC(ScnRender)
 
 //Prepare
+ScnBOOL             ScnRender_prepare(STScnRenderRef ref, const STScnApiItf* itf, void* itfParam);
+ScnBOOL             ScnRender_openDevice(STScnRenderRef ref, const STScnGpuDeviceCfg* cfg, const ScnUI32 ammRenderSlots);
+STScnModelRef       ScnRender_allocModel(STScnRenderRef ref);
 
-ScnBOOL ScnRender_prepare(STScnRenderRef ref, const STScnApiItf* itf, void* itfParam);
-
-//Device
-
-ScnBOOL ScnRender_openDevice(STScnRenderRef ref, const STScnGpuDeviceCfg* cfg);
-
-//Vertices
-
+//
 STScnVertexbuffsRef ScnRender_getDefaultVertexbuffs(STScnRenderRef ref);
-ScnBOOL     ScnRender_createVertexbuffs(STScnRenderRef ref, STScnVertexbuffsRef* dst);
-
-//Buffers
-
-ScnUI32     ScnRender_bufferCreate(STScnRenderRef ref, const STScnGpuBufferCfg* cfg);     //allocates a new buffer
-ScnBOOL     ScnRender_bufferDestroy(STScnRenderRef ref, const ScnUI32 bid);                 //flags a buffer for destruction
+STScnVertexbuffsRef ScnRender_allocVertexbuffs(STScnRenderRef ref);
+STScnBufferRef      ScnRender_allocBuffer(STScnRenderRef ref, const STScnGpuBufferCfg* cfg);
 
 //job
 
-void        ScnRender_jobStart(STScnRenderRef ref);
+ScnBOOL     ScnRender_jobStart(STScnRenderRef ref);
 ScnBOOL     ScnRender_jobEnd(STScnRenderRef ref);
 
 //job nodes
@@ -89,6 +84,9 @@ void        ScnRender_cmdSetTexture(STScnRenderRef ref, const ScnUI32 index, con
 void        ScnRender_cmdSetVertsType(STScnRenderRef ref, const ENScnVertexType type);
 void        ScnRender_cmdDawVerts(STScnRenderRef ref, const ENScnRenderShape mode, const ScnUI32 iFirst, const ScnUI32 count);
 void        ScnRender_cmdDawIndexes(STScnRenderRef ref, const ENScnRenderShape mode, const ScnUI32 iFirst, const ScnUI32 count);
+
+//gpu-render
+ScnBOOL     ScnRender_prepareNextRenderSlot(STScnRenderRef ref);
 
 #ifdef __cplusplus
 } //extern "C"
