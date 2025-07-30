@@ -21,7 +21,7 @@ ScnSI32 ScnGpuDevice_getOpqSz(void){
     return (ScnSI32)sizeof(STScnGpuDeviceOpq);
 }
 
-void ScnGpuDevice_initZeroedOpq(STScnContextRef ctx, void* obj) {
+void ScnGpuDevice_initZeroedOpq(ScnContextRef ctx, void* obj) {
     //STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)obj;
 }
 
@@ -39,7 +39,7 @@ void ScnGpuDevice_destroyOpq(void* obj){
 
 //
 
-ScnBOOL ScnGpuDevice_prepare(STScnGpuDeviceRef ref, const STScnGpuDeviceApiItf* itf, void* itfParam) {
+ScnBOOL ScnGpuDevice_prepare(ScnGpuDeviceRef ref, const STScnGpuDeviceApiItf* itf, void* itfParam) {
     ScnBOOL r = ScnFALSE;
     STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)ScnSharedPtr_getOpq(ref.ptr);
     if(itf != NULL && itf->free != NULL){
@@ -61,12 +61,17 @@ ScnBOOL ScnGpuDevice_prepare(STScnGpuDeviceRef ref, const STScnGpuDeviceApiItf* 
     return r;
 }
 
-STScnGpuBufferRef ScnGpuDevice_allocBuffer(STScnGpuDeviceRef ref, STScnMemElasticRef mem){
+ScnGpuBufferRef ScnGpuDevice_allocBuffer(ScnGpuDeviceRef ref, ScnMemElasticRef mem){
     STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    return (opq->api.itf.allocBuffer != NULL ? (*opq->api.itf.allocBuffer)(opq->api.itfParam, mem) : (STScnGpuBufferRef)STScnObjRef_Zero);
+    return (opq->api.itf.allocBuffer != NULL ? (*opq->api.itf.allocBuffer)(opq->api.itfParam, mem) : (ScnGpuBufferRef)ScnObjRef_Zero);
 }
 
-STScnGpuVertexbuffRef ScnGpuDevice_allocVertexBuff(STScnGpuDeviceRef ref, const STScnGpuVertexbuffCfg* cfg, STScnGpuBufferRef vBuff, STScnGpuBufferRef idxBuff){
+ScnGpuVertexbuffRef ScnGpuDevice_allocVertexBuff(ScnGpuDeviceRef ref, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff){
     STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    return (opq->api.itf.allocVertexBuff != NULL ? (*opq->api.itf.allocVertexBuff)(opq->api.itfParam, cfg, vBuff, idxBuff) : (STScnGpuVertexbuffRef)STScnObjRef_Zero);
+    return (opq->api.itf.allocVertexBuff != NULL ? (*opq->api.itf.allocVertexBuff)(opq->api.itfParam, cfg, vBuff, idxBuff) : (ScnGpuVertexbuffRef)ScnObjRef_Zero);
+}
+
+ScnGpuFramebuffRef ScnGpuDevice_allocFramebuffFromOSView(ScnGpuDeviceRef ref, void* mtkView){
+    STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    return (opq->api.itf.allocFramebuffFromOSView != NULL ? (*opq->api.itf.allocFramebuffFromOSView)(opq->api.itfParam, mtkView) : (ScnGpuFramebuffRef)ScnObjRef_Zero);
 }

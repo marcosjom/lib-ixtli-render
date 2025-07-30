@@ -83,8 +83,8 @@ typedef struct STScnMemBlockState_ {
 //STScnMemBlockOpq
 
 typedef struct STScnMemBlockOpq_ {
-    STScnContextRef     ctx;
-    STScnMutexRef       mutex;
+    ScnContextRef     ctx;
+    ScnMutexRef       mutex;
     STScnMemBlockChunk  chunk;
     STScnMemBlockCfg    cfg;
     STScnMemBlockState  state;
@@ -98,7 +98,7 @@ ScnSI32 ScnMemBlock_getOpqSz(void){
     return (ScnSI32)sizeof(STScnMemBlockOpq);
 }
 
-void ScnMemBlock_initZeroedOpq(STScnContextRef ctx, void* obj) {
+void ScnMemBlock_initZeroedOpq(ScnContextRef ctx, void* obj) {
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
@@ -135,7 +135,7 @@ ScnBOOL ScnMemBlock_validateIndexLockepOpq_(STScnMemBlockOpq* opq);
 
 //
 
-ScnBOOL ScnMemBlock_prepare(STScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STScnAbsPtr* dstPtrAfterEnd){
+ScnBOOL ScnMemBlock_prepare(ScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STScnAbsPtr* dstPtrAfterEnd){
     ScnBOOL r = ScnFALSE;
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     //
@@ -196,24 +196,24 @@ ScnBOOL ScnMemBlock_prepare(STScnMemBlockRef ref, const STScnMemBlockCfg* cfg, S
     return r;
 }
 
-ScnBOOL ScnMemBlock_hasPtrs(STScnMemBlockRef ref){ //allocations made?
+ScnBOOL ScnMemBlock_hasPtrs(ScnMemBlockRef ref){ //allocations made?
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (opq->ptrs.use > 0);
 }
 
-ScnUI32 ScnMemBlock_getAddressableSize(STScnMemBlockRef ref){
+ScnUI32 ScnMemBlock_getAddressableSize(ScnMemBlockRef ref){
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return opq->cfg.size;
 }
 
-STScnAbsPtr ScnMemBlock_getStarAddress(STScnMemBlockRef ref){ //includes the address zero
+STScnAbsPtr ScnMemBlock_getStarAddress(ScnMemBlockRef ref){ //includes the address zero
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (STScnAbsPtr){ opq->chunk.ptr, 0 };
 }
 
 //allocations
 
-STScnAbsPtr ScnMemBlock_malloc(STScnMemBlockRef ref, const ScnUI32 usableSz){
+STScnAbsPtr ScnMemBlock_malloc(ScnMemBlockRef ref, const ScnUI32 usableSz){
     STScnAbsPtr r = STScnAbsPtr_Zero;
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -264,7 +264,7 @@ STScnAbsPtr ScnMemBlock_malloc(STScnMemBlockRef ref, const ScnUI32 usableSz){
     
 }
 
-ScnBOOL ScnMemBlock_mfree(STScnMemBlockRef ref, const STScnAbsPtr ptr){
+ScnBOOL ScnMemBlock_mfree(ScnMemBlockRef ref, const STScnAbsPtr ptr){
     ScnBOOL r = ScnFALSE;
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -322,12 +322,12 @@ ScnBOOL ScnMemBlock_mfree(STScnMemBlockRef ref, const STScnAbsPtr ptr){
     return r;
 }
 
-ScnUI32 ScnMemBlock_mAvailSz(STScnMemBlockRef ref){
+ScnUI32 ScnMemBlock_mAvailSz(ScnMemBlockRef ref){
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return opq->state.szAvail;
 }
 
-void ScnMemBlock_prepareForNewMallocsActions(STScnMemBlockRef ref, const ScnUI32 ammActions){   //increases the index sz
+void ScnMemBlock_prepareForNewMallocsActions(ScnMemBlockRef ref, const ScnUI32 ammActions){   //increases the index sz
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
@@ -336,7 +336,7 @@ void ScnMemBlock_prepareForNewMallocsActions(STScnMemBlockRef ref, const ScnUI32
     ScnMutex_unlock(opq->mutex);
 }
 
-void ScnMemBlock_clear(STScnMemBlockRef ref){ //clears the index, all pointers are invalid after this call
+void ScnMemBlock_clear(ScnMemBlockRef ref){ //clears the index, all pointers are invalid after this call
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
@@ -406,7 +406,7 @@ ScnBOOL ScnMemBlock_validateIndexLockepOpq_(STScnMemBlockOpq* opq){
     return r;
 }
     
-ScnBOOL ScnMemBlock_validateIndex(STScnMemBlockRef ref){
+ScnBOOL ScnMemBlock_validateIndex(ScnMemBlockRef ref){
     ScnBOOL r = ScnFALSE;
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);

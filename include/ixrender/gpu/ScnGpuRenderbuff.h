@@ -41,13 +41,13 @@ typedef struct STScnGpuRenderbuffApiItf_ {
     ScnBOOL (*sync)(void* data, const STScnGpuRenderbuffCfg* cfg, const STScnGpuRenderbuffChanges* changes, void* usrData);
 } STScnGpuRenderbuffApiItf;
 
-//STScnGpuRenderbuffRef
+//ScnGpuRenderbuffRef
 
 SCN_REF_STRUCT_METHODS_DEC(ScnGpuRenderbuff)
 
 //
 
-ScnBOOL     ScnGpuRenderbuff_prepare(STScnGpuRenderbuffRef ref, const STScnGpuRenderbuffCfg* cfg, const STScnGpuRenderbuffApiItf* itf, void* itfParam);
+ScnBOOL     ScnGpuRenderbuff_prepare(ScnGpuRenderbuffRef ref, const STScnGpuRenderbuffCfg* cfg, const STScnGpuRenderbuffApiItf* itf, void* itfParam);
 
 
 #ifdef __cplusplus

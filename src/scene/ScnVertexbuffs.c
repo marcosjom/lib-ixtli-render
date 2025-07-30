@@ -10,16 +10,16 @@
 //STScnVertexbuffsOpq
 
 typedef struct STScnVertexbuffsOpq_ {
-    STScnContextRef     ctx;
-    STScnMutexRef       mutex;
-    STScnVertexbuffRef  vBuffs[ENScnVertexType_Count];
+    ScnContextRef     ctx;
+    ScnMutexRef       mutex;
+    ScnVertexbuffRef  vBuffs[ENScnVertexType_Count];
 } STScnVertexbuffsOpq;
 
 ScnSI32 ScnVertexbuffs_getOpqSz(void){
     return (ScnSI32)sizeof(STScnVertexbuffsOpq);
 }
 
-void ScnVertexbuffs_initZeroedOpq(STScnContextRef ctx, void* obj) {
+void ScnVertexbuffs_initZeroedOpq(ScnContextRef ctx, void* obj) {
     STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
@@ -30,8 +30,8 @@ void ScnVertexbuffs_destroyOpq(void* obj){
     STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)obj;
     //vBuffs
     {
-        STScnVertexbuffRef* b = opq->vBuffs;
-        const STScnVertexbuffRef* bAfterEnd = b + ENScnVertexType_Count;
+        ScnVertexbuffRef* b = opq->vBuffs;
+        const ScnVertexbuffRef* bAfterEnd = b + ENScnVertexType_Count;
         while(b < bAfterEnd){
             ScnVertexbuff_releaseAndNullify(&*b);
             ++b;
@@ -44,7 +44,7 @@ void ScnVertexbuffs_destroyOpq(void* obj){
 
 //prepare
 
-ScnBOOL ScnVertexbuffs_prepare(STScnVertexbuffsRef ref, const STScnVertexbuffRef* vBuffs, const ScnUI32 vBuffsSz){
+ScnBOOL ScnVertexbuffs_prepare(ScnVertexbuffsRef ref, const ScnVertexbuffRef* vBuffs, const ScnUI32 vBuffsSz){
     ScnBOOL r = ScnFALSE;
     STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -74,8 +74,8 @@ ScnBOOL ScnVertexbuffs_prepare(STScnVertexbuffsRef ref, const STScnVertexbuffRef
         if(r){
             //release
             {
-                STScnVertexbuffRef* b = opq->vBuffs;
-                const STScnVertexbuffRef* bAfterEnd = b + ENScnVertexType_Count;
+                ScnVertexbuffRef* b = opq->vBuffs;
+                const ScnVertexbuffRef* bAfterEnd = b + ENScnVertexType_Count;
                 while(b < bAfterEnd){
                     ScnVertexbuff_releaseAndNullify(&*b);
                     ++b;
@@ -97,10 +97,10 @@ ScnBOOL ScnVertexbuffs_prepare(STScnVertexbuffsRef ref, const STScnVertexbuffRef
     STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)ScnSharedPtr_getOpq(ref.ptr); \
     ScnMutex_lock(opq->mutex); \
     { \
-        STScnVertexbuffRef vb = opq->vBuffs[V_IDX]; \
+        ScnVertexbuffRef vb = opq->vBuffs[V_IDX]; \
         if(!ScnVertexbuff_isNull(vb)){ \
             const ScnUI32 szPerRecord = ScnVertexbuff_getSzPerRecord(vb); \
-            STScnBufferRef b = GET_BUFF_METHOD(vb); \
+            ScnBufferRef b = GET_BUFF_METHOD(vb); \
             if(!ScnBuffer_isNull(b)){ \
                 STScnAbsPtr r2 = ScnBuffer_malloc(b, amm * szPerRecord); \
                 r.idx = r2.idx / szPerRecord; \
@@ -115,10 +115,10 @@ ScnBOOL ScnVertexbuffs_prepare(STScnVertexbuffsRef ref, const STScnVertexbuffRef
     STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)ScnSharedPtr_getOpq(ref.ptr); \
     ScnMutex_lock(opq->mutex); \
     { \
-        STScnVertexbuffRef vb = opq->vBuffs[V_IDX]; \
+        ScnVertexbuffRef vb = opq->vBuffs[V_IDX]; \
         if(!ScnVertexbuff_isNull(vb)){ \
             const ScnUI32 szPerRecord = ScnVertexbuff_getSzPerRecord(vb); \
-            STScnBufferRef b = GET_BUFF_METHOD(vb); \
+            ScnBufferRef b = GET_BUFF_METHOD(vb); \
             if(!ScnBuffer_isNull(b)){ \
                 STScnAbsPtr ptr2 = STScnAbsPtr_Zero; \
                 ptr2.idx = ptr.idx * szPerRecord; \
@@ -135,10 +135,10 @@ ScnBOOL ScnVertexbuffs_prepare(STScnVertexbuffsRef ref, const STScnVertexbuffRef
     STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)ScnSharedPtr_getOpq(ref.ptr); \
     ScnMutex_lock(opq->mutex); \
     { \
-        STScnVertexbuffRef vb = opq->vBuffs[V_IDX]; \
+        ScnVertexbuffRef vb = opq->vBuffs[V_IDX]; \
         if(!ScnVertexbuff_isNull(vb)){ \
             const ScnUI32 szPerRecord = ScnVertexbuff_getSzPerRecord(vb); \
-            STScnBufferRef b = GET_BUFF_METHOD(vb); \
+            ScnBufferRef b = GET_BUFF_METHOD(vb); \
             if(!ScnBuffer_isNull(b)){ \
                 STScnAbsPtr ptr2 = STScnAbsPtr_Zero; \
                 ptr2.idx = ptr.idx * szPerRecord; \
@@ -152,142 +152,142 @@ ScnBOOL ScnVertexbuffs_prepare(STScnVertexbuffsRef ref, const STScnVertexbuffRef
 
 //ENScnVertexType_Color //no texture
 
-STScnVertexPtr ScnVertexbuffs_v0Alloc(STScnVertexbuffsRef ref, const ScnUI32 amm){
+STScnVertexPtr ScnVertexbuffs_v0Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm){
     STScnVertexPtr r = STScnVertexPtr_Zero;
     ScnVertexbuffs_vNAlloc(ENScnVertexType_Color, STScnVertex, ScnVertexbuff_getVertexBuff)
     return r;
 }
 
-ScnBOOL ScnVertexbuffs_v0Invalidate(STScnVertexbuffsRef ref, const STScnVertexPtr ptr, const ScnUI32 sz){
+ScnBOOL ScnVertexbuffs_v0Invalidate(ScnVertexbuffsRef ref, const STScnVertexPtr ptr, const ScnUI32 sz){
     ScnVertexbuffs_vNInvalidate(ENScnVertexType_Color, ScnVertexbuff_getVertexBuff)
 }
 
-ScnBOOL ScnVertexbuffs_v0Free(STScnVertexbuffsRef ref, const STScnVertexPtr ptr){
+ScnBOOL ScnVertexbuffs_v0Free(ScnVertexbuffsRef ref, const STScnVertexPtr ptr){
     ScnVertexbuffs_vNFree(ENScnVertexType_Color, ScnVertexbuff_getVertexBuff);
 }
 
 //
 
-STScnVertexIdxPtr ScnVertexbuffs_v0IdxsAlloc(STScnVertexbuffsRef ref, const ScnUI32 amm){
+STScnVertexIdxPtr ScnVertexbuffs_v0IdxsAlloc(ScnVertexbuffsRef ref, const ScnUI32 amm){
     STScnVertexIdxPtr r = STScnVertexPtr_Zero;
     ScnVertexbuffs_vNAlloc(ENScnVertexType_Color, STScnVertexIdx, ScnVertexbuff_getIdxsBuff)
     return r;
 }
 
-ScnBOOL ScnVertexbuffs_v0IdxsInvalidate(STScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz){
+ScnBOOL ScnVertexbuffs_v0IdxsInvalidate(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz){
     ScnVertexbuffs_vNInvalidate(ENScnVertexType_Color, ScnVertexbuff_getIdxsBuff)
 }
 
-ScnBOOL ScnVertexbuffs_v0IdxsFree(STScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr){
+ScnBOOL ScnVertexbuffs_v0IdxsFree(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr){
     ScnVertexbuffs_vNFree(ENScnVertexType_Color, ScnVertexbuff_getIdxsBuff);
 }
 
 //ENScnVertexType_Tex  //one texture
 
-STScnVertexTexPtr ScnVertexbuffs_v1Alloc(STScnVertexbuffsRef ref, const ScnUI32 amm){
+STScnVertexTexPtr ScnVertexbuffs_v1Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm){
     STScnVertexTexPtr r = STScnVertexPtr_Zero;
     ScnVertexbuffs_vNAlloc(ENScnVertexType_Tex, STScnVertexTex, ScnVertexbuff_getVertexBuff)
     return r;
 }
 
-ScnBOOL ScnVertexbuffs_v1Invalidate(STScnVertexbuffsRef ref, const STScnVertexTexPtr ptr, const ScnUI32 sz){
+ScnBOOL ScnVertexbuffs_v1Invalidate(ScnVertexbuffsRef ref, const STScnVertexTexPtr ptr, const ScnUI32 sz){
     ScnVertexbuffs_vNInvalidate(ENScnVertexType_Tex, ScnVertexbuff_getVertexBuff)
 }
 
-ScnBOOL ScnVertexbuffs_v1Free(STScnVertexbuffsRef ref, const STScnVertexTexPtr ptr){
+ScnBOOL ScnVertexbuffs_v1Free(ScnVertexbuffsRef ref, const STScnVertexTexPtr ptr){
     ScnVertexbuffs_vNFree(ENScnVertexType_Tex, ScnVertexbuff_getVertexBuff);
 }
 
 //
 
-STScnVertexIdxPtr ScnVertexbuffs_v1IdxsAlloc(STScnVertexbuffsRef ref, const ScnUI32 amm){
+STScnVertexIdxPtr ScnVertexbuffs_v1IdxsAlloc(ScnVertexbuffsRef ref, const ScnUI32 amm){
     STScnVertexIdxPtr r = STScnVertexPtr_Zero;
     ScnVertexbuffs_vNAlloc(ENScnVertexType_Tex, STScnVertexIdx, ScnVertexbuff_getIdxsBuff)
     return r;
 }
 
-ScnBOOL ScnVertexbuffs_v1IdxsInvalidate(STScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz){
+ScnBOOL ScnVertexbuffs_v1IdxsInvalidate(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz){
     ScnVertexbuffs_vNInvalidate(ENScnVertexType_Tex, ScnVertexbuff_getIdxsBuff)
 }
 
-ScnBOOL ScnVertexbuffs_v1IdxsFree(STScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr){
+ScnBOOL ScnVertexbuffs_v1IdxsFree(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr){
     ScnVertexbuffs_vNFree(ENScnVertexType_Tex, ScnVertexbuff_getIdxsBuff);
 }
 
 //ENScnVertexType_Tex2 //two textures
 
-STScnVertexTex2Ptr ScnVertexbuffs_v2Alloc(STScnVertexbuffsRef ref, const ScnUI32 amm){
+STScnVertexTex2Ptr ScnVertexbuffs_v2Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm){
     STScnVertexTex2Ptr r = STScnVertexPtr_Zero;
     ScnVertexbuffs_vNAlloc(ENScnVertexType_Tex2, STScnVertexTex2, ScnVertexbuff_getVertexBuff)
     return r;
 }
 
-ScnBOOL ScnVertexbuffs_v2Invalidate(STScnVertexbuffsRef ref, const STScnVertexTex2Ptr ptr, const ScnUI32 sz){
+ScnBOOL ScnVertexbuffs_v2Invalidate(ScnVertexbuffsRef ref, const STScnVertexTex2Ptr ptr, const ScnUI32 sz){
     ScnVertexbuffs_vNInvalidate(ENScnVertexType_Tex2, ScnVertexbuff_getVertexBuff)
 }
 
-ScnBOOL ScnVertexbuffs_v2Free(STScnVertexbuffsRef ref, const STScnVertexTex2Ptr ptr){
+ScnBOOL ScnVertexbuffs_v2Free(ScnVertexbuffsRef ref, const STScnVertexTex2Ptr ptr){
     ScnVertexbuffs_vNFree(ENScnVertexType_Tex2, ScnVertexbuff_getVertexBuff);
 }
 
 //
 
-STScnVertexIdxPtr ScnVertexbuffs_v2IdxsAlloc(STScnVertexbuffsRef ref, const ScnUI32 amm){
+STScnVertexIdxPtr ScnVertexbuffs_v2IdxsAlloc(ScnVertexbuffsRef ref, const ScnUI32 amm){
     STScnVertexIdxPtr r = STScnVertexPtr_Zero;
     ScnVertexbuffs_vNAlloc(ENScnVertexType_Tex2, STScnVertexIdx, ScnVertexbuff_getIdxsBuff)
     return r;
 }
 
-ScnBOOL ScnVertexbuffs_v2IdxsInvalidate(STScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz){
+ScnBOOL ScnVertexbuffs_v2IdxsInvalidate(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz){
     ScnVertexbuffs_vNInvalidate(ENScnVertexType_Tex2, ScnVertexbuff_getIdxsBuff)
 }
 
-ScnBOOL ScnVertexbuffs_v2IdxsFree(STScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr){
+ScnBOOL ScnVertexbuffs_v2IdxsFree(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr){
     ScnVertexbuffs_vNFree(ENScnVertexType_Tex2, ScnVertexbuff_getIdxsBuff);
 }
 
 //ENScnVertexType_Tex3 //three textures
 
-STScnVertexTex3Ptr ScnVertexbuffs_v3Alloc(STScnVertexbuffsRef ref, const ScnUI32 amm){
+STScnVertexTex3Ptr ScnVertexbuffs_v3Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm){
     STScnVertexTex3Ptr r = STScnVertexPtr_Zero;
     ScnVertexbuffs_vNAlloc(ENScnVertexType_Tex3, STScnVertexTex3, ScnVertexbuff_getVertexBuff)
     return r;
 }
 
-ScnBOOL ScnVertexbuffs_v3Invalidate(STScnVertexbuffsRef ref, const STScnVertexTex3Ptr ptr, const ScnUI32 sz){
+ScnBOOL ScnVertexbuffs_v3Invalidate(ScnVertexbuffsRef ref, const STScnVertexTex3Ptr ptr, const ScnUI32 sz){
     ScnVertexbuffs_vNInvalidate(ENScnVertexType_Tex3, ScnVertexbuff_getVertexBuff)
 }
 
-ScnBOOL ScnVertexbuffs_v3Free(STScnVertexbuffsRef ref, const STScnVertexTex3Ptr ptr){
+ScnBOOL ScnVertexbuffs_v3Free(ScnVertexbuffsRef ref, const STScnVertexTex3Ptr ptr){
     ScnVertexbuffs_vNFree(ENScnVertexType_Tex3, ScnVertexbuff_getVertexBuff);
 }
 
 //
 
-STScnVertexIdxPtr ScnVertexbuffs_v3IdxsAlloc(STScnVertexbuffsRef ref, const ScnUI32 amm){
+STScnVertexIdxPtr ScnVertexbuffs_v3IdxsAlloc(ScnVertexbuffsRef ref, const ScnUI32 amm){
     STScnVertexIdxPtr r = STScnVertexPtr_Zero;
     ScnVertexbuffs_vNAlloc(ENScnVertexType_Tex3, STScnVertexIdx, ScnVertexbuff_getIdxsBuff)
     return r;
 }
 
-ScnBOOL ScnVertexbuffs_v3IdxsInvalidate(STScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz){
+ScnBOOL ScnVertexbuffs_v3IdxsInvalidate(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz){
     ScnVertexbuffs_vNInvalidate(ENScnVertexType_Tex3, ScnVertexbuff_getIdxsBuff)
 }
 
-ScnBOOL ScnVertexbuffs_v3IdxsFree(STScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr){
+ScnBOOL ScnVertexbuffs_v3IdxsFree(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr){
     ScnVertexbuffs_vNFree(ENScnVertexType_Tex3, ScnVertexbuff_getIdxsBuff);
 }
 
 //gpu-vertexbuffs
 
-ScnBOOL ScnVertexbuffs_prepareNextRenderSlot(STScnVertexbuffsRef ref){
+ScnBOOL ScnVertexbuffs_prepareNextRenderSlot(ScnVertexbuffsRef ref){
     ScnBOOL r = ScnFALSE;
     STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
         r = ScnTRUE;
-        STScnVertexbuffRef* b = opq->vBuffs;
-        const STScnVertexbuffRef* bAfterEnd = b + ENScnVertexType_Count;
+        ScnVertexbuffRef* b = opq->vBuffs;
+        const ScnVertexbuffRef* bAfterEnd = b + ENScnVertexType_Count;
         while(b < bAfterEnd){
             if(!ScnVertexbuff_isNull(*b)){
                 if(!ScnVertexbuff_prepareNextRenderSlot(*b)){

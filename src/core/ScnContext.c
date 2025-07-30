@@ -9,7 +9,7 @@
 #include "ixrender/core/ScnSharedPtr.h"
 #include <string.h> //memset, memcpy
 
-//STScnContextRef
+//ScnContextRef
 
 typedef struct STScnContextOpq_ {
     ScnUI32 dummy;  //empty struct
@@ -17,8 +17,8 @@ typedef struct STScnContextOpq_ {
 
 void ScnContext_destroyOpq_(void* opq);
 
-STScnContextRef ScnContext_alloc(STScnContextItf* ctx){
-    STScnContextRef r = STScnContextRef_Zero;
+ScnContextRef ScnContext_alloc(STScnContextItf* ctx){
+    ScnContextRef r = ScnContextRef_Zero;
     if(ctx != NULL){
         STScnContextOpq* opq = (STScnContextOpq*)(ctx->mem.malloc)(sizeof(STScnContextOpq), "ScnContext_alloc::opq");
         STScnContextItf* itf = (STScnContextItf*)(ctx->mem.malloc)(sizeof(STScnContextItf), "ScnContext_alloc::itf");
@@ -51,15 +51,15 @@ void ScnContext_destroyOpq_(void* opq){
     //nothing
 }
 
-void ScnContext_retain(STScnContextRef ref){
+void ScnContext_retain(ScnContextRef ref){
     ScnSharedPtr_retain(ref.ptr);
 }
 
-void ScnContext_release(STScnContextRef* ref){
+void ScnContext_release(ScnContextRef* ref){
     if(ref != NULL && 0 == ScnSharedPtr_release(ref->ptr)){
         STScnContextOpq* opq = (STScnContextOpq*)ScnSharedPtr_getOpq(ref->ptr);
-        STScnContextRef cpy = *ref;
-        *ref = (STScnContextRef)STScnContextRef_Zero;
+        ScnContextRef cpy = *ref;
+        *ref = (ScnContextRef)ScnContextRef_Zero;
         //free
         if(opq != NULL){
             (cpy.itf->mem.free)(opq);
@@ -76,14 +76,14 @@ void ScnContext_release(STScnContextRef* ref){
     }
 }
 
-void ScnContext_releaseAndNullify(STScnContextRef* ref){
+void ScnContext_releaseAndNullify(ScnContextRef* ref){
     if(ref->ptr != NULL){
         ScnContext_release(ref);
         ref->ptr = NULL;
     }
 }
 
-void ScnContext_set(STScnContextRef* ref, STScnContextRef other){
+void ScnContext_set(ScnContextRef* ref, ScnContextRef other){
     //retain first
     if(other.ptr != NULL){
         ScnContext_retain(other);
@@ -96,21 +96,21 @@ void ScnContext_set(STScnContextRef* ref, STScnContextRef other){
     *ref = other;
 }
 
-void ScnContext_null(STScnContextRef* ref){
-    *ref = (STScnContextRef)STScnContextRef_Zero;
+void ScnContext_null(ScnContextRef* ref){
+    *ref = (ScnContextRef)ScnContextRef_Zero;
 }
 
 //context (memory)
 
-void* ScnContext_malloc(STScnContextRef ref, const ScnUI32 newSz, const char* dbgHintStr){
+void* ScnContext_malloc(ScnContextRef ref, const ScnUI32 newSz, const char* dbgHintStr){
     return (ref.itf != NULL && ref.itf->mem.malloc != NULL ? (*ref.itf->mem.malloc)(newSz, dbgHintStr) : NULL);
 }
 
-void* ScnContext_mrealloc(STScnContextRef ref, void* ptr, const ScnUI32 newSz, const char* dbgHintStr){
+void* ScnContext_mrealloc(ScnContextRef ref, void* ptr, const ScnUI32 newSz, const char* dbgHintStr){
     return (ref.itf != NULL && ref.itf->mem.realloc != NULL ? (*ref.itf->mem.realloc)(ptr, newSz, dbgHintStr) : NULL);
 }
 
-void ScnContext_mfree(STScnContextRef ref, void* ptr){
+void ScnContext_mfree(ScnContextRef ref, void* ptr){
     if(ref.itf != NULL && ref.itf->mem.free != NULL){
         (*ref.itf->mem.free)(ptr);
     }
@@ -118,8 +118,8 @@ void ScnContext_mfree(STScnContextRef ref, void* ptr){
 
 //context (mutex)
 
-STScnMutexRef ScnContext_allocMutex(STScnContextRef ref){
-    return (ref.itf != NULL && ref.itf->mutex.alloc != NULL ? (*ref.itf->mutex.alloc)(ref.itf) : (STScnMutexRef)STScnMutexRef_Zero);
+ScnMutexRef ScnContext_allocMutex(ScnContextRef ref){
+    return (ref.itf != NULL && ref.itf->mutex.alloc != NULL ? (*ref.itf->mutex.alloc)(ref.itf) : (ScnMutexRef)ScnMutexRef_Zero);
 }
 
 

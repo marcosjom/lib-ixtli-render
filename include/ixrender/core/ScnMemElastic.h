@@ -29,23 +29,23 @@ typedef struct STScnMemElasticCfg_ {
     ScnBOOL idxZeroIsValid; //idx=0 is an assignable address
 } STScnMemElasticCfg;
 
-//STScnMemElasticRef
+//ScnMemElasticRef
 
 SCN_REF_STRUCT_METHODS_DEC(ScnMemElastic)
 
 //
 
-ScnBOOL     ScnMemElastic_prepare(STScnMemElasticRef ref, const STScnMemElasticCfg* cfg, ScnUI32* optDstBlocksTotalSz);
-ScnBOOL     ScnMemElastic_hasPtrs(STScnMemElasticRef ref); //allocations made?
-ScnUI32     ScnMemElastic_getAddressableSize(STScnMemElasticRef ref); //includes the address zero
-STScnAbsPtr ScnMemElastic_getNextContinuousAddress(STScnMemElasticRef ref, const ScnUI32 iAddress, ScnUI32* dstContinuousSz);
+ScnBOOL     ScnMemElastic_prepare(ScnMemElasticRef ref, const STScnMemElasticCfg* cfg, ScnUI32* optDstBlocksTotalSz);
+ScnBOOL     ScnMemElastic_hasPtrs(ScnMemElasticRef ref); //allocations made?
+ScnUI32     ScnMemElastic_getAddressableSize(ScnMemElasticRef ref); //includes the address zero
+STScnAbsPtr ScnMemElastic_getNextContinuousAddress(ScnMemElasticRef ref, const ScnUI32 iAddress, ScnUI32* dstContinuousSz);
 //allocations
-STScnAbsPtr ScnMemElastic_malloc(STScnMemElasticRef ref, const ScnUI32 usableSz, ScnUI32* optDstBlocksTotalSz);
-ScnBOOL     ScnMemElastic_mfree(STScnMemElasticRef ref, const STScnAbsPtr ptr);
+STScnAbsPtr ScnMemElastic_malloc(ScnMemElasticRef ref, const ScnUI32 usableSz, ScnUI32* optDstBlocksTotalSz);
+ScnBOOL     ScnMemElastic_mfree(ScnMemElasticRef ref, const STScnAbsPtr ptr);
 //
-void        ScnMemElastic_clear(STScnMemElasticRef ref); //clears the index, all pointers are invalid after this call
+void        ScnMemElastic_clear(ScnMemElasticRef ref); //clears the index, all pointers are invalid after this call
 //dbg
-ScnBOOL     ScnMemElastic_validateIndex(STScnMemElasticRef ref);
+ScnBOOL     ScnMemElastic_validateIndex(ScnMemElasticRef ref);
 
 #ifdef __cplusplus
 } //extern "C"

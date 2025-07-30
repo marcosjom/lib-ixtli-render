@@ -11,24 +11,24 @@
 //STScnVertexbuffSlot
 
 typedef struct STScnVertexbuffSlot_ {
-    STScnGpuVertexbuffRef   gpuVBuff;
+    ScnGpuVertexbuffRef   gpuVBuff;
 } STScnVertexbuffSlot;
 
-void ScnVertexbuffSlot_init(STScnContextRef ctx, STScnVertexbuffSlot* opq);
+void ScnVertexbuffSlot_init(ScnContextRef ctx, STScnVertexbuffSlot* opq);
 void ScnVertexbuffSlot_destroy(STScnVertexbuffSlot* opq);
 
 //STScnVertexbuffOpq
 
 typedef struct STScnVertexbuffOpq_ {
-    STScnContextRef         ctx;
-    STScnMutexRef           mutex;
+    ScnContextRef         ctx;
+    ScnMutexRef           mutex;
     //
     STScnGpuVertexbuffCfg   cfg;    //config
-    STScnGpuDeviceRef       gpuDev;
+    ScnGpuDeviceRef       gpuDev;
     //buffs
     struct {
-        STScnBufferRef      vertex;
-        STScnBufferRef      idxs;
+        ScnBufferRef      vertex;
+        ScnBufferRef      idxs;
     } buffs;
     //slots (render)
     struct {
@@ -43,7 +43,7 @@ ScnSI32 ScnVertexbuff_getOpqSz(void){
     return (ScnSI32)sizeof(STScnVertexbuffOpq);
 }
 
-void ScnVertexbuff_initZeroedOpq(STScnContextRef ctx, void* obj) {
+void ScnVertexbuff_initZeroedOpq(ScnContextRef ctx, void* obj) {
     STScnVertexbuffOpq* opq = (STScnVertexbuffOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
@@ -53,6 +53,20 @@ void ScnVertexbuff_initZeroedOpq(STScnContextRef ctx, void* obj) {
 
 void ScnVertexbuff_destroyOpq(void* obj){
     STScnVertexbuffOpq* opq = (STScnVertexbuffOpq*)obj;
+    //slots
+    {
+        if(opq->slots.arr != NULL){
+            STScnVertexbuffSlot* s = opq->slots.arr;
+            const STScnVertexbuffSlot* sAfterEnd = s + opq->slots.use;
+            while(s < sAfterEnd){
+                ScnVertexbuffSlot_destroy(s);
+                ++s;
+            }
+            ScnContext_mfree(opq->ctx, opq->slots.arr);
+            opq->slots.arr = NULL;
+        }
+        opq->slots.use = opq->slots.sz = 0;
+    }
     //buffs
     {
         ScnBuffer_releaseAndNullify(&opq->buffs.vertex);
@@ -68,7 +82,7 @@ void ScnVertexbuff_destroyOpq(void* obj){
 
 //
 
-ScnBOOL ScnVertexbuff_prepare(STScnVertexbuffRef ref, STScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuVertexbuffCfg* cfg, STScnBufferRef vertexBuff, STScnBufferRef idxsBuff) {
+ScnBOOL ScnVertexbuff_prepare(ScnVertexbuffRef ref, ScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuVertexbuffCfg* cfg, ScnBufferRef vertexBuff, ScnBufferRef idxsBuff) {
     ScnBOOL r = ScnFALSE;
     STScnVertexbuffOpq* opq = (STScnVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -108,24 +122,24 @@ ScnBOOL ScnVertexbuff_prepare(STScnVertexbuffRef ref, STScnGpuDeviceRef gpuDev, 
 
 //
 
-ScnUI32 ScnVertexbuff_getSzPerRecord(STScnVertexbuffRef ref){
+ScnUI32 ScnVertexbuff_getSzPerRecord(ScnVertexbuffRef ref){
     STScnVertexbuffOpq* opq = (STScnVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return opq->cfg.szPerRecord;
 }
 
-STScnBufferRef ScnVertexbuff_getVertexBuff(STScnVertexbuffRef ref){
+ScnBufferRef ScnVertexbuff_getVertexBuff(ScnVertexbuffRef ref){
     STScnVertexbuffOpq* opq = (STScnVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return opq->buffs.vertex;
 }
 
-STScnBufferRef ScnVertexbuff_getIdxsBuff(STScnVertexbuffRef ref){
+ScnBufferRef ScnVertexbuff_getIdxsBuff(ScnVertexbuffRef ref){
     STScnVertexbuffOpq* opq = (STScnVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return opq->buffs.idxs;
 }
 
 //STScnVertexbuffSlot
 
-void ScnVertexbuffSlot_init(STScnContextRef ctx, STScnVertexbuffSlot* opq){
+void ScnVertexbuffSlot_init(ScnContextRef ctx, STScnVertexbuffSlot* opq){
     memset(opq, 0, sizeof(*opq));
 }
 
@@ -135,14 +149,14 @@ void ScnVertexbuffSlot_destroy(STScnVertexbuffSlot* opq){
 
 //gpu-vertexbuffer
 
-ScnBOOL ScnVertexbuff_prepareNextRenderSlot(STScnVertexbuffRef ref){
+ScnBOOL ScnVertexbuff_prepareNextRenderSlot(ScnVertexbuffRef ref){
     ScnBOOL r = ScnFALSE;
     STScnVertexbuffOpq* opq = (STScnVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(opq->slots.arr != NULL && opq->slots.use > 0 && !ScnGpuDevice_isNull(opq->gpuDev)){
         r = ScnTRUE;
-        STScnGpuBufferRef vbuff = STScnObjRef_Zero; ScnBOOL vbuffHasPtrs = ScnFALSE;
-        STScnGpuBufferRef iBuff = STScnObjRef_Zero; ScnBOOL iBuffHasPtrs = ScnFALSE;
+        ScnGpuBufferRef vbuff = ScnObjRef_Zero; ScnBOOL vbuffHasPtrs = ScnFALSE;
+        ScnGpuBufferRef iBuff = ScnObjRef_Zero; ScnBOOL iBuffHasPtrs = ScnFALSE;
         //move to next render slot
         opq->slots.iCur = (opq->slots.iCur + 1) % opq->slots.use;
         //buffs

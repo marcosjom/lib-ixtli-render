@@ -29,21 +29,21 @@
 #   endif
 #endif
 
-// STScnMutexRef
+// ScnMutexRef
 
-void ScnMutex_lock(STScnMutexRef ref){
+void ScnMutex_lock(ScnMutexRef ref){
     if(ref.opq != NULL && ref.itf != NULL && ref.itf->lock != NULL){
         (*ref.itf->lock)(ref);
     }
 }
 
-void ScnMutex_unlock(STScnMutexRef ref){
+void ScnMutex_unlock(ScnMutexRef ref){
     if(ref.opq != NULL && ref.itf != NULL && ref.itf->unlock != NULL){
         (*ref.itf->unlock)(ref);
     }
 }
 
-void ScnMutex_free(STScnMutexRef* ref){
+void ScnMutex_free(ScnMutexRef* ref){
     if(ref->opq != NULL && ref->itf != NULL && ref->itf->free != NULL){
         (*ref->itf->free)(ref);
     }
@@ -56,8 +56,8 @@ typedef struct STScnMutexOpq_ {
     struct STScnContextItf_ ctx;
 } STScnMutexOpq;
 
-STScnMutexRef ScnMutexItf_default_alloc(struct STScnContextItf_* ctx){
-    STScnMutexRef r = STScnMutexRef_Zero;
+ScnMutexRef ScnMutexItf_default_alloc(struct STScnContextItf_* ctx){
+    ScnMutexRef r = ScnMutexRef_Zero;
     STScnMutexOpq* obj = (STScnMutexOpq*)(*ctx->mem.malloc)(sizeof(STScnMutexOpq), "ScnMutexItf_default_alloc");
     if(obj != NULL){
         Scn_MUTEX_INIT(&obj->mutex);
@@ -68,7 +68,7 @@ STScnMutexRef ScnMutexItf_default_alloc(struct STScnContextItf_* ctx){
     return r;
 }
 
-void ScnMutexItf_default_free(STScnMutexRef* pObj){
+void ScnMutexItf_default_free(ScnMutexRef* pObj){
     if(pObj != NULL){
         STScnMutexOpq* obj = (STScnMutexOpq*)pObj->opq;
         if(obj != NULL){
@@ -80,14 +80,14 @@ void ScnMutexItf_default_free(STScnMutexRef* pObj){
     }
 }
 
-void ScnMutexItf_default_lock(STScnMutexRef pObj){
+void ScnMutexItf_default_lock(ScnMutexRef pObj){
     if(pObj.opq != NULL){
         STScnMutexOpq* obj = (STScnMutexOpq*)pObj.opq;
         Scn_MUTEX_LOCK(&obj->mutex);
     }
 }
 
-void ScnMutexItf_default_unlock(STScnMutexRef pObj){
+void ScnMutexItf_default_unlock(ScnMutexRef pObj){
     if(pObj.opq != NULL){
         STScnMutexOpq* obj = (STScnMutexOpq*)pObj.opq;
         Scn_MUTEX_UNLOCK(&obj->mutex);

@@ -18,23 +18,23 @@
 extern "C" {
 #endif
 
-//STScnVertexbuffRef
+//ScnVertexbuffRef
 
 SCN_REF_STRUCT_METHODS_DEC(ScnVertexbuff)
 
 //
 
-ScnBOOL         ScnVertexbuff_prepare(STScnVertexbuffRef ref, STScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuVertexbuffCfg* cfg, STScnBufferRef vertexBuff, STScnBufferRef idxsBuff);
+ScnBOOL         ScnVertexbuff_prepare(ScnVertexbuffRef ref, ScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuVertexbuffCfg* cfg, ScnBufferRef vertexBuff, ScnBufferRef idxsBuff);
 
-ScnBOOL         ScnVertexbuff_activate(STScnVertexbuffRef ref);
-ScnBOOL         ScnVertexbuff_deactivate(STScnVertexbuffRef ref);
+ScnBOOL         ScnVertexbuff_activate(ScnVertexbuffRef ref);
+ScnBOOL         ScnVertexbuff_deactivate(ScnVertexbuffRef ref);
 
-ScnUI32         ScnVertexbuff_getSzPerRecord(STScnVertexbuffRef ref);
-STScnBufferRef  ScnVertexbuff_getVertexBuff(STScnVertexbuffRef ref);
-STScnBufferRef  ScnVertexbuff_getIdxsBuff(STScnVertexbuffRef ref);
+ScnUI32         ScnVertexbuff_getSzPerRecord(ScnVertexbuffRef ref);
+ScnBufferRef  ScnVertexbuff_getVertexBuff(ScnVertexbuffRef ref);
+ScnBufferRef  ScnVertexbuff_getIdxsBuff(ScnVertexbuffRef ref);
 
 //gpu-vertexbuffer
-ScnBOOL         ScnVertexbuff_prepareNextRenderSlot(STScnVertexbuffRef ref);
+ScnBOOL         ScnVertexbuff_prepareNextRenderSlot(ScnVertexbuffRef ref);
 
 #ifdef __cplusplus
 } //extern "C"

@@ -84,7 +84,7 @@ ScnSI32 ScnArraySorted_indexOf_(const void* pArr, const ScnSI32 use, const ScnSI
 #define ScnArraySorted_addPtr(CTX_REF, ARRSTPTR, ITM_PTR, ARR_TYPE) \
         (ARR_TYPE*)ScnArraySorted_addPtr_(CTX_REF, (void**)&(ARRSTPTR)->arr, &(ARRSTPTR)->use, &(ARRSTPTR)->sz, (ARRSTPTR)->growth, sizeof((ARRSTPTR)->arr[0]), ITM_PTR, sizeof(*(ITM_PTR)), (ARRSTPTR)->cmpFunc, "ScnArraySorted_addPtr::" #ARRSTPTR)
 
-void*   ScnArraySorted_addPtr_(STScnContextRef ctx, void** pArr, ScnSI32* use, ScnSI32* sz, const ScnSI32 growth, const ScnSI32 arrItmSz, const void* itmPtr, const ScnSI32 itmSz, ScnCompareFunc cmpFunc, const char* dbgHint);
+void*   ScnArraySorted_addPtr_(ScnContextRef ctx, void** pArr, ScnSI32* use, ScnSI32* sz, const ScnSI32 growth, const ScnSI32 arrItmSz, const void* itmPtr, const ScnSI32 itmSz, ScnCompareFunc cmpFunc, const char* dbgHint);
 
 /*
 #define ScnArraySorted_addValue(DST, CTX_REF, ARRSTPTR, ITM, ARR_TYPE) \

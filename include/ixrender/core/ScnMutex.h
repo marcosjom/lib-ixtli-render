@@ -14,34 +14,34 @@
 extern "C" {
 #endif
 
-struct STScnMutexRef_;
+struct ScnMutexRef_;
 struct STScnMutexItf_;
 //
 struct STScnContextItf_; //external
 
-// STScnMutexRef
+// ScnMutexRef
 
-#define STScnMutexRef_Zero { NULL, NULL }
+#define ScnMutexRef_Zero { NULL, NULL }
 
-typedef struct STScnMutexRef_ {
+typedef struct ScnMutexRef_ {
     void*                   opq;
     struct STScnMutexItf_*  itf;
-} STScnMutexRef;
+} ScnMutexRef;
 
 #define ScnMutex_isNull(REF)                ((REF).opq != NULL)
 #define ScnMutex_null(REF_PTR)              (REF_PTR)->opq = NULL
 #define ScnMutex_freeAndNullify(REF_PTR)    if((REF_PTR)->opq != NULL){ ScnMutex_free(REF_PTR); (REF_PTR)->opq = NULL; }
-void    ScnMutex_free(STScnMutexRef* ref);
-void    ScnMutex_lock(STScnMutexRef ref);
-void    ScnMutex_unlock(STScnMutexRef ref);
+void    ScnMutex_free(ScnMutexRef* ref);
+void    ScnMutex_lock(ScnMutexRef ref);
+void    ScnMutex_unlock(ScnMutexRef ref);
 
 //STScnMutexItf
 
 typedef struct STScnMutexItf_ {
-    STScnMutexRef (*alloc)(struct STScnContextItf_* ctx);
-    void        (*free)(STScnMutexRef* obj);
-    void        (*lock)(STScnMutexRef obj);
-    void        (*unlock)(STScnMutexRef obj);
+    ScnMutexRef (*alloc)(struct STScnContextItf_* ctx);
+    void        (*free)(ScnMutexRef* obj);
+    void        (*lock)(ScnMutexRef obj);
+    void        (*unlock)(ScnMutexRef obj);
 } STScnMutexItf;
 
 //Links NULL methods to a DEFAULT implementation,

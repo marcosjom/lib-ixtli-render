@@ -10,14 +10,14 @@
 //STScnGpuFramebuffOpq
 
 typedef struct STScnGpuFramebuffOpq_ {
-    STScnContextRef     ctx;
-    STScnMutexRef       mutex;
+    ScnContextRef     ctx;
+    ScnMutexRef       mutex;
     //
     STScnGpuFramebuffCfg cfg;    //config
     //bind
     struct {
         ENScnGpuFramebuffDstType type;
-        STScnObjRef     ref;    //STScnGpuTextureRef, STScnGpuRenderbuffRef
+        ScnObjRef     ref;    //ScnGpuTextureRef, ScnGpuRenderbuffRef
     } bind;
     //changes
     struct {
@@ -35,7 +35,7 @@ ScnSI32 ScnGpuFramebuff_getOpqSz(void){
     return (ScnSI32)sizeof(STScnGpuFramebuffOpq);
 }
 
-void ScnGpuFramebuff_initZeroedOpq(STScnContextRef ctx, void* obj) {
+void ScnGpuFramebuff_initZeroedOpq(ScnContextRef ctx, void* obj) {
     STScnGpuFramebuffOpq* opq = (STScnGpuFramebuffOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
@@ -66,7 +66,7 @@ void ScnGpuFramebuff_destroyOpq(void* obj){
 
 //
 
-ScnBOOL ScnGpuFramebuff_prepare(STScnGpuFramebuffRef ref, const STScnGpuFramebuffCfg* cfg, const STScnGpuFramebuffApiItf* itf, void* itfParam) {
+ScnBOOL ScnGpuFramebuff_prepare(ScnGpuFramebuffRef ref, const STScnGpuFramebuffCfg* cfg, const STScnGpuFramebuffApiItf* itf, void* itfParam) {
     ScnBOOL r = ScnFALSE;
     STScnGpuFramebuffOpq* opq = (STScnGpuFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -104,7 +104,7 @@ ScnBOOL ScnGpuFramebuff_prepare(STScnGpuFramebuffRef ref, const STScnGpuFramebuf
     return r;
 }
 
-ScnBOOL ScnGpuFramebuff_bindTo(STScnGpuFramebuffRef ref, const STScnObjRef dstRef, const ENScnGpuFramebuffDstType type){
+ScnBOOL ScnGpuFramebuff_bindTo(ScnGpuFramebuffRef ref, const ScnObjRef dstRef, const ENScnGpuFramebuffDstType type){
     ScnBOOL r = ScnFALSE;
     STScnGpuFramebuffOpq* opq = (STScnGpuFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);

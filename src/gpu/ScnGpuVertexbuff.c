@@ -22,7 +22,7 @@ ScnSI32 ScnGpuVertexbuff_getOpqSz(void){
     return (ScnSI32)sizeof(STScnGpuVertexbuffOpq);
 }
 
-void ScnGpuVertexbuff_initZeroedOpq(STScnContextRef ctx, void* obj) {
+void ScnGpuVertexbuff_initZeroedOpq(ScnContextRef ctx, void* obj) {
     //STScnGpuVertexbuffOpq* opq = (STScnGpuVertexbuffOpq*)obj;
 }
 
@@ -40,7 +40,7 @@ void ScnGpuVertexbuff_destroyOpq(void* obj){
 
 //
 
-ScnBOOL ScnGpuVertexbuff_prepare(STScnGpuVertexbuffRef ref, const STScnGpuVertexbuffApiItf* itf, void* itfParam) {
+ScnBOOL ScnGpuVertexbuff_prepare(ScnGpuVertexbuffRef ref, const STScnGpuVertexbuffApiItf* itf, void* itfParam) {
     ScnBOOL r = ScnFALSE;
     STScnGpuVertexbuffOpq* opq = (STScnGpuVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     if(itf != NULL && itf->free != NULL){
@@ -62,17 +62,17 @@ ScnBOOL ScnGpuVertexbuff_prepare(STScnGpuVertexbuffRef ref, const STScnGpuVertex
     return r;
 }
 
-ScnBOOL ScnGpuVertexbuff_sync(STScnGpuVertexbuffRef ref, const STScnGpuVertexbuffCfg* cfg, STScnGpuBufferRef vBuff, STScnGpuBufferRef idxBuff){
+ScnBOOL ScnGpuVertexbuff_sync(ScnGpuVertexbuffRef ref, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff){
     STScnGpuVertexbuffOpq* opq = (STScnGpuVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (opq != NULL && opq->api.itf.sync != NULL ? (*opq->api.itf.sync)(opq->api.itfParam, cfg, vBuff, idxBuff) : ScnFALSE);
 }
 
-ScnBOOL ScnGpuVertexbuff_activate(STScnGpuVertexbuffRef ref){
+ScnBOOL ScnGpuVertexbuff_activate(ScnGpuVertexbuffRef ref){
     STScnGpuVertexbuffOpq* opq = (STScnGpuVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (opq != NULL && opq->api.itf.activate != NULL ? (*opq->api.itf.activate)(opq->api.itfParam) : ScnFALSE);
 }
 
-ScnBOOL ScnGpuVertexbuff_deactivate(STScnGpuVertexbuffRef ref){
+ScnBOOL ScnGpuVertexbuff_deactivate(ScnGpuVertexbuffRef ref){
     STScnGpuVertexbuffOpq* opq = (STScnGpuVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (opq != NULL && opq->api.itf.deactivate != NULL ? (*opq->api.itf.deactivate)(opq->api.itfParam) : ScnFALSE);
 }

@@ -7,7 +7,7 @@
 
 #include "ixrender/core/ScnArray.h"
 
-void* ScnArray_addPtr_(STScnContextRef ctx, void** arr, ScnSI32* use, ScnSI32* sz, const ScnSI32 growth, const ScnSI32 arrItmSz, const void* itmPtr, const ScnSI32 itmSz, const char* dbgHint){
+void* ScnArray_addPtr_(ScnContextRef ctx, void** arr, ScnSI32* use, ScnSI32* sz, const ScnSI32 growth, const ScnSI32 arrItmSz, const void* itmPtr, const ScnSI32 itmSz, const char* dbgHint){
     SCN_ASSERT(!(arr == NULL || use == NULL || sz == NULL))
     SCN_ASSERT(arrItmSz == itmSz)
     //

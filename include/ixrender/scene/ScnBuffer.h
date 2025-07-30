@@ -29,26 +29,26 @@ typedef enum ENScnBufferType_ {
     ENScnBufferType_Count
 } ENScnBufferType;
 
-//STScnBufferRef
+//ScnBufferRef
 
 SCN_REF_STRUCT_METHODS_DEC(ScnBuffer)
 
 //
 
-ScnBOOL     ScnBuffer_prepare(STScnBufferRef ref, STScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuBufferCfg* cfg);
-ScnBOOL     ScnBuffer_hasPtrs(STScnBufferRef ref); //allocations made?
-ScnUI32     ScnBuffer_getRenderSlotsCount(STScnBufferRef ref);
+ScnBOOL     ScnBuffer_prepare(ScnBufferRef ref, ScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuBufferCfg* cfg);
+ScnBOOL     ScnBuffer_hasPtrs(ScnBufferRef ref); //allocations made?
+ScnUI32     ScnBuffer_getRenderSlotsCount(ScnBufferRef ref);
 
 //cpu-buffer
-ScnBOOL     ScnBuffer_clear(STScnBufferRef ref);
-ScnBOOL     ScnBuffer_invalidateAll(STScnBufferRef ref); //forces the full buffer to be synced to its gpu-buffer slot
-STScnAbsPtr ScnBuffer_malloc(STScnBufferRef ref, const ScnUI32 usableSz);
-ScnBOOL     ScnBuffer_mfree(STScnBufferRef ref, const STScnAbsPtr ptr);
-ScnBOOL     ScnBuffer_mInvalidate(STScnBufferRef ref, const STScnAbsPtr ptr, const ScnUI32 sz);
+ScnBOOL     ScnBuffer_clear(ScnBufferRef ref);
+ScnBOOL     ScnBuffer_invalidateAll(ScnBufferRef ref); //forces the full buffer to be synced to its gpu-buffer slot
+STScnAbsPtr ScnBuffer_malloc(ScnBufferRef ref, const ScnUI32 usableSz);
+ScnBOOL     ScnBuffer_mfree(ScnBufferRef ref, const STScnAbsPtr ptr);
+ScnBOOL     ScnBuffer_mInvalidate(ScnBufferRef ref, const STScnAbsPtr ptr, const ScnUI32 sz);
 
 //gpu-buffer
-ScnBOOL             ScnBuffer_prepareNextRenderSlot(STScnBufferRef ref, ScnBOOL* dstHasPtrs);
-STScnGpuBufferRef   ScnBuffer_getCurrentRenderSlotGpuBuffer(STScnBufferRef ref);
+ScnBOOL             ScnBuffer_prepareNextRenderSlot(ScnBufferRef ref, ScnBOOL* dstHasPtrs);
+ScnGpuBufferRef   ScnBuffer_getCurrentRenderSlotGpuBuffer(ScnBufferRef ref);
 
 #ifdef __cplusplus
 } //extern "C"

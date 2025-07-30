@@ -12,11 +12,11 @@
 //STScnGpuTextureOpq
 
 typedef struct STScnGpuTextureOpq_ {
-    STScnContextRef     ctx;
-    STScnMutexRef       mutex;
+    ScnContextRef     ctx;
+    ScnMutexRef       mutex;
     //
     STScnGpuTextureCfg  cfg;    //config
-    STScnBitmapRef      bmp;    //bitmap
+    ScnBitmapRef      bmp;    //bitmap
     //changes
     struct {
         ScnBOOL         whole;  //all the content is new
@@ -34,7 +34,7 @@ ScnSI32 ScnGpuTexture_getOpqSz(void){
     return (ScnSI32)sizeof(STScnGpuTextureOpq);
 }
 
-void ScnGpuTexture_initZeroedOpq(STScnContextRef ctx, void* obj) {
+void ScnGpuTexture_initZeroedOpq(ScnContextRef ctx, void* obj) {
     STScnGpuTextureOpq* opq = (STScnGpuTextureOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
@@ -72,14 +72,14 @@ void ScnGpuTexture_destroyOpq(void* obj){
 
 //
 
-ScnBOOL ScnGpuTexture_prepare(STScnGpuTextureRef ref, const STScnGpuTextureCfg* cfg, const STScnGpuTextureApiItf* itf, void* itfParam) {
+ScnBOOL ScnGpuTexture_prepare(ScnGpuTextureRef ref, const STScnGpuTextureCfg* cfg, const STScnGpuTextureApiItf* itf, void* itfParam) {
     ScnBOOL r = ScnFALSE;
     STScnGpuTextureOpq* opq = (STScnGpuTextureOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(cfg != NULL && cfg->width > 0 && cfg->height > 0 && opq->cfg.width == 0 && itf != NULL && itf->create != NULL && itf->destroy != NULL){
         void* data = (*itf->create)(cfg, itfParam);
         if(data != NULL){
-            STScnBitmapRef bmp = ScnBitmap_alloc(opq->ctx);
+            ScnBitmapRef bmp = ScnBitmap_alloc(opq->ctx);
             if(!ScnBitmap_create(bmp, cfg->width, cfg->height, cfg->color)){
                 //error
             } else {
@@ -125,7 +125,7 @@ ScnBOOL ScnGpuTexture_prepare(STScnGpuTextureRef ref, const STScnGpuTextureCfg* 
 }
 
 
-ScnBOOL ScnGpuTexture_setImage(STScnGpuTextureRef ref, const STScnBitmapProps srcProps, const ScnBYTE* srcData){
+ScnBOOL ScnGpuTexture_setImage(ScnGpuTextureRef ref, const STScnBitmapProps srcProps, const ScnBYTE* srcData){
     ScnBOOL r = ScnFALSE;
     STScnGpuTextureOpq* opq = (STScnGpuTextureOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -145,7 +145,7 @@ ScnBOOL ScnGpuTexture_setImage(STScnGpuTextureRef ref, const STScnBitmapProps sr
     return r;
 }
 
-ScnBOOL ScnGpuTexture_setSubimage(STScnGpuTextureRef ref, const STScnPointI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData, const STScnRectI pSrcRect){
+ScnBOOL ScnGpuTexture_setSubimage(ScnGpuTextureRef ref, const STScnPointI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData, const STScnRectI pSrcRect){
     ScnBOOL r = ScnFALSE;
     STScnGpuTextureOpq* opq = (STScnGpuTextureOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);

@@ -50,14 +50,14 @@ typedef struct STScnGpuFramebuffApiItf_ {
 } STScnGpuFramebuffApiItf;
 
 
-//STScnGpuFramebuffRef
+//ScnGpuFramebuffRef
 
 SCN_REF_STRUCT_METHODS_DEC(ScnGpuFramebuff)
 
 //
 
-ScnBOOL ScnGpuFramebuff_prepare(STScnGpuFramebuffRef ref, const STScnGpuFramebuffCfg* cfg, const STScnGpuFramebuffApiItf* itf, void* itfParam);
-ScnBOOL ScnGpuFramebuff_bindTo(STScnGpuFramebuffRef ref, const STScnObjRef dstRef, const ENScnGpuFramebuffDstType type);
+ScnBOOL ScnGpuFramebuff_prepare(ScnGpuFramebuffRef ref, const STScnGpuFramebuffCfg* cfg, const STScnGpuFramebuffApiItf* itf, void* itfParam);
+ScnBOOL ScnGpuFramebuff_bindTo(ScnGpuFramebuffRef ref, const ScnObjRef dstRef, const ENScnGpuFramebuffDstType type);
 
 #ifdef __cplusplus
 } //extern "C"

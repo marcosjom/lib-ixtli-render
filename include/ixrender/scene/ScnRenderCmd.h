@@ -60,7 +60,7 @@ typedef struct STScnRenderCmd_ {
         //ENScnRenderCmd_SetTexture
         struct {
             ScnUI32    index;   //slot-index
-            ScnUI32    tex;     //STScnGpuTextureRef  tex;  //texture-id
+            ScnUI32    tex;     //ScnGpuTextureRef  tex;  //texture-id
         } setTexture;
         //ENScnRenderCmd_SetVertsType
         struct {

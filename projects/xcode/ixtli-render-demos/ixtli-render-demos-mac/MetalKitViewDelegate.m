@@ -24,9 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 #define IXTLI_FRAMES_COUNT_AND_RELEASE_RENDER   120
 
 @implementation MetalKitViewDelegate {
-    STScnContextRef ctx;
-    STScnRenderRef  render;
-    STScnModelRef   model;
+    ScnContextRef ctx;
+    ScnRenderRef  render;
+    ScnModelRef   model;
     //memory leak detection
     STScnMemMap     memmap;
     ScnUI32         framesCount;
@@ -36,9 +36,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view
 {
-    ctx             = (STScnContextRef)STScnContextRef_Zero;
-    render          = (STScnRenderRef)STScnObjRef_Zero;
-    model           = (STScnModelRef)STScnObjRef_Zero;
+    ctx             = (ScnContextRef)ScnContextRef_Zero;
+    render          = (ScnRenderRef)ScnObjRef_Zero;
+    model           = (ScnModelRef)ScnObjRef_Zero;
     metalKitView    = nil;
 
     self = [super init];
@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
             printf("ERROR, ScnApiMetal_getApiItf failed.\n");
         } else {
             render = ScnRender_alloc(ctx);
-            /*if(ScnRender_isNull(render)){
+            if(ScnRender_isNull(render)){
                 printf("ERROR, ScnRender_alloc failed.\n");
             } else if(!ScnRender_prepare(render, &itf, NULL)){
                 printf("ERROR, ScnRender_prepare failed.\n");
@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
                         v = verts.ptr[2]; v.x = 0; v.y = 0; v.color.r = 255; v.color.g = 55; v.color.b = 155; v.color.a = 255;
                     }
                 }
-            }*/
+            }
         }
     }
     return self;

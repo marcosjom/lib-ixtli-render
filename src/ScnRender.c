@@ -15,13 +15,13 @@
 //STScnRenderFbuffState
 
 typedef struct STScnRenderFbuffState_ {
-    STScnContextRef         ctx;
+    ScnContextRef         ctx;
     STScnAbsPtr             props;
     ScnUI32                 stackUse;           //effective use of the stack-array (the array is reused between renders)
     ScnArrayStruct(stack, STScnGpuTransform);   //stack of transformations
 } STScnRenderFbuffState;
 
-void ScnRenderFbuffState_init(STScnContextRef ctx, STScnRenderFbuffState* obj);
+void ScnRenderFbuffState_init(ScnContextRef ctx, STScnRenderFbuffState* obj);
 void ScnRenderFbuffState_destroy(STScnRenderFbuffState* obj);
 //
 ScnBOOL ScnRenderFbuffState_addTransform(STScnRenderFbuffState* obj, const STScnGpuTransform* const t);
@@ -29,18 +29,18 @@ ScnBOOL ScnRenderFbuffState_addTransform(STScnRenderFbuffState* obj, const STScn
 //STScnRenderOpq
 
 typedef struct STScnRenderOpq_ {
-    STScnContextRef         ctx;
-    STScnMutexRef           mutex;
+    ScnContextRef         ctx;
+    ScnMutexRef           mutex;
     ScnUI32                 ammRenderSlots;
     //api
     struct {
         STScnApiItf         itf;
         void*               itfParam;
     } api;
-    STScnGpuDeviceRef       gpuDev;
-    STScnBufferRef          viewPropsBuff;  //buffer with viewport properties
-    STScnBufferRef          nodesPropsBuff; //buffer with models
-    STScnVertexbuffsRef     vbuffs;         //buffers with vertices and indices
+    ScnGpuDeviceRef       gpuDev;
+    ScnBufferRef          viewPropsBuff;  //buffer with viewport properties
+    ScnBufferRef          nodesPropsBuff; //buffer with models
+    ScnVertexbuffsRef     vbuffs;         //buffers with vertices and indices
     //job
     struct {
         ScnBOOL             isActive;       //jobStart() was called without a jobEnd()
@@ -56,7 +56,7 @@ ScnSI32 ScnRender_getOpqSz(void){
     return (ScnSI32)sizeof(STScnRenderOpq);
 }
 
-void ScnRender_initZeroedOpq(STScnContextRef ctx, void* obj) {
+void ScnRender_initZeroedOpq(ScnContextRef ctx, void* obj) {
     STScnRenderOpq* opq = (STScnRenderOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
@@ -108,10 +108,10 @@ void ScnRender_destroyOpq(void* obj){
 
 //prepare
 
-STScnBufferRef      ScnRender_allocDynamicBuffLockedOpq_(STScnRenderOpq* opq, const ScnUI32 itmSz, const ScnUI32 itmsPerBlock, const ScnUI32 ammRenderSlots);
-STScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, const ScnUI32 ammRenderSlots);
+ScnBufferRef      ScnRender_allocDynamicBuffLockedOpq_(STScnRenderOpq* opq, const ScnUI32 itmSz, const ScnUI32 itmsPerBlock, const ScnUI32 ammRenderSlots);
+ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, const ScnUI32 ammRenderSlots);
 
-ScnBOOL ScnRender_prepare(STScnRenderRef ref, const STScnApiItf* itf, void* itfParam){
+ScnBOOL ScnRender_prepare(ScnRenderRef ref, const STScnApiItf* itf, void* itfParam){
     ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -126,21 +126,21 @@ ScnBOOL ScnRender_prepare(STScnRenderRef ref, const STScnApiItf* itf, void* itfP
 
 //Device
 
-ScnBOOL ScnRender_openDevice(STScnRenderRef ref, const STScnGpuDeviceCfg* cfg, const ScnUI32 ammRenderSlots){
+ScnBOOL ScnRender_openDevice(ScnRenderRef ref, const STScnGpuDeviceCfg* cfg, const ScnUI32 ammRenderSlots){
     ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(ScnGpuDevice_isNull(opq->gpuDev) && opq->api.itf.allocDevice != NULL && opq->ammRenderSlots == 0 && ammRenderSlots > 0){
-        STScnGpuDeviceRef gpuDev = (*opq->api.itf.allocDevice)(opq->ctx, cfg);
+        ScnGpuDeviceRef gpuDev = (*opq->api.itf.allocDevice)(opq->ctx, cfg);
         if(!ScnGpuDevice_isNull(gpuDev)){
             ScnGpuDevice_set(&opq->gpuDev, gpuDev);
             //
             opq->ammRenderSlots = ammRenderSlots;
             //initial buffers
             {
-                STScnBufferRef viewPropsBuff = STScnObjRef_Zero;
-                STScnBufferRef nodesPropsBuff = STScnObjRef_Zero;
-                STScnVertexbuffsRef vbuffs = STScnObjRef_Zero;
+                ScnBufferRef viewPropsBuff = ScnObjRef_Zero;
+                ScnBufferRef nodesPropsBuff = ScnObjRef_Zero;
+                ScnVertexbuffsRef vbuffs = ScnObjRef_Zero;
                 //
                 viewPropsBuff = ScnRender_allocDynamicBuffLockedOpq_(opq, sizeof(STScnGpuFramebufferProps), 32, ammRenderSlots);
                 if(ScnBuffer_isNull(viewPropsBuff)){
@@ -165,19 +165,21 @@ ScnBOOL ScnRender_openDevice(STScnRenderRef ref, const STScnGpuDeviceCfg* cfg, c
                 ScnBuffer_releaseAndNullify(&nodesPropsBuff);
                 ScnVertexbuffs_releaseAndNullify(&vbuffs);
             }
+            //
+            ScnGpuDevice_releaseAndNullify(&gpuDev);
         }
     }
     ScnMutex_unlock(opq->mutex);
     return r;
 }
 
-ScnBOOL ScnRender_hasOpenDevice(STScnRenderRef ref){
+ScnBOOL ScnRender_hasOpenDevice(ScnRenderRef ref){
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return !ScnGpuDevice_isNull(opq->gpuDev);
 }
 
-STScnModelRef ScnRender_allocModel(STScnRenderRef ref){
-    STScnModelRef r = STScnObjRef_Zero;
+ScnModelRef ScnRender_allocModel(ScnRenderRef ref){
+    ScnModelRef r = ScnObjRef_Zero;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnVertexbuffs_isNull(opq->vbuffs)){
@@ -196,13 +198,13 @@ STScnModelRef ScnRender_allocModel(STScnRenderRef ref){
 
 //Vertices
 
-STScnVertexbuffsRef ScnRender_getDefaultVertexbuffs(STScnRenderRef ref){
+ScnVertexbuffsRef ScnRender_getDefaultVertexbuffs(ScnRenderRef ref){
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return opq->vbuffs;
 }
 
-STScnVertexbuffsRef ScnRender_allocVertexbuffs(STScnRenderRef ref){
-    STScnVertexbuffsRef r = STScnObjRef_Zero;
+ScnVertexbuffsRef ScnRender_allocVertexbuffs(ScnRenderRef ref){
+    ScnVertexbuffsRef r = ScnObjRef_Zero;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(opq->ammRenderSlots > 0){
@@ -212,8 +214,8 @@ STScnVertexbuffsRef ScnRender_allocVertexbuffs(STScnRenderRef ref){
     return r;
 }
 
-STScnBufferRef ScnRender_allocDynamicBuffLockedOpq_(STScnRenderOpq* opq, const ScnUI32 itmSz, const ScnUI32 itmsPerBlock, const ScnUI32 ammRenderSlots){
-    STScnBufferRef r        = STScnObjRef_Zero;
+ScnBufferRef ScnRender_allocDynamicBuffLockedOpq_(STScnRenderOpq* opq, const ScnUI32 itmSz, const ScnUI32 itmsPerBlock, const ScnUI32 ammRenderSlots){
+    ScnBufferRef r        = ScnObjRef_Zero;
     STScnGpuBufferCfg cfg   = STScnGpuBufferCfg_Zero;
     cfg.mem.idxsAlign       = itmSz;
     cfg.mem.sizeAlign       = 256;
@@ -242,12 +244,12 @@ STScnBufferRef ScnRender_allocDynamicBuffLockedOpq_(STScnRenderOpq* opq, const S
     return r;
 }
 
-STScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, const ScnUI32 ammRenderSlots){
-    STScnVertexbuffsRef rr = STScnObjRef_Zero;
+ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, const ScnUI32 ammRenderSlots){
+    ScnVertexbuffsRef rr = ScnObjRef_Zero;
     ScnBOOL r = ScnTRUE;
-    STScnBufferRef vBuffs[ENScnVertexType_Count];
-    STScnBufferRef iBuffs[ENScnVertexType_Count];
-    STScnVertexbuffRef vbs[ENScnVertexType_Count];
+    ScnBufferRef vBuffs[ENScnVertexType_Count];
+    ScnBufferRef iBuffs[ENScnVertexType_Count];
+    ScnVertexbuffRef vbs[ENScnVertexType_Count];
     memset(vBuffs, 0, sizeof(vBuffs));
     memset(iBuffs, 0, sizeof(iBuffs));
     memset(vbs, 0, sizeof(vbs));
@@ -300,8 +302,8 @@ STScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, co
     if(r){
         ScnSI32 i; for(i = 0; i < ENScnVertexType_Count; i++){
             STScnGpuVertexbuffCfg cfg = STScnGpuVertexbuffCfg_Zero;
-            STScnBufferRef vertexBuff = vBuffs[i];
-            STScnBufferRef idxsBuff = iBuffs[i];
+            ScnBufferRef vertexBuff = vBuffs[i];
+            ScnBufferRef idxsBuff = iBuffs[i];
             //size
             switch(i){
                 case ENScnVertexType_Tex3: cfg.szPerRecord = sizeof(STScnVertexTex3); break;
@@ -353,7 +355,7 @@ STScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, co
         }
         //
         if(r){
-            STScnVertexbuffsRef vbObj = ScnVertexbuffs_alloc(opq->ctx);
+            ScnVertexbuffsRef vbObj = ScnVertexbuffs_alloc(opq->ctx);
             if(ScnVertexbuffs_prepare(vbObj, vbs, sizeof(vbs) / sizeof(vbs[0]))){
                 ScnVertexbuffs_set(&rr, vbObj);
             } else {
@@ -367,8 +369,8 @@ STScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, co
     {
         //vbs
         {
-            STScnVertexbuffRef* b = vbs;
-            const STScnVertexbuffRef* bAfterEnd = b + (sizeof(vbs) / sizeof(vbs[0]));
+            ScnVertexbuffRef* b = vbs;
+            const ScnVertexbuffRef* bAfterEnd = b + (sizeof(vbs) / sizeof(vbs[0]));
             while(b < bAfterEnd){
                 ScnVertexbuff_release(b);
                 ++b;
@@ -376,8 +378,8 @@ STScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, co
         }
         //vBuffs
         {
-            STScnBufferRef* b = vBuffs;
-            const STScnBufferRef* bAfterEnd = b + (sizeof(vBuffs) / sizeof(vBuffs[0]));
+            ScnBufferRef* b = vBuffs;
+            const ScnBufferRef* bAfterEnd = b + (sizeof(vBuffs) / sizeof(vBuffs[0]));
             while(b < bAfterEnd){
                 ScnBuffer_release(b);
                 ++b;
@@ -385,8 +387,8 @@ STScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, co
         }
         //iBuffs
         {
-            STScnBufferRef* b = iBuffs;
-            const STScnBufferRef* bAfterEnd = b + (sizeof(iBuffs) / sizeof(iBuffs[0]));
+            ScnBufferRef* b = iBuffs;
+            const ScnBufferRef* bAfterEnd = b + (sizeof(iBuffs) / sizeof(iBuffs[0]));
             while(b < bAfterEnd){
                 ScnBuffer_release(b);
                 ++b;
@@ -398,12 +400,12 @@ STScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, co
 
 //Buffers
 
-STScnBufferRef ScnRender_allocBuffer(STScnRenderRef ref, const STScnGpuBufferCfg* cfg){ //allocates a new buffer
-    STScnBufferRef r = STScnObjRef_Zero;
+ScnBufferRef ScnRender_allocBuffer(ScnRenderRef ref, const STScnGpuBufferCfg* cfg){ //allocates a new buffer
+    ScnBufferRef r = ScnObjRef_Zero;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(cfg != NULL && opq->ammRenderSlots > 0){
-        STScnBufferRef b = ScnBuffer_alloc(opq->ctx);
+        ScnBufferRef b = ScnBuffer_alloc(opq->ctx);
         if(!ScnBuffer_prepare(b, opq->gpuDev, opq->ammRenderSlots, cfg)){
             //error
             SCN_ASSERT(ScnFALSE)
@@ -419,7 +421,7 @@ STScnBufferRef ScnRender_allocBuffer(STScnRenderRef ref, const STScnGpuBufferCfg
 
 //job
     
-ScnBOOL ScnRender_jobStart(STScnRenderRef ref){
+ScnBOOL ScnRender_jobStart(ScnRenderRef ref){
     ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -449,7 +451,7 @@ ScnBOOL ScnRender_jobStart(STScnRenderRef ref){
     return r;
 }
     
-ScnBOOL ScnRender_jobEnd(STScnRenderRef ref){
+ScnBOOL ScnRender_jobEnd(ScnRenderRef ref){
     ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -466,7 +468,7 @@ ScnBOOL ScnRender_jobEnd(STScnRenderRef ref){
 
 //job framebuffers
 
-ScnBOOL ScnRender_jobFramebuffPush(STScnRenderRef ref, STScnFramebuffRef fbuff){
+ScnBOOL ScnRender_jobFramebuffPush(ScnRenderRef ref, ScnFramebuffRef fbuff){
     ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -507,7 +509,7 @@ ScnBOOL ScnRender_jobFramebuffPush(STScnRenderRef ref, STScnFramebuffRef fbuff){
     return r;
 }
 
-ScnBOOL ScnRender_jobFramebuffPop(STScnRenderRef ref){
+ScnBOOL ScnRender_jobFramebuffPop(ScnRenderRef ref){
     ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -527,7 +529,7 @@ ScnBOOL ScnRender_jobFramebuffPop(STScnRenderRef ref){
 
 //job transforms
 
-ScnBOOL ScnRender_jobTransformPush(STScnRenderRef ref, STScnModelProps* tScene){
+ScnBOOL ScnRender_jobTransformPush(ScnRenderRef ref, STScnModelProps* tScene){
     ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -555,7 +557,7 @@ ScnBOOL ScnRender_jobTransformPush(STScnRenderRef ref, STScnModelProps* tScene){
     return r;
 }
 
-ScnBOOL ScnRender_jobTransformPop(STScnRenderRef ref){
+ScnBOOL ScnRender_jobTransformPop(ScnRenderRef ref){
     ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -579,7 +581,7 @@ ScnBOOL ScnRender_jobTransformPop(STScnRenderRef ref){
 
 //job cmds
 
-void ScnRender_cmdMaskModePush(STScnRenderRef ref){
+void ScnRender_cmdMaskModePush(ScnRenderRef ref){
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
@@ -590,7 +592,7 @@ void ScnRender_cmdMaskModePush(STScnRenderRef ref){
     ScnMutex_unlock(opq->mutex);
 }
 
-void ScnRender_cmdMaskModePop(STScnRenderRef ref){
+void ScnRender_cmdMaskModePop(ScnRenderRef ref){
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
@@ -601,7 +603,7 @@ void ScnRender_cmdMaskModePop(STScnRenderRef ref){
     ScnMutex_unlock(opq->mutex);
 }
 
-void ScnRender_cmdSetTexture(STScnRenderRef ref, const ScnUI32 index, const ScnUI32 tex /*const STScnGpuTextureRef tex*/){
+void ScnRender_cmdSetTexture(ScnRenderRef ref, const ScnUI32 index, const ScnUI32 tex /*const ScnGpuTextureRef tex*/){
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
@@ -614,7 +616,7 @@ void ScnRender_cmdSetTexture(STScnRenderRef ref, const ScnUI32 index, const ScnU
     ScnMutex_unlock(opq->mutex);
 }
 
-void ScnRender_cmdSetVertsType(STScnRenderRef ref, const ENScnVertexType type){
+void ScnRender_cmdSetVertsType(ScnRenderRef ref, const ENScnVertexType type){
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
@@ -626,7 +628,7 @@ void ScnRender_cmdSetVertsType(STScnRenderRef ref, const ENScnVertexType type){
     ScnMutex_unlock(opq->mutex);
 }
 
-void ScnRender_cmdDawVerts(STScnRenderRef ref, const ENScnRenderShape mode, const ScnUI32 iFirst, const ScnUI32 count){
+void ScnRender_cmdDawVerts(ScnRenderRef ref, const ENScnRenderShape mode, const ScnUI32 iFirst, const ScnUI32 count){
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
@@ -640,7 +642,7 @@ void ScnRender_cmdDawVerts(STScnRenderRef ref, const ENScnRenderShape mode, cons
     ScnMutex_unlock(opq->mutex);
 }
 
-void ScnRender_cmdDawIndexes(STScnRenderRef ref, const ENScnRenderShape mode, const ScnUI32 iFirst, const ScnUI32 count){
+void ScnRender_cmdDawIndexes(ScnRenderRef ref, const ENScnRenderShape mode, const ScnUI32 iFirst, const ScnUI32 count){
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
@@ -656,7 +658,7 @@ void ScnRender_cmdDawIndexes(STScnRenderRef ref, const ENScnRenderShape mode, co
 
 //gpu-render
 
-ScnBOOL ScnRender_prepareNextRenderSlot(STScnRenderRef ref){
+ScnBOOL ScnRender_prepareNextRenderSlot(ScnRenderRef ref){
     ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -688,7 +690,7 @@ ScnBOOL ScnRender_prepareNextRenderSlot(STScnRenderRef ref){
 
 //STScnRenderFbuffState
 
-void ScnRenderFbuffState_init(STScnContextRef ctx, STScnRenderFbuffState* obj){
+void ScnRenderFbuffState_init(ScnContextRef ctx, STScnRenderFbuffState* obj){
     memset(obj, 0, sizeof(*obj));
     ScnContext_set(&obj->ctx, ctx);
     //stack of transformations

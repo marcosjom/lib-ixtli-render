@@ -18,20 +18,20 @@ typedef struct STScnMemElasticState_ {
 
 // STScnMemElasticBlock
 
-#define STScnMemElasticBlock_Zero  { 0, 0, 0, STScnObjRef_Zero }
+#define STScnMemElasticBlock_Zero  { 0, 0, 0, ScnObjRef_Zero }
 
 typedef struct STScnMemElasticBlock_ {
     ScnUI32             iOffset;    //idx-at-block + iOffset = abstract-idx-at-blocks
     ScnUI32             idxsSz;     //ammount of addreses from idx-0
     ScnUI32             szSmallestMallocFailed; //for 'ScnMemBlock_malloc' quick-ignores
-    STScnMemBlockRef    block;      //memory data
+    ScnMemBlockRef    block;      //memory data
 } STScnMemElasticBlock;
 
 //STScnMemElasticOpq
 
 typedef struct STScnMemElasticOpq_ {
-    STScnContextRef     ctx;
-    STScnMutexRef       mutex;
+    ScnContextRef     ctx;
+    ScnMutexRef       mutex;
     STScnMemElasticCfg   cfg;
     STScnMemElasticState state;
     ScnArrayStruct(blocks, STScnMemElasticBlock);
@@ -43,7 +43,7 @@ ScnSI32 ScnMemElastic_getOpqSz(void){
     return (ScnSI32)sizeof(STScnMemElasticOpq);
 }
 
-void ScnMemElastic_initZeroedOpq(STScnContextRef ctx, void* obj) {
+void ScnMemElastic_initZeroedOpq(ScnContextRef ctx, void* obj) {
     STScnMemElasticOpq* opq = (STScnMemElasticOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
@@ -80,7 +80,7 @@ void ScnMemElastic_destroyOpq(void* obj){
 
 //
 
-ScnBOOL ScnMemElastic_prepare(STScnMemElasticRef ref, const STScnMemElasticCfg* cfg, ScnUI32* optDstBlocksTotalSz){
+ScnBOOL ScnMemElastic_prepare(ScnMemElasticRef ref, const STScnMemElasticCfg* cfg, ScnUI32* optDstBlocksTotalSz){
     ScnBOOL r = ScnFALSE;
     STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
     //
@@ -135,7 +135,7 @@ ScnBOOL ScnMemElastic_prepare(STScnMemElasticRef ref, const STScnMemElasticCfg* 
     return r;
 }
 
-ScnBOOL ScnMemElastic_hasPtrs(STScnMemElasticRef ref){ //allocations made?
+ScnBOOL ScnMemElastic_hasPtrs(ScnMemElasticRef ref){ //allocations made?
     ScnBOOL r = ScnFALSE;
     STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -154,7 +154,7 @@ ScnBOOL ScnMemElastic_hasPtrs(STScnMemElasticRef ref){ //allocations made?
     return r;
 }
 
-ScnUI32 ScnMemElastic_getAddressableSize(STScnMemElasticRef ref){ //includes the address zero
+ScnUI32 ScnMemElastic_getAddressableSize(ScnMemElasticRef ref){ //includes the address zero
     ScnUI32 r = 0;
     STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -171,7 +171,7 @@ ScnUI32 ScnMemElastic_getAddressableSize(STScnMemElasticRef ref){ //includes the
     return r;
 }
 
-STScnAbsPtr ScnMemElastic_getNextContinuousAddress(STScnMemElasticRef ref, const ScnUI32 iAddress, ScnUI32* dstContinuousSz){
+STScnAbsPtr ScnMemElastic_getNextContinuousAddress(ScnMemElasticRef ref, const ScnUI32 iAddress, ScnUI32* dstContinuousSz){
     STScnAbsPtr r = STScnAbsPtr_Zero; ScnUI32 continuousSz = 0;
     STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -210,7 +210,7 @@ STScnAbsPtr ScnMemElastic_getNextContinuousAddress(STScnMemElasticRef ref, const
 
 //allocations
 
-STScnAbsPtr ScnMemElastic_malloc(STScnMemElasticRef ref, const ScnUI32 usableSz, ScnUI32* optDstBlocksTotalSz){
+STScnAbsPtr ScnMemElastic_malloc(ScnMemElasticRef ref, const ScnUI32 usableSz, ScnUI32* optDstBlocksTotalSz){
     STScnAbsPtr r = STScnAbsPtr_Zero;
     STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -280,7 +280,7 @@ STScnAbsPtr ScnMemElastic_malloc(STScnMemElasticRef ref, const ScnUI32 usableSz,
     return r;
 }
 
-ScnBOOL ScnMemElastic_mfree(STScnMemElasticRef ref, const STScnAbsPtr ptr){
+ScnBOOL ScnMemElastic_mfree(ScnMemElasticRef ref, const STScnAbsPtr ptr){
     ScnBOOL r = ScnFALSE;
     STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -308,7 +308,7 @@ ScnBOOL ScnMemElastic_mfree(STScnMemElasticRef ref, const STScnAbsPtr ptr){
 
 //
 
-void ScnMemElastic_clear(STScnMemElasticRef ref){ //clears the index, all pointers are invalid after this call
+void ScnMemElastic_clear(ScnMemElasticRef ref){ //clears the index, all pointers are invalid after this call
     STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     {
@@ -348,7 +348,7 @@ ScnBOOL ScnMemElastic_validateIndexLockedOpq_(STScnMemElasticOpq* opq){
     return r;
 }
     
-ScnBOOL ScnMemElastic_validateIndex(STScnMemElasticRef ref){
+ScnBOOL ScnMemElastic_validateIndex(ScnMemElasticRef ref){
     ScnBOOL r = ScnTRUE;
     STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);

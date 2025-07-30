@@ -12,8 +12,8 @@
 //STScnBufferSlot
 
 typedef struct STScnBufferSlot_ {
-    STScnContextRef     ctx;
-    STScnGpuBufferRef   gpuBuff;
+    ScnContextRef     ctx;
+    ScnGpuBufferRef   gpuBuff;
     //state
     struct {
         ScnUI32         totalSzLast;
@@ -25,18 +25,18 @@ typedef struct STScnBufferSlot_ {
     } changes;
 } STScnBufferSlot;
 
-void ScnBufferSlot_init(STScnContextRef ctx, STScnBufferSlot* opq);
+void ScnBufferSlot_init(ScnContextRef ctx, STScnBufferSlot* opq);
 void ScnBufferSlot_destroy(STScnBufferSlot* opq);
 
 //STScnBufferOpq
 
 typedef struct STScnBufferOpq_ {
-    STScnContextRef     ctx;
-    STScnMutexRef       mutex;
+    ScnContextRef     ctx;
+    ScnMutexRef       mutex;
     //
     STScnGpuBufferCfg   cfg;    //config
-    STScnMemElasticRef  mem;    //memory
-    STScnGpuDeviceRef   gpuDev;
+    ScnMemElasticRef  mem;    //memory
+    ScnGpuDeviceRef   gpuDev;
     //state
     struct {
         ScnUI32         totalSzLast;
@@ -59,7 +59,7 @@ ScnSI32 ScnBuffer_getOpqSz(void){
     return (ScnSI32)sizeof(STScnBufferOpq);
 }
 
-void ScnBuffer_initZeroedOpq(STScnContextRef ctx, void* obj) {
+void ScnBuffer_initZeroedOpq(ScnContextRef ctx, void* obj) {
     STScnBufferOpq* opq = (STScnBufferOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
@@ -100,13 +100,13 @@ void ScnBuffer_destroyOpq(void* obj){
 
 //
 
-ScnBOOL ScnBuffer_prepare(STScnBufferRef ref, STScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuBufferCfg* cfg) {
+ScnBOOL ScnBuffer_prepare(ScnBufferRef ref, ScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuBufferCfg* cfg) {
     ScnBOOL r = ScnFALSE;
     STScnBufferOpq* opq = (STScnBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(cfg != NULL && ammRenderSlots > 0 && ScnMemElastic_isNull(opq->mem) && opq->slots.arr == NULL && !ScnGpuDevice_isNull(gpuDev)){
         ScnUI32 totalSz = 0;
-        STScnMemElasticRef mem = ScnMemElastic_alloc(opq->ctx);
+        ScnMemElasticRef mem = ScnMemElastic_alloc(opq->ctx);
         if(ScnMemElastic_prepare(mem, &cfg->mem, &totalSz)){
             STScnBufferSlot* slots = ScnContext_malloc(opq->ctx, sizeof(STScnBufferSlot) * ammRenderSlots, "ScnBuffer_prepare::slots");
             if(slots != NULL){
@@ -147,7 +147,7 @@ ScnBOOL ScnBuffer_prepare(STScnBufferRef ref, STScnGpuDeviceRef gpuDev, const Sc
     return r;
 }
 
-ScnBOOL ScnBuffer_hasPtrs(STScnBufferRef ref){ //allocations made?
+ScnBOOL ScnBuffer_hasPtrs(ScnBufferRef ref){ //allocations made?
     ScnBOOL r = ScnFALSE;
     STScnBufferOpq* opq = (STScnBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -158,14 +158,14 @@ ScnBOOL ScnBuffer_hasPtrs(STScnBufferRef ref){ //allocations made?
     return r;
 }
 
-ScnUI32 ScnBuffer_getRenderSlotsCount(STScnBufferRef ref){
+ScnUI32 ScnBuffer_getRenderSlotsCount(ScnBufferRef ref){
     STScnBufferOpq* opq = (STScnBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return opq->slots.use;
 }
 
 //cpu-buffer
 
-ScnBOOL ScnBuffer_clear(STScnBufferRef ref){
+ScnBOOL ScnBuffer_clear(ScnBufferRef ref){
     ScnBOOL r = ScnFALSE;
     STScnBufferOpq* opq = (STScnBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -177,7 +177,7 @@ ScnBOOL ScnBuffer_clear(STScnBufferRef ref){
     return r;
 }
 
-ScnBOOL ScnBuffer_invalidateAll(STScnBufferRef ref){ //forces the full buffer to be synced to its gpu-buffer slot
+ScnBOOL ScnBuffer_invalidateAll(ScnBufferRef ref){ //forces the full buffer to be synced to its gpu-buffer slot
     ScnBOOL r = ScnFALSE;
     STScnBufferOpq* opq = (STScnBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -191,7 +191,7 @@ ScnBOOL ScnBuffer_invalidateAll(STScnBufferRef ref){ //forces the full buffer to
     return r;
 }
 
-STScnAbsPtr ScnBuffer_malloc(STScnBufferRef ref, const ScnUI32 usableSz){
+STScnAbsPtr ScnBuffer_malloc(ScnBufferRef ref, const ScnUI32 usableSz){
     STScnAbsPtr r = STScnAbsPtr_Zero;
     STScnBufferOpq* opq = (STScnBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -209,7 +209,7 @@ STScnAbsPtr ScnBuffer_malloc(STScnBufferRef ref, const ScnUI32 usableSz){
     return r;
 }
 
-ScnBOOL ScnBuffer_mfree(STScnBufferRef ref, const STScnAbsPtr ptr){
+ScnBOOL ScnBuffer_mfree(ScnBufferRef ref, const STScnAbsPtr ptr){
     ScnBOOL r = ScnFALSE;
     STScnBufferOpq* opq = (STScnBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -220,7 +220,7 @@ ScnBOOL ScnBuffer_mfree(STScnBufferRef ref, const STScnAbsPtr ptr){
     return r;
 }
 
-ScnBOOL ScnBuffer_mInvalidate(STScnBufferRef ref, const STScnAbsPtr ptr, const ScnUI32 sz){
+ScnBOOL ScnBuffer_mInvalidate(ScnBufferRef ref, const STScnAbsPtr ptr, const ScnUI32 sz){
     ScnBOOL r = ScnFALSE;
     STScnBufferOpq* opq = (STScnBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -250,7 +250,7 @@ ScnBOOL ScnBuffer_mInvalidate(STScnBufferRef ref, const STScnAbsPtr ptr, const S
 
 //gpu-buffer
 
-ScnBOOL ScnBuffer_prepareNextRenderSlot(STScnBufferRef ref, ScnBOOL* dstHasPtrs){
+ScnBOOL ScnBuffer_prepareNextRenderSlot(ScnBufferRef ref, ScnBOOL* dstHasPtrs){
     ScnBOOL r = ScnFALSE; ScnBOOL hasPtrs = ScnFALSE;
     STScnBufferOpq* opq = (STScnBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -292,8 +292,8 @@ ScnBOOL ScnBuffer_prepareNextRenderSlot(STScnBufferRef ref, ScnBOOL* dstHasPtrs)
     return r;
 }
 
-STScnGpuBufferRef ScnBuffer_getCurrentRenderSlotGpuBuffer(STScnBufferRef ref){
-    STScnGpuBufferRef r = STScnObjRef_Zero;
+ScnGpuBufferRef ScnBuffer_getCurrentRenderSlotGpuBuffer(ScnBufferRef ref){
+    ScnGpuBufferRef r = ScnObjRef_Zero;
     STScnBufferOpq* opq = (STScnBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(opq->slots.arr != NULL && opq->slots.use > 0){
@@ -306,7 +306,7 @@ STScnGpuBufferRef ScnBuffer_getCurrentRenderSlotGpuBuffer(STScnBufferRef ref){
 
 //STScnBufferSlot
 
-void ScnBufferSlot_init(STScnContextRef ctx, STScnBufferSlot* opq){
+void ScnBufferSlot_init(ScnContextRef ctx, STScnBufferSlot* opq){
     memset(opq, 0, sizeof(*opq));
     ScnContext_set(&opq->ctx, ctx);
     //changes

@@ -40,17 +40,17 @@ typedef struct STScnGpuBufferChanges_ {
 
 typedef struct STScnGpuBufferApiItf_ {
     void    (*free)(void* data);
-    ScnBOOL (*sync)(void* data, const STScnGpuBufferCfg* cfg, STScnMemElasticRef mem, const STScnGpuBufferChanges* changes);
+    ScnBOOL (*sync)(void* data, const STScnGpuBufferCfg* cfg, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes);
 } STScnGpuBufferApiItf;
 
-//STScnGpuBufferRef
+//ScnGpuBufferRef
 
 SCN_REF_STRUCT_METHODS_DEC(ScnGpuBuffer)
 
 //
 
-ScnBOOL ScnGpuBuffer_prepare(STScnGpuBufferRef ref, const STScnGpuBufferApiItf* itf, void* itfParam);
-ScnBOOL ScnGpuBuffer_sync(STScnGpuBufferRef ref, const STScnGpuBufferCfg* cfg, STScnMemElasticRef mem, const STScnGpuBufferChanges* changes);
+ScnBOOL ScnGpuBuffer_prepare(ScnGpuBufferRef ref, const STScnGpuBufferApiItf* itf, void* itfParam);
+ScnBOOL ScnGpuBuffer_sync(ScnGpuBufferRef ref, const STScnGpuBufferCfg* cfg, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes);
 
 #ifdef __cplusplus
 } //extern "C"

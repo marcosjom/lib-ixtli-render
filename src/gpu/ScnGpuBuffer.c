@@ -22,7 +22,7 @@ ScnSI32 ScnGpuBuffer_getOpqSz(void){
     return (ScnSI32)sizeof(STScnGpuBufferOpq);
 }
 
-void ScnGpuBuffer_initZeroedOpq(STScnContextRef ctx, void* obj) {
+void ScnGpuBuffer_initZeroedOpq(ScnContextRef ctx, void* obj) {
     //STScnGpuBufferOpq* opq = (STScnGpuBufferOpq*)obj;
 }
 
@@ -40,7 +40,7 @@ void ScnGpuBuffer_destroyOpq(void* obj){
 
 //
 
-ScnBOOL ScnGpuBuffer_prepare(STScnGpuBufferRef ref, const STScnGpuBufferApiItf* itf, void* itfParam) {
+ScnBOOL ScnGpuBuffer_prepare(ScnGpuBufferRef ref, const STScnGpuBufferApiItf* itf, void* itfParam) {
     ScnBOOL r = ScnFALSE;
     STScnGpuBufferOpq* opq = (STScnGpuBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     if(itf != NULL && itf->free != NULL){
@@ -62,7 +62,7 @@ ScnBOOL ScnGpuBuffer_prepare(STScnGpuBufferRef ref, const STScnGpuBufferApiItf* 
     return r;
 }
 
-ScnBOOL ScnGpuBuffer_sync(STScnGpuBufferRef ref, const STScnGpuBufferCfg* cfg, STScnMemElasticRef mem, const STScnGpuBufferChanges* changes){
+ScnBOOL ScnGpuBuffer_sync(ScnGpuBufferRef ref, const STScnGpuBufferCfg* cfg, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes){
     STScnGpuBufferOpq* opq = (STScnGpuBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (opq != NULL && opq->api.itf.sync != NULL ? (*opq->api.itf.sync)(opq->api.itfParam, cfg, mem, changes) : ScnFALSE);
 }

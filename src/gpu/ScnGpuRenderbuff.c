@@ -10,8 +10,8 @@
 //STScnGpuRenderbuffOpq
 
 typedef struct STScnGpuRenderbuffOpq_ {
-    STScnContextRef     ctx;
-    STScnMutexRef       mutex;
+    ScnContextRef     ctx;
+    ScnMutexRef       mutex;
     //
     STScnGpuRenderbuffCfg cfg;    //config
     //api
@@ -28,7 +28,7 @@ ScnSI32 ScnGpuRenderbuff_getOpqSz(void){
     return (ScnSI32)sizeof(STScnGpuRenderbuffOpq);
 }
 
-void ScnGpuRenderbuff_initZeroedOpq(STScnContextRef ctx, void* obj) {
+void ScnGpuRenderbuff_initZeroedOpq(ScnContextRef ctx, void* obj) {
     STScnGpuRenderbuffOpq* opq = (STScnGpuRenderbuffOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
@@ -59,7 +59,7 @@ void ScnGpuRenderbuff_destroyOpq(void* obj){
 
 //
 
-ScnBOOL ScnGpuRenderbuff_prepare(STScnGpuRenderbuffRef ref, const STScnGpuRenderbuffCfg* cfg, const STScnGpuRenderbuffApiItf* itf, void* itfParam) {
+ScnBOOL ScnGpuRenderbuff_prepare(ScnGpuRenderbuffRef ref, const STScnGpuRenderbuffCfg* cfg, const STScnGpuRenderbuffApiItf* itf, void* itfParam) {
     ScnBOOL r = ScnFALSE;
     STScnGpuRenderbuffOpq* opq = (STScnGpuRenderbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);

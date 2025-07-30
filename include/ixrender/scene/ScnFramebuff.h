@@ -16,13 +16,13 @@
 extern "C" {
 #endif
 
-//STScnFramebuffRef
+//ScnFramebuffRef
 
 SCN_REF_STRUCT_METHODS_DEC(ScnFramebuff)
 
 //
 
-ScnBOOL ScnFramebuff_prepare(STScnFramebuffRef ref, STScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots);
+ScnBOOL ScnFramebuff_prepare(ScnFramebuffRef ref, ScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots);
 
 #ifdef __cplusplus
 } //extern "C"

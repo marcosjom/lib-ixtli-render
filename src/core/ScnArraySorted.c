@@ -68,7 +68,7 @@ ScnSI32 ScnArraySorted_indexOf_(const void* pArr, const ScnSI32 use, const ScnSI
     return -1;
 }
 
-void* ScnArraySorted_addPtr_(STScnContextRef ctx, void** arr, ScnSI32* use, ScnSI32* sz, const ScnSI32 growth, const ScnSI32 arrItmSz, const void* itmPtr, const ScnSI32 itmSz, ScnCompareFunc cmpFunc, const char* dbgHint){
+void* ScnArraySorted_addPtr_(ScnContextRef ctx, void** arr, ScnSI32* use, ScnSI32* sz, const ScnSI32 growth, const ScnSI32 arrItmSz, const void* itmPtr, const ScnSI32 itmSz, ScnCompareFunc cmpFunc, const char* dbgHint){
     SCN_ASSERT(!(arr == NULL || use == NULL || sz == NULL || cmpFunc == NULL))
     SCN_ASSERT(arrItmSz == itmSz)
     //

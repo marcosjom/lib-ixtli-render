@@ -59,8 +59,8 @@ STScnBitmapProps ScnBitmapProps_build(const ScnSI32 width, const ScnSI32 height,
 //STScnBitmapOpq
 
 typedef struct STScnBitmapOpq_ {
-    STScnContextRef     ctx;
-    STScnMutexRef       mutex;
+    ScnContextRef     ctx;
+    ScnMutexRef       mutex;
     STScnBitmapProps    props;
     ScnBYTE*            data;
     ScnUI32             dataSz;
@@ -72,7 +72,7 @@ ScnSI32 ScnBitmap_getOpqSz(void){
     return (ScnSI32)sizeof(STScnBitmapOpq);
 }
 
-void ScnBitmap_initZeroedOpq(STScnContextRef ctx, void* obj) {
+void ScnBitmap_initZeroedOpq(ScnContextRef ctx, void* obj) {
     STScnBitmapOpq* opq = (STScnBitmapOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
@@ -93,7 +93,7 @@ void ScnBitmap_destroyOpq(void* obj){
 
 //
 
-ScnBOOL ScnBitmap_create(STScnBitmapRef ref, const ScnSI32 width, const ScnSI32 height, const ENScnBitmapColor color){
+ScnBOOL ScnBitmap_create(ScnBitmapRef ref, const ScnSI32 width, const ScnSI32 height, const ENScnBitmapColor color){
     ScnBOOL r = ScnFALSE;
     STScnBitmapOpq* opq = (STScnBitmapOpq*)ScnSharedPtr_getOpq(ref.ptr);
     if(width > 0 && height > 0){
@@ -116,7 +116,7 @@ ScnBOOL ScnBitmap_create(STScnBitmapRef ref, const ScnSI32 width, const ScnSI32 
     return r;
 }
 
-ScnBOOL ScnBitmap_pasteBitmapData(STScnBitmapRef ref, const STScnPointI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData){
+ScnBOOL ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPointI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData){
     ScnBOOL r = ScnFALSE;
     //STScnBitmapOpq* opq = (STScnBitmapOpq*)ScnSharedPtr_getOpq(ref.ptr);
     SCN_ASSERT(ScnFALSE) //implement

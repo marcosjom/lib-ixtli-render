@@ -34,7 +34,7 @@ ScnSI32 ScnSharedPtr_release(struct STScnSharedPtr_* obj); //returns the retainC
 
 typedef struct STScnSharedPtr_ {
     void*           opq;        //opaque object, must be first member to allow toll-free casting
-    STScnMutexRef   mutex;
+    ScnMutexRef   mutex;
     ScnSI32         retainCount;
     STScnMemoryItf  memItf;
     ScnSharedPtrDestroyOpqFunc opqDestroyFunc;

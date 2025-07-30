@@ -15,9 +15,9 @@
 #if defined(__ANDROID__) //Android
 #   include <jni.h>            //for JNIEnv, jobject
 #   include <android/log.h>    //for __android_log_print()
-#   define SCN_PRINTF_INFO(STR_FMT, ...)   __android_log_print(ANDROID_LOG_INFO, "Scntla", STR_FMT, ##__VA_ARGS__)
-#   define SCN_PRINTF_ERROR(STR_FMT, ...)  __android_log_print(ANDROID_LOG_ERROR, "Scntla", "ERROR, "STR_FMT, ##__VA_ARGS__)
-#   define SCN_PRINTF_WARNING(STR_FMT, ...) __android_log_print(ANDROID_LOG_WARN, "Scntla", "WARNING, "STR_FMT, ##__VA_ARGS__)
+#   define SCN_PRINTF_INFO(STR_FMT, ...)   __android_log_print(ANDROID_LOG_INFO, "Scn", STR_FMT, ##__VA_ARGS__)
+#   define SCN_PRINTF_ERROR(STR_FMT, ...)  __android_log_print(ANDROID_LOG_ERROR, "Scn", "ERROR, "STR_FMT, ##__VA_ARGS__)
+#   define SCN_PRINTF_WARNING(STR_FMT, ...) __android_log_print(ANDROID_LOG_WARN, "Scn", "WARNING, "STR_FMT, ##__VA_ARGS__)
 #elif defined(__QNX__) //BB10
 #   define SCN_PRINTF_INFO(STR_FMT, ...)   fprintf(stdout, "Scn, " STR_FMT, ##__VA_ARGS__); fflush(stdout)
 #   define SCN_PRINTF_ERROR(STR_FMT, ...)  fprintf(stderr, "Scn ERROR, " STR_FMT, ##__VA_ARGS__); fflush(stderr)
@@ -397,7 +397,7 @@ void ScnMemMap_printAlivePtrs(STScnMemMap* obj){
 void ScnMemMap_printFinalReport(STScnMemMap* obj){
     SCN_PRINTF_INFO("-------------- MEM REPORT -----------\n");
     if(obj->stats.alive.count == 0){
-        SCN_PRINTF_INFO("Scntla: no memory leaking detected :)\n");
+        SCN_PRINTF_INFO("Scn: no memory leaking detected :)\n");
     } else {
         SCN_PRINTF_WARNING("WARNING, NIXTLA MEMORY-LEAK DETECTED! :(\n");
     }

@@ -12,41 +12,41 @@
 #include "ixrender/core/ScnContext.h"
 #include "ixrender/core/ScnSharedPtr.h"
 
-#define STScnObjRef_Zero    { NULL }
+#define ScnObjRef_Zero    { NULL }
 
-typedef struct STScnObjRef_ {
+typedef struct ScnObjRef_ {
     STScnSharedPtr* ptr;
-} STScnObjRef;
+} ScnObjRef;
 
-SC_INLN ScnBOOL ScnObjRef_isNull(STScnObjRef ref) { return (ref.ptr == NULL); }
-SC_INLN ScnBOOL ScnObjRef_isSame(STScnObjRef ref, STScnObjRef other) { return (ref.ptr == other.ptr); }
-SC_INLN void    ScnObjRef_null(STScnObjRef* ref) { ref->ptr = NULL; }
-SC_INLN void    ScnObjRef_retain(STScnObjRef ref) { ScnSharedPtr_retain(ref.ptr); }
-SC_INLN void    ScnObjRef_release(STScnObjRef* ref) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } }
-SC_INLN void    ScnObjRef_releaseAndNullify(STScnObjRef* ref) { if(ref->ptr != NULL) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } ref->ptr = NULL; } }
-SC_INLN void    ScnObjRef_set(STScnObjRef* ref, STScnObjRef other) { if(!ScnObjRef_isNull(other)){ ScnObjRef_retain(other); } if(!ScnObjRef_isNull(*ref)){ ScnObjRef_release(ref); } *ref = other; }
+SC_INLN ScnBOOL ScnObjRef_isNull(ScnObjRef ref) { return (ref.ptr == NULL); }
+SC_INLN ScnBOOL ScnObjRef_isSame(ScnObjRef ref, ScnObjRef other) { return (ref.ptr == other.ptr); }
+SC_INLN void    ScnObjRef_null(ScnObjRef* ref) { ref->ptr = NULL; }
+SC_INLN void    ScnObjRef_retain(ScnObjRef ref) { ScnSharedPtr_retain(ref.ptr); }
+SC_INLN void    ScnObjRef_release(ScnObjRef* ref) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } }
+SC_INLN void    ScnObjRef_releaseAndNullify(ScnObjRef* ref) { if(ref->ptr != NULL) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } ref->ptr = NULL; } }
+SC_INLN void    ScnObjRef_set(ScnObjRef* ref, ScnObjRef other) { if(!ScnObjRef_isNull(other)){ ScnObjRef_retain(other); } if(!ScnObjRef_isNull(*ref)){ ScnObjRef_release(ref); } *ref = other; }
 
 //
 
 #define SCN_REF_STRUCT_METHODS_DEC(STNAME)  \
-    typedef struct ST ## STNAME ## Ref_ { \
+    typedef struct STNAME ## Ref_ { \
         STScnSharedPtr* ptr; \
-    } ST ## STNAME ## Ref; \
+    } STNAME ## Ref; \
     \
     ScnSI32                     STNAME ## _getOpqSz(void); \
-    void                        STNAME ## _initZeroedOpq(STScnContextRef ctx, void* opq); \
+    void                        STNAME ## _initZeroedOpq(ScnContextRef ctx, void* opq); \
     void                        STNAME ## _destroyOpq(void* opq); \
     \
-    SC_INLN ScnBOOL             STNAME ## _isNull(ST ## STNAME ## Ref ref) { return (ref.ptr == NULL); } \
-    SC_INLN ScnBOOL             STNAME ## _isSame(ST ## STNAME ## Ref ref, ST ## STNAME ## Ref other) { return (ref.ptr == other.ptr); } \
-    SC_INLN void                STNAME ## _null(ST ## STNAME ## Ref* ref) { ref->ptr = NULL; } \
-    SC_INLN void                STNAME ## _retain(ST ## STNAME ## Ref ref) { ScnSharedPtr_retain(ref.ptr); } \
-    SC_INLN void                STNAME ## _release(ST ## STNAME ## Ref* ref) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } } \
-    SC_INLN void                STNAME ## _releaseAndNullify(ST ## STNAME ## Ref* ref) { if(ref->ptr != NULL) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } ref->ptr = NULL; } } \
-    SC_INLN void                STNAME ## _set(ST ## STNAME ## Ref* ref, ST ## STNAME ## Ref other) { if(!STNAME ## _isNull(other)){ STNAME ## _retain(other); } if(!STNAME ## _isNull(*ref)){ STNAME ## _release(ref); } *ref = other; } \
-    SC_INLN ST ## STNAME ## Ref STNAME ## _alloc(STScnContextRef ctx) \
+    SC_INLN ScnBOOL             STNAME ## _isNull(STNAME ## Ref ref) { return (ref.ptr == NULL); } \
+    SC_INLN ScnBOOL             STNAME ## _isSame(STNAME ## Ref ref, STNAME ## Ref other) { return (ref.ptr == other.ptr); } \
+    SC_INLN void                STNAME ## _null(STNAME ## Ref* ref) { ref->ptr = NULL; } \
+    SC_INLN void                STNAME ## _retain(STNAME ## Ref ref) { ScnSharedPtr_retain(ref.ptr); } \
+    SC_INLN void                STNAME ## _release(STNAME ## Ref* ref) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } } \
+    SC_INLN void                STNAME ## _releaseAndNullify(STNAME ## Ref* ref) { if(ref->ptr != NULL) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } ref->ptr = NULL; } } \
+    SC_INLN void                STNAME ## _set(STNAME ## Ref* ref, STNAME ## Ref other) { if(!STNAME ## _isNull(other)){ STNAME ## _retain(other); } if(!STNAME ## _isNull(*ref)){ STNAME ## _release(ref); } *ref = other; } \
+    SC_INLN STNAME ## Ref STNAME ## _alloc(ScnContextRef ctx) \
     { \
-        ST ## STNAME ## Ref r = { NULL }; \
+        STNAME ## Ref r = { NULL }; \
         const ScnSI32 opqSz = STNAME ##_getOpqSz(); \
         void* opq = ScnContext_malloc(ctx, opqSz, #STNAME); \
         if(opq != NULL){ \

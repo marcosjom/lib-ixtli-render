@@ -53,12 +53,12 @@ typedef struct STScnBitmap_ {
     ScnUI32*            dataSz;
 } STScnBitmap;
 
-//STScnBitmapRef
+//ScnBitmapRef
 
 SCN_REF_STRUCT_METHODS_DEC(ScnBitmap)
 
-ScnBOOL ScnBitmap_create(STScnBitmapRef ref, const ScnSI32 width, const ScnSI32 height, const ENScnBitmapColor color);
-ScnBOOL ScnBitmap_pasteBitmapData(STScnBitmapRef ref, const STScnPointI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData);
+ScnBOOL ScnBitmap_create(ScnBitmapRef ref, const ScnSI32 width, const ScnSI32 height, const ENScnBitmapColor color);
+ScnBOOL ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPointI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData);
 
 #ifdef __cplusplus
 } //extern "C"

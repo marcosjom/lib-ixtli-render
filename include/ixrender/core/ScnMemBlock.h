@@ -36,23 +36,23 @@ typedef struct STScnMemBlockCfg_ {
     ScnBOOL idxZeroIsValid; //idx=0 is an assignable address
 } STScnMemBlockCfg;
 
-//STScnMemBlockRef
+//ScnMemBlockRef
 
 SCN_REF_STRUCT_METHODS_DEC(ScnMemBlock)
 
-ScnBOOL     ScnMemBlock_prepare(STScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STScnAbsPtr* dstPtrAfterEnd);
-ScnBOOL     ScnMemBlock_hasPtrs(STScnMemBlockRef ref); //allocations made?
-ScnUI32     ScnMemBlock_getAddressableSize(STScnMemBlockRef ref); //includes the address zero
-STScnAbsPtr ScnMemBlock_getStarAddress(STScnMemBlockRef ref); //includes the address zero
+ScnBOOL     ScnMemBlock_prepare(ScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STScnAbsPtr* dstPtrAfterEnd);
+ScnBOOL     ScnMemBlock_hasPtrs(ScnMemBlockRef ref); //allocations made?
+ScnUI32     ScnMemBlock_getAddressableSize(ScnMemBlockRef ref); //includes the address zero
+STScnAbsPtr ScnMemBlock_getStarAddress(ScnMemBlockRef ref); //includes the address zero
 //allocations
-STScnAbsPtr ScnMemBlock_malloc(STScnMemBlockRef ref, const ScnUI32 usableSz);
-ScnBOOL     ScnMemBlock_mfree(STScnMemBlockRef ref, const STScnAbsPtr ptr);
-ScnUI32     ScnMemBlock_mAvailSz(STScnMemBlockRef ref);
+STScnAbsPtr ScnMemBlock_malloc(ScnMemBlockRef ref, const ScnUI32 usableSz);
+ScnBOOL     ScnMemBlock_mfree(ScnMemBlockRef ref, const STScnAbsPtr ptr);
+ScnUI32     ScnMemBlock_mAvailSz(ScnMemBlockRef ref);
 //
-void        ScnMemBlock_prepareForNewMallocsActions(STScnMemBlockRef ref, const ScnUI32 ammActions);   //increases the index's sz
-void        ScnMemBlock_clear(STScnMemBlockRef ref); //clears the index, all pointers are invalid after this call
+void        ScnMemBlock_prepareForNewMallocsActions(ScnMemBlockRef ref, const ScnUI32 ammActions);   //increases the index's sz
+void        ScnMemBlock_clear(ScnMemBlockRef ref); //clears the index, all pointers are invalid after this call
 //dbg
-ScnBOOL     ScnMemBlock_validateIndex(STScnMemBlockRef ref);
+ScnBOOL     ScnMemBlock_validateIndex(ScnMemBlockRef ref);
 
 #ifdef __cplusplus
 } //extern "C"

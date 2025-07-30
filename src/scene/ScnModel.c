@@ -32,7 +32,7 @@ typedef enum ENScnModelDrawCmdType_ {
 typedef struct STScnModelDrawCmd_ {
     ENScnRenderShape        shape;
     ENScnModelDrawCmdType   type;
-    STScnVertexbuffsRef     vbuffs;
+    ScnVertexbuffsRef     vbuffs;
     //verts
     struct {
         union {
@@ -55,9 +55,9 @@ typedef struct STScnModelDrawCmd_ {
     } idxs;
     //texs
     struct {
-        STScnGpuTextureRef  t0;
-        STScnGpuTextureRef  t1;
-        STScnGpuTextureRef  t2;
+        ScnGpuTextureRef  t0;
+        ScnGpuTextureRef  t1;
+        ScnGpuTextureRef  t2;
     } texs;
 } STScnModelDrawCmd;
 
@@ -67,13 +67,13 @@ void ScnModelDrawCmd_destroy(STScnModelDrawCmd* obj);
 //STScnModelOpq
 
 typedef struct STScnModelOpq_ {
-    STScnContextRef         ctx;
-    STScnMutexRef           mutex;
+    ScnContextRef         ctx;
+    ScnMutexRef           mutex;
     //
     STScnModelProps         props;
     //cmds
     struct {
-        STScnVertexbuffsRef vbuffs;
+        ScnVertexbuffsRef vbuffs;
         ScnBOOL             isHeap;
         union {
             //optimization, allow one command without allocating an array; most models will use one command.
@@ -96,7 +96,7 @@ ScnSI32 ScnModel_getOpqSz(void){
     return (ScnSI32)sizeof(STScnModelOpq);
 }
 
-void ScnModel_initZeroedOpq(STScnContextRef ctx, void* obj) {
+void ScnModel_initZeroedOpq(ScnContextRef ctx, void* obj) {
     STScnModelOpq* opq = (STScnModelOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
@@ -141,7 +141,7 @@ ScnUI32 ScnModel_getDrawCmdsCountLockedOpq_(STScnModelOpq* opq){
 
 //
 
-ScnBOOL ScnModel_setVertexBuffs(STScnModelRef ref, STScnVertexbuffsRef vbuffs){
+ScnBOOL ScnModel_setVertexBuffs(ScnModelRef ref, ScnVertexbuffsRef vbuffs){
     ScnBOOL r = ScnFALSE;
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -155,24 +155,24 @@ ScnBOOL ScnModel_setVertexBuffs(STScnModelRef ref, STScnVertexbuffsRef vbuffs){
 
 //props
 
-STScnModelProps ScnModel_getProps(STScnModelRef ref){
+STScnModelProps ScnModel_getProps(ScnModelRef ref){
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return opq->props;
 }
 
 //color
 
-STScnColor8 ScnModel_getColor8(STScnModelRef ref){
+STScnColor8 ScnModel_getColor8(ScnModelRef ref){
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return opq->props.c8;
 }
 
-void ScnModel_setColor8(STScnModelRef ref, const STScnColor8 color){
+void ScnModel_setColor8(ScnModelRef ref, const STScnColor8 color){
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     opq->props.c8 = color;
 }
 
-void ScnModel_setColorRGBA8(STScnModelRef ref, const ScnUI8 r, const ScnUI8 g, const ScnUI8 b, const ScnUI8 a){
+void ScnModel_setColorRGBA8(ScnModelRef ref, const ScnUI8 r, const ScnUI8 g, const ScnUI8 b, const ScnUI8 a){
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     opq->props.c8.r = r;
     opq->props.c8.g = g;
@@ -182,68 +182,68 @@ void ScnModel_setColorRGBA8(STScnModelRef ref, const ScnUI8 r, const ScnUI8 g, c
 
 //transform
 
-STScnTransform ScnModel_getTransform(STScnModelRef ref){
+STScnTransform ScnModel_getTransform(ScnModelRef ref){
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return opq->props.tform;
 }
 
-STScnPoint ScnModel_getTranslate(STScnModelRef ref){
+STScnPoint ScnModel_getTranslate(ScnModelRef ref){
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (STScnPoint){ opq->props.tform.tx, opq->props.tform.ty };
 }
 
-STScnSize ScnModel_getScale(STScnModelRef ref){
+STScnSize ScnModel_getScale(ScnModelRef ref){
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (STScnSize){ opq->props.tform.sx, opq->props.tform.sy };
 }
 
-ScnFLOAT ScnModel_getRotDeg(STScnModelRef ref){
+ScnFLOAT ScnModel_getRotDeg(ScnModelRef ref){
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return opq->props.tform.deg;
 }
 
-ScnFLOAT ScnModel_getRotRad(STScnModelRef ref){
+ScnFLOAT ScnModel_getRotRad(ScnModelRef ref){
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return DEG_2_RAD(opq->props.tform.deg);
 }
 
-void ScnModel_setTranslate(STScnModelRef ref, const STScnPoint pos){
+void ScnModel_setTranslate(ScnModelRef ref, const STScnPoint pos){
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     opq->props.tform.tx = pos.x;
     opq->props.tform.ty = pos.y;
 }
 
-void ScnModel_setTranslateXY(STScnModelRef ref, const ScnFLOAT x, const ScnFLOAT y){
+void ScnModel_setTranslateXY(ScnModelRef ref, const ScnFLOAT x, const ScnFLOAT y){
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     opq->props.tform.tx = x;
     opq->props.tform.ty = y;
 }
 
-void ScnModel_setScale(STScnModelRef ref, const STScnSize s){
+void ScnModel_setScale(ScnModelRef ref, const STScnSize s){
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     opq->props.tform.sx = s.width;
     opq->props.tform.sy = s.height;
 }
 
-void ScnModel_setScaleWH(STScnModelRef ref, const ScnFLOAT sw, const ScnFLOAT sh){
+void ScnModel_setScaleWH(ScnModelRef ref, const ScnFLOAT sw, const ScnFLOAT sh){
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     opq->props.tform.sx = sw;
     opq->props.tform.sy = sh;
 }
 
-void ScnModel_setRotDeg(STScnModelRef ref, const ScnFLOAT deg){
+void ScnModel_setRotDeg(ScnModelRef ref, const ScnFLOAT deg){
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     opq->props.tform.deg = deg;
 }
 
-void ScnModel_setRotRad(STScnModelRef ref, const ScnFLOAT rad){
+void ScnModel_setRotRad(ScnModelRef ref, const ScnFLOAT rad){
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     opq->props.tform.deg = RAD_2_DEG(rad);
 }
 
 //draw commands
 
-void ScnModel_resetDrawCmds(STScnModelRef ref){
+void ScnModel_resetDrawCmds(ScnModelRef ref){
     STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     //cmds
@@ -300,7 +300,7 @@ ScnBOOL ScnModel_addDrawCmdLockedOpq_(STScnModelOpq* opq, STScnModelDrawCmd* cmd
     return r;
 }
 
-STScnVertexPtr ScnModel_addDraw(STScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 count){
+STScnVertexPtr ScnModel_addDraw(ScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 count){
     STScnVertexPtr r = STScnVertexPtr_Zero;
     if(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && count > 0){
         STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
@@ -310,7 +310,7 @@ STScnVertexPtr ScnModel_addDraw(STScnModelRef ref, const ENScnRenderShape shape,
             if(r.ptr != NULL){
                 STScnModelDrawCmd cmd;
                 ScnModelDrawCmd_init(&cmd);
-                ScnVertexbuffs_set(&opq->cmds.vbuffs, opq->cmds.vbuffs);
+                ScnVertexbuffs_set(&cmd.vbuffs, opq->cmds.vbuffs);
                 cmd.shape       = shape;
                 cmd.type        = ENScnModelDrawCmdType_v0;
                 cmd.verts.v0    = r;
@@ -327,7 +327,7 @@ STScnVertexPtr ScnModel_addDraw(STScnModelRef ref, const ENScnRenderShape shape,
     return r;
 }
 
-STScnVertexTexPtr ScnModel_addDrawTex(STScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 count, STScnGpuTextureRef t0){
+STScnVertexTexPtr ScnModel_addDrawTex(ScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 count, ScnGpuTextureRef t0){
     STScnVertexTexPtr r = STScnVertexTexPtr_Zero;
     if(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && count > 0){
         STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
@@ -337,7 +337,7 @@ STScnVertexTexPtr ScnModel_addDrawTex(STScnModelRef ref, const ENScnRenderShape 
             if(r.ptr != NULL){
                 STScnModelDrawCmd cmd;
                 ScnModelDrawCmd_init(&cmd);
-                ScnVertexbuffs_set(&opq->cmds.vbuffs, opq->cmds.vbuffs);
+                ScnVertexbuffs_set(&cmd.vbuffs, opq->cmds.vbuffs);
                 cmd.shape       = shape;
                 cmd.type        = ENScnModelDrawCmdType_v1;
                 cmd.verts.v1    = r;
@@ -354,7 +354,7 @@ STScnVertexTexPtr ScnModel_addDrawTex(STScnModelRef ref, const ENScnRenderShape 
     return r;
 }
 
-STScnVertexTex2Ptr ScnModel_addDrawTex2(STScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 count, STScnGpuTextureRef t0, STScnGpuTextureRef t1){
+STScnVertexTex2Ptr ScnModel_addDrawTex2(ScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 count, ScnGpuTextureRef t0, ScnGpuTextureRef t1){
     STScnVertexTex2Ptr r = STScnVertexTex2Ptr_Zero;
     if(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && count > 0){
         STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
@@ -364,7 +364,7 @@ STScnVertexTex2Ptr ScnModel_addDrawTex2(STScnModelRef ref, const ENScnRenderShap
             if(r.ptr != NULL){
                 STScnModelDrawCmd cmd;
                 ScnModelDrawCmd_init(&cmd);
-                ScnVertexbuffs_set(&opq->cmds.vbuffs, opq->cmds.vbuffs);
+                ScnVertexbuffs_set(&cmd.vbuffs, opq->cmds.vbuffs);
                 cmd.shape       = shape;
                 cmd.type        = ENScnModelDrawCmdType_v2;
                 cmd.verts.v2    = r;
@@ -381,7 +381,7 @@ STScnVertexTex2Ptr ScnModel_addDrawTex2(STScnModelRef ref, const ENScnRenderShap
     return r;
 }
 
-STScnVertexTex3Ptr ScnModel_addDrawTex3(STScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 count, STScnGpuTextureRef t0, STScnGpuTextureRef t1, STScnGpuTextureRef t2){
+STScnVertexTex3Ptr ScnModel_addDrawTex3(ScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 count, ScnGpuTextureRef t0, ScnGpuTextureRef t1, ScnGpuTextureRef t2){
     STScnVertexTex3Ptr r = STScnVertexTex3Ptr_Zero;
     if(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && count > 0){
         STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
@@ -391,7 +391,7 @@ STScnVertexTex3Ptr ScnModel_addDrawTex3(STScnModelRef ref, const ENScnRenderShap
             if(r.ptr != NULL){
                 STScnModelDrawCmd cmd;
                 ScnModelDrawCmd_init(&cmd);
-                ScnVertexbuffs_set(&opq->cmds.vbuffs, opq->cmds.vbuffs);
+                ScnVertexbuffs_set(&cmd.vbuffs, opq->cmds.vbuffs);
                 cmd.shape       = shape;
                 cmd.type        = ENScnModelDrawCmdType_v3;
                 cmd.verts.v3    = r;
@@ -410,7 +410,7 @@ STScnVertexTex3Ptr ScnModel_addDrawTex3(STScnModelRef ref, const ENScnRenderShap
 
 //
 
-STScnVertexIdxPtr ScnModel_addDrawIndexed(STScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, const ScnUI32 countVerts, STScnVertexPtr* dstVerts){
+STScnVertexIdxPtr ScnModel_addDrawIndexed(ScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, const ScnUI32 countVerts, STScnVertexPtr* dstVerts){
     STScnVertexIdxPtr r = STScnVertexIdxPtr_Zero;
     STScnVertexPtr v = STScnVertexPtr_Zero;
     if(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && countIdxs > 0 && countVerts > 0){
@@ -426,7 +426,7 @@ STScnVertexIdxPtr ScnModel_addDrawIndexed(STScnModelRef ref, const ENScnRenderSh
                 } else {
                     STScnModelDrawCmd cmd;
                     ScnModelDrawCmd_init(&cmd);
-                    ScnVertexbuffs_set(&opq->cmds.vbuffs, opq->cmds.vbuffs);
+                    ScnVertexbuffs_set(&cmd.vbuffs, opq->cmds.vbuffs);
                     cmd.shape       = shape;
                     cmd.type        = ENScnModelDrawCmdType_i0;
                     cmd.verts.v0    = v;
@@ -448,7 +448,7 @@ STScnVertexIdxPtr ScnModel_addDrawIndexed(STScnModelRef ref, const ENScnRenderSh
     return r;
 }
 
-STScnVertexIdxPtr ScnModel_addDrawIndexedTex(STScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, STScnGpuTextureRef t0, const ScnUI32 countVerts, STScnVertexTexPtr* dstVerts){
+STScnVertexIdxPtr ScnModel_addDrawIndexedTex(ScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, ScnGpuTextureRef t0, const ScnUI32 countVerts, STScnVertexTexPtr* dstVerts){
     STScnVertexIdxPtr r = STScnVertexIdxPtr_Zero;
     STScnVertexTexPtr v = STScnVertexTexPtr_Zero;
     if(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && countIdxs > 0 && countVerts > 0){
@@ -464,7 +464,7 @@ STScnVertexIdxPtr ScnModel_addDrawIndexedTex(STScnModelRef ref, const ENScnRende
                 } else {
                     STScnModelDrawCmd cmd;
                     ScnModelDrawCmd_init(&cmd);
-                    ScnVertexbuffs_set(&opq->cmds.vbuffs, opq->cmds.vbuffs);
+                    ScnVertexbuffs_set(&cmd.vbuffs, opq->cmds.vbuffs);
                     cmd.shape       = shape;
                     cmd.type        = ENScnModelDrawCmdType_i1;
                     cmd.verts.v1    = v;
@@ -486,7 +486,7 @@ STScnVertexIdxPtr ScnModel_addDrawIndexedTex(STScnModelRef ref, const ENScnRende
     return r;
 }
 
-STScnVertexIdxPtr ScnModel_addDrawIndexedTex2(STScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, STScnGpuTextureRef t0, STScnGpuTextureRef t1, const ScnUI32 countVerts, STScnVertexTex2Ptr* dstVerts){
+STScnVertexIdxPtr ScnModel_addDrawIndexedTex2(ScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, ScnGpuTextureRef t0, ScnGpuTextureRef t1, const ScnUI32 countVerts, STScnVertexTex2Ptr* dstVerts){
     STScnVertexIdxPtr r = STScnVertexIdxPtr_Zero;
     STScnVertexTex2Ptr v = STScnVertexTex2Ptr_Zero;
     if(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && countIdxs > 0 && countVerts > 0){
@@ -502,7 +502,7 @@ STScnVertexIdxPtr ScnModel_addDrawIndexedTex2(STScnModelRef ref, const ENScnRend
                 } else {
                     STScnModelDrawCmd cmd;
                     ScnModelDrawCmd_init(&cmd);
-                    ScnVertexbuffs_set(&opq->cmds.vbuffs, opq->cmds.vbuffs);
+                    ScnVertexbuffs_set(&cmd.vbuffs, opq->cmds.vbuffs);
                     cmd.shape       = shape;
                     cmd.type        = ENScnModelDrawCmdType_i2;
                     cmd.verts.v2    = v;
@@ -524,7 +524,7 @@ STScnVertexIdxPtr ScnModel_addDrawIndexedTex2(STScnModelRef ref, const ENScnRend
     return r;
 }
 
-STScnVertexIdxPtr ScnModel_addDrawIndexedTex3(STScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, STScnGpuTextureRef t0, STScnGpuTextureRef t1, STScnGpuTextureRef t2, const ScnUI32 countVerts, STScnVertexTex3Ptr* dstVerts){
+STScnVertexIdxPtr ScnModel_addDrawIndexedTex3(ScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, ScnGpuTextureRef t0, ScnGpuTextureRef t1, ScnGpuTextureRef t2, const ScnUI32 countVerts, STScnVertexTex3Ptr* dstVerts){
     STScnVertexIdxPtr r = STScnVertexIdxPtr_Zero;
     STScnVertexTex3Ptr v = STScnVertexTex3Ptr_Zero;
     if(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && countIdxs > 0 && countVerts > 0){
@@ -540,7 +540,7 @@ STScnVertexIdxPtr ScnModel_addDrawIndexedTex3(STScnModelRef ref, const ENScnRend
                 } else {
                     STScnModelDrawCmd cmd;
                     ScnModelDrawCmd_init(&cmd);
-                    ScnVertexbuffs_set(&opq->cmds.vbuffs, opq->cmds.vbuffs);
+                    ScnVertexbuffs_set(&cmd.vbuffs, opq->cmds.vbuffs);
                     cmd.shape       = shape;
                     cmd.type        = ENScnModelDrawCmdType_i3;
                     cmd.verts.v3    = v;

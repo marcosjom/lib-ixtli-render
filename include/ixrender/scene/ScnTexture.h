@@ -19,15 +19,15 @@
 extern "C" {
 #endif
 
-//STScnTextureRef
+//ScnTextureRef
 
 SCN_REF_STRUCT_METHODS_DEC(ScnTexture)
 
 //
 
-ScnBOOL ScnTexture_prepare(STScnTextureRef ref, const STScnGpuTextureCfg* cfg);
-ScnBOOL ScnTexture_setImage(STScnTextureRef ref, const STScnBitmapProps srcProps, const ScnBYTE* srcData);
-ScnBOOL ScnTexture_setSubimage(STScnTextureRef ref, const STScnPointI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData, const STScnRectI srcRect);
+ScnBOOL ScnTexture_prepare(ScnTextureRef ref, const STScnGpuTextureCfg* cfg);
+ScnBOOL ScnTexture_setImage(ScnTextureRef ref, const STScnBitmapProps srcProps, const ScnBYTE* srcData);
+ScnBOOL ScnTexture_setSubimage(ScnTextureRef ref, const STScnPointI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData, const STScnRectI srcRect);
 
 
 #ifdef __cplusplus

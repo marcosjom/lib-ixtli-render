@@ -44,24 +44,24 @@ typedef struct STScnGpuVertexbuffCfg_ {
 typedef struct STScnGpuVertexbuffApiItf_ {
     void    (*free)(void* data);
     //
-    ScnBOOL (*sync)(void* data, const STScnGpuVertexbuffCfg* cfg, STScnGpuBufferRef vBuff, STScnGpuBufferRef idxBuff);
+    ScnBOOL (*sync)(void* data, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
     ScnBOOL (*activate)(void* data);
     ScnBOOL (*deactivate)(void* data);
 } STScnGpuVertexbuffApiItf;
 
 //
 
-//STScnGpuVertexbuffRef
+//ScnGpuVertexbuffRef
 
 SCN_REF_STRUCT_METHODS_DEC(ScnGpuVertexbuff)
 
 //
 
-ScnBOOL             ScnGpuVertexbuff_prepare(STScnGpuVertexbuffRef ref, const STScnGpuVertexbuffApiItf* itf, void* itfParam);
+ScnBOOL             ScnGpuVertexbuff_prepare(ScnGpuVertexbuffRef ref, const STScnGpuVertexbuffApiItf* itf, void* itfParam);
 
-ScnBOOL             ScnGpuVertexbuff_sync(STScnGpuVertexbuffRef ref, const STScnGpuVertexbuffCfg* cfg, STScnGpuBufferRef vBuff, STScnGpuBufferRef idxBuff);
-ScnBOOL             ScnGpuVertexbuff_activate(STScnGpuVertexbuffRef ref);
-ScnBOOL             ScnGpuVertexbuff_deactivate(STScnGpuVertexbuffRef ref);
+ScnBOOL             ScnGpuVertexbuff_sync(ScnGpuVertexbuffRef ref, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
+ScnBOOL             ScnGpuVertexbuff_activate(ScnGpuVertexbuffRef ref);
+ScnBOOL             ScnGpuVertexbuff_deactivate(ScnGpuVertexbuffRef ref);
 
 #ifdef __cplusplus
 } //extern "C"

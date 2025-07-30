@@ -16,34 +16,34 @@
 extern "C" {
 #endif
 
-struct STScnContextRef_;
+struct ScnContextRef_;
 struct STScnContextItf_;
 //
 struct STScnSharedPtr_;     //external
 
-//STScnContextRef
+//ScnContextRef
 
-#define STScnContextRef_Zero    { NULL, NULL }
+#define ScnContextRef_Zero    { NULL, NULL }
 
-typedef struct STScnContextRef_ {
+typedef struct ScnContextRef_ {
     struct STScnSharedPtr_*  ptr;
     struct STScnContextItf_* itf;
-} STScnContextRef;
+} ScnContextRef;
 
-STScnContextRef ScnContext_alloc(struct STScnContextItf_* ctx);
-void            ScnContext_retain(STScnContextRef ref);
-void            ScnContext_release(STScnContextRef* ref);
-void            ScnContext_releaseAndNullify(STScnContextRef* ref);
-void            ScnContext_set(STScnContextRef* ref, STScnContextRef other);
-SC_INLN ScnBOOL ScnContext_isSame(STScnContextRef ref, STScnContextRef other) { return (ref.ptr == other.ptr); }
-SC_INLN ScnBOOL ScnContext_isNull(STScnContextRef ref) { return (ref.ptr == NULL); }
-void            ScnContext_null(STScnContextRef* ref);
+ScnContextRef ScnContext_alloc(struct STScnContextItf_* ctx);
+void            ScnContext_retain(ScnContextRef ref);
+void            ScnContext_release(ScnContextRef* ref);
+void            ScnContext_releaseAndNullify(ScnContextRef* ref);
+void            ScnContext_set(ScnContextRef* ref, ScnContextRef other);
+SC_INLN ScnBOOL ScnContext_isSame(ScnContextRef ref, ScnContextRef other) { return (ref.ptr == other.ptr); }
+SC_INLN ScnBOOL ScnContext_isNull(ScnContextRef ref) { return (ref.ptr == NULL); }
+void            ScnContext_null(ScnContextRef* ref);
 //context (memory)
-void*           ScnContext_malloc(STScnContextRef ref, const ScnUI32 newSz, const char* dbgHintStr);
-void*           ScnContext_mrealloc(STScnContextRef ref, void* ptr, const ScnUI32 newSz, const char* dbgHintStr);
-void            ScnContext_mfree(STScnContextRef ref, void* ptr);
+void*           ScnContext_malloc(ScnContextRef ref, const ScnUI32 newSz, const char* dbgHintStr);
+void*           ScnContext_mrealloc(ScnContextRef ref, void* ptr, const ScnUI32 newSz, const char* dbgHintStr);
+void            ScnContext_mfree(ScnContextRef ref, void* ptr);
 //context (mutex)
-STScnMutexRef   ScnContext_allocMutex(STScnContextRef ref);
+ScnMutexRef   ScnContext_allocMutex(ScnContextRef ref);
 
 //STScnContextItf
 

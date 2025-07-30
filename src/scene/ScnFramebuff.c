@@ -11,17 +11,17 @@
 //STScnFramebuffOpq
 
 typedef struct STScnFramebuffOpq_ {
-    STScnContextRef     ctx;
-    STScnMutexRef       mutex;
+    ScnContextRef     ctx;
+    ScnMutexRef       mutex;
     //
-    STScnGpuDeviceRef   gpuDev;
+    ScnGpuDeviceRef   gpuDev;
 } STScnFramebuffOpq;
 
 ScnSI32 ScnFramebuff_getOpqSz(void){
     return (ScnSI32)sizeof(STScnFramebuffOpq);
 }
 
-void ScnFramebuff_initZeroedOpq(STScnContextRef ctx, void* obj) {
+void ScnFramebuff_initZeroedOpq(ScnContextRef ctx, void* obj) {
     STScnFramebuffOpq* opq = (STScnFramebuffOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
@@ -37,7 +37,7 @@ void ScnFramebuff_destroyOpq(void* obj){
 
 //
 
-ScnBOOL ScnFramebuff_prepare(STScnFramebuffRef ref, STScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots) {
+ScnBOOL ScnFramebuff_prepare(ScnFramebuffRef ref, ScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots) {
     ScnBOOL r = ScnFALSE;
     STScnFramebuffOpq* opq = (STScnFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);

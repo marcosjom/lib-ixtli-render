@@ -13,6 +13,7 @@
 #include "ixrender/core/ScnMemElastic.h"
 #include "ixrender/gpu/ScnGpuBuffer.h"
 #include "ixrender/gpu/ScnGpuVertexbuff.h"
+#include "ixrender/gpu/ScnGpuFramebuff.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -81,23 +82,25 @@ typedef struct STScnGpuDeviceCfg_ {
     ENScnGpuDeviceCompute       compute;
 } STScnGpuDeviceCfg;
 
-//STScnGpuDeviceRef
+//ScnGpuDeviceRef
 
 SCN_REF_STRUCT_METHODS_DEC(ScnGpuDevice)
 
 //STScnGpuDeviceApiItf
 
 typedef struct STScnGpuDeviceApiItf_ {
-    void                    (*free)(void* obj);
-    STScnGpuBufferRef       (*allocBuffer)(void* obj, STScnMemElasticRef mem);
-    STScnGpuVertexbuffRef   (*allocVertexBuff)(void* obj, const STScnGpuVertexbuffCfg* cfg, STScnGpuBufferRef vBuff, STScnGpuBufferRef idxBuff);
+    void                  (*free)(void* obj);
+    ScnGpuBufferRef       (*allocBuffer)(void* obj, ScnMemElasticRef mem);
+    ScnGpuVertexbuffRef   (*allocVertexBuff)(void* obj, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
+    ScnGpuFramebuffRef    (*allocFramebuffFromOSView)(void* obj, void* mtkView);
 } STScnGpuDeviceApiItf;
 
 //
 
-ScnBOOL                 ScnGpuDevice_prepare(STScnGpuDeviceRef ref, const STScnGpuDeviceApiItf* itf, void* itfParam);
-STScnGpuBufferRef       ScnGpuDevice_allocBuffer(STScnGpuDeviceRef ref, STScnMemElasticRef mem);
-STScnGpuVertexbuffRef   ScnGpuDevice_allocVertexBuff(STScnGpuDeviceRef ref, const STScnGpuVertexbuffCfg* cfg, STScnGpuBufferRef vBuff, STScnGpuBufferRef idxBuff);
+ScnBOOL             ScnGpuDevice_prepare(ScnGpuDeviceRef ref, const STScnGpuDeviceApiItf* itf, void* itfParam);
+ScnGpuBufferRef     ScnGpuDevice_allocBuffer(ScnGpuDeviceRef ref, ScnMemElasticRef mem);
+ScnGpuVertexbuffRef ScnGpuDevice_allocVertexBuff(ScnGpuDeviceRef ref, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
+ScnGpuFramebuffRef  ScnGpuDevice_allocFramebuffFromOSView(ScnGpuDeviceRef ref, void* mtkView);
 
 #ifdef __cplusplus
 } //extern "C"
