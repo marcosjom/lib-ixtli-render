@@ -33,23 +33,13 @@ void ScnVertexbuffs_destroyOpq(void* obj){
         STScnVertexbuffRef* b = opq->vBuffs;
         const STScnVertexbuffRef* bAfterEnd = b + ENScnVertexType_Count;
         while(b < bAfterEnd){
-            if(!ScnVertexbuff_isNull(*b)){
-                ScnVertexbuff_release(b);
-                ScnVertexbuff_null(b);
-            }
+            ScnVertexbuff_releaseAndNullify(&*b);
             ++b;
         }
     }
     //
-    if(!ScnMutex_isNull(opq->mutex)){
-        ScnMutex_free(&opq->mutex);
-        ScnMutex_null(&opq->mutex);
-    }
-    //
-    if(!ScnContext_isNull(opq->ctx)){
-        ScnContext_release(&opq->ctx);
-        ScnContext_null(&opq->ctx);
-    }
+    ScnMutex_freeAndNullify(&opq->mutex);
+    ScnContext_releaseAndNullify(&opq->ctx);
 }
 
 //prepare
@@ -87,10 +77,7 @@ ScnBOOL ScnVertexbuffs_prepare(STScnVertexbuffsRef ref, const STScnVertexbuffRef
                 STScnVertexbuffRef* b = opq->vBuffs;
                 const STScnVertexbuffRef* bAfterEnd = b + ENScnVertexType_Count;
                 while(b < bAfterEnd){
-                    if(!ScnVertexbuff_isNull(*b)){
-                        ScnVertexbuff_release(b);
-                        ScnVertexbuff_null(b);
-                    }
+                    ScnVertexbuff_releaseAndNullify(&*b);
                     ++b;
                 }
             }

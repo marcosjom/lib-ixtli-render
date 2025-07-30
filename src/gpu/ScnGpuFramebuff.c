@@ -59,20 +59,9 @@ void ScnGpuFramebuff_destroyOpq(void* obj){
     //
     //ScnStruct_stRelease(ScnGpuFramebuffCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
     //bind
-    if(!ScnObjRef_isNull(opq->bind.ref)){
-        ScnObjRef_release(&opq->bind.ref);
-        ScnObjRef_null(&opq->bind.ref);
-    }
-    //
-    if(!ScnMutex_isNull(opq->mutex)){
-        ScnMutex_free(&opq->mutex);
-        ScnMutex_null(&opq->mutex);
-    }
-    //
-    if(!ScnContext_isNull(opq->ctx)){
-        ScnContext_release(&opq->ctx);
-        ScnContext_null(&opq->ctx);
-    }
+    ScnObjRef_releaseAndNullify(&opq->bind.ref);
+    ScnMutex_freeAndNullify(&opq->mutex);
+    ScnContext_releaseAndNullify(&opq->ctx);
 }
 
 //

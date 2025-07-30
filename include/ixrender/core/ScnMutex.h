@@ -28,8 +28,9 @@ typedef struct STScnMutexRef_ {
     struct STScnMutexItf_*  itf;
 } STScnMutexRef;
 
-#define ScnMutex_isNull(REF)    ((REF).opq != NULL)
-#define ScnMutex_null(REF_PTR)  (REF_PTR)->opq = NULL
+#define ScnMutex_isNull(REF)                ((REF).opq != NULL)
+#define ScnMutex_null(REF_PTR)              (REF_PTR)->opq = NULL
+#define ScnMutex_freeAndNullify(REF_PTR)    if((REF_PTR)->opq != NULL){ ScnMutex_free(REF_PTR); (REF_PTR)->opq = NULL; }
 void    ScnMutex_free(STScnMutexRef* ref);
 void    ScnMutex_lock(STScnMutexRef ref);
 void    ScnMutex_unlock(STScnMutexRef ref);

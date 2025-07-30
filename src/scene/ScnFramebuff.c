@@ -30,21 +30,9 @@ void ScnFramebuff_initZeroedOpq(STScnContextRef ctx, void* obj) {
 
 void ScnFramebuff_destroyOpq(void* obj){
     STScnFramebuffOpq* opq = (STScnFramebuffOpq*)obj;
-    //gpuDev
-    if(!ScnGpuDevice_isNull(opq->gpuDev)){
-        ScnGpuDevice_release(&opq->gpuDev);
-        ScnGpuDevice_null(&opq->gpuDev);
-    }
-    //
-    if(!ScnMutex_isNull(opq->mutex)){
-        ScnMutex_free(&opq->mutex);
-        ScnMutex_null(&opq->mutex);
-    }
-    //
-    if(!ScnContext_isNull(opq->ctx)){
-        ScnContext_release(&opq->ctx);
-        ScnContext_null(&opq->ctx);
-    }
+    ScnGpuDevice_releaseAndNullify(&opq->gpuDev);
+    ScnMutex_freeAndNullify(&opq->mutex);
+    ScnContext_releaseAndNullify(&opq->ctx);
 }
 
 //

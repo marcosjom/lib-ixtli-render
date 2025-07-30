@@ -92,41 +92,18 @@ void ScnRender_destroyOpq(void* obj){
         ScnArray_destroy(opq->ctx, &opq->job.stack);
         ScnArray_destroy(opq->ctx, &opq->job.cmds);
     }
-    //viewPropsBuff
-    if(!ScnBuffer_isNull(opq->viewPropsBuff)){
-        ScnBuffer_release(&opq->viewPropsBuff);
-        ScnBuffer_null(&opq->viewPropsBuff);
-    }
-    //nodesPropsBuff
-    if(!ScnBuffer_isNull(opq->nodesPropsBuff)){
-        ScnBuffer_release(&opq->nodesPropsBuff);
-        ScnBuffer_null(&opq->nodesPropsBuff);
-    }
-    //vbuffs
-    if(!ScnVertexbuffs_isNull(opq->vbuffs)){
-        ScnVertexbuffs_release(&opq->vbuffs);
-        ScnVertexbuffs_null(&opq->vbuffs);
-    }
-    //gpuDev
-    if(!ScnGpuDevice_isNull(opq->gpuDev)){
-        ScnGpuDevice_release(&opq->gpuDev);
-        ScnGpuDevice_null(&opq->gpuDev);
-    }
+    ScnBuffer_releaseAndNullify(&opq->viewPropsBuff);
+    ScnBuffer_releaseAndNullify(&opq->nodesPropsBuff);
+    ScnVertexbuffs_releaseAndNullify(&opq->vbuffs);
+    ScnGpuDevice_releaseAndNullify(&opq->gpuDev);
     //api
     {
         ScnMemory_setZeroSt(opq->api.itf, STScnApiItf);
         opq->api.itfParam = NULL;
     }
     //
-    if(!ScnMutex_isNull(opq->mutex)){
-        ScnMutex_free(&opq->mutex);
-        ScnMutex_null(&opq->mutex);
-    }
-    //
-    if(!ScnContext_isNull(opq->ctx)){
-        ScnContext_release(&opq->ctx);
-        ScnContext_null(&opq->ctx);
-    }
+    ScnMutex_freeAndNullify(&opq->mutex);
+    ScnContext_releaseAndNullify(&opq->ctx);
 }
 
 //prepare
@@ -184,18 +161,9 @@ ScnBOOL ScnRender_openDevice(STScnRenderRef ref, const STScnGpuDeviceCfg* cfg, c
                         }
                     }
                 }
-                if(!ScnBuffer_isNull(viewPropsBuff)){
-                    ScnBuffer_release(&viewPropsBuff);
-                    ScnBuffer_null(&viewPropsBuff);
-                }
-                if(!ScnBuffer_isNull(nodesPropsBuff)){
-                    ScnBuffer_release(&nodesPropsBuff);
-                    ScnBuffer_null(&nodesPropsBuff);
-                }
-                if(!ScnVertexbuffs_isNull(vbuffs)){
-                    ScnVertexbuffs_release(&vbuffs);
-                    ScnVertexbuffs_null(&vbuffs);
-                }
+                ScnBuffer_releaseAndNullify(&viewPropsBuff);
+                ScnBuffer_releaseAndNullify(&nodesPropsBuff);
+                ScnVertexbuffs_releaseAndNullify(&vbuffs);
             }
         }
     }
@@ -733,10 +701,7 @@ void ScnRenderFbuffState_destroy(STScnRenderFbuffState* obj){
         ScnArray_destroy(obj->ctx, &obj->stack);
     }
     //
-    if(!ScnContext_isNull(obj->ctx)){
-        ScnContext_release(&obj->ctx);
-        ScnContext_null(&obj->ctx);
-    }
+    ScnContext_releaseAndNullify(&obj->ctx);
 }
 
 ScnBOOL ScnRenderFbuffState_addTransform(STScnRenderFbuffState* obj, const STScnGpuTransform* const t){

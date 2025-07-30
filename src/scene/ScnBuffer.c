@@ -73,10 +73,7 @@ void ScnBuffer_initZeroedOpq(STScnContextRef ctx, void* obj) {
 void ScnBuffer_destroyOpq(void* obj){
     STScnBufferOpq* opq = (STScnBufferOpq*)obj;
     //
-    if(!ScnMemElastic_isNull(opq->mem)){
-        ScnMemElastic_release(&opq->mem);
-        ScnMemElastic_null(&opq->mem);
-    }
+    ScnMemElastic_releaseAndNullify(&opq->mem);
     //ScnStruct_stRelease(ScnBufferCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
     //changes
     {
@@ -96,21 +93,9 @@ void ScnBuffer_destroyOpq(void* obj){
         }
         opq->slots.use = opq->slots.sz = 0;
     }
-    //gpuDev
-    if(!ScnGpuDevice_isNull(opq->gpuDev)){
-        ScnGpuDevice_release(&opq->gpuDev);
-        ScnGpuDevice_null(&opq->gpuDev);
-    }
-    //
-    if(!ScnMutex_isNull(opq->mutex)){
-        ScnMutex_free(&opq->mutex);
-        ScnMutex_null(&opq->mutex);
-    }
-    //
-    if(!ScnContext_isNull(opq->ctx)){
-        ScnContext_release(&opq->ctx);
-        ScnContext_null(&opq->ctx);
-    }
+    ScnGpuDevice_releaseAndNullify(&opq->gpuDev);
+    ScnMutex_freeAndNullify(&opq->mutex);
+    ScnContext_releaseAndNullify(&opq->ctx);
 }
 
 //
@@ -156,10 +141,7 @@ ScnBOOL ScnBuffer_prepare(STScnBufferRef ref, STScnGpuDeviceRef gpuDev, const Sc
             }
         }
         //relese (if not consumed)
-        if(!ScnMemElastic_isNull(mem)){
-            ScnMemElastic_release(&mem);
-            ScnMemElastic_null(&mem);
-        }
+        ScnMemElastic_releaseAndNullify(&mem);
     }
     ScnMutex_unlock(opq->mutex);
     return r;
@@ -338,14 +320,6 @@ void ScnBufferSlot_destroy(STScnBufferSlot* opq){
     {
         ScnArraySorted_destroy(opq->ctx, &opq->changes.rngs);
     }
-    //
-    if(!ScnGpuBuffer_isNull(opq->gpuBuff)){
-        ScnGpuBuffer_release(&opq->gpuBuff);
-        ScnGpuBuffer_null(&opq->gpuBuff);
-    }
-    //
-    if(!ScnContext_isNull(opq->ctx)){
-        ScnContext_release(&opq->ctx);
-        ScnContext_null(&opq->ctx);
-    }
+    ScnGpuBuffer_releaseAndNullify(&opq->gpuBuff);
+    ScnContext_releaseAndNullify(&opq->ctx);
 }

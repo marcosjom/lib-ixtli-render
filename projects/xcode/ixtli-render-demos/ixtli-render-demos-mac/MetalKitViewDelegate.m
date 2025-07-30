@@ -127,18 +127,9 @@ NS_ASSUME_NONNULL_BEGIN
         }
         if(framesCount >= IXTLI_FRAMES_COUNT_AND_RELEASE_RENDER){
             printf("Simulating cleanup after %d frames.\n", framesCount);
-            if(!ScnModel_isNull(model)){
-                ScnModel_release(&model);
-                ScnModel_null(&model);
-            }
-            if(!ScnRender_isNull(render)){
-                ScnRender_release(&render);
-                ScnRender_null(&render);
-            }
-            if(!ScnContext_isNull(ctx)){
-                ScnContext_release(&ctx);
-                ScnContext_null(&ctx);
-            }
+            ScnModel_releaseAndNullify(&model);
+            ScnRender_releaseAndNullify(&render);
+            ScnContext_releaseAndNullify(&ctx);
             //custom memory manager
             {
                 ScnMemMap_printFinalReport(&memmap);

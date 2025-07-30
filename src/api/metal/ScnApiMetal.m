@@ -382,14 +382,8 @@ void ScnApiMetal_vertexbuff_free(void* pObj){
     STScnApiMetalVertexBuff* obj = (STScnApiMetalVertexBuff*)pObj;
     STScnContextRef ctx = obj->ctx;
     {
-        if(!ScnGpuBuffer_isNull(obj->vBuff)){
-            ScnGpuBuffer_release(&obj->vBuff);
-            ScnGpuBuffer_null(&obj->vBuff);
-        }
-        if(!ScnGpuBuffer_isNull(obj->idxBuff)){
-            ScnGpuBuffer_release(&obj->idxBuff);
-            ScnGpuBuffer_null(&obj->idxBuff);
-        }
+        ScnGpuBuffer_releaseAndNullify(&obj->vBuff);
+        ScnGpuBuffer_releaseAndNullify(&obj->idxBuff);
         ScnContext_null(&obj->ctx);
     }
     ScnContext_mfree(ctx, obj);

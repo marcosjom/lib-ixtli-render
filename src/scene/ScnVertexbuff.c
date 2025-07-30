@@ -55,33 +55,15 @@ void ScnVertexbuff_destroyOpq(void* obj){
     STScnVertexbuffOpq* opq = (STScnVertexbuffOpq*)obj;
     //buffs
     {
-        if(!ScnBuffer_isNull(opq->buffs.vertex)){
-            ScnBuffer_release(&opq->buffs.vertex);
-            ScnBuffer_null(&opq->buffs.vertex);
-        }
-        if(!ScnBuffer_isNull(opq->buffs.idxs)){
-            ScnBuffer_release(&opq->buffs.idxs);
-            ScnBuffer_null(&opq->buffs.idxs);
-        }
+        ScnBuffer_releaseAndNullify(&opq->buffs.vertex);
+        ScnBuffer_releaseAndNullify(&opq->buffs.idxs);
     }
     //
     //ScnStruct_stRelease(ScnVertexbuffCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
     //
-    //gpuDev
-    if(!ScnGpuDevice_isNull(opq->gpuDev)){
-        ScnGpuDevice_release(&opq->gpuDev);
-        ScnGpuDevice_null(&opq->gpuDev);
-    }
-    //
-    if(!ScnMutex_isNull(opq->mutex)){
-        ScnMutex_free(&opq->mutex);
-        ScnMutex_null(&opq->mutex);
-    }
-    //
-    if(!ScnContext_isNull(opq->ctx)){
-        ScnContext_release(&opq->ctx);
-        ScnContext_null(&opq->ctx);
-    }
+    ScnGpuDevice_releaseAndNullify(&opq->gpuDev);
+    ScnMutex_freeAndNullify(&opq->mutex);
+    ScnContext_releaseAndNullify(&opq->ctx);
 }
 
 //
@@ -148,10 +130,7 @@ void ScnVertexbuffSlot_init(STScnContextRef ctx, STScnVertexbuffSlot* opq){
 }
 
 void ScnVertexbuffSlot_destroy(STScnVertexbuffSlot* opq){
-    if(!ScnGpuVertexbuff_isNull(opq->gpuVBuff)){
-        ScnGpuVertexbuff_release(&opq->gpuVBuff);
-        ScnGpuVertexbuff_null(&opq->gpuVBuff);
-    }
+    ScnGpuVertexbuff_releaseAndNullify(&opq->gpuVBuff);
 }
 
 //gpu-vertexbuffer

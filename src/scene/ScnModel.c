@@ -127,21 +127,10 @@ void ScnModel_destroyOpq(void* obj){
             }
             ScnArray_destroy(opq->ctx, &opq->cmds.heap);
         }
-        if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
-            ScnVertexbuffs_release(&opq->cmds.vbuffs);
-            ScnVertexbuffs_null(&opq->cmds.vbuffs);
-        }
+        ScnVertexbuffs_releaseAndNullify(&opq->cmds.vbuffs);
     }
-    //
-    if(!ScnMutex_isNull(opq->mutex)){
-        ScnMutex_free(&opq->mutex);
-        ScnMutex_null(&opq->mutex);
-    }
-    //
-    if(!ScnContext_isNull(opq->ctx)){
-        ScnContext_release(&opq->ctx);
-        ScnContext_null(&opq->ctx);
-    }
+    ScnMutex_freeAndNullify(&opq->mutex);
+    ScnContext_releaseAndNullify(&opq->ctx);
 }
 
 //
@@ -695,22 +684,10 @@ void ScnModelDrawCmd_destroy(STScnModelDrawCmd* obj){
     }
     //texs
     {
-        if(!ScnGpuTexture_isNull(obj->texs.t0)){
-            ScnGpuTexture_release(&obj->texs.t0);
-            ScnGpuTexture_null(&obj->texs.t0);
-        }
-        if(!ScnGpuTexture_isNull(obj->texs.t1)){
-            ScnGpuTexture_release(&obj->texs.t1);
-            ScnGpuTexture_null(&obj->texs.t1);
-        }
-        if(!ScnGpuTexture_isNull(obj->texs.t2)){
-            ScnGpuTexture_release(&obj->texs.t2);
-            ScnGpuTexture_null(&obj->texs.t2);
-        }
+        ScnGpuTexture_releaseAndNullify(&obj->texs.t0);
+        ScnGpuTexture_releaseAndNullify(&obj->texs.t1);
+        ScnGpuTexture_releaseAndNullify(&obj->texs.t2);
     }
     //vbuffs
-    if(!ScnVertexbuffs_isNull(obj->vbuffs)){
-        ScnVertexbuffs_release(&obj->vbuffs);
-        ScnVertexbuffs_null(&obj->vbuffs);
-    }
+    ScnVertexbuffs_releaseAndNullify(&obj->vbuffs);
 }

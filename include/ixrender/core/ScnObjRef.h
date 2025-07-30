@@ -23,6 +23,7 @@ SC_INLN ScnBOOL ScnObjRef_isSame(STScnObjRef ref, STScnObjRef other) { return (r
 SC_INLN void    ScnObjRef_null(STScnObjRef* ref) { ref->ptr = NULL; }
 SC_INLN void    ScnObjRef_retain(STScnObjRef ref) { ScnSharedPtr_retain(ref.ptr); }
 SC_INLN void    ScnObjRef_release(STScnObjRef* ref) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } }
+SC_INLN void    ScnObjRef_releaseAndNullify(STScnObjRef* ref) { if(ref->ptr != NULL) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } ref->ptr = NULL; } }
 SC_INLN void    ScnObjRef_set(STScnObjRef* ref, STScnObjRef other) { if(!ScnObjRef_isNull(other)){ ScnObjRef_retain(other); } if(!ScnObjRef_isNull(*ref)){ ScnObjRef_release(ref); } *ref = other; }
 
 //
@@ -41,6 +42,7 @@ SC_INLN void    ScnObjRef_set(STScnObjRef* ref, STScnObjRef other) { if(!ScnObjR
     SC_INLN void                STNAME ## _null(ST ## STNAME ## Ref* ref) { ref->ptr = NULL; } \
     SC_INLN void                STNAME ## _retain(ST ## STNAME ## Ref ref) { ScnSharedPtr_retain(ref.ptr); } \
     SC_INLN void                STNAME ## _release(ST ## STNAME ## Ref* ref) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } } \
+    SC_INLN void                STNAME ## _releaseAndNullify(ST ## STNAME ## Ref* ref) { if(ref->ptr != NULL) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } ref->ptr = NULL; } } \
     SC_INLN void                STNAME ## _set(ST ## STNAME ## Ref* ref, ST ## STNAME ## Ref other) { if(!STNAME ## _isNull(other)){ STNAME ## _retain(other); } if(!STNAME ## _isNull(*ref)){ STNAME ## _release(ref); } *ref = other; } \
     SC_INLN ST ## STNAME ## Ref STNAME ## _alloc(STScnContextRef ctx) \
     { \

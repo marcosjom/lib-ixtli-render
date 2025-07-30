@@ -61,24 +61,13 @@ void ScnGpuTexture_destroyOpq(void* obj){
     //
     //ScnStruct_stRelease(ScnGpuTextureCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
     //
-    if(!ScnBitmap_isNull(opq->bmp)){
-        ScnBitmap_release(&opq->bmp);
-        ScnBitmap_null(&opq->bmp);
-    }
+    ScnBitmap_releaseAndNullify(&opq->bmp);
     //changes
     {
         ScnArray_destroy(opq->ctx, &opq->changes.rects);
     }
-    //
-    if(!ScnMutex_isNull(opq->mutex)){
-        ScnMutex_free(&opq->mutex);
-        ScnMutex_null(&opq->mutex);
-    }
-    //
-    if(!ScnContext_isNull(opq->ctx)){
-        ScnContext_release(&opq->ctx);
-        ScnContext_null(&opq->ctx);
-    }
+    ScnMutex_freeAndNullify(&opq->mutex);
+    ScnContext_releaseAndNullify(&opq->ctx);
 }
 
 //
