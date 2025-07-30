@@ -63,7 +63,7 @@ void ScnBuffer_initZeroedOpq(STScnContextRef ctx, void* obj) {
     STScnBufferOpq* opq = (STScnBufferOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
-    opq->mutex = ScnContext_mutex_alloc(opq->ctx);
+    opq->mutex = ScnContext_allocMutex(opq->ctx);
     //changes
     {
         ScnArraySorted_init(opq->ctx, &opq->changes.rngs, 0, 128, STScnRangeU, ScnCompare_STScnRangeU);

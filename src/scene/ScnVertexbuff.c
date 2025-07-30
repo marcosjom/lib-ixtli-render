@@ -47,7 +47,7 @@ void ScnVertexbuff_initZeroedOpq(STScnContextRef ctx, void* obj) {
     STScnVertexbuffOpq* opq = (STScnVertexbuffOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
-    opq->mutex = ScnContext_mutex_alloc(opq->ctx);
+    opq->mutex = ScnContext_allocMutex(opq->ctx);
 
 }
 
@@ -194,7 +194,7 @@ ScnBOOL ScnVertexbuff_prepareNextRenderSlot(STScnVertexbuffRef ref){
             STScnVertexbuffSlot* slot = &opq->slots.arr[opq->slots.iCur];
             if(ScnGpuVertexbuff_isNull(slot->gpuVBuff)){
                 slot->gpuVBuff = ScnGpuDevice_allocVertexBuff(opq->gpuDev, &opq->cfg, vbuff, iBuff);
-                if(!ScnGpuDevice_isNull(slot->gpuVBuff)){
+                if(!ScnGpuVertexbuff_isNull(slot->gpuVBuff)){
                     r = ScnTRUE;
                 }
             } else {

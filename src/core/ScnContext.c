@@ -111,7 +111,7 @@ void ScnContext_mfree(STScnContextRef ref, void* ptr){
 
 //context (mutex)
 
-STScnMutexRef ScnContext_mutex_alloc(STScnContextRef ref){
+STScnMutexRef ScnContext_allocMutex(STScnContextRef ref){
     return (ref.itf != NULL && ref.itf->mutex.alloc != NULL ? (*ref.itf->mutex.alloc)(ref.itf) : (STScnMutexRef)STScnMutexRef_Zero);
 }
 

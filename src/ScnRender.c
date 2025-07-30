@@ -36,12 +36,11 @@ typedef struct STScnRenderOpq_ {
     struct {
         STScnApiItf         itf;
         void*               itfParam;
-        void*               data;
     } api;
     STScnGpuDeviceRef       gpuDev;
     STScnBufferRef          viewPropsBuff;  //buffer with viewport properties
     STScnBufferRef          nodesPropsBuff; //buffer with models
-    STScnVertexbuffRef      vbuffs;         //buffers with vertices and indices
+    STScnVertexbuffsRef     vbuffs;         //buffers with vertices and indices
     //job
     struct {
         ScnBOOL             isActive;       //jobStart() was called without a jobEnd()
@@ -61,7 +60,7 @@ void ScnRender_initZeroedOpq(STScnContextRef ctx, void* obj) {
     STScnRenderOpq* opq = (STScnRenderOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
-    opq->mutex = ScnContext_mutex_alloc(opq->ctx);
+    opq->mutex = ScnContext_allocMutex(opq->ctx);
     //api
     {
         //
@@ -93,10 +92,12 @@ void ScnRender_destroyOpq(void* obj){
         ScnArray_destroy(opq->ctx, &opq->job.stack);
         ScnArray_destroy(opq->ctx, &opq->job.cmds);
     }
+    //viewPropsBuff
     if(!ScnBuffer_isNull(opq->viewPropsBuff)){
         ScnBuffer_release(&opq->viewPropsBuff);
         ScnBuffer_null(&opq->viewPropsBuff);
     }
+    //nodesPropsBuff
     if(!ScnBuffer_isNull(opq->nodesPropsBuff)){
         ScnBuffer_release(&opq->nodesPropsBuff);
         ScnBuffer_null(&opq->nodesPropsBuff);
@@ -107,17 +108,12 @@ void ScnRender_destroyOpq(void* obj){
         ScnVertexbuffs_null(&opq->vbuffs);
     }
     //gpuDev
-    {
-        if(!ScnGpuDevice_isNull(opq->gpuDev)){
-            ScnGpuDevice_release(&opq->gpuDev);
-            ScnGpuDevice_null(&opq->gpuDev);
-        }
+    if(!ScnGpuDevice_isNull(opq->gpuDev)){
+        ScnGpuDevice_release(&opq->gpuDev);
+        ScnGpuDevice_null(&opq->gpuDev);
     }
     //api
     {
-        if(opq->api.data != NULL){
-            opq->api.data = NULL;
-        }
         ScnMemory_setZeroSt(opq->api.itf, STScnApiItf);
         opq->api.itfParam = NULL;
     }
@@ -205,6 +201,11 @@ ScnBOOL ScnRender_openDevice(STScnRenderRef ref, const STScnGpuDeviceCfg* cfg, c
     }
     ScnMutex_unlock(opq->mutex);
     return r;
+}
+
+ScnBOOL ScnRender_hasOpenDevice(STScnRenderRef ref){
+    STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    return !ScnGpuDevice_isNull(opq->gpuDev);
 }
 
 STScnModelRef ScnRender_allocModel(STScnRenderRef ref){
@@ -366,7 +367,7 @@ STScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, co
                     cfg.coord.type          = ENScnGpuDataType_FLOAT32;
                     cfg.coord.offset        = ScnVertex_IDX_x;
                     //indices
-                    if(!ScnGpuBuffer_isNull(idxsBuff)){
+                    if(!ScnBuffer_isNull(idxsBuff)){
                         cfg.indices.amm     = 1;
                         cfg.indices.type    = ENScnGpuDataType_UI32;
                         cfg.indices.offset  = 0;

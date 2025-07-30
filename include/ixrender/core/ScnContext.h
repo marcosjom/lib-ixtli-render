@@ -42,7 +42,7 @@ void*           ScnContext_malloc(STScnContextRef ref, const ScnUI32 newSz, cons
 void*           ScnContext_mrealloc(STScnContextRef ref, void* ptr, const ScnUI32 newSz, const char* dbgHintStr);
 void            ScnContext_mfree(STScnContextRef ref, void* ptr);
 //context (mutex)
-STScnMutexRef   ScnContext_mutex_alloc(STScnContextRef ref);
+STScnMutexRef   ScnContext_allocMutex(STScnContextRef ref);
 
 //STScnContextItf
 

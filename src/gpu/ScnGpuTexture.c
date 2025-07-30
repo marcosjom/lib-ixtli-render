@@ -38,7 +38,7 @@ void ScnGpuTexture_initZeroedOpq(STScnContextRef ctx, void* obj) {
     STScnGpuTextureOpq* opq = (STScnGpuTextureOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
-    opq->mutex = ScnContext_mutex_alloc(opq->ctx);
+    opq->mutex = ScnContext_allocMutex(opq->ctx);
     //changes
     {
         ScnArray_init(opq->ctx, &opq->changes.rects, 0, 32, STScnRectI);

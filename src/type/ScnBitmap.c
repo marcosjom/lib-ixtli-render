@@ -76,7 +76,7 @@ void ScnBitmap_initZeroedOpq(STScnContextRef ctx, void* obj) {
     STScnBitmapOpq* opq = (STScnBitmapOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
-    opq->mutex = ScnContext_mutex_alloc(opq->ctx);
+    opq->mutex = ScnContext_allocMutex(opq->ctx);
 }
 
 void ScnBitmap_destroyOpq(void* obj){

@@ -9,15 +9,27 @@
 
 #include "ixrender/ScnRender.h"
 #include "ixrender/api/ScnApiMetal.h"
+#include "utils/ScnMemMap.h"
+
+// Custom memory allocation for this demos and tests,
+// for detecting memory-leaks using ScnMemMap.
+void* ScnMemMap_custom_malloc(const ScnUI32 newSz, const char* dbgHintStr);
+void* ScnMemMap_custom_realloc(void* ptr, const ScnUI32 newSz, const char* dbgHintStr);
+void ScnMemMap_custom_free(void* ptr);
+STScnMemMap* gMemmap = NULL;
 
 NS_ASSUME_NONNULL_BEGIN
 
 #define IXTLI_RENDER_DEMO_RENDER_SLOTS_AMMOUNT  3
+#define IXTLI_FRAMES_COUNT_AND_RELEASE_RENDER   120
 
 @implementation MetalKitViewDelegate {
     STScnContextRef ctx;
     STScnRenderRef  render;
     STScnModelRef   model;
+    //memory leak detection
+    STScnMemMap     memmap;
+    ScnUI32         framesCount;
 @protected
     MTKView         *metalKitView;
 }
@@ -34,7 +46,24 @@ NS_ASSUME_NONNULL_BEGIN
 
     metalKitView = view;
 
-    STScnContextItf ctxItf = ScnContextItf_getDefault();
+    //Init memory custom manager
+    ScnMemMap_init(&memmap);
+    gMemmap = &memmap;
+    
+    STScnContextItf ctxItf;
+    memset(&ctxItf, 0, sizeof(ctxItf));
+    //define context interface
+    {
+        //custom memory allocation (for memory leaks dtection)
+        {
+            //mem
+            ctxItf.mem.malloc   = ScnMemMap_custom_malloc;
+            ctxItf.mem.realloc  = ScnMemMap_custom_realloc;
+            ctxItf.mem.free     = ScnMemMap_custom_free;
+        }
+        //use default for others
+        ScnContextItf_fillMissingMembers(&ctxItf);
+    }
     ctx = ScnContext_alloc(&ctxItf);
     if(ScnContext_isNull(ctx)){
         printf("ERROR, ScnContext_alloc failed.\n");
@@ -45,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
             printf("ERROR, ScnApiMetal_getApiItf failed.\n");
         } else {
             render = ScnRender_alloc(ctx);
-            if(ScnRender_isNull(render)){
+            /*if(ScnRender_isNull(render)){
                 printf("ERROR, ScnRender_alloc failed.\n");
             } else if(!ScnRender_prepare(render, &itf, NULL)){
                 printf("ERROR, ScnRender_prepare failed.\n");
@@ -63,10 +92,9 @@ NS_ASSUME_NONNULL_BEGIN
                         v = verts.ptr[2]; v.x = 0; v.y = 0; v.color.r = 255; v.color.g = 55; v.color.b = 155; v.color.a = 255;
                     }
                 }
-            }
+            }*/
         }
     }
-    
     return self;
 }
 
@@ -80,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
     //NSLog(@"MetalKitViewDelegate, drawInMTKView.\n");
-    if(!ScnRender_isNull(render)){
+    if(!ScnRender_isNull(render) && ScnRender_hasOpenDevice(render)){
         if(!ScnRender_prepareNextRenderSlot(render)){
             printf("ScnRender_prepareNextRenderSlot failed.\n");
         } else if(!ScnRender_jobStart(render)){
@@ -91,8 +119,72 @@ NS_ASSUME_NONNULL_BEGIN
             }
         }
     }
+    //
+    if(framesCount < IXTLI_FRAMES_COUNT_AND_RELEASE_RENDER){
+        ++framesCount;
+        if((framesCount % 120) == 0){
+            printf("%d frames.\n", framesCount);
+        }
+        if(framesCount >= IXTLI_FRAMES_COUNT_AND_RELEASE_RENDER){
+            printf("Simulating cleanup after %d frames.\n", framesCount);
+            if(!ScnModel_isNull(model)){
+                ScnModel_release(&model);
+                ScnModel_null(&model);
+            }
+            if(!ScnRender_isNull(render)){
+                ScnRender_release(&render);
+                ScnRender_null(&render);
+            }
+            if(!ScnContext_isNull(ctx)){
+                ScnContext_release(&ctx);
+                ScnContext_null(&ctx);
+            }
+            //custom memory manager
+            {
+                ScnMemMap_printFinalReport(&memmap);
+                ScnMemMap_destroy(&memmap);
+            }
+        }
+    }
 }
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+//custom memory allocation (for memory leaks detection)
+
+void* ScnMemMap_custom_malloc(const ScnUI32 newSz, const char* dbgHintStr){
+    void* r = malloc(newSz);
+    if(gMemmap == NULL){
+        SCN_PRINTF_ERROR("ScnMemMap_custom_malloc::gCurInstance is NULL.\n");
+    } else {
+        ScnMemMap_ptrAdd(gMemmap, r, newSz, dbgHintStr);
+    }
+    return r;
+}
+
+void* ScnMemMap_custom_realloc(void* ptr, const ScnUI32 newSz, const char* dbgHintStr){
+    //"If there is not enough memory, the old memory block is not freed and null pointer is returned."
+    void* r = realloc(ptr, newSz);
+    if(gMemmap == NULL){
+        SCN_PRINTF_ERROR("ScnMemMap_custom_realloc::gCurInstance is NULL.\n");
+    } else {
+        if(r != NULL){
+            if(ptr != NULL){
+                ScnMemMap_ptrRemove(gMemmap, ptr);
+            }
+            ScnMemMap_ptrAdd(gMemmap, r, newSz, dbgHintStr);
+        }
+    }
+    return r;
+}
+
+void ScnMemMap_custom_free(void* ptr){
+    if(gMemmap == NULL){
+        SCN_PRINTF_ERROR("ScnMemMap_custom_free::gCurInstance is NULL.\n");
+    } else {
+        ScnMemMap_ptrRemove(gMemmap, ptr);
+    }
+    free(ptr);
+}

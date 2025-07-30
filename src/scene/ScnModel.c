@@ -100,7 +100,7 @@ void ScnModel_initZeroedOpq(STScnContextRef ctx, void* obj) {
     STScnModelOpq* opq = (STScnModelOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
-    opq->mutex  = ScnContext_mutex_alloc(opq->ctx);
+    opq->mutex  = ScnContext_allocMutex(opq->ctx);
     //
     opq->props  = (STScnModelProps)STScnModelProps_Identity;
     //cmds

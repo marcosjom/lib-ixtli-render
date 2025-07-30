@@ -102,7 +102,7 @@ void ScnMemBlock_initZeroedOpq(STScnContextRef ctx, void* obj) {
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
-    opq->mutex = ScnContext_mutex_alloc(opq->ctx);
+    opq->mutex = ScnContext_allocMutex(opq->ctx);
     //
     ScnArraySorted_init(ctx, &opq->ptrs, 0, 256, STScnMemBlockPtr, ScnCompare_ScnMemBlockPtr);
     ScnArraySorted_init(ctx, &opq->gaps, 0, 128, STScnMemBlockGap, ScnCompare_ScnMemBlockGap);

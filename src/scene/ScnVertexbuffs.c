@@ -23,7 +23,7 @@ void ScnVertexbuffs_initZeroedOpq(STScnContextRef ctx, void* obj) {
     STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
-    opq->mutex = ScnContext_mutex_alloc(opq->ctx);
+    opq->mutex = ScnContext_allocMutex(opq->ctx);
 }
 
 void ScnVertexbuffs_destroyOpq(void* obj){

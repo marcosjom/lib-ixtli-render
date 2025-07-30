@@ -28,7 +28,9 @@ SC_INLN void    ScnObjRef_set(STScnObjRef* ref, STScnObjRef other) { if(!ScnObjR
 //
 
 #define SCN_REF_STRUCT_METHODS_DEC(STNAME)  \
-    typedef STScnObjRef ST ## STNAME ## Ref; \
+    typedef struct ST ## STNAME ## Ref_ { \
+        STScnSharedPtr* ptr; \
+    } ST ## STNAME ## Ref; \
     \
     ScnSI32                     STNAME ## _getOpqSz(void); \
     void                        STNAME ## _initZeroedOpq(STScnContextRef ctx, void* opq); \

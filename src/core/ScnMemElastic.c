@@ -47,7 +47,7 @@ void ScnMemElastic_initZeroedOpq(STScnContextRef ctx, void* obj) {
     STScnMemElasticOpq* opq = (STScnMemElasticOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
-    opq->mutex = ScnContext_mutex_alloc(opq->ctx);
+    opq->mutex = ScnContext_allocMutex(opq->ctx);
     //
     ScnArray_init(opq->ctx, &opq->blocks, 0, 4, STScnMemElasticBlock);
 }
@@ -177,7 +177,7 @@ ScnUI32 ScnMemElastic_getAddressableSize(STScnMemElasticRef ref){ //includes the
     return r;
 }
 
-STScnAbsPtr ScnMemElastic_getNextContinuousAddress(STScnMemBlockRef ref, const ScnUI32 iAddress, ScnUI32* dstContinuousSz){
+STScnAbsPtr ScnMemElastic_getNextContinuousAddress(STScnMemElasticRef ref, const ScnUI32 iAddress, ScnUI32* dstContinuousSz){
     STScnAbsPtr r = STScnAbsPtr_Zero; ScnUI32 continuousSz = 0;
     STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);

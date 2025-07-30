@@ -39,7 +39,7 @@ void ScnGpuFramebuff_initZeroedOpq(STScnContextRef ctx, void* obj) {
     STScnGpuFramebuffOpq* opq = (STScnGpuFramebuffOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
-    opq->mutex = ScnContext_mutex_alloc(opq->ctx);
+    opq->mutex = ScnContext_allocMutex(opq->ctx);
 
 }
 

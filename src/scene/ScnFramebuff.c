@@ -25,7 +25,7 @@ void ScnFramebuff_initZeroedOpq(STScnContextRef ctx, void* obj) {
     STScnFramebuffOpq* opq = (STScnFramebuffOpq*)obj;
     //
     ScnContext_set(&opq->ctx, ctx);
-    opq->mutex = ScnContext_mutex_alloc(opq->ctx);
+    opq->mutex = ScnContext_allocMutex(opq->ctx);
 }
 
 void ScnFramebuff_destroyOpq(void* obj){
