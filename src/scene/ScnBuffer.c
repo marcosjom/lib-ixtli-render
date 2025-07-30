@@ -195,6 +195,20 @@ ScnBOOL ScnBuffer_clear(STScnBufferRef ref){
     return r;
 }
 
+ScnBOOL ScnBuffer_invalidateAll(STScnBufferRef ref){ //forces the full buffer to be synced to its gpu-buffer slot
+    ScnBOOL r = ScnFALSE;
+    STScnBufferOpq* opq = (STScnBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnMemElastic_isNull(opq->mem)){
+        //changes
+        opq->changes.size = ScnTRUE;
+        ScnArraySorted_empty(&opq->changes.rngs);
+        r = ScnTRUE;
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
 STScnAbsPtr ScnBuffer_malloc(STScnBufferRef ref, const ScnUI32 usableSz){
     STScnAbsPtr r = STScnAbsPtr_Zero;
     STScnBufferOpq* opq = (STScnBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);

@@ -10,6 +10,7 @@
 
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/core/ScnObjRef.h"
+#include "ixrender/gpu/ScnGpuFramebuffProps.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,7 +21,7 @@ extern "C" {
 #define STScnGpuFramebuffCfg_Zero   { ENScnBitmapColor_undef, 0, 0 }
 
 typedef struct STScnGpuFramebuffCfg_ {
-    ScnUI32 dummy;
+    STScnGpuFramebufferProps props;
 } STScnGpuFramebuffCfg;
 
 //ENScnGpuFramebuffDstType

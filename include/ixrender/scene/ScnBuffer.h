@@ -41,6 +41,7 @@ ScnUI32     ScnBuffer_getRenderSlotsCount(STScnBufferRef ref);
 
 //cpu-buffer
 ScnBOOL     ScnBuffer_clear(STScnBufferRef ref);
+ScnBOOL     ScnBuffer_invalidateAll(STScnBufferRef ref); //forces the full buffer to be synced to its gpu-buffer slot
 STScnAbsPtr ScnBuffer_malloc(STScnBufferRef ref, const ScnUI32 usableSz);
 ScnBOOL     ScnBuffer_mfree(STScnBufferRef ref, const STScnAbsPtr ptr);
 ScnBOOL     ScnBuffer_mInvalidate(STScnBufferRef ref, const STScnAbsPtr ptr, const ScnUI32 sz);

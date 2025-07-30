@@ -33,6 +33,15 @@ typedef struct STScnSizeI_ {
 
 //
 
+#define STScnSizeU_Zero { 0u, 0u }
+
+typedef struct STScnSizeU_ {
+    ScnUI32    width;
+    ScnUI32    height;
+} STScnSizeU;
+
+//
+
 #define STScnSizeI16_Zero { 0, 0 }
 
 typedef struct STScnSizeI16_ {

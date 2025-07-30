@@ -124,7 +124,7 @@ ScnBOOL ScnBitmap_create(STScnBitmapRef ref, const ScnSI32 width, const ScnSI32 
 
 ScnBOOL ScnBitmap_pasteBitmapData(STScnBitmapRef ref, const STScnPointI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData){
     ScnBOOL r = ScnFALSE;
-    STScnBitmapOpq* opq = (STScnBitmapOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    //STScnBitmapOpq* opq = (STScnBitmapOpq*)ScnSharedPtr_getOpq(ref.ptr);
     SCN_ASSERT(ScnFALSE) //implement
     return r;
 }
