@@ -11,7 +11,7 @@
 
 //ScnContextRef
 
-typedef struct STScnContextOpq_ {
+typedef struct STScnContextOpq {
     ScnUI32 dummy;  //empty struct
 } STScnContextOpq;
 

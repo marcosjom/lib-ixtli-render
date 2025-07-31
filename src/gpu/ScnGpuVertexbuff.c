@@ -10,7 +10,7 @@
 
 //STScnGpuVertexbuffOpq
 
-typedef struct STScnGpuVertexbuffOpq_ {
+typedef struct STScnGpuVertexbuffOpq {
     //api
     struct {
         STScnGpuVertexbuffApiItf itf;

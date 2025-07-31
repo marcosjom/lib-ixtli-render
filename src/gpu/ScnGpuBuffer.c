@@ -10,7 +10,7 @@
 
 //STScnGpuBufferOpq
 
-typedef struct STScnGpuBufferOpq_ {
+typedef struct STScnGpuBufferOpq {
     //api
     struct {
         STScnGpuBufferApiItf itf;

@@ -19,7 +19,7 @@ extern "C" {
 
 //STScnMemStrs
 
-typedef struct STScnMemStrs_ {
+typedef struct STScnMemStrs {
     char*            buff;
     unsigned long    buffSz;
     unsigned long    buffUse;
@@ -35,7 +35,7 @@ unsigned long ScnMemStrs_findOrAdd(STScnMemStrs* obj, const char* str);
 
 //STScnPtrRetainer
 
-typedef struct STScnPtrRetainer_ {
+typedef struct STScnPtrRetainer {
     unsigned long   iStrHint;
     long            balance; //(retain - release)
 } STScnPtrRetainer;
@@ -45,7 +45,7 @@ void ScnPtrRetainer_destroy(STScnPtrRetainer* obj);
 
 //STScnMemBlock
 
-typedef struct STScnMemBlock_ {
+typedef struct STScnMemBlock {
     char            regUsed;
     unsigned long   iStrHint;
     void*           pointer;
@@ -66,7 +66,7 @@ void ScnMemBlock_releasedBy(STScnMemBlock* obj, const unsigned long iStrHint);
 
 //STScnMemBlocks
 
-typedef struct STScnMemBlocks_ {
+typedef struct STScnMemBlocks {
     STScnMemBlock*   arr;
     unsigned long    arrSz;
     unsigned long    arrUse;
@@ -80,7 +80,7 @@ STScnMemBlock* ScnMemBlocks_add(STScnMemBlocks* obj, void* pointer, unsigned lon
 
 //STScnMemStats
 
-typedef struct STScnMemStats_ {
+typedef struct STScnMemStats {
     //alive (blocks of memory currently alive)
     struct {
         unsigned long   count;
@@ -103,7 +103,7 @@ void ScnMemStats_destroy(STScnMemStats* obj);
 
 //STScnMemMap
 
-typedef struct STScnMemMap_ {
+typedef struct STScnMemMap {
     STScnMemStats   stats;
     STScnMemStrs    strs;
     STScnMemBlocks  blocks;

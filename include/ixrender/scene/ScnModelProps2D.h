@@ -22,7 +22,7 @@ extern "C" {
 #define STScnModelProps2D_Zero        { STScnColor8_Zero, STScnTransform2D_Zero }
 #define STScnModelProps2D_Identity    { STScnColor8_255, STScnTransform2D_Identity }
 
-typedef struct STScnModelProps2D_ {
+typedef struct STScnModelProps2D {
     STScnColor8         c8;     //color
     STScnTransform2D    tform;  //transform
 } STScnModelProps2D;

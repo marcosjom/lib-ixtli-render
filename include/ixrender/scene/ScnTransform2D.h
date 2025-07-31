@@ -19,7 +19,7 @@ extern "C" {
 #define STScnTransform2D_Zero     { 0.f, 0.f, 0.f, 0.f, 0.f }
 #define STScnTransform2D_Identity { 1.f, 1.f, 0.f, 0.f, 0.f }
 
-typedef struct STScnTransform2D_ {
+typedef struct STScnTransform2D {
     ScnFLOAT sx;   //scale-x
     ScnFLOAT sy;   //scale-y
     ScnFLOAT tx;   //traslate-x

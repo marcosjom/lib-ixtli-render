@@ -14,12 +14,12 @@
 extern "C" {
 #endif
 
-typedef struct STScnPoint2D_ {
+typedef struct STScnPoint2D {
     ScnFLOAT    x;
     ScnFLOAT    y;
 } STScnPoint2D;
 
-typedef struct STScnPoint2DI_ {
+typedef struct STScnPoint2DI {
     ScnSI32     x;
     ScnSI32     y;
 } STScnPoint2DI;

@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-typedef enum ENScnCompareMode_ {
+typedef enum ENScnCompareMode {
     ENScnCompareMode_Equal = 0,
     ENScnCompareMode_Lower,
     ENScnCompareMode_LowerOrEqual,

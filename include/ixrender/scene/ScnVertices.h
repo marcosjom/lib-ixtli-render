@@ -18,7 +18,7 @@ extern "C" {
 
 //ENScnVertexType
 
-typedef enum ENScnVertexType_ {
+typedef enum ENScnVertexType {
     ENScnVertexType_2DColor = 0,    //2D, no texture
     ENScnVertexType_2DTex,          //2D, one texture
     ENScnVertexType_2DTex2,         //2D, two textures
@@ -38,7 +38,7 @@ typedef enum ENScnVertexType_ {
 #define STScnVertexIdx_Zero     { 0 }
 
 //Vertex without texture
-typedef struct STScnVertexIdx_ {
+typedef struct STScnVertexIdx {
     ScnUI32     i;
 } STScnVertexIdx;
 
@@ -55,7 +55,7 @@ typedef struct STScnVertexIdx_ {
 #define STScnVertex2D_Zero     { 0.f, 0.f, STScnColor8_Zero }
 
 //Vertex without texture
-typedef struct STScnVertex2D_ {
+typedef struct STScnVertex2D {
     ScnFLOAT        x;
     ScnFLOAT        y;
     STScnColor8     color;
@@ -76,7 +76,7 @@ typedef struct STScnVertex2D_ {
 #define STScnVertex2DTex_Zero     { 0.f, 0.f, STScnColor8_Zero, STScnPoint2D_Zero }
 
 //Vertex with one texture
-typedef struct STScnVertex2DTex_ {
+typedef struct STScnVertex2DTex {
     ScnFLOAT        x;
     ScnFLOAT        y;
     STScnColor8     color;
@@ -101,7 +101,7 @@ typedef struct STScnVertex2DTex_ {
 #define STScnVertex2DTex2_Zero     { 0.f, 0.f, STScnColor8_Zero, STScnPoint2D_Zero, STScnPoint2D_Zero }
 
 //Vertex with 2 textures
-typedef struct STScnVertex2DTex2_ {
+typedef struct STScnVertex2DTex2 {
     ScnFLOAT        x;
     ScnFLOAT        y;
     STScnColor8     color;
@@ -128,7 +128,7 @@ typedef struct STScnVertex2DTex2_ {
 #define STScnVertex2DTex3_Zero     { 0.f, 0.f, STScnColor8_Zero, STScnPoint2D_Zero, STScnPoint2D_Zero, STScnPoint2D_Zero }
 
 //Vertex with 3 textures
-typedef struct STScnVertex2DTex3_ {
+typedef struct STScnVertex2DTex3 {
     ScnFLOAT        x;
     ScnFLOAT        y;
     STScnColor8     color;
@@ -154,7 +154,7 @@ typedef struct STScnVertex2DTex3_ {
 #define ScnVertex2DF_SZ           24u
 
 //Vertex without texture
-typedef struct STScnVertex2DF_ {
+typedef struct STScnVertex2DF {
     ScnFLOAT        x;
     ScnFLOAT        y;
     STScnColor      color;
@@ -176,7 +176,7 @@ typedef struct STScnVertex2DF_ {
 #define ScnVertex2DTexF_SZ            32u
 
 //Vertex with one texture
-typedef struct STScnVertex2DTexF_ {
+typedef struct STScnVertex2DTexF {
     ScnFLOAT        x;
     ScnFLOAT        y;
     STScnColor      color;
@@ -202,7 +202,7 @@ typedef struct STScnVertex2DTexF_ {
 #define ScnVertex2DTex2F_SZ           40u
 
 //Vertex with 2 textures
-typedef struct STScnVertex2DTex2F_ {
+typedef struct STScnVertex2DTex2F {
     ScnFLOAT        x;
     ScnFLOAT        y;
     STScnColor      color;
@@ -231,7 +231,7 @@ typedef struct STScnVertex2DTex2F_ {
 #define ScnVertex2DTex3F_SZ           48u
 
 //Vertex with 3 textures
-typedef struct STScnVertex2DTex3F_ {
+typedef struct STScnVertex2DTex3F {
     ScnFLOAT        x;
     ScnFLOAT        y;
     STScnColor      color;

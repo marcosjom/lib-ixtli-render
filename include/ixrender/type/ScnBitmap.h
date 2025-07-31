@@ -17,7 +17,7 @@
 extern "C" {
 #endif
 
-typedef enum ENScnBitmapColor_ {
+typedef enum ENScnBitmapColor {
     ENScnBitmapColor_undef = 0,
     ENScnBitmapColor_ALPHA8,        //only alpha (8 bits)
     ENScnBitmapColor_GRIS8,        //grayscale (8 bits)
@@ -36,7 +36,7 @@ typedef enum ENScnBitmapColor_ {
 
 #define STScnBitmapProps_Zero   { ENScnBitmapColor_undef, STScnSize2DI_Zero, 0, 0 }
 
-typedef struct STScnBitmapProps_ {
+typedef struct STScnBitmapProps {
     ENScnBitmapColor    color;
     STScnSize2DI          size;
     ScnSI32             bitsPerPx;
@@ -47,7 +47,7 @@ STScnBitmapProps ScnBitmapProps_build(const ScnSI32 width, const ScnSI32 height,
 
 //STScnBitmap
 
-typedef struct STScnBitmap_ {
+typedef struct STScnBitmap {
     STScnBitmapProps    props;
     ScnBYTE*            data;
     ScnUI32*            dataSz;

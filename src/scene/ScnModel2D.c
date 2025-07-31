@@ -11,7 +11,7 @@
 
 //STScnModel2DOpq
 
-typedef struct STScnModel2DOpq_ {
+typedef struct STScnModel2DOpq {
     ScnContextRef       ctx;
     ScnMutexRef         mutex;
     //

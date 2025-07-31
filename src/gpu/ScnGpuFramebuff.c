@@ -9,7 +9,7 @@
 
 //STScnGpuFramebuffOpq
 
-typedef struct STScnGpuFramebuffOpq_ {
+typedef struct STScnGpuFramebuffOpq {
     //api
     struct {
         STScnGpuFramebuffApiItf itf;

@@ -9,7 +9,7 @@
 
 //STScnGpuDeviceOpq
 
-typedef struct STScnGpuDeviceOpq_ {
+typedef struct STScnGpuDeviceOpq {
     //api
     struct {
         STScnGpuDeviceApiItf itf;
@@ -75,3 +75,9 @@ ScnGpuFramebuffRef ScnGpuDevice_allocFramebuffFromOSView(ScnGpuDeviceRef ref, vo
     STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (opq->api.itf.allocFramebuffFromOSView != NULL ? (*opq->api.itf.allocFramebuffFromOSView)(opq->api.itfParam, mtkView) : (ScnGpuFramebuffRef)ScnObjRef_Zero);
 }
+
+ScnBOOL ScnGpuDevice_render(ScnGpuDeviceRef ref, ScnGpuBufferRef fbPropsBuff, ScnGpuBufferRef mdlsPropsBuff, const struct STScnRenderCmd* const cmds, const ScnUI32 cmdsSz){
+    STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    return (opq->api.itf.render != NULL ? (*opq->api.itf.render)(opq->api.itfParam, fbPropsBuff, mdlsPropsBuff, cmds, cmdsSz) : ScnFALSE);
+}
+

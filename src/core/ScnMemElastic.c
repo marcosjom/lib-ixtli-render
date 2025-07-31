@@ -12,7 +12,7 @@
 
 #define STScnMemElasticState_Zero   { 0 }
 
-typedef struct STScnMemElasticState_ {
+typedef struct STScnMemElasticState {
     ScnUI32        idxsTotalSz;       //iOffset for next block
 } STScnMemElasticState;
 
@@ -20,7 +20,7 @@ typedef struct STScnMemElasticState_ {
 
 #define STScnMemElasticBlock_Zero  { 0, 0, 0, ScnObjRef_Zero }
 
-typedef struct STScnMemElasticBlock_ {
+typedef struct STScnMemElasticBlock {
     ScnUI32         iOffset;    //idx-at-block + iOffset = abstract-idx-at-blocks
     ScnUI32         idxsSz;     //ammount of addreses from idx-0
     ScnUI32         szSmallestMallocFailed; //for 'ScnMemBlock_malloc' quick-ignores
@@ -29,7 +29,7 @@ typedef struct STScnMemElasticBlock_ {
 
 //STScnMemElasticOpq
 
-typedef struct STScnMemElasticOpq_ {
+typedef struct STScnMemElasticOpq {
     ScnContextRef     ctx;
     ScnMutexRef       mutex;
     STScnMemElasticCfg   cfg;

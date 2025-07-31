@@ -22,7 +22,7 @@ extern "C" {
 
 //ENScnBufferType
 
-typedef enum ENScnBufferType_ {
+typedef enum ENScnBufferType {
     ENScnBufferType_Static = 0, //static buffers have a cpu-buffer untill its synced to its gpu-buffer; the cpu-buffer is deleted then. Its content is expected to never change.
     ENScnBufferType_Dynamic,    //dynamic buffers have a cpu-buffer and one or multiple gpu-buffers for rendering; the gpu-buffer invalidated areas are synced from cpu-buffer on each render pass.
     //
@@ -47,7 +47,8 @@ ScnBOOL     ScnBuffer_mfree(ScnBufferRef ref, const STScnAbsPtr ptr);
 ScnBOOL     ScnBuffer_mInvalidate(ScnBufferRef ref, const STScnAbsPtr ptr, const ScnUI32 sz);
 
 //gpu-buffer
-ScnBOOL         ScnBuffer_prepareNextRenderSlot(ScnBufferRef ref, ScnBOOL* dstHasPtrs);
+ScnBOOL         ScnBuffer_prepareCurrentRenderSlot(ScnBufferRef ref, ScnBOOL* dstHasPtrs);
+ScnBOOL         ScnBuffer_moveToNextRenderSlot(ScnBufferRef ref);
 ScnGpuBufferRef ScnBuffer_getCurrentRenderSlotGpuBuffer(ScnBufferRef ref);
 
 #ifdef __cplusplus

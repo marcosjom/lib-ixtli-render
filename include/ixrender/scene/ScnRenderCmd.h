@@ -11,6 +11,7 @@
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/scene/ScnVertices.h"
 #include "ixrender/scene/ScnVertexbuffs.h"
+#include "ixrender/scene/ScnFramebuff.h"
 #include "ixrender/scene/ScnModelProps2D.h"
 #include "ixrender/scene/ScnTexture.h"
 
@@ -20,7 +21,7 @@ extern "C" {
 
 //ENScnRenderShape
 
-typedef enum ENScnRenderShape_ {
+typedef enum ENScnRenderShape {
     ENScnRenderShape_Compute = 0, //compute vertices but not drawn
     //
     ENScnRenderShape_Texture,     //same as 'ENScnRenderShape_TriangStrip' with possible bitblit-optimization if matrix has no rotation.
@@ -37,17 +38,18 @@ typedef enum ENScnRenderShape_ {
 
 //ENScnRenderCmd
 
-typedef enum ENScnRenderCmd_ {
+typedef enum ENScnRenderCmd {
     ENScnRenderCmd_None = 0       //do nothing
+    //framebuffers
+    , ENScnRenderCmd_ActivateFramebuff
     //models
     , ENScnRenderCmd_SetTransformOffset //sets the positions of the 'STScnGpuModelProps2D' to be applied for the drawing cmds
     , ENScnRenderCmd_SetVertexBuff  //activates the vertex buffer
+    , ENScnRenderCmd_SetTexture     //activates the texture in a specific slot-index
     //modes
     , ENScnRenderCmd_MaskModePush   //pushes drawing-mask mode, where only the alpha value is affected
     , ENScnRenderCmd_MaskModePop    //pop
     //drawing
-    , ENScnRenderCmd_SetTexture     //activates the texture in a specific slot-index
-    , ENScnRenderCmd_SetVertsType   //activates the type of vertices to be used (indexes and vertices)
     , ENScnRenderCmd_DrawVerts      //draws something using the vertices
     , ENScnRenderCmd_DrawIndexes    //draws something using the vertices indexes
     //Count
@@ -56,12 +58,17 @@ typedef enum ENScnRenderCmd_ {
 
 //ENScnRenderCmd
 
-typedef struct STScnRenderCmd_ {
+typedef struct STScnRenderCmd {
     ENScnRenderCmd cmdId;          //id of the command
     union {
+        //ENScnRenderCmd_ActivateFramebuff
+        struct {
+            ScnFramebuffRef ref;
+            ScnUI32         offset; //position of data in viewPropsBuff
+        } activateFramebuff;
         //ENScnRenderCmd_SetTransformOffset
         struct {
-            ScnUI32         offset;
+            ScnUI32         offset; //position of data in nodesPropsBuff
         } setTransformOffset;
         //ENScnRenderCmd_SetVertexBuff
         struct {
@@ -76,11 +83,6 @@ typedef struct STScnRenderCmd_ {
             ScnUI32         index;   //slot-index
             ScnTextureRef   tex;     //ScnGpuTextureRef  tex;  //texture-id
         } setTexture;
-        //ENScnRenderCmd_SetVertsType
-        struct {
-            ENScnVertexType type;
-            
-        } setVertsType;
         //ENScnRenderCmd_DrawVerts
         struct {
             ENScnRenderShape shape;
@@ -98,7 +100,7 @@ typedef struct STScnRenderCmd_ {
 
 //ENScnModelDrawCmdType
 
-typedef enum ENScnModelDrawCmdType_ {
+typedef enum ENScnModelDrawCmdType {
     ENScnModelDrawCmdType_Undef = 0,
     //2D vertex drawing
     ENScnModelDrawCmdType_2Dv0,
@@ -116,7 +118,7 @@ typedef enum ENScnModelDrawCmdType_ {
 
 //STScnModel2DCmd
 
-typedef struct STScnModel2DCmd_ {
+typedef struct STScnModel2DCmd {
     ENScnModelDrawCmdType   type;
     ENScnRenderShape        shape;
     ScnVertexbuffsRef       vbuffs;
@@ -155,7 +157,7 @@ void ScnModel2DCmd_destroy(STScnModel2DCmd* obj);
 
 #define STScnModel2DPushItf_Zero  { NULL }
 
-typedef struct STScnModel2DPushItf_ {
+typedef struct STScnModel2DPushItf {
     ScnBOOL (*addCommandsWithProps)(void* data, const STScnModelProps2D* const props, const STScnModel2DCmd* const cmds, const ScnUI32 cmdsSz);
 } STScnModel2DPushItf;
 

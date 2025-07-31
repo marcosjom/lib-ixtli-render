@@ -11,7 +11,7 @@
 
 //STScnBufferSlot
 
-typedef struct STScnBufferSlot_ {
+typedef struct STScnBufferSlot {
     ScnContextRef   ctx;
     ScnGpuBufferRef gpuBuff;
     //state
@@ -30,7 +30,7 @@ void ScnBufferSlot_destroy(STScnBufferSlot* opq);
 
 //STScnBufferOpq
 
-typedef struct STScnBufferOpq_ {
+typedef struct STScnBufferOpq {
     ScnContextRef       ctx;
     ScnMutexRef         mutex;
     //
@@ -250,45 +250,54 @@ ScnBOOL ScnBuffer_mInvalidate(ScnBufferRef ref, const STScnAbsPtr ptr, const Scn
 
 //gpu-buffer
 
-ScnBOOL ScnBuffer_prepareNextRenderSlot(ScnBufferRef ref, ScnBOOL* dstHasPtrs){
+ScnBOOL ScnBuffer_prepareCurrentRenderSlot(ScnBufferRef ref, ScnBOOL* dstHasPtrs){
     ScnBOOL r = ScnFALSE; ScnBOOL hasPtrs = ScnFALSE;
     STScnBufferOpq* opq = (STScnBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(opq->slots.arr != NULL && opq->slots.use > 0 && !ScnMemElastic_isNull(opq->mem) && opq->cfg.mem.sizeAlign > 0 && !ScnGpuDevice_isNull(opq->gpuDev)){
-        //move to next render slot
-        opq->slots.iCur = (opq->slots.iCur + 1) % opq->slots.use;
         //sync gpu-buffer
-        {
-            STScnBufferSlot* slot = &opq->slots.arr[opq->slots.iCur];
-            hasPtrs = ScnMemElastic_hasPtrs(opq->mem);
-            if(!hasPtrs){
-                //nothing to sync
+        STScnBufferSlot* slot = &opq->slots.arr[opq->slots.iCur];
+        hasPtrs = ScnMemElastic_hasPtrs(opq->mem);
+        if(!hasPtrs){
+            //nothing to sync
+            r = ScnTRUE;
+        } else if(ScnGpuBuffer_isNull(slot->gpuBuff)){
+            slot->gpuBuff = ScnGpuDevice_allocBuffer(opq->gpuDev, opq->mem);
+            if(!ScnGpuBuffer_isNull(slot->gpuBuff)){
                 r = ScnTRUE;
-            } else if(ScnGpuBuffer_isNull(slot->gpuBuff)){
-                slot->gpuBuff = ScnGpuDevice_allocBuffer(opq->gpuDev, opq->mem);
-                if(!ScnGpuBuffer_isNull(slot->gpuBuff)){
-                    r = ScnTRUE;
-                }
-            } else {
-                STScnGpuBufferChanges changes = STScnGpuBufferChanges_Zero;
-                changes.size = slot->changes.size;
-                if(!changes.size){
-                    changes.rngs = slot->changes.rngs.arr;
-                    changes.rngsUse = slot->changes.rngs.use;
-                }
-                /*if(!changes.size && changes.rngsUse == 0){
-                    //no changes to update
-                    r = ScnTRUE;
-                } else {*/
-                    r = ScnGpuBuffer_sync(slot->gpuBuff, &opq->cfg, opq->mem, &changes);
-                //}
             }
+        } else {
+            STScnGpuBufferChanges changes = STScnGpuBufferChanges_Zero;
+            changes.size = slot->changes.size;
+            if(!changes.size){
+                changes.rngs = slot->changes.rngs.arr;
+                changes.rngsUse = slot->changes.rngs.use;
+            }
+            /*if(!changes.size && changes.rngsUse == 0){
+                //no changes to update
+                r = ScnTRUE;
+            } else {*/
+                r = ScnGpuBuffer_sync(slot->gpuBuff, &opq->cfg, opq->mem, &changes);
+            //}
         }
     }
     ScnMutex_unlock(opq->mutex);
     //
     if(dstHasPtrs != NULL) *dstHasPtrs = hasPtrs;
     //
+    return r;
+}
+
+ScnBOOL ScnBuffer_moveToNextRenderSlot(ScnBufferRef ref){
+    ScnBOOL r = ScnFALSE;
+    STScnBufferOpq* opq = (STScnBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(opq->slots.arr != NULL && opq->slots.use > 0 && !ScnMemElastic_isNull(opq->mem) && opq->cfg.mem.sizeAlign > 0 && !ScnGpuDevice_isNull(opq->gpuDev)){
+        //move to next render slot
+        opq->slots.iCur = (opq->slots.iCur + 1) % opq->slots.use;
+        r = ScnTRUE;
+    }
+    ScnMutex_unlock(opq->mutex);
     return r;
 }
 

@@ -21,7 +21,7 @@ extern "C" {
 
 #define STScnGpuVertexPartDef_Zero    { 0, 0, 0 }
 
-typedef struct STScnGpuVertexPartDef_ {
+typedef struct STScnGpuVertexPartDef {
     ScnUI8  amm;        //ammount of elements of this part (coords, color, textureCoords, ...)
     ScnUI8  type;       //ENScnGpuDataType
     ScnUI16 offset;     //offset inside a record to the first element
@@ -31,7 +31,7 @@ typedef struct STScnGpuVertexPartDef_ {
 
 #define STScnGpuVertexbuffCfg_Zero   { 0, STScnGpuVertexPartDef_Zero, STScnGpuVertexPartDef_Zero, STScnGpuVertexPartDef_Zero, { STScnGpuVertexPartDef_Zero, STScnGpuVertexPartDef_Zero, STScnGpuVertexPartDef_Zero } }
 
-typedef struct STScnGpuVertexbuffCfg_ {
+typedef struct STScnGpuVertexbuffCfg {
     ScnUI32                 szPerRecord;    //bytes per record
     STScnGpuVertexPartDef   indices;
     STScnGpuVertexPartDef   coord;
@@ -41,7 +41,7 @@ typedef struct STScnGpuVertexbuffCfg_ {
 
 //STScnGpuVertexbuffApiItf
 
-typedef struct STScnGpuVertexbuffApiItf_ {
+typedef struct STScnGpuVertexbuffApiItf {
     void    (*free)(void* data);
     //
     ScnBOOL (*sync)(void* data, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);

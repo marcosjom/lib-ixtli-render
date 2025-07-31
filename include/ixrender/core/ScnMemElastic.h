@@ -20,7 +20,7 @@ extern "C" {
 
 #define STScnMemElasticCfg_Zero { 0, 0, 0, 0, 0, ScnFALSE }
 
-typedef struct STScnMemElasticCfg_ {
+typedef struct STScnMemElasticCfg {
     ScnUI32 sizePerBlock;   //ammount of bytes allocable per block (including the idx-0)
     ScnUI32 sizeInitial;    //memory to allocate initially
     ScnUI32 sizeMax;        //max allowed size in bytes (0 is infinite)

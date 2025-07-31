@@ -22,7 +22,7 @@ extern "C" {
 
 #define STScnGpuBufferCfg_Zero   { STScnMemElasticCfg_Zero }
 
-typedef struct STScnGpuBufferCfg_ {
+typedef struct STScnGpuBufferCfg {
     STScnMemElasticCfg  mem;    //memory blocks cfg
 } STScnGpuBufferCfg;
 
@@ -30,7 +30,7 @@ typedef struct STScnGpuBufferCfg_ {
 
 #define STScnGpuBufferChanges_Zero { ScnFALSE, NULL, 0 }
 
-typedef struct STScnGpuBufferChanges_ {
+typedef struct STScnGpuBufferChanges {
     ScnBOOL         size;  //buffer's size changed
     STScnRangeU*    rngs;  //rngs changed
     ScnUI32         rngsUse;
@@ -38,7 +38,7 @@ typedef struct STScnGpuBufferChanges_ {
 
 //STScnGpuBufferApiItf
 
-typedef struct STScnGpuBufferApiItf_ {
+typedef struct STScnGpuBufferApiItf {
     void    (*free)(void* data);
     ScnBOOL (*sync)(void* data, const STScnGpuBufferCfg* cfg, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes);
 } STScnGpuBufferApiItf;

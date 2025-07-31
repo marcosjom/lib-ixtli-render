@@ -16,7 +16,7 @@ extern "C" {
 
 //STScnMemoryItf
 
-typedef struct STScnMemoryItf_ {
+typedef struct STScnMemoryItf {
     void*   (*malloc)(const ScnUI32 newSz, const char* dbgHintStr);
     void*   (*realloc)(void* ptr, const ScnUI32 newSz, const char* dbgHintStr);
     void    (*free)(void* ptr);

@@ -14,9 +14,10 @@
 
 //STScnRenderFbuffState
 
-typedef struct STScnRenderFbuffState_ {
-    ScnContextRef           ctx;
-    STScnAbsPtr             props;
+typedef struct STScnRenderFbuffState {
+    ScnContextRef       ctx;
+    ScnFramebuffRef     fbuff;
+    STScnAbsPtr         props;
     ScnArrayStruct(stack, STScnGpuModelProps2D);   //stack of transformations
     //active (last state, helps to reduce redundant cmds)
     struct {
@@ -27,21 +28,26 @@ typedef struct STScnRenderFbuffState_ {
 void ScnRenderFbuffState_init(ScnContextRef ctx, STScnRenderFbuffState* obj);
 void ScnRenderFbuffState_destroy(STScnRenderFbuffState* obj);
 //
+
+SC_INLN void ScnRenderFbuffState_resetActiveState(STScnRenderFbuffState* obj){
+    memset(&obj->active, 0, sizeof(obj->active));
+}
+
+
 SC_INLN void ScnRenderFbuffState_reset(STScnRenderFbuffState* obj){
     ScnArray_empty(&obj->stack);
-    //active
-    {
-        memset(&obj->active, 0, sizeof(obj->active));
-    }
+    ScnRenderFbuffState_resetActiveState(obj);
 }
+
 SC_INLN ScnBOOL ScnRenderFbuffState_addTransform(STScnRenderFbuffState* obj, const STScnGpuModelProps2D* const t){
     return ScnArray_addPtr(obj->ctx, &obj->stack, t, STScnGpuModelProps2D) != NULL ? ScnTRUE : ScnFALSE;
 }
 
 //ENScnRenderJobObjType
 
-typedef enum ENScnRenderJobObjType_ {
+typedef enum ENScnRenderJobObjType {
     ENScnRenderJobObjType_Unknown = 0,
+    ENScnRenderJobObjType_Buff,
     ENScnRenderJobObjType_Framebuff,
     ENScnRenderJobObjType_Vertexbuff,
     //
@@ -50,10 +56,11 @@ typedef enum ENScnRenderJobObjType_ {
 
 //STScnRenderJobObj
 
-typedef struct STScnRenderJobObj_ {
+typedef struct STScnRenderJobObj {
     ENScnRenderJobObjType   type;
     union {
         ScnObjRef           objRef;     //generic ref (compatible will all bellow it)
+        ScnBufferRef        buff;
         ScnFramebuffRef     framebuff;
         ScnVertexbuffRef    vertexbuff;
     };
@@ -66,7 +73,7 @@ ScnBOOL ScnCompare_ScnRenderJobObj(const ENScnCompareMode mode, const void* data
 
 //STScnRenderOpq
 
-typedef struct STScnRenderOpq_ {
+typedef struct STScnRenderOpq {
     ScnContextRef       ctx;
     ScnMutexRef         mutex;
     ScnUI32             ammRenderSlots;
@@ -76,8 +83,8 @@ typedef struct STScnRenderOpq_ {
         void*           itfParam;
     } api;
     ScnGpuDeviceRef     gpuDev;
-    ScnBufferRef        viewPropsBuff;  //buffer with viewport properties
-    ScnBufferRef        nodesPropsBuff; //buffer with models
+    ScnBufferRef        fbPropsBuff;  //buffer with viewport properties
+    ScnBufferRef        mdlsPropsBuff; //buffer with models
     ScnVertexbuffsRef   vbuffs;         //buffers with vertices and indices
     //job
     struct {
@@ -144,8 +151,8 @@ void ScnRender_destroyOpq(void* obj){
         ScnArray_destroy(opq->ctx, &opq->job.cmds);
         ScnArraySorted_destroy(opq->ctx, &opq->job.objs);
     }
-    ScnBuffer_releaseAndNull(&opq->viewPropsBuff);
-    ScnBuffer_releaseAndNull(&opq->nodesPropsBuff);
+    ScnBuffer_releaseAndNull(&opq->fbPropsBuff);
+    ScnBuffer_releaseAndNull(&opq->mdlsPropsBuff);
     ScnVertexbuffs_releaseAndNull(&opq->vbuffs);
     ScnGpuDevice_releaseAndNull(&opq->gpuDev);
     //api
@@ -190,31 +197,31 @@ ScnBOOL ScnRender_openDevice(ScnRenderRef ref, const STScnGpuDeviceCfg* cfg, con
             opq->ammRenderSlots = ammRenderSlots;
             //initial buffers
             {
-                ScnBufferRef viewPropsBuff = ScnObjRef_Zero;
-                ScnBufferRef nodesPropsBuff = ScnObjRef_Zero;
+                ScnBufferRef fbPropsBuff = ScnObjRef_Zero;
+                ScnBufferRef mdlsPropsBuff = ScnObjRef_Zero;
                 ScnVertexbuffsRef vbuffs = ScnObjRef_Zero;
                 //
-                viewPropsBuff = ScnRender_allocDynamicBuffLockedOpq_(opq, sizeof(STScnGpuFramebufferProps), 32, ammRenderSlots);
-                if(ScnBuffer_isNull(viewPropsBuff)){
-                    printf("ERROR, ScnRender_allocDynamicBuffLockedOpq_(viewPropsBuff) failed.\n");
+                fbPropsBuff = ScnRender_allocDynamicBuffLockedOpq_(opq, sizeof(STScnGpuFramebufferProps), 32, ammRenderSlots);
+                if(ScnBuffer_isNull(fbPropsBuff)){
+                    printf("ERROR, ScnRender_allocDynamicBuffLockedOpq_(fbPropsBuff) failed.\n");
                 } else {
-                    nodesPropsBuff = ScnRender_allocDynamicBuffLockedOpq_(opq, sizeof(STScnGpuModelProps2D), 128, ammRenderSlots);
-                    if(ScnBuffer_isNull(nodesPropsBuff)){
-                        printf("ERROR, ScnRender_allocDynamicBuffLockedOpq_(nodesPropsBuff) failed.\n");
+                    mdlsPropsBuff = ScnRender_allocDynamicBuffLockedOpq_(opq, sizeof(STScnGpuModelProps2D), 128, ammRenderSlots);
+                    if(ScnBuffer_isNull(mdlsPropsBuff)){
+                        printf("ERROR, ScnRender_allocDynamicBuffLockedOpq_(mdlsPropsBuff) failed.\n");
                     } else {
                         vbuffs = ScnRender_allocVertexbuffsLockedOpq_(opq, ammRenderSlots);
                         if(ScnVertexbuffs_isNull(vbuffs)){
                             printf("ERROR, ScnRender_allocVertexbuffsLockedOpq_(vbuffs) failed.\n");
                         } else {
-                            ScnBuffer_set(&opq->viewPropsBuff, viewPropsBuff);
-                            ScnBuffer_set(&opq->nodesPropsBuff, nodesPropsBuff);
+                            ScnBuffer_set(&opq->fbPropsBuff, fbPropsBuff);
+                            ScnBuffer_set(&opq->mdlsPropsBuff, mdlsPropsBuff);
                             ScnVertexbuffs_set(&opq->vbuffs, vbuffs);
                             r = ScnTRUE;
                         }
                     }
                 }
-                ScnBuffer_releaseAndNull(&viewPropsBuff);
-                ScnBuffer_releaseAndNull(&nodesPropsBuff);
+                ScnBuffer_releaseAndNull(&fbPropsBuff);
+                ScnBuffer_releaseAndNull(&mdlsPropsBuff);
                 ScnVertexbuffs_releaseAndNull(&vbuffs);
             }
             //
@@ -345,7 +352,7 @@ ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, cons
                     itmSz = sizeof(STScnVertex2DTex3);
                     ammPerBock = 256;
                     break;
-                default: SCN_ASSERT(ScnFALSE); r = ScnFALSE; break;
+                default: SCN_ASSERT(ScnFALSE); r = ScnFALSE; break; //missing implementation
             }
             //vertex buffer
             if(r){
@@ -381,7 +388,7 @@ ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, cons
                 case ENScnVertexType_2DTex2: cfg.szPerRecord = sizeof(STScnVertex2DTex2); break;
                 case ENScnVertexType_2DTex: cfg.szPerRecord = sizeof(STScnVertex2DTex); break;
                 case ENScnVertexType_2DColor: cfg.szPerRecord = sizeof(STScnVertex2D); break;
-                default: SCN_ASSERT(ScnFALSE) r = ScnFALSE; break;
+                default: SCN_ASSERT(ScnFALSE) r = ScnFALSE; break; //missing implementation
             }
             //SCN_ASSERT((cfg.szPerRecord % 4) == 0)
             //elems
@@ -512,14 +519,14 @@ ScnBOOL ScnRender_jobStart(ScnRenderRef ref){
             );
             opq->job.objs.use = 0;
         }
-        //empty viewPropsBuff
-        if(r && (ScnBuffer_isNull(opq->viewPropsBuff) || !ScnBuffer_clear(opq->viewPropsBuff) || !ScnBuffer_invalidateAll(opq->viewPropsBuff))){
-            printf("ERROR, ScnRender_jobStart::ScnBuffer_clear(viewPropsBuff) failed.\n");
+        //empty fbPropsBuff
+        if(r && (ScnBuffer_isNull(opq->fbPropsBuff) || !ScnBuffer_clear(opq->fbPropsBuff) || !ScnBuffer_invalidateAll(opq->fbPropsBuff))){
+            printf("ERROR, ScnRender_jobStart::ScnBuffer_clear(fbPropsBuff) failed.\n");
             r = ScnFALSE;
         }
-        //empty nodesPropsBuff
-        if(r && (ScnBuffer_isNull(opq->nodesPropsBuff) || !ScnBuffer_clear(opq->nodesPropsBuff) || !ScnBuffer_invalidateAll(opq->nodesPropsBuff))){
-            printf("ERROR, ScnRender_jobStart::ScnBuffer_clear(nodesPropsBuff) failed.\n");
+        //empty mdlsPropsBuff
+        if(r && (ScnBuffer_isNull(opq->mdlsPropsBuff) || !ScnBuffer_clear(opq->mdlsPropsBuff) || !ScnBuffer_invalidateAll(opq->mdlsPropsBuff))){
+            printf("ERROR, ScnRender_jobStart::ScnBuffer_clear(mdlsPropsBuff) failed.\n");
             r = ScnFALSE;
         }
         //empty arrays
@@ -541,10 +548,96 @@ ScnBOOL ScnRender_jobEnd(ScnRenderRef ref){
     if(!opq->job.isActive){
         printf("ERROR, ScnRender_jobEnd:: not active.\n");
     } else {
-        //sync used objs:
-        // - sync gpu-data from invalidated cpu-data.
-        // - move to their next render slot.
         printf("ScnRender_jobEnd::%u objs, %u cmds.\n", opq->job.objs.use, opq->job.cmds.use);
+        r = ScnTRUE;
+        //register root buffers as used objects
+        if(r){
+            SCN_ASSERT(!ScnBuffer_isNull(opq->fbPropsBuff)) //program logic error
+            SCN_ASSERT(!ScnBuffer_isNull(opq->mdlsPropsBuff)) //program logic error
+            if(!ScnRender_jobAddUsedObjLockedOpq_(opq, ENScnRenderJobObjType_Buff, (ScnObjRef*)&opq->fbPropsBuff)){
+                printf("ERROR, ScnRender_jobEnd::ScnRender_jobAddUsedObjLockedOpq_ failed.\n");
+                r = ScnFALSE;
+            } else if(!ScnRender_jobAddUsedObjLockedOpq_(opq, ENScnRenderJobObjType_Buff, (ScnObjRef*)&opq->mdlsPropsBuff)){
+                printf("ERROR, ScnRender_jobEnd::ScnRender_jobAddUsedObjLockedOpq_ failed.\n");
+                r = ScnFALSE;
+            }
+        }
+        //sync used objects' gpu-data
+        if(r){
+            ScnArraySorted_foreach(&opq->job.objs, STScnRenderJobObj, o,
+                switch(o->type){
+                    case ENScnRenderJobObjType_Unknown: break;
+                    case ENScnRenderJobObjType_Buff:
+                        if(!ScnBuffer_prepareCurrentRenderSlot(o->buff, NULL)){
+                            printf("ScnRender_jobEnd::ScnVertexbuff_prepareCurrentRenderSlot failed.\n");
+                            r = ScnFALSE;
+                            break;
+                        }
+                        break;
+                    case ENScnRenderJobObjType_Framebuff:
+                        if(!ScnFramebuff_prepareCurrentRenderSlot(o->framebuff)){
+                            printf("ScnRender_jobEnd::ScnVertexbuff_prepareCurrentRenderSlot failed.\n");
+                            r = ScnFALSE;
+                            break;
+                        }
+                        break;
+                    case ENScnRenderJobObjType_Vertexbuff:
+                        if(!ScnVertexbuff_prepareCurrentRenderSlot(o->vertexbuff)){
+                            printf("ScnRender_jobEnd::ScnVertexbuff_prepareCurrentRenderSlot failed.\n");
+                            r = ScnFALSE;
+                            break;
+                        }
+                        break;
+                    default:
+                        SCN_ASSERT(ScnFALSE) //missing implementation
+                        break;
+                }
+            );
+        }
+        //send render commands to gpu
+        if(r){
+            ScnGpuBufferRef fbPropsBuff = ScnBuffer_getCurrentRenderSlotGpuBuffer(opq->fbPropsBuff);
+            ScnGpuBufferRef mdlsPropsBuff = ScnBuffer_getCurrentRenderSlotGpuBuffer(opq->mdlsPropsBuff);
+            SCN_ASSERT(!ScnGpuBuffer_isNull(fbPropsBuff)) //program logic error
+            SCN_ASSERT(!ScnGpuBuffer_isNull(mdlsPropsBuff)) //program logic error
+            if(!ScnGpuDevice_render(opq->gpuDev, fbPropsBuff, mdlsPropsBuff, opq->job.cmds.arr, opq->job.cmds.use)){
+                printf("ScnRender_jobEnd::ScnGpuDevice_render failed.\n");
+                r = ScnFALSE;
+            }
+        }
+        //move to next render slot
+        if(r){
+            ScnArraySorted_foreach(&opq->job.objs, STScnRenderJobObj, o,
+                switch(o->type){
+                    case ENScnRenderJobObjType_Unknown: break;
+                    case ENScnRenderJobObjType_Buff:
+                        if(!ScnBuffer_moveToNextRenderSlot(o->buff)){
+                            printf("ScnRender_jobEnd::ScnBuffer_moveToNextRenderSlot failed.\n");
+                            r = ScnFALSE;
+                            break;
+                        }
+                        break;
+                    case ENScnRenderJobObjType_Framebuff:
+                        if(!ScnFramebuff_moveToNextRenderSlot(o->framebuff)){
+                            printf("ScnRender_jobEnd::ScnFramebuff_moveToNextRenderSlot failed.\n");
+                            r = ScnFALSE;
+                            break;
+                        }
+                        break;
+                    case ENScnRenderJobObjType_Vertexbuff:
+                        if(!ScnVertexbuff_moveToNextRenderSlot(o->vertexbuff)){
+                            printf("ScnRender_jobEnd::ScnVertexbuff_moveToNextRenderSlot failed.\n");
+                            r = ScnFALSE;
+                            break;
+                        }
+                        break;
+                    default:
+                        SCN_ASSERT(ScnFALSE) //missing implementation
+                        break;
+                }
+            );
+        }
+        //cleanup
         {
             ScnArraySorted_foreach(&opq->job.objs, STScnRenderJobObj, o,
                 //ToDo: implement
@@ -553,7 +646,6 @@ ScnBOOL ScnRender_jobEnd(ScnRenderRef ref){
             opq->job.objs.use = 0;
         }
         opq->job.isActive = ScnFALSE;
-        r = ScnTRUE;
     }
     ScnMutex_unlock(opq->mutex);
     return r;
@@ -567,7 +659,7 @@ ScnBOOL ScnRender_jobFramebuffPush(ScnRenderRef ref, ScnFramebuffRef fbuff){
     ScnMutex_lock(opq->mutex);
     if(!opq->job.isActive){
         printf("ERROR, ScnRender_jobFramebuffPush:: not active.\n");
-    } else if(!ScnBuffer_isNull(opq->viewPropsBuff)){
+    } else if(!ScnBuffer_isNull(opq->fbPropsBuff)){
         STScnRenderFbuffState* f = NULL;
         if(opq->job.stackUse < opq->job.stack.use){
             //reuse record
@@ -585,7 +677,8 @@ ScnBOOL ScnRender_jobFramebuffPush(ScnRenderRef ref, ScnFramebuffRef fbuff){
         if(f != NULL){
             STScnGpuModelProps2D t = STScnGpuModelProps2D_Identity;
             ScnRenderFbuffState_reset(f);
-            f->props    = ScnBuffer_malloc(opq->viewPropsBuff, sizeof(STScnGpuFramebufferProps));
+            f->fbuff    = fbuff;
+            f->props    = ScnBuffer_malloc(opq->fbPropsBuff, sizeof(STScnGpuFramebufferProps));
             if(f->props.ptr == NULL){
                 printf("ERROR, ScnRender_jobFramebuffPush::ScnBuffer_malloc(STScnGpuFramebufferProps) failed.\n");
             } else if(!ScnRenderFbuffState_addTransform(f, &t)){
@@ -593,12 +686,21 @@ ScnBOOL ScnRender_jobFramebuffPush(ScnRenderRef ref, ScnFramebuffRef fbuff){
             } else if(!ScnRender_jobAddUsedObjLockedOpq_(opq, ENScnRenderJobObjType_Framebuff, (ScnObjRef*)&fbuff)){
                 printf("ERROR, ScnRender_jobFramebuffPush::ScnRender_jobAddUsedObjLockedOpq_ failed.\n");
             } else {
-                STScnGpuFramebufferProps* props = (STScnGpuFramebufferProps*)f->props.ptr;
-                memset(props, 0, sizeof(*props));
-                props->size = ScnFramebuff_getSize(fbuff, &props->viewport);
-                //ToDo: add command to set buffers and offsets
-                opq->job.stackUse++;
-                r = ScnTRUE;
+                //add cmd
+                STScnRenderCmd cmd;
+                cmd.cmdId = ENScnRenderCmd_ActivateFramebuff;
+                cmd.activateFramebuff.ref = fbuff;
+                cmd.activateFramebuff.offset = f->props.idx;
+                if(!ScnRender_addCmdLockedOpq_(opq, &cmd)){
+                    printf("ERROR, ScnRender_jobFramebuffPush::ScnRender_addCmdLockedOpq_ failed.\n");
+                } else {
+                    STScnGpuFramebufferProps* props = (STScnGpuFramebufferProps*)f->props.ptr;
+                    memset(props, 0, sizeof(*props));
+                    props->size = ScnFramebuff_getSize(fbuff, &props->viewport);
+                    //ToDo: add command to set buffers and offsets
+                    opq->job.stackUse++;
+                    r = ScnTRUE;
+                }
             }
         }
     }
@@ -615,10 +717,25 @@ ScnBOOL ScnRender_jobFramebuffPop(ScnRenderRef ref){
     } else if(opq->job.stackUse <= 0){
         printf("ERROR, ScnRender_jobFramebuffPop::nothing to pop.\n");
     } else {
-        opq->job.stackUse--;
-        //ToDo: set props
-        //ToDo: add command to set buffers and offsets
         r = ScnTRUE;
+        opq->job.stackUse--;
+        //reset fb active state (to force initial state)
+        if(opq->job.stackUse > 0){
+            STScnRenderFbuffState* f = &opq->job.stack.arr[opq->job.stackUse - 1];
+            ScnRenderFbuffState_resetActiveState(f);
+            //add cmd
+            {
+                STScnRenderCmd cmd;
+                cmd.cmdId = ENScnRenderCmd_ActivateFramebuff;
+                cmd.activateFramebuff.ref = f->fbuff;
+                cmd.activateFramebuff.offset = f->props.idx;
+                if(!ScnRender_addCmdLockedOpq_(opq, &cmd)){
+                    printf("ERROR, ScnRender_jobFramebuffPop::ScnRender_addCmdLockedOpq_ failed.\n");
+                } else {
+                    r = ScnFALSE;
+                }
+            }
+        }
     }
     ScnMutex_unlock(opq->mutex);
     return r;
@@ -642,6 +759,7 @@ SC_INLN ScnBOOL ScnRender_job_addSetVertexBuffIfNecesaryLockedOpq_(STScnRenderOp
             return ScnFALSE;
         } else if(!ScnRender_jobAddUsedObjLockedOpq_(opq, ENScnRenderJobObjType_Vertexbuff, (ScnObjRef*)&vbuff)){
             printf("ERROR, ScnRender_job_addSetVertexBuffIfNecesaryLockedOpq_::ScnRender_jobAddUsedObjLockedOpq_ failed.\n");
+            return ScnFALSE;
         } else {
             f->active.vbuff = vbuff;
         }
@@ -694,7 +812,7 @@ SC_INLN ScnBOOL ScnRender_job_addSetVertexBuffIfNecesaryLockedOpq_(STScnRenderOp
 ScnBOOL ScnRender_jobModelAdd_addCommandsWithTransformLockedOpq_(STScnRenderOpq* opq, STScnRenderFbuffState* f, const STScnGpuModelProps2D* const transform, const STScnModel2DCmd* const cmds, const ScnUI32 cmdsSz){
     ScnBOOL r = ScnFALSE;
     //add commands with this matrix (do not push it into the stack)
-    STScnAbsPtr tNPtr = ScnBuffer_malloc(opq->nodesPropsBuff, sizeof(STScnGpuModelProps2D));
+    STScnAbsPtr tNPtr = ScnBuffer_malloc(opq->mdlsPropsBuff, sizeof(STScnGpuModelProps2D));
     if(tNPtr.ptr == NULL){
         printf("ERROR, ScnRender_jobModelAdd_addCommandsWithTransformLockedOpq_::ScnBuffer_malloc failed.\n");
     } else {
@@ -729,7 +847,7 @@ ScnBOOL ScnRender_jobModelAdd_addCommandsWithTransformLockedOpq_(STScnRenderOpq*
                     case ENScnModelDrawCmdType_2Di2: ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_2DTex2, 2);break;
                     case ENScnModelDrawCmdType_2Di3: ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_2DTex3, 3); break;
                     default:
-                        SCN_ASSERT(ScnFALSE) //unimplemented cmd
+                        SCN_ASSERT(ScnFALSE) //missing implementation
                         break;
                 }
                 //ToDo: cmds to activate textures
@@ -753,8 +871,8 @@ ScnBOOL ScnRender_jobModelAdd_addCommandsWithPropsLockedOpq_(void* data, const S
             if(f->stack.use < 1){
                 printf("ERROR, ScnRender_jobModelAdd_addCommandsWithPropsLockedOpq_::missing parent transform.\n");
             } else {
-                SCN_ASSERT(!ScnBuffer_isNull(opq->viewPropsBuff)) //program logic error
-                SCN_ASSERT(!ScnBuffer_isNull(opq->nodesPropsBuff)) //program logic error
+                SCN_ASSERT(!ScnBuffer_isNull(opq->fbPropsBuff)) //program logic error
+                SCN_ASSERT(!ScnBuffer_isNull(opq->mdlsPropsBuff)) //program logic error
                 const STScnGpuModelProps2D t = ScnModelProps2D_toGpuTransform(props);
                 const STScnGpuModelProps2D tPrnt = f->stack.arr[f->stack.use - 1];
                 const STScnGpuModelProps2D tN = ScnGpuModelProps2D_multiply(&tPrnt, &t);
@@ -778,8 +896,8 @@ ScnBOOL ScnRender_jobModelAdd(ScnRenderRef ref, ScnModel2DRef model){    //equiv
     } else if(opq->job.stackUse <= 0){
         printf("ERROR, ScnRender_jobFramebuffPop::no framebuffer is active.\n");
     } else {
-        SCN_ASSERT(!ScnBuffer_isNull(opq->viewPropsBuff)) //program logic error
-        SCN_ASSERT(!ScnBuffer_isNull(opq->nodesPropsBuff)) //program logic error
+        SCN_ASSERT(!ScnBuffer_isNull(opq->fbPropsBuff)) //program logic error
+        SCN_ASSERT(!ScnBuffer_isNull(opq->mdlsPropsBuff)) //program logic error
         STScnModel2DPushItf itf = STScnModel2DPushItf_Zero;
         itf.addCommandsWithProps = ScnRender_jobModelAdd_addCommandsWithPropsLockedOpq_;
         if(!ScnModel2D_sendRenderCmds(model, &itf, opq)){
@@ -805,8 +923,8 @@ ScnBOOL ScnRender_jobModelAdd_addCommandsWithPropsAndPushLockedOpq_(void* data, 
             if(f->stack.use < 1){
                 printf("ERROR, ScnRender_jobModelAdd_addCommandsWithPropsAndPushLockedOpq_::missing parent transform.\n");
             } else {
-                SCN_ASSERT(!ScnBuffer_isNull(opq->viewPropsBuff)) //program logic error
-                SCN_ASSERT(!ScnBuffer_isNull(opq->nodesPropsBuff)) //program logic error
+                SCN_ASSERT(!ScnBuffer_isNull(opq->fbPropsBuff)) //program logic error
+                SCN_ASSERT(!ScnBuffer_isNull(opq->mdlsPropsBuff)) //program logic error
                 const STScnGpuModelProps2D t = ScnModelProps2D_toGpuTransform(props);
                 const STScnGpuModelProps2D tPrnt = f->stack.arr[f->stack.use - 1];
                 const STScnGpuModelProps2D tN = ScnGpuModelProps2D_multiply(&tPrnt, &t);
@@ -832,8 +950,8 @@ ScnBOOL ScnRender_jobModelPush(ScnRenderRef ref, ScnModel2DRef model){
     } else if(opq->job.stackUse <= 0){
         printf("ERROR, ScnRender_jobModelPush::no framebuffer is active.\n");
     } else {
-        SCN_ASSERT(!ScnBuffer_isNull(opq->viewPropsBuff)) //program logic error
-        SCN_ASSERT(!ScnBuffer_isNull(opq->nodesPropsBuff)) //program logic error
+        SCN_ASSERT(!ScnBuffer_isNull(opq->fbPropsBuff)) //program logic error
+        SCN_ASSERT(!ScnBuffer_isNull(opq->mdlsPropsBuff)) //program logic error
         STScnModel2DPushItf itf = STScnModel2DPushItf_Zero;
         itf.addCommandsWithProps = ScnRender_jobModelAdd_addCommandsWithPropsAndPushLockedOpq_;
         if(!ScnModel2D_sendRenderCmds(model, &itf, opq)){
@@ -855,8 +973,8 @@ ScnBOOL ScnRender_jobModelPop(ScnRenderRef ref){
     } else if(opq->job.stackUse <= 0){
         printf("ERROR, ScnRender_jobModelPop::no framebuffer is active.\n");
     } else {
-        SCN_ASSERT(!ScnBuffer_isNull(opq->viewPropsBuff)) //program logic error
-        SCN_ASSERT(!ScnBuffer_isNull(opq->nodesPropsBuff)) //program logic error
+        SCN_ASSERT(!ScnBuffer_isNull(opq->fbPropsBuff)) //program logic error
+        SCN_ASSERT(!ScnBuffer_isNull(opq->mdlsPropsBuff)) //program logic error
         STScnRenderFbuffState* f = &opq->job.stack.arr[opq->job.stackUse - 1];
         if(f->stack.use < 2){
             printf("ERROR, ScnRender_jobModelPop::nothing to pop.\n");
@@ -959,18 +1077,6 @@ void ScnRender_cmdSetTexture(ScnRenderRef ref, const ScnUI32 index, ScnTextureRe
     ScnMutex_unlock(opq->mutex);
 }
 
-void ScnRender_cmdSetVertsType(ScnRenderRef ref, const ENScnVertexType type){
-    STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    ScnMutex_lock(opq->mutex);
-    {
-        STScnRenderCmd cmd;
-        cmd.cmdId = ENScnRenderCmd_SetVertsType;
-        cmd.setVertsType.type = type;
-        ScnArray_addValue(opq->ctx, &opq->job.cmds, cmd, STScnRenderCmd);
-    }
-    ScnMutex_unlock(opq->mutex);
-}
-
 void ScnRender_cmdDawVerts(ScnRenderRef ref, const ENScnRenderShape mode, const ScnUI32 iFirst, const ScnUI32 count){
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -997,40 +1103,6 @@ void ScnRender_cmdDawIndexes(ScnRenderRef ref, const ENScnRenderShape mode, cons
         ScnArray_addValue(opq->ctx, &opq->job.cmds, cmd, STScnRenderCmd);
     }
     ScnMutex_unlock(opq->mutex);
-}
-*/
-
-//gpu-render
-
-/*
-ScnBOOL ScnRender_prepareNextRenderSlot(ScnRenderRef ref){
-    ScnBOOL r = ScnFALSE;
-    STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    ScnMutex_lock(opq->mutex);
-    if(!ScnGpuDevice_isNull(opq->gpuDev)){
-        r = ScnTRUE;
-        //
-        ScnBOOL hasPtrs = ScnFALSE;
-        if(r && !ScnBuffer_isNull(opq->viewPropsBuff) && !ScnBuffer_prepareNextRenderSlot(opq->viewPropsBuff, &hasPtrs)){
-            printf("ERROR, ScnRender_prepareNextRenderSlot::ScnBuffer_prepareNextRenderSlot(viewPropsBuff) failed.\n");
-            r = ScnFALSE;
-        } else {
-            //ToDO: eval 'hasPtrs' value
-        }
-        if(r && !ScnBuffer_isNull(opq->nodesPropsBuff) && !ScnBuffer_prepareNextRenderSlot(opq->nodesPropsBuff, &hasPtrs)){
-            printf("ERROR, ScnRender_prepareNextRenderSlot::ScnBuffer_prepareNextRenderSlot(nodesPropsBuff) failed.\n");
-            r = ScnFALSE;
-        } else {
-            //ToDO: eval 'hasPtrs' value
-        }
-        //vbuffs
-        if(r && !ScnVertexbuffs_isNull(opq->vbuffs) && !ScnVertexbuffs_prepareNextRenderSlot(opq->vbuffs)){
-            printf("ERROR, ScnRender_prepareNextRenderSlot::ScnVertexbuffs_prepareNextRenderSlot(vbuffs) failed.\n");
-            r = ScnFALSE;
-        }
-    }
-    ScnMutex_unlock(opq->mutex);
-    return r;
 }
 */
 
@@ -1063,12 +1135,13 @@ void ScnRenderJobObj_destroy(STScnRenderJobObj* obj){
         case ENScnRenderJobObjType_Unknown:
             SCN_ASSERT(obj->objRef.ptr == NULL);
             break;
+        case ENScnRenderJobObjType_Buff:
         case ENScnRenderJobObjType_Framebuff:
         case ENScnRenderJobObjType_Vertexbuff:
             ScnObjRef_releaseAndNull(&obj->objRef);
             break;
         default:
-            SCN_ASSERT(ScnFALSE); //unimplemented value
+            SCN_ASSERT(ScnFALSE); //missing implementation
             break;
     }
 }

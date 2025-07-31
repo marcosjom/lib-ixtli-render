@@ -20,13 +20,13 @@ extern "C" {
 
 #define STScnGpuFramebuffCfg_Zero   { ENScnBitmapColor_undef, 0, 0 }
 
-typedef struct STScnGpuFramebuffCfg_ {
+typedef struct STScnGpuFramebuffCfg {
     STScnGpuFramebufferProps props;
 } STScnGpuFramebuffCfg;
 
 //ENScnGpuFramebuffDstType
 
-typedef enum ENScnGpuFramebuffDstType_ {
+typedef enum ENScnGpuFramebuffDstType {
     ENScnGpuFramebuffDstType_None = 0,
     ENScnGpuFramebuffDstType_Texture,
     ENScnGpuFramebuffDstType_Renderbuff,
@@ -37,13 +37,13 @@ typedef enum ENScnGpuFramebuffDstType_ {
 
 //STScnGpuFramebuffChanges
 
-typedef struct STScnGpuFramebuffChanges_ {
+typedef struct STScnGpuFramebuffChanges {
     ScnBOOL    bind;
 } STScnGpuFramebuffChanges;
 
 //STScnGpuFramebuffApiItf
 
-typedef struct STScnGpuFramebuffApiItf_ {
+typedef struct STScnGpuFramebuffApiItf {
     void        (*free)(void* data);
     //
     STScnSize2DU  (*getSize)(void* data, STScnRectU* dstViewport);

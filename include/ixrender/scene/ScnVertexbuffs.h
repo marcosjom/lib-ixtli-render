@@ -22,7 +22,7 @@ extern "C" {
 
 #define STScnVertexIdxPtr_Zero { NULL, 0 }
 
-typedef struct STScnVertexIdxPtr_ {
+typedef struct STScnVertexIdxPtr {
     STScnVertexIdx*   ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
     ScnUI32             idx;    //abstract address
 } STScnVertexIdxPtr;
@@ -31,7 +31,7 @@ typedef struct STScnVertexIdxPtr_ {
 
 #define STScnVertex2DPtr_Zero { NULL, 0 }
 
-typedef struct STScnVertex2DPtr_ {
+typedef struct STScnVertex2DPtr {
     STScnVertex2D*      ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
     ScnUI32             idx;    //abstract address
 } STScnVertex2DPtr;
@@ -40,7 +40,7 @@ typedef struct STScnVertex2DPtr_ {
 
 #define STScnVertex2DTexPtr_Zero { NULL, 0 }
 
-typedef struct STScnVertex2DTexPtr_ {
+typedef struct STScnVertex2DTexPtr {
     STScnVertex2DTex*   ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
     ScnUI32             idx;    //abstract address
 } STScnVertex2DTexPtr;
@@ -49,7 +49,7 @@ typedef struct STScnVertex2DTexPtr_ {
 
 #define STScnVertex2DTex2Ptr_Zero { NULL, 0 }
 
-typedef struct STScnVertex2DTex2Ptr_ {
+typedef struct STScnVertex2DTex2Ptr {
     STScnVertex2DTex2*  ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
     ScnUI32             idx;    //abstract address
 } STScnVertex2DTex2Ptr;
@@ -58,7 +58,7 @@ typedef struct STScnVertex2DTex2Ptr_ {
 
 #define STScnVertex2DTex3Ptr_Zero { NULL, 0 }
 
-typedef struct STScnVertex2DTex3Ptr_ {
+typedef struct STScnVertex2DTex3Ptr {
     STScnVertex2DTex3*  ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
     ScnUI32             idx;    //abstract address
 } STScnVertex2DTex3Ptr;
@@ -117,7 +117,8 @@ ScnBOOL         ScnVertexbuffs_v3IdxsFree(ScnVertexbuffsRef ref, const STScnVert
 
 //gpu-vertexbuffs
 
-ScnBOOL         ScnVertexbuffs_prepareNextRenderSlot(ScnVertexbuffsRef ref);
+ScnBOOL         ScnVertexbuffs_prepareCurrentRenderSlot(ScnVertexbuffsRef ref);
+ScnBOOL         ScnVertexbuffs_moveToNextRenderSlot(ScnVertexbuffsRef ref);
 
 #ifdef __cplusplus
 } //extern "C"

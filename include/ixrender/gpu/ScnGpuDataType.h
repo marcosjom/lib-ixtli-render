@@ -16,7 +16,7 @@ extern "C" {
 
 //ENScnGpuDataType
 
-typedef enum ENScnGpuDataType_ {
+typedef enum ENScnGpuDataType {
     ENScnGpuDataType_SI8 = 0,
     ENScnGpuDataType_UI8,
     ENScnGpuDataType_SI16,

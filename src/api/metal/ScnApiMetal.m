@@ -8,6 +8,7 @@
 #include "ixrender/api/ScnApiMetal.h"
 #include "ixrender/gpu/ScnGpuDevice.h"
 #include "ixrender/gpu/ScnGpuBuffer.h"
+#include "ixrender/scene/ScnRenderCmd.h"
 #import <Foundation/Foundation.h>
 #import <MetalKit/MetalKit.h>
 
@@ -18,6 +19,7 @@ void                ScnApiMetal_device_free(void* obj);
 ScnGpuBufferRef     ScnApiMetal_device_allocBuffer(void* obj, ScnMemElasticRef mem);
 ScnGpuVertexbuffRef ScnApiMetal_device_allocVertexBuff(void* obj, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
 ScnGpuFramebuffRef  ScnApiMetal_device_allocFramebuffFromOSView(void* obj, void* mtkView);
+ScnBOOL             ScnApiMetal_device_render(void* obj, ScnGpuBufferRef fbPropsBuff, ScnGpuBufferRef mdlsPropsBuff, const STScnRenderCmd* const cmds, const ScnUI32 cmdsSz);
 //buffer
 void                ScnApiMetal_buffer_free(void* data);
 ScnBOOL             ScnApiMetal_buffer_sync(void* data, const STScnGpuBufferCfg* cfg, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes);
@@ -42,6 +44,7 @@ ScnBOOL ScnApiMetal_getApiItf(STScnApiItf* dst){
     dst->dev.allocBuffer    = ScnApiMetal_device_allocBuffer;
     dst->dev.allocVertexBuff = ScnApiMetal_device_allocVertexBuff;
     dst->dev.allocFramebuffFromOSView = ScnApiMetal_device_allocFramebuffFromOSView;
+    dst->dev.render         = ScnApiMetal_device_render;
     //buffer
     dst->buff.free          = ScnApiMetal_buffer_free;
     dst->buff.sync          = ScnApiMetal_buffer_sync;
@@ -56,11 +59,12 @@ ScnBOOL ScnApiMetal_getApiItf(STScnApiItf* dst){
 
 //STScnApiMetalDevice
 
-typedef struct STScnApiMetalDevice_ {
+typedef struct STScnApiMetalDevice {
     ScnContextRef   ctx;
     STScnApiItf     itf;
     id<MTLDevice>   dev;
     id<MTLLibrary>  lib;
+    id<MTLCommandQueue> cmdQueue;
 } STScnApiMetalDevice;
 
 ScnGpuDeviceRef ScnApiMetal_allocDevice(ScnContextRef ctx, const STScnGpuDeviceCfg* cfg){
@@ -71,7 +75,9 @@ ScnGpuDeviceRef ScnApiMetal_allocDevice(ScnContextRef ctx, const STScnGpuDeviceC
             printf("Metal, error, could not retrieve devices.\n");
         } else {
             printf("Metal, %d devices found:\n", (int)devs.count);
-            id<MTLDevice> dev = nil; ScnBOOL devIsExplicitMatch = ScnFALSE;
+            id<MTLDevice> dev = nil;
+            id<MTLCommandQueue> cmdQueue = nil;
+            ScnBOOL devIsExplicitMatch = ScnFALSE;
             int i; for(i = 0; i < devs.count; i++){
                 id<MTLDevice> d = devs[i];
                 printf("    ---------\n");
@@ -149,6 +155,8 @@ ScnGpuDeviceRef ScnApiMetal_allocDevice(ScnContextRef ctx, const STScnGpuDeviceC
                 id<MTLLibrary> defLib = [dev newDefaultLibrary];
                 if (defLib == nil){
                     printf("Metal, error, newDefaultLibrary failed.\n");
+                } else if(nil == (cmdQueue = [dev newCommandQueue])){
+                    printf("Metal, error, newCommandQueue failed.\n");
                 } else {
                     STScnApiMetalDevice* obj = (STScnApiMetalDevice*)ScnContext_malloc(ctx, sizeof(STScnApiMetalDevice), "STScnApiMetalDevice");
                     if(obj == NULL){
@@ -159,6 +167,7 @@ ScnGpuDeviceRef ScnApiMetal_allocDevice(ScnContextRef ctx, const STScnGpuDeviceC
                         ScnContext_set(&obj->ctx, ctx);
                         obj->dev    = dev; [dev retain];
                         obj->lib    = defLib; [defLib retain];
+                        obj->cmdQueue = cmdQueue; [cmdQueue retain];
                         //
                         if(!ScnApiMetal_getApiItf(&obj->itf)){
                             printf("ScnApiMetal_allocDevice::ScnApiMetal_getApiItf failed.\n");
@@ -188,6 +197,10 @@ ScnGpuDeviceRef ScnApiMetal_allocDevice(ScnContextRef ctx, const STScnGpuDeviceC
                 }*/
             }
             //release (if not consumed)
+            if(cmdQueue != nil){
+                [cmdQueue release];
+                cmdQueue = nil;
+            }
             if(dev != nil){
                 [dev release];
                 dev = nil;
@@ -221,7 +234,7 @@ void ScnApiMetal_device_free(void* pObj){
 
 //STScnApiMetalBuffer
 
-typedef struct STScnApiMetalBuffer_ {
+typedef struct STScnApiMetalBuffer {
     ScnContextRef   ctx;
     STScnApiItf     itf;
     id<MTLDevice>   dev;
@@ -362,7 +375,7 @@ ScnBOOL ScnApiMetal_buffer_syncAllRanges_(id<MTLBuffer> buff, ScnMemElasticRef m
 
 //STScnApiMetalVertexBuffer
 
-typedef struct STScnApiMetalVertexBuff_ {
+typedef struct STScnApiMetalVertexBuff {
     ScnContextRef           ctx;
     STScnGpuVertexbuffCfg   cfg;
     STScnApiItf             itf;
@@ -453,42 +466,60 @@ ScnBOOL ScnApiMetal_vertexbuff_deactivate(void* pObj){
 
 //STScnApiMetalFramebuffView
 
-typedef struct STScnApiMetalFramebuffView_ {
+typedef struct STScnApiMetalFramebuffView {
     ScnContextRef       ctx;
     MTKView*            mtkView;
-    STScnSize2DU          size;
+    STScnSize2DU        size;
     STScnRectU          viewport;
     STScnApiItf         itf;
+    //default shaders
+    id<MTLRenderPipelineState> renderState; //shader and fragment for this framebuffer
 } STScnApiMetalFramebuffView;
 
-ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void* mtkView){
+ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void* pMtkView){
     ScnGpuFramebuffRef r = ScnObjRef_Zero;
     STScnApiMetalDevice* dev = (STScnApiMetalDevice*)pObj;
+    MTKView* mtkView = (MTKView*)pMtkView;
     if(dev != NULL && dev->dev != NULL && mtkView != nil){
-        //synced
-        STScnApiMetalFramebuffView* obj = (STScnApiMetalFramebuffView*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalFramebuffView), "STScnApiMetalFramebuffView");
-        if(obj == NULL){
-            printf("ScnContext_malloc(STScnApiMetalFramebuffView) failed.\n");
+        STScnApiMetalFramebuffView* obj = NULL;
+        id<MTLRenderPipelineState> renderState = nil;
+        id<MTLFunction> vertexFunc = [dev->lib newFunctionWithName:@"vertexShader"];
+        id<MTLFunction> fragmtFunc = [dev->lib newFunctionWithName:@"fragmentShader"];
+        MTLRenderPipelineDescriptor* rndrPipeDesc = [[MTLRenderPipelineDescriptor alloc] init];
+        if(vertexFunc == nil || fragmtFunc == nil || rndrPipeDesc == nil){
+            printf("newFunctionWithName or [MTLRenderPipelineDescriptor alloc] failed.\n");
         } else {
-            memset(obj, 0, sizeof(*obj));
-            ScnContext_set(&obj->ctx, dev->ctx);
-            obj->itf        = dev->itf;
-            obj->mtkView    = mtkView; [obj->mtkView retain];
-            //
-            ScnGpuFramebuffRef d = ScnGpuFramebuff_alloc(dev->ctx);
-            if(!ScnGpuFramebuff_isNull(d)){
-                STScnGpuFramebuffApiItf itf;
-                memset(&itf, 0, sizeof(itf));
-                itf.free        = ScnApiMetal_framebuff_view_free;
-                itf.getSize     = ScnApiMetal_framebuff_view_getSize;
-                itf.syncSizeAndViewport = ScnApiMetal_framebuff_view_syncSizeAndViewport;
-                if(!ScnGpuFramebuff_prepare(d, &itf, obj)){
-                    printf("ScnApiMetal_device_allocFramebuffFromOSView::ScnGpuFramebuff_prepare failed.\n");
-                } else {
-                    ScnGpuFramebuff_set(&r, d);
-                    obj = NULL; //consume
+            NSError *error;
+            rndrPipeDesc.label = @"Ixtla-render default (fixed) render pipeline for 'STScnVertex2D' type.";
+            rndrPipeDesc.vertexFunction = vertexFunc;
+            rndrPipeDesc.fragmentFunction = fragmtFunc;
+            rndrPipeDesc.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat;
+            if(nil == (renderState = [dev->dev newRenderPipelineStateWithDescriptor:rndrPipeDesc error:&error])){
+                printf("newRenderPipelineStateWithDescriptor failed: '%s'.\n", (error == nil ? "nil" : [[error description] UTF8String]));
+            } else if(NULL == (obj = (STScnApiMetalFramebuffView*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalFramebuffView), "STScnApiMetalFramebuffView"))){
+                printf("ScnContext_malloc(STScnApiMetalFramebuffView) failed.\n");
+            } else {
+                memset(obj, 0, sizeof(*obj));
+                ScnContext_set(&obj->ctx, dev->ctx);
+                obj->itf        = dev->itf;
+                obj->mtkView    = mtkView; [obj->mtkView retain];
+                obj->renderState = renderState; [obj->renderState retain];
+                //
+                ScnGpuFramebuffRef d = ScnGpuFramebuff_alloc(dev->ctx);
+                if(!ScnGpuFramebuff_isNull(d)){
+                    STScnGpuFramebuffApiItf itf;
+                    memset(&itf, 0, sizeof(itf));
+                    itf.free        = ScnApiMetal_framebuff_view_free;
+                    itf.getSize     = ScnApiMetal_framebuff_view_getSize;
+                    itf.syncSizeAndViewport = ScnApiMetal_framebuff_view_syncSizeAndViewport;
+                    if(!ScnGpuFramebuff_prepare(d, &itf, obj)){
+                        printf("ScnApiMetal_device_allocFramebuffFromOSView::ScnGpuFramebuff_prepare failed.\n");
+                    } else {
+                        ScnGpuFramebuff_set(&r, d);
+                        obj = NULL; //consume
+                    }
+                    ScnGpuFramebuff_releaseAndNull(&d);
                 }
-                ScnGpuFramebuff_releaseAndNull(&d);
             }
         }
         //release (if not consumed)
@@ -496,6 +527,49 @@ ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void*
             ScnApiMetal_framebuff_view_free(obj);
             obj = NULL;
         }
+        if(renderState != nil){ [renderState release]; renderState = nil; }
+        if(rndrPipeDesc != nil){ [rndrPipeDesc release]; rndrPipeDesc = nil; }
+        if(vertexFunc != nil){ [vertexFunc release]; vertexFunc = nil; }
+        if(fragmtFunc != nil){ [fragmtFunc release]; fragmtFunc = nil; }
+    }
+    return r;
+}
+
+ScnBOOL ScnApiMetal_device_render(void* obj, ScnGpuBufferRef fbPropsBuff, ScnGpuBufferRef mdlsPropsBuff, const STScnRenderCmd* const cmds, const ScnUI32 cmdsSz){
+    ScnBOOL r = ScnTRUE;
+    const STScnRenderCmd* c = cmds;
+    const STScnRenderCmd* cAfterEnd = cmds + cmdsSz;
+    while(r && c < cAfterEnd){
+        switch (c->cmdId) {
+            case ENScnRenderCmd_None:
+                //nop
+                break;
+            //framebuffers
+            case ENScnRenderCmd_ActivateFramebuff:
+                
+                break;
+            //models
+            case ENScnRenderCmd_SetTransformOffset: //sets the positions of the 'STScnGpuModelProps2D' to be applied for the drawing cmds
+                break;
+            case ENScnRenderCmd_SetVertexBuff:  //activates the vertex buffer
+                break;
+            //case ENScnRenderCmd_SetTexture:     //activates the texture in a specific slot-index
+            //    break;
+            //modes
+            //case ENScnRenderCmd_MaskModePush:   //pushes drawing-mask mode, where only the alpha value is affected
+            //    break;
+            //case ENScnRenderCmd_MaskModePop:    //pop
+            //    break;
+            //drawing
+            case ENScnRenderCmd_DrawVerts:      //draws something using the vertices
+                break;
+            case ENScnRenderCmd_DrawIndexes:    //draws something using the vertices indexes
+                break;
+            default:
+                SCN_ASSERT(ScnFALSE) //missing implementation
+                break;
+        }
+        ++c;
     }
     return r;
 }
@@ -506,6 +580,10 @@ void ScnApiMetal_framebuff_view_free(void* pObj){
     STScnApiMetalFramebuffView* obj = (STScnApiMetalFramebuffView*)pObj;
     ScnContextRef ctx = obj->ctx;
     {
+        if(obj->renderState != nil){
+            [obj->renderState release];
+            obj->renderState = nil;
+        }
         if(obj->mtkView != nil){
             [obj->mtkView release];
             obj->mtkView = nil;

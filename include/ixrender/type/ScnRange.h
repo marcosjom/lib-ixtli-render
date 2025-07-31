@@ -8,6 +8,7 @@
 #ifndef ScnRange_h
 #define ScnRange_h
 
+#include "ixrender/ixtli-defs.h"
 #include "ixrender/core/ScnCompare.h"
 
 #ifdef __cplusplus
@@ -18,7 +19,7 @@ extern "C" {
 
 #define STScnRange_Zero   { 0.f, 0.f }
 
-typedef struct STScnRange_ {
+typedef struct STScnRange {
     ScnFLOAT    start;
     ScnFLOAT    size;
 } STScnRange;
@@ -29,7 +30,7 @@ ScnBOOL ScnCompare_STScnRange(const ENScnCompareMode mode, const void* data1, co
 
 #define STScnRangeI_Zero   { 0, 0 }
 
-typedef struct STScnRangeI_ {
+typedef struct STScnRangeI {
     ScnSI32    start;
     ScnSI32    size;
 } STScnRangeI;
@@ -40,7 +41,7 @@ ScnBOOL ScnCompare_STScnRangeI(const ENScnCompareMode mode, const void* data1, c
 
 #define STScnRangeU_Zero   { 0u, 0u }
 
-typedef struct STScnRangeU_ {
+typedef struct STScnRangeU {
     ScnUI32    start;
     ScnUI32    size;
 } STScnRangeU;

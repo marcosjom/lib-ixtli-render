@@ -22,14 +22,19 @@ SCN_REF_STRUCT_METHODS_DEC(ScnFramebuff)
 
 //
 
-ScnBOOL     ScnFramebuff_prepare(ScnFramebuffRef ref, ScnGpuDeviceRef gpuDev);
+ScnBOOL         ScnFramebuff_prepare(ScnFramebuffRef ref, ScnGpuDeviceRef gpuDev);
 
 //binding
 
-ScnBOOL     ScnFramebuff_bindToOSView(ScnFramebuffRef ref, void* mtkView);
+ScnBOOL         ScnFramebuff_bindToOSView(ScnFramebuffRef ref, void* mtkView);
 
-STScnSize2DU  ScnFramebuff_getSize(ScnFramebuffRef ref, STScnRectU* dstViewport);
-ScnBOOL     ScnFramebuff_syncSizeAndViewport(ScnFramebuffRef ref, const STScnSize2DU size, const STScnRectU viewport);
+STScnSize2DU    ScnFramebuff_getSize(ScnFramebuffRef ref, STScnRectU* dstViewport);
+ScnBOOL         ScnFramebuff_syncSizeAndViewport(ScnFramebuffRef ref, const STScnSize2DU size, const STScnRectU viewport);
+
+//gpu
+
+ScnBOOL         ScnFramebuff_prepareCurrentRenderSlot(ScnFramebuffRef ref);
+ScnBOOL         ScnFramebuff_moveToNextRenderSlot(ScnFramebuffRef ref);
 
 
 #ifdef __cplusplus

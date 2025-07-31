@@ -12,9 +12,9 @@
 
 // STScnSharedPtr (provides retain/release model)
 
-struct STScnSharedPtr_* ScnSharedPtr_alloc(STScnContextItf* itf, ScnSharedPtrDestroyOpqFunc opqDestroyFunc, void* opq, const char* dbgHintStr){
-    struct STScnSharedPtr_* obj = NULL;
-    obj = (struct STScnSharedPtr_*)(*itf->mem.malloc)(sizeof(struct STScnSharedPtr_), dbgHintStr);
+struct STScnSharedPtr* ScnSharedPtr_alloc(STScnContextItf* itf, ScnSharedPtrDestroyOpqFunc opqDestroyFunc, void* opq, const char* dbgHintStr){
+    struct STScnSharedPtr* obj = NULL;
+    obj = (struct STScnSharedPtr*)(*itf->mem.malloc)(sizeof(struct STScnSharedPtr), dbgHintStr);
     if(obj != NULL){
         obj->mutex = (itf->mutex.alloc)(itf);
         obj->retainCount = 1; //retained by creator
@@ -26,17 +26,17 @@ struct STScnSharedPtr_* ScnSharedPtr_alloc(STScnContextItf* itf, ScnSharedPtrDes
     return obj;
 }
 
-void ScnSharedPtr_free(struct STScnSharedPtr_* obj){
+void ScnSharedPtr_free(struct STScnSharedPtr* obj){
     ScnMutex_free(&obj->mutex);
     (*obj->memItf.free)(obj);
 }
 
-void* ScnSharedPtr_getOpq(struct STScnSharedPtr_* obj){
+void* ScnSharedPtr_getOpq(struct STScnSharedPtr* obj){
     //can also be obtained by casting 'obj' as '*(void**)obj'
     return (obj != NULL ? obj->opq : NULL);
 }
 
-void ScnSharedPtr_retain(struct STScnSharedPtr_* obj){
+void ScnSharedPtr_retain(struct STScnSharedPtr* obj){
     ScnMutex_lock(obj->mutex);
     {
         SCN_ASSERT(obj->retainCount > 0) //if fails, the pointer was re-activated during cleanup (change your code to avoid this)
@@ -53,7 +53,7 @@ void ScnSharedPtr_retain(struct STScnSharedPtr_* obj){
     */
 }
 
-ScnSI32 ScnSharedPtr_release(struct STScnSharedPtr_* obj){
+ScnSI32 ScnSharedPtr_release(struct STScnSharedPtr* obj){
     ScnSI32 r = 0;
     ScnMutex_lock(obj->mutex);
     {

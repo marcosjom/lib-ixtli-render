@@ -20,7 +20,7 @@ extern "C" {
 
 //ENScnGpuTextureIdx
 
-typedef enum ENScnGpuTextureIdx_ {
+typedef enum ENScnGpuTextureIdx {
     ENScnGpuTextureIdx_0 = 0,
     ENScnGpuTextureIdx_1,
     ENScnGpuTextureIdx_2,
@@ -31,7 +31,7 @@ typedef enum ENScnGpuTextureIdx_ {
 
 //ENScnGpuTextureCoordMode
 
-typedef enum ENScnGpuTextureCoordMode_ {
+typedef enum ENScnGpuTextureCoordMode {
     ENScnGpuTextureCoordMode_Repeat = 0, //pattern
     ENScnGpuTextureCoordMode_Clamp,      //single-image
     //
@@ -40,7 +40,7 @@ typedef enum ENScnGpuTextureCoordMode_ {
 
 //ENScnGpuTexturePixelMode
 
-typedef enum ENScnGpuTexturePixelMode_ {
+typedef enum ENScnGpuTexturePixelMode {
     ENScnGpuTexturePixelMode_Nearest = 0, //fast selection of nearest color
     ENScnGpuTexturePixelMode_Linear,      //calculation of merged color
     //
@@ -51,7 +51,7 @@ typedef enum ENScnGpuTexturePixelMode_ {
 
 #define STScnGpuTextureCfg_Zero   { ENScnBitmapColor_undef, 0, 0, ScnFALSE }
 
-typedef struct STScnGpuTextureCfg_ {
+typedef struct STScnGpuTextureCfg {
     ENScnBitmapColor    color;
     ScnUI32             width;
     ScnUI32             height;
@@ -62,7 +62,7 @@ typedef struct STScnGpuTextureCfg_ {
 
 //STScnGpuTextureChanges
 
-typedef struct STScnGpuTextureChanges_ {
+typedef struct STScnGpuTextureChanges {
     ScnBOOL         whole;  //all the content is new
     STScnRectI*     rects;  //subimages areas
     ScnUI32         recsUse;
@@ -70,7 +70,7 @@ typedef struct STScnGpuTextureChanges_ {
 
 //STScnGpuTextureApiItf
 
-typedef struct STScnGpuTextureApiItf_ {
+typedef struct STScnGpuTextureApiItf {
     void* (*create)(const STScnGpuTextureCfg* cfg, void* usrData);
     void  (*destroy)(void* data, void* usrData);
     //

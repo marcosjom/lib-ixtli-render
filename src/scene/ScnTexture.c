@@ -11,7 +11,7 @@
 
 //STScnTextureOpq
 
-typedef struct STScnTextureOpq_ {
+typedef struct STScnTextureOpq {
     ScnContextRef       ctx;
     ScnMutexRef         mutex;
     //

@@ -20,7 +20,7 @@ extern "C" {
 
 #define STScnGpuRenderbuffCfg_Zero   { ENScnBitmapColor_undef, 0, 0 }
 
-typedef struct STScnGpuRenderbuffCfg_ {
+typedef struct STScnGpuRenderbuffCfg {
     ENScnBitmapColor color;
     ScnUI32         width;
     ScnUI32         height;
@@ -28,13 +28,13 @@ typedef struct STScnGpuRenderbuffCfg_ {
 
 //STScnGpuRenderbuffChanges
 
-typedef struct STScnGpuRenderbuffChanges_ {
+typedef struct STScnGpuRenderbuffChanges {
     ScnUI32 dummy;  //nothing
 } STScnGpuRenderbuffChanges;
 
 //STScnGpuRenderbuffApiItf
 
-typedef struct STScnGpuRenderbuffApiItf_ {
+typedef struct STScnGpuRenderbuffApiItf {
     void*   (*create)(const STScnGpuRenderbuffCfg* cfg, void* usrData);
     void    (*destroy)(void* data, void* usrData);
     //

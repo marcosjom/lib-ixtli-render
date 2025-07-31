@@ -18,7 +18,7 @@ extern "C" {
 
 #define STScnColor_Zero  { 0.f, 0.f, 0.f, 0.f }
 
-typedef struct STScnColor_ {
+typedef struct STScnColor {
     union {
         struct {
             ScnFLOAT r, g, b, a;
@@ -55,7 +55,7 @@ typedef struct STScnColor_ {
 #define STScnColor8_Zero  { 0, 0, 0, 0 }
 #define STScnColor8_255   { 255, 255, 255, 255 }
 
-typedef struct STScnColor8_ {
+typedef struct STScnColor8 {
     union {
         struct {
             ScnUI8 r, g, b, a;

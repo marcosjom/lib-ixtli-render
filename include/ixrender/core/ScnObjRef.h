@@ -14,7 +14,7 @@
 
 #define ScnObjRef_Zero    { NULL }
 
-typedef struct ScnObjRef_ {
+typedef struct ScnObjRef {
     STScnSharedPtr* ptr;
 } ScnObjRef;
 
@@ -29,7 +29,7 @@ SC_INLN void    ScnObjRef_set(ScnObjRef* ref, ScnObjRef other) { if(!ScnObjRef_i
 //
 
 #define SCN_REF_STRUCT_METHODS_DEC(STNAME)  \
-    typedef struct STNAME ## Ref_ { \
+    typedef struct STNAME ## Ref { \
         STScnSharedPtr* ptr; \
     } STNAME ## Ref; \
     \

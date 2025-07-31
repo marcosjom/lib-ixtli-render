@@ -19,9 +19,11 @@
 extern "C" {
 #endif
 
+struct STScnRenderCmd; //external
+
 //ENScnGpuDevicePower
 
-typedef enum ENScnGpuDevicePower_ {
+typedef enum ENScnGpuDevicePower {
     ENScnGpuDevicePower_Unknown = 0,
     ENScnGpuDevicePower_Low,
     ENScnGpuDevicePower_High,
@@ -31,7 +33,7 @@ typedef enum ENScnGpuDevicePower_ {
 
 //ENScnGpuDeviceRemovable
 
-typedef enum ENScnGpuDeviceRemovable_ {
+typedef enum ENScnGpuDeviceRemovable {
     ENScnGpuDeviceRemovable_Unknown = 0,
     ENScnGpuDeviceRemovable_No,
     ENScnGpuDeviceRemovable_Yes,
@@ -41,7 +43,7 @@ typedef enum ENScnGpuDeviceRemovable_ {
 
 //ENScnGpuDeviceHeadless
 
-typedef enum ENScnGpuDeviceHeadless_ {
+typedef enum ENScnGpuDeviceHeadless {
     ENScnGpuDeviceHeadless_Unknown = 0,
     ENScnGpuDeviceHeadless_No,
     ENScnGpuDeviceHeadless_Yes,
@@ -51,7 +53,7 @@ typedef enum ENScnGpuDeviceHeadless_ {
 
 //ENScnGpuDeviceUnifiedMem
 
-typedef enum ENScnGpuDeviceUnifiedMem_ {
+typedef enum ENScnGpuDeviceUnifiedMem {
     ENScnGpuDeviceUnifiedMem_Unknown = 0,
     ENScnGpuDeviceUnifiedMem_No,
     ENScnGpuDeviceUnifiedMem_Yes,
@@ -61,7 +63,7 @@ typedef enum ENScnGpuDeviceUnifiedMem_ {
 
 //ENScnGpuDeviceCompute
 
-typedef enum ENScnGpuDeviceCompute_ {
+typedef enum ENScnGpuDeviceCompute {
     ENScnGpuDeviceCompute_Unknown = 0,
     ENScnGpuDeviceCompute_No,
     ENScnGpuDeviceCompute_Yes,
@@ -73,7 +75,7 @@ typedef enum ENScnGpuDeviceCompute_ {
 
 #define STScnGpuDeviceCfg_Zero   { ENScnGpuDevicePower_Unknown, ENScnGpuDeviceRemovable_Unknown, ENScnGpuDeviceHeadless_Unknown, ENScnGpuDeviceUnifiedMem_Unknown, ENScnGpuDeviceCompute_Unknown }
 
-typedef struct STScnGpuDeviceCfg_ {
+typedef struct STScnGpuDeviceCfg {
     //preferences
     ENScnGpuDevicePower         power;
     ENScnGpuDeviceRemovable     removable;
@@ -88,11 +90,12 @@ SCN_REF_STRUCT_METHODS_DEC(ScnGpuDevice)
 
 //STScnGpuDeviceApiItf
 
-typedef struct STScnGpuDeviceApiItf_ {
-    void                  (*free)(void* obj);
-    ScnGpuBufferRef       (*allocBuffer)(void* obj, ScnMemElasticRef mem);
-    ScnGpuVertexbuffRef   (*allocVertexBuff)(void* obj, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
-    ScnGpuFramebuffRef    (*allocFramebuffFromOSView)(void* obj, void* mtkView);
+typedef struct STScnGpuDeviceApiItf {
+    void                (*free)(void* obj);
+    ScnGpuBufferRef     (*allocBuffer)(void* obj, ScnMemElasticRef mem);
+    ScnGpuVertexbuffRef (*allocVertexBuff)(void* obj, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
+    ScnGpuFramebuffRef  (*allocFramebuffFromOSView)(void* obj, void* mtkView);
+    ScnBOOL             (*render)(void* obj, ScnGpuBufferRef fbPropsBuff, ScnGpuBufferRef mdlsPropsBuff, const struct STScnRenderCmd* const cmds, const ScnUI32 cmdsSz);
 } STScnGpuDeviceApiItf;
 
 //
@@ -101,6 +104,7 @@ ScnBOOL             ScnGpuDevice_prepare(ScnGpuDeviceRef ref, const STScnGpuDevi
 ScnGpuBufferRef     ScnGpuDevice_allocBuffer(ScnGpuDeviceRef ref, ScnMemElasticRef mem);
 ScnGpuVertexbuffRef ScnGpuDevice_allocVertexBuff(ScnGpuDeviceRef ref, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
 ScnGpuFramebuffRef  ScnGpuDevice_allocFramebuffFromOSView(ScnGpuDeviceRef ref, void* mtkView);
+ScnBOOL             ScnGpuDevice_render(ScnGpuDeviceRef ref, ScnGpuBufferRef fbPropsBuff, ScnGpuBufferRef mdlsPropsBuff, const struct STScnRenderCmd* const cmds, const ScnUI32 cmdsSz);
 
 #ifdef __cplusplus
 } //extern "C"

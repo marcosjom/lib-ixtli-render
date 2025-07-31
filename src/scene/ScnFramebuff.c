@@ -10,7 +10,7 @@
 
 //STScnFramebuffOpq
 
-typedef struct STScnFramebuffOpq_ {
+typedef struct STScnFramebuffOpq {
     ScnContextRef     ctx;
     ScnMutexRef       mutex;
     //
@@ -114,3 +114,31 @@ ScnBOOL ScnFramebuff_syncSizeAndViewport(ScnFramebuffRef ref, const STScnSize2DU
     return r;
 }
 
+
+//gpu
+
+ScnBOOL ScnFramebuff_prepareCurrentRenderSlot(ScnFramebuffRef ref){
+    ScnBOOL r = ScnFALSE;
+    STScnFramebuffOpq* opq = (STScnFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnGpuFramebuff_isNull(opq->gpuFramebuff)){
+        if(opq->binding.type == ENScnGpuFramebuffDstType_OSView){
+            r = ScnTRUE;
+        }
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnBOOL ScnFramebuff_moveToNextRenderSlot(ScnFramebuffRef ref){
+    ScnBOOL r = ScnFALSE;
+    STScnFramebuffOpq* opq = (STScnFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnGpuFramebuff_isNull(opq->gpuFramebuff)){
+        if(opq->binding.type == ENScnGpuFramebuffDstType_OSView){
+            r = ScnTRUE;
+        }
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}

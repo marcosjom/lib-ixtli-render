@@ -19,7 +19,7 @@ extern "C" {
 
 #define STScnAbsPtr_Zero { NULL, 0 }
 
-typedef struct STScnAbsPtr_ {
+typedef struct STScnAbsPtr {
     void*       ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
     ScnUI32     idx;    //abstract address
     //Note: possible 4-bytes padding here.
@@ -29,7 +29,7 @@ typedef struct STScnAbsPtr_ {
 
 #define STScnMemBlockCfg_Zero { 0, 0, 0, ScnFALSE }
 
-typedef struct STScnMemBlockCfg_ {
+typedef struct STScnMemBlockCfg {
     ScnUI32 size;           //ammount of bytes allocable (including the idx-0)
     ScnUI32 sizeAlign;      //whole memory block size alignment
     ScnUI32 idxsAlign;      //individual pointers alignment

@@ -12,7 +12,7 @@
 
 #define STScnMemBlockPtr_Zero { NULL, 0 }
 
-typedef struct STScnMemBlockPtr_ {
+typedef struct STScnMemBlockPtr {
     void*       ptr;  //pointer returned by 'ScnMemBlock_malloc'
     ScnUI32     sz;   //size at 'ScnMemBlock_malloc' call
 } STScnMemBlockPtr;
@@ -38,7 +38,7 @@ ScnBOOL ScnCompare_ScnMemBlockPtr(const ENScnCompareMode mode, const void* data1
 
 #define STScnMemBlockGap_Zero { 0, 0 }
 
-typedef struct STScnMemBlockGap_ {
+typedef struct STScnMemBlockGap {
     ScnUI32 iStart;  //start of gap in bytes
     ScnUI32 sz;      //size of gap in bytes
 } STScnMemBlockGap;
@@ -64,7 +64,7 @@ ScnBOOL ScnCompare_ScnMemBlockGap(const ENScnCompareMode mode, const void* data1
 
 #define STScnMemBlockChunk_Zero   { NULL, 0, 0, 0 }
 
-typedef struct STScnMemBlockChunk_ {
+typedef struct STScnMemBlockChunk {
     ScnBYTE*    ptr;        //allocated memory
     ScnUI32     ptrSz;      //allocated memory size
     ScnUI32     rngStart;   //first usable position
@@ -75,14 +75,14 @@ typedef struct STScnMemBlockChunk_ {
 
 #define STScnMemBlockState_Zero   { 0, 0 }
 
-typedef struct STScnMemBlockState_ {
+typedef struct STScnMemBlockState {
     ScnUI32     szAvail;                //for 'ScnMemBlock_malloc' early return
     ScnUI32     szSmallestMallocFailed; //for 'ScnMemBlock_malloc' early return
 } STScnMemBlockState;
 
 //STScnMemBlockOpq
 
-typedef struct STScnMemBlockOpq_ {
+typedef struct STScnMemBlockOpq {
     ScnContextRef     ctx;
     ScnMutexRef       mutex;
     STScnMemBlockChunk  chunk;

@@ -9,7 +9,7 @@
 
 //STScnVertexbuffsOpq
 
-typedef struct STScnVertexbuffsOpq_ {
+typedef struct STScnVertexbuffsOpq {
     ScnContextRef     ctx;
     ScnMutexRef       mutex;
     ScnVertexbuffRef  vBuffs[ENScnVertexType_Count];
@@ -285,7 +285,7 @@ ScnBOOL ScnVertexbuffs_v3IdxsFree(ScnVertexbuffsRef ref, const STScnVertexIdxPtr
 
 //gpu-vertexbuffs
 
-ScnBOOL ScnVertexbuffs_prepareNextRenderSlot(ScnVertexbuffsRef ref){
+ScnBOOL ScnVertexbuffs_prepareCurrentRenderSlot(ScnVertexbuffsRef ref){
     ScnBOOL r = ScnFALSE;
     STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -295,8 +295,8 @@ ScnBOOL ScnVertexbuffs_prepareNextRenderSlot(ScnVertexbuffsRef ref){
         const ScnVertexbuffRef* bAfterEnd = b + ENScnVertexType_Count;
         while(b < bAfterEnd){
             if(!ScnVertexbuff_isNull(*b)){
-                if(!ScnVertexbuff_prepareNextRenderSlot(*b)){
-                    printf("ERROR, ScnVertexbuffs_prepareNextRenderSlot::ScnVertexbuff_prepareNextRenderSlot failed.\n");
+                if(!ScnVertexbuff_prepareCurrentRenderSlot(*b)){
+                    printf("ERROR, ScnVertexbuffs_prepareCurrentRenderSlot::ScnVertexbuff_prepareCurrentRenderSlot failed.\n");
                     r = ScnFALSE;
                     break;
                 }
@@ -307,3 +307,27 @@ ScnBOOL ScnVertexbuffs_prepareNextRenderSlot(ScnVertexbuffsRef ref){
     ScnMutex_unlock(opq->mutex);
     return r;
 }
+
+ScnBOOL ScnVertexbuffs_moveToNextRenderSlot(ScnVertexbuffsRef ref){
+    ScnBOOL r = ScnFALSE;
+    STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    {
+        r = ScnTRUE;
+        ScnVertexbuffRef* b = opq->vBuffs;
+        const ScnVertexbuffRef* bAfterEnd = b + ENScnVertexType_Count;
+        while(b < bAfterEnd){
+            if(!ScnVertexbuff_isNull(*b)){
+                if(!ScnVertexbuff_moveToNextRenderSlot(*b)){
+                    printf("ERROR, ScnVertexbuffs_prepareCurrentRenderSlot::ScnVertexbuff_moveToNextRenderSlot failed.\n");
+                    r = ScnFALSE;
+                    break;
+                }
+            }
+            ++b;
+        }
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+

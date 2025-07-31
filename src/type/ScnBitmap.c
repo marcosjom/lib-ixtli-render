@@ -10,7 +10,7 @@
 
 //
 
-typedef struct STScnBitmapColorDesc_ {
+typedef struct STScnBitmapColorDesc {
     ScnUI8              bitsPerPx;
     const char*         name;
     ENScnBitmapColor    color;
@@ -58,7 +58,7 @@ STScnBitmapProps ScnBitmapProps_build(const ScnSI32 width, const ScnSI32 height,
 
 //STScnBitmapOpq
 
-typedef struct STScnBitmapOpq_ {
+typedef struct STScnBitmapOpq {
     ScnContextRef     ctx;
     ScnMutexRef       mutex;
     STScnBitmapProps    props;

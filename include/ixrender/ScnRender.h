@@ -31,8 +31,8 @@ extern "C" {
 
 //ScnRenderApiItf
 
-typedef struct STScnApiItf_ {
-    ScnGpuDeviceRef           (*allocDevice)(ScnContextRef ctx, const STScnGpuDeviceCfg* cfg);
+typedef struct STScnApiItf {
+    ScnGpuDeviceRef             (*allocDevice)(ScnContextRef ctx, const STScnGpuDeviceCfg* cfg);
     STScnGpuDeviceApiItf        dev;    //device
     STScnGpuBufferApiItf        buff;   //buffers
     STScnGpuVertexbuffApiItf    vertexBuff;   //vertexBuff
@@ -59,7 +59,7 @@ ScnFramebuffRef ScnRender_allocFramebuff(ScnRenderRef ref);
 //job
 
 ScnBOOL     ScnRender_jobStart(ScnRenderRef ref);
-ScnBOOL     ScnRender_jobEnd(ScnRenderRef ref);
+ScnBOOL     ScnRender_jobEnd(ScnRenderRef ref); //does the magic
 
 //job framebuffers
 
@@ -77,7 +77,6 @@ ScnBOOL     ScnRender_jobModelPop(ScnRenderRef ref);
 void        ScnRender_cmdMaskModePush(ScnRenderRef ref);
 void        ScnRender_cmdMaskModePop(ScnRenderRef ref);
 void        ScnRender_cmdSetTexture(ScnRenderRef ref, const ScnUI32 index, ScnTextureRef tex);
-void        ScnRender_cmdSetVertsType(ScnRenderRef ref, const ENScnVertexType type);
 void        ScnRender_cmdDawVerts(ScnRenderRef ref, const ENScnRenderShape mode, const ScnUI32 iFirst, const ScnUI32 count);
 void        ScnRender_cmdDawIndexes(ScnRenderRef ref, const ENScnRenderShape mode, const ScnUI32 iFirst, const ScnUI32 count);
 */

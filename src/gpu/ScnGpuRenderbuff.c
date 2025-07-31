@@ -9,7 +9,7 @@
 
 //STScnGpuRenderbuffOpq
 
-typedef struct STScnGpuRenderbuffOpq_ {
+typedef struct STScnGpuRenderbuffOpq {
     ScnContextRef     ctx;
     ScnMutexRef       mutex;
     //

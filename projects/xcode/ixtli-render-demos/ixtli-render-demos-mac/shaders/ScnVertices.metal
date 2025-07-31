@@ -5,9 +5,13 @@
 //  Created by Marcos Ortega on 27/7/25.
 //
 
-#include <metal_stdlib>
-using namespace metal;
+#include "ixrender/gpu/ScnGpuFramebuffProps.h"
+#include "ixrender/gpu/ScnGpuModelProps2D.h"
+#include "ixrender/scene/ScnVertices.h"
 
+#include <metal_stdlib>
+//#include <simd/simd.h>
+using namespace metal;
 
 /// A type that stores the vertex shader's output and serves as an input to the
 /// fragment shader.
@@ -33,12 +37,17 @@ struct RasterizerData
 ///
 /// The vertex shader doesn't modify the color values.
 vertex RasterizerData
-vertexShader(uint vertexID [[vertex_id]]/*,
-             constant VertexData *vertexData [[buffer(InputBufferIndexForVertexData)]],
-             constant simd_uint2 *viewportSizePointer [[buffer(InputBufferIndexForViewportSize)]]*/)
+vertexShader(constant STScnGpuFramebufferProps *fbProps [[buffer(0)]]
+             , constant STScnGpuFramebufferProps *mdlProps [[buffer(1)]]
+             , constant STScnVertex2D *verts [[buffer(2)]]
+             , uint iVert [[vertex_id]]
+             )
 {
     RasterizerData out;
 
+    STScnVertex2D v = verts[iVert];
+    
+    
     // Retrieve the 2D position in pixel coordinates.
     /*simd_float2 pixelSpacePosition = vertexData[vertexID].position.xy;
 
@@ -47,14 +56,17 @@ vertexShader(uint vertexID [[vertex_id]]/*,
 
     // Convert the position in pixel coordinates to clip-space by dividing the
     // pixel's coordinates by half the size of the viewport.
-    out.position.x = 0.0; //pixelSpacePosition / (viewportSize / 2.0);
-    out.position.y = 0.0;
+    out.position.x = v.x / fbProps->size.width;
+    out.position.y = v.y / fbProps->size.height;
     out.position.z = 0.0;
     out.position.w = 1.0;
 
     // Pass the input color directly to the rasterizer.
-    //out.color = vertexData[vertexID].color;
-
+    out.color.r = (ScnFLOAT)v.color.r / 255.f;
+    out.color.g = (ScnFLOAT)v.color.g / 255.f;
+    out.color.b = (ScnFLOAT)v.color.b / 255.f;
+    out.color.a = (ScnFLOAT)v.color.a / 255.f;
+    
     return out;
 }
 
@@ -66,4 +78,3 @@ fragment float4 fragmentShader(RasterizerData in [[stage_in]])
     // three vertex colors.
     return in.color;
 }
-

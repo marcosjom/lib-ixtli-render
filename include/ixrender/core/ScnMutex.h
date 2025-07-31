@@ -14,18 +14,18 @@
 extern "C" {
 #endif
 
-struct ScnMutexRef_;
-struct STScnMutexItf_;
+struct ScnMutexRef;
+struct STScnMutexItf;
 //
-struct STScnContextItf_; //external
+struct STScnContextItf; //external
 
 // ScnMutexRef
 
 #define ScnMutexRef_Zero { NULL, NULL }
 
-typedef struct ScnMutexRef_ {
+typedef struct ScnMutexRef {
     void*                   opq;
-    struct STScnMutexItf_*  itf;
+    struct STScnMutexItf*   itf;
 } ScnMutexRef;
 
 #define ScnMutex_isNull(REF)                ((REF).opq != NULL)
@@ -37,8 +37,8 @@ void    ScnMutex_unlock(ScnMutexRef ref);
 
 //STScnMutexItf
 
-typedef struct STScnMutexItf_ {
-    ScnMutexRef (*alloc)(struct STScnContextItf_* ctx);
+typedef struct STScnMutexItf {
+    ScnMutexRef (*alloc)(struct STScnContextItf* ctx);
     void        (*free)(ScnMutexRef* obj);
     void        (*lock)(ScnMutexRef obj);
     void        (*unlock)(ScnMutexRef obj);

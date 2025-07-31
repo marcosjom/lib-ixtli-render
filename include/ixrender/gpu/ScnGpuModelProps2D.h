@@ -20,11 +20,12 @@ extern "C" {
 #define STScnGpuModelProps2D_Zero        { STScnColor8_Zero, STScnMatrix2D_Zero }
 #define STScnGpuModelProps2D_Identity    { STScnColor8_255, STScnMatrix2D_Identity }
 
-typedef struct STScnGpuModelProps2D_ {
+typedef struct STScnGpuModelProps2D {
     STScnColor8     c8;     //color
     STScnMatrix2D     matrix; //matrix
 } STScnGpuModelProps2D;
 
+#ifndef SNC_COMPILING_SHADER
 SC_INLN STScnGpuModelProps2D ScnGpuModelProps2D_multiply(const STScnGpuModelProps2D* const obj, const STScnGpuModelProps2D* const other){
     return (STScnGpuModelProps2D){
         {
@@ -36,6 +37,7 @@ SC_INLN STScnGpuModelProps2D ScnGpuModelProps2D_multiply(const STScnGpuModelProp
         , ScnMatrix2D_multiply(&obj->matrix, &other->matrix)
     };
 }
+#endif
 
 #ifdef __cplusplus
 } //extern "C"

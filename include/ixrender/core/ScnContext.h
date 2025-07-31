@@ -16,21 +16,21 @@
 extern "C" {
 #endif
 
-struct ScnContextRef_;
-struct STScnContextItf_;
+struct ScnContextRef;
+struct STScnContextItf;
 //
-struct STScnSharedPtr_;     //external
+struct STScnSharedPtr;     //external
 
 //ScnContextRef
 
 #define ScnContextRef_Zero    { NULL, NULL }
 
-typedef struct ScnContextRef_ {
-    struct STScnSharedPtr_*  ptr;
-    struct STScnContextItf_* itf;
+typedef struct ScnContextRef {
+    struct STScnSharedPtr*  ptr;
+    struct STScnContextItf* itf;
 } ScnContextRef;
 
-ScnContextRef ScnContext_alloc(struct STScnContextItf_* ctx);
+ScnContextRef ScnContext_alloc(struct STScnContextItf* ctx);
 void            ScnContext_retain(ScnContextRef ref);
 void            ScnContext_release(ScnContextRef* ref);
 void            ScnContext_releaseAndNull(ScnContextRef* ref);
@@ -47,7 +47,7 @@ ScnMutexRef   ScnContext_allocMutex(ScnContextRef ref);
 
 //STScnContextItf
 
-typedef struct STScnContextItf_ {
+typedef struct STScnContextItf {
     STScnMemoryItf  mem;
     STScnMutexItf   mutex;
 } STScnContextItf;

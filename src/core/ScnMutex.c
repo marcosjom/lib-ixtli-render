@@ -51,12 +51,12 @@ void ScnMutex_free(ScnMutexRef* ref){
 
 //STScnMutexOpq
 
-typedef struct STScnMutexOpq_ {
-    Scn_MUTEX_T             mutex;
-    struct STScnContextItf_ ctx;
+typedef struct STScnMutexOpq {
+    Scn_MUTEX_T         mutex;
+    STScnContextItf     ctx;
 } STScnMutexOpq;
 
-ScnMutexRef ScnMutexItf_default_alloc(struct STScnContextItf_* ctx){
+ScnMutexRef ScnMutexItf_default_alloc(struct STScnContextItf* ctx){
     ScnMutexRef r = ScnMutexRef_Zero;
     STScnMutexOpq* obj = (STScnMutexOpq*)(*ctx->mem.malloc)(sizeof(STScnMutexOpq), "ScnMutexItf_default_alloc");
     if(obj != NULL){
