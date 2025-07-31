@@ -76,7 +76,7 @@ void ScnContext_release(ScnContextRef* ref){
     }
 }
 
-void ScnContext_releaseAndNullify(ScnContextRef* ref){
+void ScnContext_releaseAndNull(ScnContextRef* ref){
     if(ref->ptr != NULL){
         ScnContext_release(ref);
         ref->ptr = NULL;

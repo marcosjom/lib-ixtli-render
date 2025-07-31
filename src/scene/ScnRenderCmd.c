@@ -129,10 +129,10 @@ void ScnModelDrawCmd_destroy(STScnModelDrawCmd* obj){
     }
     //texs
     {
-        ScnGpuTexture_releaseAndNullify(&obj->texs.t0);
-        ScnGpuTexture_releaseAndNullify(&obj->texs.t1);
-        ScnGpuTexture_releaseAndNullify(&obj->texs.t2);
+        ScnGpuTexture_releaseAndNull(&obj->texs.t0);
+        ScnGpuTexture_releaseAndNull(&obj->texs.t1);
+        ScnGpuTexture_releaseAndNull(&obj->texs.t2);
     }
     //vbuffs
-    ScnVertexbuffs_releaseAndNullify(&obj->vbuffs);
+    ScnVertexbuffs_releaseAndNull(&obj->vbuffs);
 }

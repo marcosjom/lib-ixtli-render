@@ -69,10 +69,10 @@ void ScnModel_destroyOpq(void* obj){
             );
             ScnArray_destroy(opq->ctx, &opq->cmds.heap);
         }
-        ScnVertexbuffs_releaseAndNullify(&opq->cmds.vbuffs);
+        ScnVertexbuffs_releaseAndNull(&opq->cmds.vbuffs);
     }
     ScnMutex_freeAndNullify(&opq->mutex);
-    ScnContext_releaseAndNullify(&opq->ctx);
+    ScnContext_releaseAndNull(&opq->ctx);
 }
 
 //

@@ -47,10 +47,10 @@ void ScnFramebuff_destroyOpq(void* obj){
                 break;
         }
     }
-    ScnGpuFramebuff_releaseAndNullify(&opq->gpuFramebuff);
-    ScnGpuDevice_releaseAndNullify(&opq->gpuDev);
+    ScnGpuFramebuff_releaseAndNull(&opq->gpuFramebuff);
+    ScnGpuDevice_releaseAndNull(&opq->gpuDev);
     ScnMutex_freeAndNullify(&opq->mutex);
-    ScnContext_releaseAndNullify(&opq->ctx);
+    ScnContext_releaseAndNull(&opq->ctx);
 }
 
 //
@@ -82,7 +82,7 @@ ScnBOOL ScnFramebuff_bindToOSView(ScnFramebuffRef ref, void* mtkView){
             ScnGpuFramebuff_set(&opq->gpuFramebuff, gpuFb);
             r = ScnTRUE;
         }
-        ScnGpuFramebuff_releaseAndNullify(&gpuFb);
+        ScnGpuFramebuff_releaseAndNull(&gpuFb);
     }
     ScnMutex_unlock(opq->mutex);
     return r;

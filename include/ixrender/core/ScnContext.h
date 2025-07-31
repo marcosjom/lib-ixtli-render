@@ -33,7 +33,7 @@ typedef struct ScnContextRef_ {
 ScnContextRef ScnContext_alloc(struct STScnContextItf_* ctx);
 void            ScnContext_retain(ScnContextRef ref);
 void            ScnContext_release(ScnContextRef* ref);
-void            ScnContext_releaseAndNullify(ScnContextRef* ref);
+void            ScnContext_releaseAndNull(ScnContextRef* ref);
 void            ScnContext_set(ScnContextRef* ref, ScnContextRef other);
 SC_INLN ScnBOOL ScnContext_isSame(ScnContextRef ref, ScnContextRef other) { return (ref.ptr == other.ptr); }
 SC_INLN ScnBOOL ScnContext_isNull(ScnContextRef ref) { return (ref.ptr == NULL); }

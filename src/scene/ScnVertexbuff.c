@@ -69,15 +69,15 @@ void ScnVertexbuff_destroyOpq(void* obj){
     }
     //buffs
     {
-        ScnBuffer_releaseAndNullify(&opq->buffs.vertex);
-        ScnBuffer_releaseAndNullify(&opq->buffs.idxs);
+        ScnBuffer_releaseAndNull(&opq->buffs.vertex);
+        ScnBuffer_releaseAndNull(&opq->buffs.idxs);
     }
     //
     //ScnStruct_stRelease(ScnVertexbuffCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
     //
-    ScnGpuDevice_releaseAndNullify(&opq->gpuDev);
+    ScnGpuDevice_releaseAndNull(&opq->gpuDev);
     ScnMutex_freeAndNullify(&opq->mutex);
-    ScnContext_releaseAndNullify(&opq->ctx);
+    ScnContext_releaseAndNull(&opq->ctx);
 }
 
 //
@@ -144,7 +144,7 @@ void ScnVertexbuffSlot_init(ScnContextRef ctx, STScnVertexbuffSlot* opq){
 }
 
 void ScnVertexbuffSlot_destroy(STScnVertexbuffSlot* opq){
-    ScnGpuVertexbuff_releaseAndNullify(&opq->gpuVBuff);
+    ScnGpuVertexbuff_releaseAndNull(&opq->gpuVBuff);
 }
 
 //gpu-vertexbuffer

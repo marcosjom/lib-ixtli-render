@@ -88,7 +88,7 @@ void ScnBitmap_destroyOpq(void* obj){
         opq->dataSz = 0;
     }
     ScnMutex_freeAndNullify(&opq->mutex);
-    ScnContext_releaseAndNullify(&opq->ctx);
+    ScnContext_releaseAndNull(&opq->ctx);
 }
 
 //

@@ -23,7 +23,7 @@ SC_INLN ScnBOOL ScnObjRef_isSame(ScnObjRef ref, ScnObjRef other) { return (ref.p
 SC_INLN void    ScnObjRef_null(ScnObjRef* ref) { ref->ptr = NULL; }
 SC_INLN void    ScnObjRef_retain(ScnObjRef ref) { ScnSharedPtr_retain(ref.ptr); }
 SC_INLN void    ScnObjRef_release(ScnObjRef* ref) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } }
-SC_INLN void    ScnObjRef_releaseAndNullify(ScnObjRef* ref) { if(ref->ptr != NULL) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } ref->ptr = NULL; } }
+SC_INLN void    ScnObjRef_releaseAndNull(ScnObjRef* ref) { if(ref->ptr != NULL) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } ref->ptr = NULL; } }
 SC_INLN void    ScnObjRef_set(ScnObjRef* ref, ScnObjRef other) { if(!ScnObjRef_isNull(other)){ ScnObjRef_retain(other); } if(!ScnObjRef_isNull(*ref)){ ScnObjRef_release(ref); } *ref = other; }
 
 //
@@ -42,7 +42,7 @@ SC_INLN void    ScnObjRef_set(ScnObjRef* ref, ScnObjRef other) { if(!ScnObjRef_i
     SC_INLN void                STNAME ## _null(STNAME ## Ref* ref) { ref->ptr = NULL; } \
     SC_INLN void                STNAME ## _retain(STNAME ## Ref ref) { ScnSharedPtr_retain(ref.ptr); } \
     SC_INLN void                STNAME ## _release(STNAME ## Ref* ref) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } } \
-    SC_INLN void                STNAME ## _releaseAndNullify(STNAME ## Ref* ref) { if(ref->ptr != NULL) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } ref->ptr = NULL; } } \
+    SC_INLN void                STNAME ## _releaseAndNull(STNAME ## Ref* ref) { if(ref->ptr != NULL) { if(0 == ScnSharedPtr_release(ref->ptr)) { ScnSharedPtr_free(ref->ptr); ref->ptr = NULL; } ref->ptr = NULL; } } \
     SC_INLN void                STNAME ## _set(STNAME ## Ref* ref, STNAME ## Ref other) { if(!STNAME ## _isNull(other)){ STNAME ## _retain(other); } if(!STNAME ## _isNull(*ref)){ STNAME ## _release(ref); } *ref = other; } \
     SC_INLN STNAME ## Ref STNAME ## _alloc(ScnContextRef ctx) \
     { \

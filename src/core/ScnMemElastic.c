@@ -75,7 +75,7 @@ void ScnMemElastic_destroyOpq(void* obj){
         //ScnStruct_stRelease(ScnMemElasticCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
     }
     ScnMutex_freeAndNullify(&opq->mutex);
-    ScnContext_releaseAndNullify(&opq->ctx);
+    ScnContext_releaseAndNull(&opq->ctx);
 }
 
 //

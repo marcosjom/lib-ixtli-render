@@ -61,13 +61,13 @@ void ScnGpuTexture_destroyOpq(void* obj){
     //
     //ScnStruct_stRelease(ScnGpuTextureCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
     //
-    ScnBitmap_releaseAndNullify(&opq->bmp);
+    ScnBitmap_releaseAndNull(&opq->bmp);
     //changes
     {
         ScnArray_destroy(opq->ctx, &opq->changes.rects);
     }
     ScnMutex_freeAndNullify(&opq->mutex);
-    ScnContext_releaseAndNullify(&opq->ctx);
+    ScnContext_releaseAndNull(&opq->ctx);
 }
 
 //

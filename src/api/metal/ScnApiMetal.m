@@ -171,8 +171,7 @@ ScnGpuDeviceRef ScnApiMetal_allocDevice(ScnContextRef ctx, const STScnGpuDeviceC
                                     ScnGpuDevice_set(&r, d);
                                     obj = NULL; //consume
                                 }
-                                ScnGpuDevice_release(&d);
-                                ScnGpuDevice_null(&d);
+                                ScnGpuDevice_releaseAndNull(&d);
                             }
                         }
                     }
@@ -217,7 +216,7 @@ void ScnApiMetal_device_free(void* pObj){
         ScnContext_null(&obj->ctx);
     }
     ScnContext_mfree(ctx, obj);
-    ScnContext_releaseAndNullify(&ctx);
+    ScnContext_releaseAndNull(&ctx);
 }
 
 //STScnApiMetalBuffer
@@ -263,8 +262,7 @@ ScnGpuBufferRef ScnApiMetal_device_allocBuffer(void* pObj, ScnMemElasticRef mem)
                                 ScnGpuBuffer_set(&r, d);
                                 obj = NULL; //consume
                             }
-                            ScnGpuBuffer_release(&d);
-                            ScnGpuBuffer_null(&d);
+                            ScnGpuBuffer_releaseAndNull(&d);
                         }
                     }
                     //release (if not consumed)
@@ -296,7 +294,7 @@ void ScnApiMetal_buffer_free(void* pObj){
         ScnContext_null(&obj->ctx);
     }
     ScnContext_mfree(ctx, obj);
-    ScnContext_releaseAndNullify(&ctx);
+    ScnContext_releaseAndNull(&ctx);
 }
 
 ScnBOOL ScnApiMetal_buffer_sync(void* pObj, const STScnGpuBufferCfg* cfg, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes){
@@ -396,8 +394,7 @@ ScnGpuVertexbuffRef ScnApiMetal_device_allocVertexBuff(void* pObj, const STScnGp
                     ScnGpuVertexbuff_set(&r, d);
                     obj = NULL; //consume
                 }
-                ScnGpuVertexbuff_release(&d);
-                ScnGpuVertexbuff_null(&d);
+                ScnGpuVertexbuff_releaseAndNull(&d);
             }
         }
         //release (if not consumed)
@@ -413,12 +410,12 @@ void ScnApiMetal_vertexbuff_free(void* pObj){
     STScnApiMetalVertexBuff* obj = (STScnApiMetalVertexBuff*)pObj;
     ScnContextRef ctx = obj->ctx;
     {
-        ScnGpuBuffer_releaseAndNullify(&obj->vBuff);
-        ScnGpuBuffer_releaseAndNullify(&obj->idxBuff);
+        ScnGpuBuffer_releaseAndNull(&obj->vBuff);
+        ScnGpuBuffer_releaseAndNull(&obj->idxBuff);
         ScnContext_null(&obj->ctx);
     }
     ScnContext_mfree(ctx, obj);
-    ScnContext_releaseAndNullify(&ctx);
+    ScnContext_releaseAndNull(&ctx);
 }
 
 ScnBOOL ScnApiMetal_vertexbuff_sync(void* pObj, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff){
@@ -491,7 +488,7 @@ ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void*
                     ScnGpuFramebuff_set(&r, d);
                     obj = NULL; //consume
                 }
-                ScnGpuFramebuff_releaseAndNullify(&d);
+                ScnGpuFramebuff_releaseAndNull(&d);
             }
         }
         //release (if not consumed)
@@ -516,7 +513,7 @@ void ScnApiMetal_framebuff_view_free(void* pObj){
         ScnContext_null(&obj->ctx);
     }
     ScnContext_mfree(ctx, obj);
-    ScnContext_releaseAndNullify(&ctx);
+    ScnContext_releaseAndNull(&ctx);
 }
 
 STScnSizeU ScnApiMetal_framebuff_view_getSize(void* pObj, STScnRectU* dstViewport){

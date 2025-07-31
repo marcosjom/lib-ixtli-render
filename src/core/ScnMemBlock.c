@@ -126,7 +126,7 @@ void ScnMemBlock_destroyOpq(void* obj){
     ScnArraySorted_destroy(opq->ctx, &opq->ptrs);
     ScnArraySorted_destroy(opq->ctx, &opq->gaps);
     ScnMutex_freeAndNullify(&opq->mutex);
-    ScnContext_releaseAndNullify(&opq->ctx);
+    ScnContext_releaseAndNull(&opq->ctx);
 }
 
 //

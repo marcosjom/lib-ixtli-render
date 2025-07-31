@@ -73,7 +73,7 @@ void ScnBuffer_initZeroedOpq(ScnContextRef ctx, void* obj) {
 void ScnBuffer_destroyOpq(void* obj){
     STScnBufferOpq* opq = (STScnBufferOpq*)obj;
     //
-    ScnMemElastic_releaseAndNullify(&opq->mem);
+    ScnMemElastic_releaseAndNull(&opq->mem);
     //ScnStruct_stRelease(ScnBufferCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
     //changes
     {
@@ -93,9 +93,9 @@ void ScnBuffer_destroyOpq(void* obj){
         }
         opq->slots.use = opq->slots.sz = 0;
     }
-    ScnGpuDevice_releaseAndNullify(&opq->gpuDev);
+    ScnGpuDevice_releaseAndNull(&opq->gpuDev);
     ScnMutex_freeAndNullify(&opq->mutex);
-    ScnContext_releaseAndNullify(&opq->ctx);
+    ScnContext_releaseAndNull(&opq->ctx);
 }
 
 //
@@ -141,7 +141,7 @@ ScnBOOL ScnBuffer_prepare(ScnBufferRef ref, ScnGpuDeviceRef gpuDev, const ScnUI3
             }
         }
         //relese (if not consumed)
-        ScnMemElastic_releaseAndNullify(&mem);
+        ScnMemElastic_releaseAndNull(&mem);
     }
     ScnMutex_unlock(opq->mutex);
     return r;
@@ -320,6 +320,6 @@ void ScnBufferSlot_destroy(STScnBufferSlot* opq){
     {
         ScnArraySorted_destroy(opq->ctx, &opq->changes.rngs);
     }
-    ScnGpuBuffer_releaseAndNullify(&opq->gpuBuff);
-    ScnContext_releaseAndNullify(&opq->ctx);
+    ScnGpuBuffer_releaseAndNull(&opq->gpuBuff);
+    ScnContext_releaseAndNull(&opq->ctx);
 }

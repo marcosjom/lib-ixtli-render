@@ -140,10 +140,10 @@ void ScnRender_destroyOpq(void* obj){
         ScnArray_destroy(opq->ctx, &opq->job.cmds);
         ScnArraySorted_destroy(opq->ctx, &opq->job.objs);
     }
-    ScnBuffer_releaseAndNullify(&opq->viewPropsBuff);
-    ScnBuffer_releaseAndNullify(&opq->nodesPropsBuff);
-    ScnVertexbuffs_releaseAndNullify(&opq->vbuffs);
-    ScnGpuDevice_releaseAndNullify(&opq->gpuDev);
+    ScnBuffer_releaseAndNull(&opq->viewPropsBuff);
+    ScnBuffer_releaseAndNull(&opq->nodesPropsBuff);
+    ScnVertexbuffs_releaseAndNull(&opq->vbuffs);
+    ScnGpuDevice_releaseAndNull(&opq->gpuDev);
     //api
     {
         ScnMemory_setZeroSt(opq->api.itf, STScnApiItf);
@@ -151,7 +151,7 @@ void ScnRender_destroyOpq(void* obj){
     }
     //
     ScnMutex_freeAndNullify(&opq->mutex);
-    ScnContext_releaseAndNullify(&opq->ctx);
+    ScnContext_releaseAndNull(&opq->ctx);
 }
 
 //prepare
@@ -209,12 +209,12 @@ ScnBOOL ScnRender_openDevice(ScnRenderRef ref, const STScnGpuDeviceCfg* cfg, con
                         }
                     }
                 }
-                ScnBuffer_releaseAndNullify(&viewPropsBuff);
-                ScnBuffer_releaseAndNullify(&nodesPropsBuff);
-                ScnVertexbuffs_releaseAndNullify(&vbuffs);
+                ScnBuffer_releaseAndNull(&viewPropsBuff);
+                ScnBuffer_releaseAndNull(&nodesPropsBuff);
+                ScnVertexbuffs_releaseAndNull(&vbuffs);
             }
             //
-            ScnGpuDevice_releaseAndNullify(&gpuDev);
+            ScnGpuDevice_releaseAndNull(&gpuDev);
         }
     }
     ScnMutex_unlock(opq->mutex);
@@ -236,8 +236,7 @@ ScnModelRef ScnRender_allocModel(ScnRenderRef ref){
             printf("ERROR, ScnRender_allocModel::ScnModel_alloc failed.\n");
         } else if(!ScnModel_setVertexBuffs(r, opq->vbuffs)){
             printf("ERROR, ScnRender_allocModel::ScnModel_setVertexBuffs failed.\n");
-            ScnModel_release(&r);
-            ScnModel_null(&r);
+            ScnModel_releaseAndNull(&r);
         }
     }
     ScnMutex_unlock(opq->mutex);
@@ -259,7 +258,7 @@ ScnFramebuffRef ScnRender_allocFramebuff(ScnRenderRef ref){
         } else {
             ScnFramebuff_set(&r, fb);
         }
-        ScnFramebuff_releaseAndNullify(&fb);
+        ScnFramebuff_releaseAndNull(&fb);
     }
     ScnMutex_unlock(opq->mutex);
     return r;
@@ -307,8 +306,7 @@ ScnBufferRef ScnRender_allocDynamicBuffLockedOpq_(STScnRenderOpq* opq, const Scn
     } else if(!ScnBuffer_prepare(r, opq->gpuDev, ammRenderSlots, &cfg)){
         //error
         SCN_ASSERT(ScnFALSE)
-        ScnBuffer_release(&r);
-        ScnBuffer_null(&r);
+        ScnBuffer_releaseAndNull(&r);
     }
     return r;
 }
@@ -430,8 +428,7 @@ ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, cons
             } else {
                 r = ScnFALSE;
             }
-            ScnVertexbuffs_release(&vbObj);
-            ScnVertexbuffs_null(&vbObj);
+            ScnVertexbuffs_releaseAndNull(&vbObj);
         }
     }
     //release
@@ -481,8 +478,7 @@ ScnBufferRef ScnRender_allocBuffer(ScnRenderRef ref, const STScnGpuBufferCfg* cf
         } else {
             ScnBuffer_set(&r, b);
         }
-        ScnBuffer_release(&b);
-        ScnBuffer_null(&b);
+        ScnBuffer_releaseAndNull(&b);
     }
     ScnMutex_unlock(opq->mutex);
     return r;
@@ -1048,7 +1044,7 @@ void ScnRenderFbuffState_destroy(STScnRenderFbuffState* obj){
         ScnArray_destroy(obj->ctx, &obj->stack);
     }
     //
-    ScnContext_releaseAndNullify(&obj->ctx);
+    ScnContext_releaseAndNull(&obj->ctx);
 }
 
 //STScnRenderJobObj
@@ -1064,7 +1060,7 @@ void ScnRenderJobObj_destroy(STScnRenderJobObj* obj){
             break;
         case ENScnRenderJobObjType_Framebuff:
         case ENScnRenderJobObjType_Vertexbuff:
-            ScnObjRef_releaseAndNullify(&obj->objRef);
+            ScnObjRef_releaseAndNull(&obj->objRef);
             break;
         default:
             SCN_ASSERT(ScnFALSE); //unimplemented value
