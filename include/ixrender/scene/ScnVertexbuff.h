@@ -30,8 +30,8 @@ ScnBOOL         ScnVertexbuff_activate(ScnVertexbuffRef ref);
 ScnBOOL         ScnVertexbuff_deactivate(ScnVertexbuffRef ref);
 
 ScnUI32         ScnVertexbuff_getSzPerRecord(ScnVertexbuffRef ref);
-ScnBufferRef  ScnVertexbuff_getVertexBuff(ScnVertexbuffRef ref);
-ScnBufferRef  ScnVertexbuff_getIdxsBuff(ScnVertexbuffRef ref);
+ScnBufferRef    ScnVertexbuff_getVertexBuff(ScnVertexbuffRef ref);
+ScnBufferRef    ScnVertexbuff_getIdxsBuff(ScnVertexbuffRef ref);
 
 //gpu-vertexbuffer
 ScnBOOL         ScnVertexbuff_prepareNextRenderSlot(ScnVertexbuffRef ref);

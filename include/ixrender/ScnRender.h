@@ -50,8 +50,11 @@ ScnBOOL     ScnRender_prepare(ScnRenderRef ref, const STScnApiItf* itf, void* it
 ScnBOOL     ScnRender_openDevice(ScnRenderRef ref, const STScnGpuDeviceCfg* cfg, const ScnUI32 ammRenderSlots);
 ScnBOOL     ScnRender_hasOpenDevice(ScnRenderRef ref);
 
-//models
+//model
 ScnModelRef ScnRender_allocModel(ScnRenderRef ref);
+
+//framebuffer
+ScnFramebuffRef ScnRender_allocFramebuff(ScnRenderRef ref);
 
 //job
 
@@ -63,30 +66,30 @@ ScnBOOL     ScnRender_jobEnd(ScnRenderRef ref);
 ScnBOOL     ScnRender_jobFramebuffPush(ScnRenderRef ref, ScnFramebuffRef fbuff);
 ScnBOOL     ScnRender_jobFramebuffPop(ScnRenderRef ref);
 
-//job transforms
+//job models
 
-ScnBOOL     ScnRender_jobTransformPush(ScnRenderRef ref, STScnModelProps* t);
-ScnBOOL     ScnRender_jobTransformPop(ScnRenderRef ref);
-
+ScnBOOL     ScnRender_jobModelAdd(ScnRenderRef ref, ScnModelRef model);    //equivalent to push-and-pop
+ScnBOOL     ScnRender_jobModelPush(ScnRenderRef ref, ScnModelRef model);
+ScnBOOL     ScnRender_jobModelPop(ScnRenderRef ref);
 
 //job cmds
-
+/*
 void        ScnRender_cmdMaskModePush(ScnRenderRef ref);
 void        ScnRender_cmdMaskModePop(ScnRenderRef ref);
-void        ScnRender_cmdSetTexture(ScnRenderRef ref, const ScnUI32 index, const ScnUI32 tex /*const ScnGpuTextureRef tex*/);
+void        ScnRender_cmdSetTexture(ScnRenderRef ref, const ScnUI32 index, ScnTextureRef tex);
 void        ScnRender_cmdSetVertsType(ScnRenderRef ref, const ENScnVertexType type);
 void        ScnRender_cmdDawVerts(ScnRenderRef ref, const ENScnRenderShape mode, const ScnUI32 iFirst, const ScnUI32 count);
 void        ScnRender_cmdDawIndexes(ScnRenderRef ref, const ENScnRenderShape mode, const ScnUI32 iFirst, const ScnUI32 count);
-
-//gpu-render
-
-ScnBOOL     ScnRender_prepareNextRenderSlot(ScnRenderRef ref);
+*/
 
 //custom actions (for custom shaders)
 
-ScnVertexbuffsRef ScnRender_getDefaultVertexbuffs(ScnRenderRef ref);
-ScnVertexbuffsRef ScnRender_allocVertexbuffs(ScnRenderRef ref);
-ScnBufferRef      ScnRender_allocBuffer(ScnRenderRef ref, const STScnGpuBufferCfg* cfg);
+ScnVertexbuffsRef   ScnRender_getDefaultVertexbuffs(ScnRenderRef ref);
+ScnVertexbuffsRef   ScnRender_allocVertexbuffs(ScnRenderRef ref);
+ScnBufferRef        ScnRender_allocBuffer(ScnRenderRef ref, const STScnGpuBufferCfg* cfg);
+//
+ScnBOOL             ScnRender_jobTransformPush(ScnRenderRef ref, STScnModelProps* t);
+ScnBOOL             ScnRender_jobTransformPop(ScnRenderRef ref);
 
 #ifdef __cplusplus
 } //extern "C"

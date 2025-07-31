@@ -22,7 +22,15 @@ SCN_REF_STRUCT_METHODS_DEC(ScnFramebuff)
 
 //
 
-ScnBOOL ScnFramebuff_prepare(ScnFramebuffRef ref, ScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots);
+ScnBOOL     ScnFramebuff_prepare(ScnFramebuffRef ref, ScnGpuDeviceRef gpuDev);
+
+//binding
+
+ScnBOOL     ScnFramebuff_bindToOSView(ScnFramebuffRef ref, void* mtkView);
+
+STScnSizeU  ScnFramebuff_getSize(ScnFramebuffRef ref, STScnRectU* dstViewport);
+ScnBOOL     ScnFramebuff_syncSizeAndViewport(ScnFramebuffRef ref, const STScnSizeU size, const STScnRectU viewport);
+
 
 #ifdef __cplusplus
 } //extern "C"

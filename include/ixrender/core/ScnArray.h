@@ -69,6 +69,17 @@ extern "C" {
 
 void*   ScnArray_addPtr_(ScnContextRef ctx, void** pArr, ScnSI32* use, ScnSI32* sz, const ScnSI32 growth, const ScnSI32 arrItmSz, const void* itmPtr, const ScnSI32 itmSz, const char* dbgHint);
 
+
+#define ScnArray_foreach(ARRSTPTR, ARR_TYPE, VAR_NAME, ...) \
+    if((ARRSTPTR)->arr != NULL){ \
+        ARR_TYPE* VAR_NAME = (ARRSTPTR)->arr; \
+        const ARR_TYPE* VAR_NAME ## AfterEnd = VAR_NAME + (ARRSTPTR)->use; \
+        while(VAR_NAME < VAR_NAME ## AfterEnd){ \
+            __VA_ARGS__ \
+            ++VAR_NAME; \
+        } \
+    }
+
 #ifdef __cplusplus
 } //extern "C"
 #endif

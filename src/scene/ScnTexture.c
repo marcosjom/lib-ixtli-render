@@ -12,11 +12,11 @@
 //STScnTextureOpq
 
 typedef struct STScnTextureOpq_ {
-    ScnContextRef     ctx;
-    ScnMutexRef       mutex;
+    ScnContextRef       ctx;
+    ScnMutexRef         mutex;
     //
-    STScnGpuTextureCfg     cfg;    //config
-    ScnBitmapRef      bmp;    //bitmap
+    STScnGpuTextureCfg  cfg;    //config
+    ScnBitmapRef        bmp;    //bitmap
     //changes
     struct {
         ScnBOOL         whole;  //all the content is new

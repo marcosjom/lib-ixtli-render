@@ -9,68 +9,13 @@
 #include "ixrender/core/ScnArray.h"
 #include "ixrender/scene/ScnModelProps.h"
 
-//ENScnModelDrawCmdType
-
-typedef enum ENScnModelDrawCmdType_ {
-    ENScnModelDrawCmdType_Undef = 0,
-    //
-    ENScnModelDrawCmdType_v0,
-    ENScnModelDrawCmdType_v1,
-    ENScnModelDrawCmdType_v2,
-    ENScnModelDrawCmdType_v3,
-    //
-    ENScnModelDrawCmdType_i0,
-    ENScnModelDrawCmdType_i1,
-    ENScnModelDrawCmdType_i2,
-    ENScnModelDrawCmdType_i3,
-    //
-    ENScnModelDrawCmdType_Count,
-} ENScnModelDrawCmdType;
-
-//STScnModelDrawCmd
-
-typedef struct STScnModelDrawCmd_ {
-    ENScnRenderShape        shape;
-    ENScnModelDrawCmdType   type;
-    ScnVertexbuffsRef     vbuffs;
-    //verts
-    struct {
-        union {
-            STScnVertexPtr      v0;
-            STScnVertexTexPtr   v1;
-            STScnVertexTex2Ptr  v2;
-            STScnVertexTex3Ptr  v3;
-        };
-        ScnUI32             count;
-    } verts;
-    //idxs
-    struct {
-        union {
-            STScnVertexIdxPtr   i0;
-            STScnVertexIdxPtr   i1;
-            STScnVertexIdxPtr   i2;
-            STScnVertexIdxPtr   i3;
-        };
-        ScnUI32             count;
-    } idxs;
-    //texs
-    struct {
-        ScnGpuTextureRef  t0;
-        ScnGpuTextureRef  t1;
-        ScnGpuTextureRef  t2;
-    } texs;
-} STScnModelDrawCmd;
-
-void ScnModelDrawCmd_init(STScnModelDrawCmd* obj);
-void ScnModelDrawCmd_destroy(STScnModelDrawCmd* obj);
-
 //STScnModelOpq
 
 typedef struct STScnModelOpq_ {
-    ScnContextRef         ctx;
-    ScnMutexRef           mutex;
+    ScnContextRef       ctx;
+    ScnMutexRef         mutex;
     //
-    STScnModelProps         props;
+    STScnModelProps     props;
     //cmds
     struct {
         ScnVertexbuffsRef vbuffs;
@@ -89,7 +34,7 @@ typedef struct STScnModelOpq_ {
 //
 
 ScnUI32 ScnModel_getDrawCmdsCountLockedOpq_(STScnModelOpq* opq);
-
+STScnModelDrawCmd* ScnModel_getDrawCmdsPtrLockedOpq_(STScnModelOpq* opq);
 //
 
 ScnSI32 ScnModel_getOpqSz(void){
@@ -119,12 +64,9 @@ void ScnModel_destroyOpq(void* obj){
                 opq->cmds.embedded.isSet = ScnFALSE;
             }
         } else {
-            STScnModelDrawCmd* c = opq->cmds.heap.arr;
-            STScnModelDrawCmd* cAfterEnd = c + opq->cmds.heap.use;
-            while(c <  cAfterEnd){
-                ScnModelDrawCmd_destroy(c);
-                ++c;
-            }
+            ScnArray_foreach(&opq->cmds.heap, STScnModelDrawCmd, c,
+               ScnModelDrawCmd_destroy(c);
+            );
             ScnArray_destroy(opq->ctx, &opq->cmds.heap);
         }
         ScnVertexbuffs_releaseAndNullify(&opq->cmds.vbuffs);
@@ -137,6 +79,10 @@ void ScnModel_destroyOpq(void* obj){
 
 ScnUI32 ScnModel_getDrawCmdsCountLockedOpq_(STScnModelOpq* opq){
     return (opq->cmds.isHeap ? opq->cmds.heap.use : opq->cmds.embedded.isSet ? 1 : 0);
+}
+
+STScnModelDrawCmd* ScnModel_getDrawCmdsPtrLockedOpq_(STScnModelOpq* opq){
+    return (opq->cmds.isHeap ? opq->cmds.heap.arr : opq->cmds.embedded.isSet ? &opq->cmds.embedded.cmd : NULL);
 }
 
 //
@@ -254,12 +200,9 @@ void ScnModel_resetDrawCmds(ScnModelRef ref){
                 opq->cmds.embedded.isSet = ScnFALSE;
             }
         } else {
-            STScnModelDrawCmd* c = opq->cmds.heap.arr;
-            STScnModelDrawCmd* cAfterEnd = c + opq->cmds.heap.use;
-            while(c <  cAfterEnd){
-                ScnModelDrawCmd_destroy(c);
-                ++c;
-            }
+            ScnArray_foreach(&opq->cmds.heap, STScnModelDrawCmd, c,
+               ScnModelDrawCmd_destroy(c);
+            );
             ScnArray_empty(&opq->cmds.heap);
         }
     }
@@ -562,132 +505,21 @@ STScnVertexIdxPtr ScnModel_addDrawIndexedTex3(ScnModelRef ref, const ENScnRender
     return r;
 }
 
-//STScnModelDrawCmd
+//draw commands to consumer
 
-void ScnModelDrawCmd_init(STScnModelDrawCmd* obj){
-    memset(obj, 0, sizeof(*obj));
+ScnBOOL ScnModel_sendRenderCmds(ScnModelRef ref, STScnModelPushItf* itf, void* itfParam){
+    ScnBOOL r = ScnFALSE;
+    STScnModelOpq* opq = (STScnModelOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    if(itf != NULL && itf->addCommandsWithProps != NULL){
+        ScnMutex_lock(opq->mutex);
+        {
+            const STScnModelDrawCmd* cmds = ScnModel_getDrawCmdsPtrLockedOpq_(opq);
+            const ScnUI32 cmdsSz = ScnModel_getDrawCmdsCountLockedOpq_(opq);
+            //void* data, const STScnModelProps* props, const STScnModelDrawCmd* cmds, const ScnUI32 cmdsSz
+            r = (*itf->addCommandsWithProps)(itfParam, &opq->props, cmds, cmdsSz);
+        }
+        ScnMutex_unlock(opq->mutex);
+    }
+    return r;
 }
 
-void ScnModelDrawCmd_destroy(STScnModelDrawCmd* obj){
-    //idxs
-    //verts
-    SCN_ASSERT(!ScnVertexbuffs_isNull(obj->vbuffs) || (obj->verts.count == 0 && obj->verts.v0.ptr == NULL && obj->verts.v0.idx == 0 && obj->idxs.count == 0 && obj->idxs.i0.ptr == NULL && obj->idxs.i0.idx == 0))
-    switch(obj->type){
-        case ENScnModelDrawCmdType_v0:
-            SCN_ASSERT(obj->idxs.count == 0 && obj->idxs.i0.ptr == NULL && obj->idxs.i0.idx == 0)
-            if(obj->verts.v0.ptr != NULL){
-                SCN_ASSERT(!ScnVertexbuffs_isNull(obj->vbuffs))
-                if(!ScnVertexbuffs_isNull(obj->vbuffs)){
-                    ScnVertexbuffs_v0Free(obj->vbuffs, obj->verts.v0);
-                }
-                obj->verts.v0 = (STScnVertexPtr)STScnVertexPtr_Zero;
-            }
-            break;
-        case ENScnModelDrawCmdType_v1:
-            SCN_ASSERT(obj->idxs.count == 0 && obj->idxs.i1.ptr == NULL && obj->idxs.i1.idx == 0)
-            if(obj->verts.v1.ptr != NULL){
-                SCN_ASSERT(!ScnVertexbuffs_isNull(obj->vbuffs))
-                if(!ScnVertexbuffs_isNull(obj->vbuffs)){
-                    ScnVertexbuffs_v1Free(obj->vbuffs, obj->verts.v1);
-                }
-                obj->verts.v1 = (STScnVertexTexPtr)STScnVertexTexPtr_Zero;
-            }
-            break;
-        case ENScnModelDrawCmdType_v2:
-            SCN_ASSERT(obj->idxs.count == 0 && obj->idxs.i2.ptr == NULL && obj->idxs.i2.idx == 0)
-            if(obj->verts.v2.ptr != NULL){
-                SCN_ASSERT(!ScnVertexbuffs_isNull(obj->vbuffs))
-                if(!ScnVertexbuffs_isNull(obj->vbuffs)){
-                    ScnVertexbuffs_v2Free(obj->vbuffs, obj->verts.v2);
-                }
-                obj->verts.v2 = (STScnVertexTex2Ptr)STScnVertexTex2Ptr_Zero;
-            }
-            break;
-        case ENScnModelDrawCmdType_v3:
-            SCN_ASSERT(obj->idxs.count == 0 && obj->idxs.i3.ptr == NULL && obj->idxs.i3.idx == 0)
-            if(obj->verts.v3.ptr != NULL){
-                SCN_ASSERT(!ScnVertexbuffs_isNull(obj->vbuffs))
-                if(!ScnVertexbuffs_isNull(obj->vbuffs)){
-                    ScnVertexbuffs_v3Free(obj->vbuffs, obj->verts.v3);
-                }
-                obj->verts.v3 = (STScnVertexTex3Ptr)STScnVertexTex3Ptr_Zero;
-            }
-            break;
-            //
-        case ENScnModelDrawCmdType_i0:
-            if(obj->verts.v0.ptr != NULL){
-                SCN_ASSERT(!ScnVertexbuffs_isNull(obj->vbuffs))
-                if(!ScnVertexbuffs_isNull(obj->vbuffs)){
-                    ScnVertexbuffs_v0Free(obj->vbuffs, obj->verts.v0);
-                }
-                obj->verts.v0 = (STScnVertexPtr)STScnVertexPtr_Zero;
-            }
-            if(obj->idxs.i0.ptr != NULL){
-                SCN_ASSERT(!ScnVertexbuffs_isNull(obj->vbuffs))
-                if(!ScnVertexbuffs_isNull(obj->vbuffs)){
-                    ScnVertexbuffs_v0IdxsFree(obj->vbuffs, obj->idxs.i0);
-                }
-                obj->idxs.i0 = (STScnVertexIdxPtr)STScnVertexIdxPtr_Zero;
-            }
-            break;
-        case ENScnModelDrawCmdType_i1:
-            if(obj->verts.v1.ptr != NULL){
-                SCN_ASSERT(!ScnVertexbuffs_isNull(obj->vbuffs))
-                if(!ScnVertexbuffs_isNull(obj->vbuffs)){
-                    ScnVertexbuffs_v1Free(obj->vbuffs, obj->verts.v1);
-                }
-                obj->verts.v1 = (STScnVertexTexPtr)STScnVertexTexPtr_Zero;
-            }
-            if(obj->idxs.i1.ptr != NULL){
-                SCN_ASSERT(!ScnVertexbuffs_isNull(obj->vbuffs))
-                if(!ScnVertexbuffs_isNull(obj->vbuffs)){
-                    ScnVertexbuffs_v1IdxsFree(obj->vbuffs, obj->idxs.i1);
-                }
-                obj->idxs.i1 = (STScnVertexIdxPtr)STScnVertexIdxPtr_Zero;
-            }
-            break;
-        case ENScnModelDrawCmdType_i2:
-            if(obj->verts.v2.ptr != NULL){
-                SCN_ASSERT(!ScnVertexbuffs_isNull(obj->vbuffs))
-                if(!ScnVertexbuffs_isNull(obj->vbuffs)){
-                    ScnVertexbuffs_v2Free(obj->vbuffs, obj->verts.v2);
-                }
-                obj->verts.v2 = (STScnVertexTex2Ptr)STScnVertexTex2Ptr_Zero;
-            }
-            if(obj->idxs.i2.ptr != NULL){
-                SCN_ASSERT(!ScnVertexbuffs_isNull(obj->vbuffs))
-                if(!ScnVertexbuffs_isNull(obj->vbuffs)){
-                    ScnVertexbuffs_v2IdxsFree(obj->vbuffs, obj->idxs.i2);
-                }
-                obj->idxs.i2 = (STScnVertexIdxPtr)STScnVertexIdxPtr_Zero;
-            }
-            break;
-        case ENScnModelDrawCmdType_i3:
-            if(obj->verts.v3.ptr != NULL){
-                SCN_ASSERT(!ScnVertexbuffs_isNull(obj->vbuffs))
-                if(!ScnVertexbuffs_isNull(obj->vbuffs)){
-                    ScnVertexbuffs_v3Free(obj->vbuffs, obj->verts.v3);
-                }
-                obj->verts.v3 = (STScnVertexTex3Ptr)STScnVertexTex3Ptr_Zero;
-            }
-            if(obj->idxs.i3.ptr != NULL){
-                SCN_ASSERT(!ScnVertexbuffs_isNull(obj->vbuffs))
-                if(!ScnVertexbuffs_isNull(obj->vbuffs)){
-                    ScnVertexbuffs_v3IdxsFree(obj->vbuffs, obj->idxs.i3);
-                }
-                obj->idxs.i3 = (STScnVertexIdxPtr)STScnVertexIdxPtr_Zero;
-            }
-            break;
-        default:
-            SCN_ASSERT(obj->verts.count == 0 && obj->verts.v0.ptr == NULL && obj->verts.v0.idx == 0 && obj->idxs.count == 0 && obj->idxs.i0.ptr == NULL && obj->idxs.i0.idx == 0)
-            break;
-    }
-    //texs
-    {
-        ScnGpuTexture_releaseAndNullify(&obj->texs.t0);
-        ScnGpuTexture_releaseAndNullify(&obj->texs.t1);
-        ScnGpuTexture_releaseAndNullify(&obj->texs.t2);
-    }
-    //vbuffs
-    ScnVertexbuffs_releaseAndNullify(&obj->vbuffs);
-}

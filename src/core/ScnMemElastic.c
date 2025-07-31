@@ -21,10 +21,10 @@ typedef struct STScnMemElasticState_ {
 #define STScnMemElasticBlock_Zero  { 0, 0, 0, ScnObjRef_Zero }
 
 typedef struct STScnMemElasticBlock_ {
-    ScnUI32             iOffset;    //idx-at-block + iOffset = abstract-idx-at-blocks
-    ScnUI32             idxsSz;     //ammount of addreses from idx-0
-    ScnUI32             szSmallestMallocFailed; //for 'ScnMemBlock_malloc' quick-ignores
-    ScnMemBlockRef    block;      //memory data
+    ScnUI32         iOffset;    //idx-at-block + iOffset = abstract-idx-at-blocks
+    ScnUI32         idxsSz;     //ammount of addreses from idx-0
+    ScnUI32         szSmallestMallocFailed; //for 'ScnMemBlock_malloc' quick-ignores
+    ScnMemBlockRef  block;      //memory data
 } STScnMemElasticBlock;
 
 //STScnMemElasticOpq
@@ -219,9 +219,7 @@ STScnAbsPtr ScnMemElastic_malloc(ScnMemElasticRef ref, const ScnUI32 usableSz, S
         STScnMemElasticBlock* b = opq->blocks.arr;
         const STScnMemElasticBlock* bAfterEnd = b + opq->blocks.use;
         while(b < bAfterEnd){
-            if(b->szSmallestMallocFailed <= usableSz){
-                //skip, already failed to allocate
-            } else {
+            if(b->szSmallestMallocFailed == 0 || usableSz < b->szSmallestMallocFailed){ //skip, already failed to allocate
                 //try to allocate
                 r = ScnMemBlock_malloc(b->block, usableSz);
                 if(r.ptr == NULL){

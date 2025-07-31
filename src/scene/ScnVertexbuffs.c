@@ -93,6 +93,11 @@ ScnBOOL ScnVertexbuffs_prepare(ScnVertexbuffsRef ref, const ScnVertexbuffRef* vB
     return r;
 }
 
+ScnVertexbuffRef ScnVertexbuffs_getVertexBuff(ScnVertexbuffsRef ref, const ENScnVertexType type){
+    STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    return (type >= 0 && type < ENScnVertexType_Count ? opq->vBuffs[type] : (ScnVertexbuffRef)ScnObjRef_Zero);
+}
+
 #define ScnVertexbuffs_vNAlloc(V_IDX, PT_CAST_TYPE, GET_BUFF_METHOD)  \
     STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)ScnSharedPtr_getOpq(ref.ptr); \
     ScnMutex_lock(opq->mutex); \

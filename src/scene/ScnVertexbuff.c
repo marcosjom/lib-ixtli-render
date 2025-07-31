@@ -20,15 +20,15 @@ void ScnVertexbuffSlot_destroy(STScnVertexbuffSlot* opq);
 //STScnVertexbuffOpq
 
 typedef struct STScnVertexbuffOpq_ {
-    ScnContextRef         ctx;
-    ScnMutexRef           mutex;
+    ScnContextRef           ctx;
+    ScnMutexRef             mutex;
     //
     STScnGpuVertexbuffCfg   cfg;    //config
-    ScnGpuDeviceRef       gpuDev;
+    ScnGpuDeviceRef         gpuDev;
     //buffs
     struct {
-        ScnBufferRef      vertex;
-        ScnBufferRef      idxs;
+        ScnBufferRef        vertex;
+        ScnBufferRef        idxs;
     } buffs;
     //slots (render)
     struct {

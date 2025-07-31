@@ -73,6 +73,8 @@ SCN_REF_STRUCT_METHODS_DEC(ScnVertexbuffs)
 
 ScnBOOL         ScnVertexbuffs_prepare(ScnVertexbuffsRef ref, const ScnVertexbuffRef* vBuffs, const ScnUI32 vBuffsSz);
 
+ScnVertexbuffRef ScnVertexbuffs_getVertexBuff(ScnVertexbuffsRef ref, const ENScnVertexType type);
+
 //ENScnVertexType_Color //no texture
 
 STScnVertexPtr  ScnVertexbuffs_v0Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm);

@@ -12,15 +12,15 @@
 //STScnBufferSlot
 
 typedef struct STScnBufferSlot_ {
-    ScnContextRef     ctx;
-    ScnGpuBufferRef   gpuBuff;
+    ScnContextRef   ctx;
+    ScnGpuBufferRef gpuBuff;
     //state
     struct {
-        ScnUI32         totalSzLast;
+        ScnUI32     totalSzLast;
     } state;
     //changes
     struct {
-        ScnBOOL         size;   //buffer size changed
+        ScnBOOL     size;   //buffer size changed
         ScnArraySortedStruct(rngs, STScnRangeU);
     } changes;
 } STScnBufferSlot;
@@ -31,12 +31,12 @@ void ScnBufferSlot_destroy(STScnBufferSlot* opq);
 //STScnBufferOpq
 
 typedef struct STScnBufferOpq_ {
-    ScnContextRef     ctx;
-    ScnMutexRef       mutex;
+    ScnContextRef       ctx;
+    ScnMutexRef         mutex;
     //
     STScnGpuBufferCfg   cfg;    //config
-    ScnMemElasticRef  mem;    //memory
-    ScnGpuDeviceRef   gpuDev;
+    ScnMemElasticRef    mem;    //memory
+    ScnGpuDeviceRef     gpuDev;
     //state
     struct {
         ScnUI32         totalSzLast;
@@ -48,10 +48,10 @@ typedef struct STScnBufferOpq_ {
     } changes;
     //slots (render)
     struct {
-        STScnBufferSlot*    arr;
-        ScnUI16             use;
-        ScnUI16             sz;
-        ScnUI16             iCur;
+        STScnBufferSlot* arr;
+        ScnUI16         use;
+        ScnUI16         sz;
+        ScnUI16         iCur;
     } slots;
 } STScnBufferOpq;
 

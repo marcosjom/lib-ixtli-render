@@ -29,31 +29,31 @@ SCN_REF_STRUCT_METHODS_DEC(ScnModel)
 
 //
 
-ScnBOOL         ScnModel_setVertexBuffs(ScnModelRef ref, ScnVertexbuffsRef vbuffs);
+ScnBOOL             ScnModel_setVertexBuffs(ScnModelRef ref, ScnVertexbuffsRef vbuffs);
 
 //props
 
-STScnModelProps ScnModel_getProps(ScnModelRef ref);
+STScnModelProps     ScnModel_getProps(ScnModelRef ref);
 
 //color
 
-STScnColor8     ScnModel_getColor8(ScnModelRef ref);
-void            ScnModel_setColor8(ScnModelRef ref, const STScnColor8 color);
-void            ScnModel_setColorRGBA8(ScnModelRef ref, const ScnUI8 r, const ScnUI8 g, const ScnUI8 b, const ScnUI8 a);
+STScnColor8         ScnModel_getColor8(ScnModelRef ref);
+void                ScnModel_setColor8(ScnModelRef ref, const STScnColor8 color);
+void                ScnModel_setColorRGBA8(ScnModelRef ref, const ScnUI8 r, const ScnUI8 g, const ScnUI8 b, const ScnUI8 a);
 
 //transform
 
-STScnTransform  ScnModel_getTransform(ScnModelRef ref);
-STScnPoint      ScnModel_getTranslate(ScnModelRef ref);
-STScnSize       ScnModel_getScale(ScnModelRef ref);
-ScnFLOAT        ScnModel_getRotDeg(ScnModelRef ref);
-ScnFLOAT        ScnModel_getRotRad(ScnModelRef ref);
-void            ScnModel_setTranslate(ScnModelRef ref, const STScnPoint pos);
-void            ScnModel_setTranslateXY(ScnModelRef ref, const ScnFLOAT x, const ScnFLOAT y);
-void            ScnModel_setScale(ScnModelRef ref, const STScnSize s);
-void            ScnModel_setScaleWH(ScnModelRef ref, const ScnFLOAT sw, const ScnFLOAT sh);
-void            ScnModel_setRotDeg(ScnModelRef ref, const ScnFLOAT deg);
-void            ScnModel_setRotRad(ScnModelRef ref, const ScnFLOAT rad);
+STScnTransform      ScnModel_getTransform(ScnModelRef ref);
+STScnPoint          ScnModel_getTranslate(ScnModelRef ref);
+STScnSize           ScnModel_getScale(ScnModelRef ref);
+ScnFLOAT            ScnModel_getRotDeg(ScnModelRef ref);
+ScnFLOAT            ScnModel_getRotRad(ScnModelRef ref);
+void                ScnModel_setTranslate(ScnModelRef ref, const STScnPoint pos);
+void                ScnModel_setTranslateXY(ScnModelRef ref, const ScnFLOAT x, const ScnFLOAT y);
+void                ScnModel_setScale(ScnModelRef ref, const STScnSize s);
+void                ScnModel_setScaleWH(ScnModelRef ref, const ScnFLOAT sw, const ScnFLOAT sh);
+void                ScnModel_setRotDeg(ScnModelRef ref, const ScnFLOAT deg);
+void                ScnModel_setRotRad(ScnModelRef ref, const ScnFLOAT rad);
 
 //draw commands
 
@@ -68,6 +68,10 @@ STScnVertexIdxPtr   ScnModel_addDrawIndexed(ScnModelRef ref, const ENScnRenderSh
 STScnVertexIdxPtr   ScnModel_addDrawIndexedTex(ScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, ScnGpuTextureRef t0, const ScnUI32 countVerts, STScnVertexTexPtr* dstVerts);
 STScnVertexIdxPtr   ScnModel_addDrawIndexedTex2(ScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, ScnGpuTextureRef t0, ScnGpuTextureRef t1, const ScnUI32 countVerts, STScnVertexTex2Ptr* dstVerts);
 STScnVertexIdxPtr   ScnModel_addDrawIndexedTex3(ScnModelRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, ScnGpuTextureRef t0, ScnGpuTextureRef t1, ScnGpuTextureRef t2, const ScnUI32 countVerts, STScnVertexTex3Ptr* dstVerts);
+
+//draw commands to consumer
+
+ScnBOOL             ScnModel_sendRenderCmds(ScnModelRef ref, STScnModelPushItf* itf, void* itfParam);
 
 #ifdef __cplusplus
 } //extern "C"

@@ -47,8 +47,8 @@ ScnBOOL     ScnBuffer_mfree(ScnBufferRef ref, const STScnAbsPtr ptr);
 ScnBOOL     ScnBuffer_mInvalidate(ScnBufferRef ref, const STScnAbsPtr ptr, const ScnUI32 sz);
 
 //gpu-buffer
-ScnBOOL             ScnBuffer_prepareNextRenderSlot(ScnBufferRef ref, ScnBOOL* dstHasPtrs);
-ScnGpuBufferRef   ScnBuffer_getCurrentRenderSlotGpuBuffer(ScnBufferRef ref);
+ScnBOOL         ScnBuffer_prepareNextRenderSlot(ScnBufferRef ref, ScnBOOL* dstHasPtrs);
+ScnGpuBufferRef ScnBuffer_getCurrentRenderSlotGpuBuffer(ScnBufferRef ref);
 
 #ifdef __cplusplus
 } //extern "C"
