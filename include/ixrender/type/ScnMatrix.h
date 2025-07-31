@@ -5,8 +5,8 @@
 //  Created by Marcos Ortega on 30/7/25.
 //
 
-#ifndef ScnMatrix_h
-#define ScnMatrix_h
+#ifndef ScnMatrix2D_h
+#define ScnMatrix2D_h
 
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/type/ScnPoint.h"
@@ -22,10 +22,10 @@
 extern "C" {
 #endif
 
-#define STScnMatrix_Zero        { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f }
-#define STScnMatrix_Identity    { 1.f, 0.f, 0.f, 0.f, 1.f, 0.f }
+#define STScnMatrix2D_Zero        { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f }
+#define STScnMatrix2D_Identity    { 1.f, 0.f, 0.f, 0.f, 1.f, 0.f }
 
-typedef struct STScnMatrix_ {
+typedef struct STScnMatrix2D_ {
     union {
         struct {
             //row 0
@@ -63,23 +63,23 @@ typedef struct STScnMatrix_ {
     ScnFLOAT    y;
     ScnFLOAT    width;
     ScnFLOAT    height;
-} STScnMatrix;
+} STScnMatrix2D;
 
 //Transform
 
-SC_INLN void ScnMatrix_translate(STScnMatrix* obj, const STScnPoint t){
+SC_INLN void ScnMatrix2D_translate(STScnMatrix2D* obj, const STScnPoint2D t){
     obj->e02 = (obj->e00 * t.x) + (obj->e01 * t.y) + obj->e02;
     obj->e12 = (obj->e10 * t.x) + (obj->e11 * t.y) + obj->e12;
 }
 
-SC_INLN void ScnMatrix_scale(STScnMatrix* obj, const STScnSize s){
+SC_INLN void ScnMatrix2D_scale(STScnMatrix2D* obj, const STScnSize2D s){
     obj->e00 *= (s.width);
     obj->e10 *= (s.width);
     obj->e01 *= (s.height);
     obj->e11 *= (s.height);
 }
 
-SC_INLN void ScnMatrix_rotateRad(STScnMatrix* obj, const float rad){
+SC_INLN void ScnMatrix2D_rotateRad(STScnMatrix2D* obj, const float rad){
     const float vSin    = sin(rad);
     const float vCos    = cos(rad);
     const float e00     = obj->e00;
@@ -90,7 +90,7 @@ SC_INLN void ScnMatrix_rotateRad(STScnMatrix* obj, const float rad){
     obj->e11    = (e10 * -vSin) + (obj->e11 * vCos);
 }
 
-SC_INLN void ScnMatrix_rotateDeg(STScnMatrix* obj, const float deg){
+SC_INLN void ScnMatrix2D_rotateDeg(STScnMatrix2D* obj, const float deg){
     const float rad     = DEG_2_RAD(deg);
     const float vSin    = sin(rad);
     const float vCos    = cos(rad);
@@ -102,8 +102,8 @@ SC_INLN void ScnMatrix_rotateDeg(STScnMatrix* obj, const float deg){
     obj->e11    = (e10 * -vSin) + (obj->e11 * vCos);
 }
 
-SC_INLN STScnMatrix ScnMatrix_multiply(const STScnMatrix* obj, const STScnMatrix* other){
-    return (STScnMatrix){
+SC_INLN STScnMatrix2D ScnMatrix2D_multiply(const STScnMatrix2D* obj, const STScnMatrix2D* other){
+    return (STScnMatrix2D){
         //row 0
         (obj->e00 * other->e00) + (obj->e01 * other->e10) /*allways zero: + (obj->e02 * other->e20)*/
         , (obj->e00 * other->e01) + (obj->e01 * other->e11) /*allways zero: + (obj->e02 * other->e21)*/
@@ -117,15 +117,15 @@ SC_INLN STScnMatrix ScnMatrix_multiply(const STScnMatrix* obj, const STScnMatrix
 
 //Calculate
 
-SC_INLN float ScnMatrix_determinant(const STScnMatrix* obj){
+SC_INLN float ScnMatrix2D_determinant(const STScnMatrix2D* obj){
     return ((obj->e00 * obj->e11) - (obj->e01 * obj->e10)); /*only 6 elems matrix*/
 }
 
-SC_INLN STScnMatrix ScnMatrix_inverse(const STScnMatrix* obj){
+SC_INLN STScnMatrix2D ScnMatrix2D_inverse(const STScnMatrix2D* obj){
     const float vDet = ((obj->e00 * obj->e11) - (obj->e01 * obj->e10));
     //NBASSERT(vDet != 0.0f && vDet != -0.0f) NBASSERT(vDet == vDet)
     if (vDet != 0.0f && vDet != -0.0f && vDet == vDet) {
-        return (STScnMatrix){
+        return (STScnMatrix2D){
             //row 0
             ((obj->e11 /** obj->e22*/) /*- (obj->e21 * obj->e12) always zero*/) / vDet
             , (/*(obj->e02 * obj->e21) always zero*/0.0f - (/*obj->e22 **/ obj->e01)) / vDet
@@ -140,13 +140,13 @@ SC_INLN STScnMatrix ScnMatrix_inverse(const STScnMatrix* obj){
             //, ((obj->e00 * obj->e11) - (obj->e10 * obj->e01)) / vDet;
         };
     }
-    return (STScnMatrix)STScnMatrix_Zero;
+    return (STScnMatrix2D)STScnMatrix2D_Zero;
 }
 
-SC_INLN STScnMatrix ScnMatrix_fromTransforms(const STScnPoint traslation, const float radRot, const STScnSize scale){
+SC_INLN STScnMatrix2D ScnMatrix2D_fromTransforms(const STScnPoint2D traslation, const float radRot, const STScnSize2D scale){
     const float vSin = sin(radRot);
     const float vCos = cos(radRot);
-    return (STScnMatrix) {
+    return (STScnMatrix2D) {
         vCos * scale.width, -vSin * scale.height, traslation.x
         , vSin * scale.width, vCos * scale.height, traslation.y
     };
@@ -154,8 +154,8 @@ SC_INLN STScnMatrix ScnMatrix_fromTransforms(const STScnPoint traslation, const 
 
 //Apply
 
-SC_INLN STScnPoint ScnMatrix_applyToPoint(const STScnMatrix* obj, const STScnPoint p){
-    return (STScnPoint) {
+SC_INLN STScnPoint2D ScnMatrix2D_applyToPoint(const STScnMatrix2D* obj, const STScnPoint2D p){
+    return (STScnPoint2D) {
         (obj->e00 * p.x) + (obj->e01 * p.y) + obj->e02
         , (obj->e10 * p.x) + (obj->e11 * p.y) + obj->e12
     };
@@ -165,4 +165,4 @@ SC_INLN STScnPoint ScnMatrix_applyToPoint(const STScnMatrix* obj, const STScnPoi
 } //extern "C"
 #endif
 
-#endif /* ScnMatrix_h */
+#endif /* ScnMatrix2D_h */

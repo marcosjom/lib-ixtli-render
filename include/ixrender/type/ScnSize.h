@@ -15,44 +15,39 @@
 extern "C" {
 #endif
 
-#define STScnSize_Zero { 0.f, 0.f }
+#define STScnSize2D_Zero { 0.f, 0.f }
 
-typedef struct STScnSize_ {
+typedef struct STScnSize2D_ {
     ScnFLOAT    width;
     ScnFLOAT    height;
-} STScnSize;
+} STScnSize2D;
 
 //
 
-#define STScnSizeI_Zero { 0, 0 }
+#define STScnSize2DI_Zero { 0, 0 }
 
-typedef struct STScnSizeI_ {
+typedef struct STScnSize2DI_ {
     ScnSI32    width;
     ScnSI32    height;
-} STScnSizeI;
+} STScnSize2DI;
 
 //
 
-#define STScnSizeU_Zero { 0u, 0u }
+#define STScnSize2DU_Zero { 0u, 0u }
 
-typedef struct STScnSizeU_ {
+typedef struct STScnSize2DU_ {
     ScnUI32    width;
     ScnUI32    height;
-} STScnSizeU;
+} STScnSize2DU;
 
 //
 
-#define STScnSizeI16_Zero { 0, 0 }
+#define STScnSize2DI16_Zero { 0, 0 }
 
-typedef struct STScnSizeI16_ {
+typedef struct STScnSize2DI16_ {
     ScnSI16    width;
     ScnSI16    height;
-} STScnSizeI16;
-
-//
-
-ScnBOOL ScnCompare_NBSize(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz);
-
+} STScnSize2DI16;
 
 #ifdef __cplusplus
 } //extern "C"

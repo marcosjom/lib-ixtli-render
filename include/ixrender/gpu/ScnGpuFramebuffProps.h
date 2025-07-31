@@ -15,12 +15,12 @@
 extern "C" {
 #endif
 
-//STScnModelProps
+//STScnModelProps2D
 
-#define STScnGpuFramebufferProps_Zero        { STScnSizeU_Zero, STScnRectU_Zero }
+#define STScnGpuFramebufferProps_Zero        { STScnSize2DU_Zero, STScnRectU_Zero }
 
 typedef struct STScnGpuFramebufferProps_ {
-    STScnSizeU      size;       //buffe 2D size
+    STScnSize2DU      size;       //buffe 2D size
     STScnRectU      viewport;   //render viewport
 } STScnGpuFramebufferProps;
 

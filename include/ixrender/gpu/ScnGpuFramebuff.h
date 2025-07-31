@@ -46,8 +46,8 @@ typedef struct STScnGpuFramebuffChanges_ {
 typedef struct STScnGpuFramebuffApiItf_ {
     void        (*free)(void* data);
     //
-    STScnSizeU  (*getSize)(void* data, STScnRectU* dstViewport);
-    ScnBOOL     (*syncSizeAndViewport)(void* data, const STScnSizeU size, const STScnRectU viewport);
+    STScnSize2DU  (*getSize)(void* data, STScnRectU* dstViewport);
+    ScnBOOL     (*syncSizeAndViewport)(void* data, const STScnSize2DU size, const STScnRectU viewport);
 } STScnGpuFramebuffApiItf;
 
 
@@ -59,8 +59,8 @@ SCN_REF_STRUCT_METHODS_DEC(ScnGpuFramebuff)
 
 ScnBOOL     ScnGpuFramebuff_prepare(ScnGpuFramebuffRef ref, const STScnGpuFramebuffApiItf* itf, void* itfParam);
 
-STScnSizeU  ScnGpuFramebuff_getSize(ScnGpuFramebuffRef ref, STScnRectU* dstViewport);
-ScnBOOL     ScnGpuFramebuff_syncSizeAndViewport(ScnGpuFramebuffRef ref, const STScnSizeU size, const STScnRectU viewport);
+STScnSize2DU  ScnGpuFramebuff_getSize(ScnGpuFramebuffRef ref, STScnRectU* dstViewport);
+ScnBOOL     ScnGpuFramebuff_syncSizeAndViewport(ScnGpuFramebuffRef ref, const STScnSize2DU size, const STScnRectU viewport);
 
 #ifdef __cplusplus
 } //extern "C"

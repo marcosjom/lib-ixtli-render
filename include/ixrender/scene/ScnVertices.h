@@ -19,10 +19,10 @@ extern "C" {
 //ENScnVertexType
 
 typedef enum ENScnVertexType_ {
-    ENScnVertexType_Color = 0,    //no texture
-    ENScnVertexType_Tex,          //one texture
-    ENScnVertexType_Tex2,         //two textures
-    ENScnVertexType_Tex3,         //three textures
+    ENScnVertexType_2DColor = 0,    //2D, no texture
+    ENScnVertexType_2DTex,          //2D, one texture
+    ENScnVertexType_2DTex2,         //2D, two textures
+    ENScnVertexType_2DTex3,         //2D, three textures
     //
     ENScnVertexType_Count
 } ENScnVertexType;
@@ -43,202 +43,202 @@ typedef struct STScnVertexIdx_ {
 } STScnVertexIdx;
 
 //-------------------
-//-- STScnVertex
+//-- STScnVertex2D
 //-------------------
 
 //These MACROs are useful for shader code.
-#define ScnVertex_IDX_x         0u
-#define ScnVertex_IDX_y         4u
-#define ScnVertex_IDX_color     8u
-#define ScnVertex_SZ            12u
+#define ScnVertex2D_IDX_x         0u
+#define ScnVertex2D_IDX_y         4u
+#define ScnVertex2D_IDX_color     8u
+#define ScnVertex2D_SZ            12u
 
-#define STScnVertex_Zero     { 0.f, 0.f, STScnColor8_Zero }
+#define STScnVertex2D_Zero     { 0.f, 0.f, STScnColor8_Zero }
 
 //Vertex without texture
-typedef struct STScnVertex_ {
-    ScnFLOAT    x;
-    ScnFLOAT    y;
-    STScnColor8 color;
-} STScnVertex;
+typedef struct STScnVertex2D_ {
+    ScnFLOAT        x;
+    ScnFLOAT        y;
+    STScnColor8     color;
+} STScnVertex2D;
 
 //--------------------
-//-- STScnVertexTex
+//-- STScnVertex2DTex
 //--------------------
 
 //These MACROs are useful for shader code.
-#define ScnVertexTex_IDX_x      0u
-#define ScnVertexTex_IDX_y      4u
-#define ScnVertexTex_IDX_color  8u
-#define ScnVertexTex_IDX_tex_x  12u
-#define ScnVertexTex_IDX_tex_y  16u
-#define ScnVertexTex_SZ         20u
+#define ScnVertex2DTex_IDX_x      0u
+#define ScnVertex2DTex_IDX_y      4u
+#define ScnVertex2DTex_IDX_color  8u
+#define ScnVertex2DTex_IDX_tex_x  12u
+#define ScnVertex2DTex_IDX_tex_y  16u
+#define ScnVertex2DTex_SZ         20u
 
-#define STScnVertexTex_Zero     { 0.f, 0.f, STScnColor8_Zero, STScnPoint_Zero }
+#define STScnVertex2DTex_Zero     { 0.f, 0.f, STScnColor8_Zero, STScnPoint2D_Zero }
 
 //Vertex with one texture
-typedef struct STScnVertexTex_ {
-    ScnFLOAT    x;
-    ScnFLOAT    y;
-    STScnColor8 color;
-    STScnPoint  tex;
-} STScnVertexTex;
+typedef struct STScnVertex2DTex_ {
+    ScnFLOAT        x;
+    ScnFLOAT        y;
+    STScnColor8     color;
+    STScnPoint2D    tex;
+} STScnVertex2DTex;
 
 
 //--------------------
-//-- STScnVertexTex2
+//-- STScnVertex2DTex2
 //--------------------
 
 //These MACROs are useful for shader code.
-#define ScnVertexTex2_IDX_x       0u
-#define ScnVertexTex2_IDX_y       4u
-#define ScnVertexTex2_IDX_color   8u
-#define ScnVertexTex2_IDX_tex_x   12u
-#define ScnVertexTex2_IDX_tex_y   16u
-#define ScnVertexTex2_IDX_tex2_x  20u
-#define ScnVertexTex2_IDX_tex2_y  24u
-#define ScnVertexTex2_SZ          28u
+#define ScnVertex2DTex2_IDX_x       0u
+#define ScnVertex2DTex2_IDX_y       4u
+#define ScnVertex2DTex2_IDX_color   8u
+#define ScnVertex2DTex2_IDX_tex_x   12u
+#define ScnVertex2DTex2_IDX_tex_y   16u
+#define ScnVertex2DTex2_IDX_tex2_x  20u
+#define ScnVertex2DTex2_IDX_tex2_y  24u
+#define ScnVertex2DTex2_SZ          28u
 
-#define STScnVertexTex2_Zero     { 0.f, 0.f, STScnColor8_Zero, STScnPoint_Zero, STScnPoint_Zero }
+#define STScnVertex2DTex2_Zero     { 0.f, 0.f, STScnColor8_Zero, STScnPoint2D_Zero, STScnPoint2D_Zero }
 
 //Vertex with 2 textures
-typedef struct STScnVertexTex2_ {
-    ScnFLOAT    x;
-    ScnFLOAT    y;
-    STScnColor8 color;
-    STScnPoint  tex;
-    STScnPoint  tex2;
-} STScnVertexTex2;
+typedef struct STScnVertex2DTex2_ {
+    ScnFLOAT        x;
+    ScnFLOAT        y;
+    STScnColor8     color;
+    STScnPoint2D    tex;
+    STScnPoint2D    tex2;
+} STScnVertex2DTex2;
 
 //--------------------
-//-- STScnVertexTex3
+//-- STScnVertex2DTex3
 //--------------------
 
 //These MACROs are useful for shader code.
-#define ScnVertexTex3_IDX_x         0u
-#define ScnVertexTex3_IDX_y         4u
-#define ScnVertexTex3_IDX_color     8u
-#define ScnVertexTex3_IDX_tex_x     12u
-#define ScnVertexTex3_IDX_tex_y     16u
-#define ScnVertexTex3_IDX_tex2_x    20u
-#define ScnVertexTex3_IDX_tex2_y    24u
-#define ScnVertexTex3_IDX_tex3_x    28u
-#define ScnVertexTex3_IDX_tex3_y    32u
-#define ScnVertexTex3_SZ            36u
+#define ScnVertex2DTex3_IDX_x         0u
+#define ScnVertex2DTex3_IDX_y         4u
+#define ScnVertex2DTex3_IDX_color     8u
+#define ScnVertex2DTex3_IDX_tex_x     12u
+#define ScnVertex2DTex3_IDX_tex_y     16u
+#define ScnVertex2DTex3_IDX_tex2_x    20u
+#define ScnVertex2DTex3_IDX_tex2_y    24u
+#define ScnVertex2DTex3_IDX_tex3_x    28u
+#define ScnVertex2DTex3_IDX_tex3_y    32u
+#define ScnVertex2DTex3_SZ            36u
 
-#define STScnVertexTex3_Zero     { 0.f, 0.f, STScnColor8_Zero, STScnPoint_Zero, STScnPoint_Zero, STScnPoint_Zero }
+#define STScnVertex2DTex3_Zero     { 0.f, 0.f, STScnColor8_Zero, STScnPoint2D_Zero, STScnPoint2D_Zero, STScnPoint2D_Zero }
 
 //Vertex with 3 textures
-typedef struct STScnVertexTex3_ {
-    ScnFLOAT    x;
-    ScnFLOAT    y;
-    STScnColor8 color;
-    STScnPoint  tex;
-    STScnPoint  tex2;
-    STScnPoint  tex3;
-} STScnVertexTex3;
+typedef struct STScnVertex2DTex3_ {
+    ScnFLOAT        x;
+    ScnFLOAT        y;
+    STScnColor8     color;
+    STScnPoint2D    tex;
+    STScnPoint2D    tex2;
+    STScnPoint2D    tex3;
+} STScnVertex2DTex3;
 
 
 //
 
 //-------------------
-//-- STScnVertexF
+//-- STScnVertex2DF
 //-------------------
 
 //These MACROs are useful for shader code.
-#define ScnVertexF_IDX_x        0u
-#define ScnVertexF_IDX_y        4u
-#define ScnVertexF_IDX_color_r  8u
-#define ScnVertexF_IDX_color_g  12u
-#define ScnVertexF_IDX_color_b  16u
-#define ScnVertexF_IDX_color_a  20u
-#define ScnVertexF_SZ           24u
+#define ScnVertex2DF_IDX_x        0u
+#define ScnVertex2DF_IDX_y        4u
+#define ScnVertex2DF_IDX_color_r  8u
+#define ScnVertex2DF_IDX_color_g  12u
+#define ScnVertex2DF_IDX_color_b  16u
+#define ScnVertex2DF_IDX_color_a  20u
+#define ScnVertex2DF_SZ           24u
 
 //Vertex without texture
-typedef struct STScnVertexF_ {
-    ScnFLOAT    x;
-    ScnFLOAT    y;
-    STScnColor  color;
-} STScnVertexF;
+typedef struct STScnVertex2DF_ {
+    ScnFLOAT        x;
+    ScnFLOAT        y;
+    STScnColor      color;
+} STScnVertex2DF;
 
 //--------------------
-//-- STScnVertexTexF
+//-- STScnVertex2DTexF
 //--------------------
 //
 //These MACROs are useful for shader code.
-#define ScnVertexTexF_IDX_x         0u
-#define ScnVertexTexF_IDX_y         4u
-#define ScnVertexTexF_IDX_color_r   8u
-#define ScnVertexTexF_IDX_color_g   12u
-#define ScnVertexTexF_IDX_color_b   16u
-#define ScnVertexTexF_IDX_color_a   20u
-#define ScnVertexTexF_IDX_tex_x     24u
-#define ScnVertexTexF_IDX_tex_y     28u
-#define ScnVertexTexF_SZ            32u
+#define ScnVertex2DTexF_IDX_x         0u
+#define ScnVertex2DTexF_IDX_y         4u
+#define ScnVertex2DTexF_IDX_color_r   8u
+#define ScnVertex2DTexF_IDX_color_g   12u
+#define ScnVertex2DTexF_IDX_color_b   16u
+#define ScnVertex2DTexF_IDX_color_a   20u
+#define ScnVertex2DTexF_IDX_tex_x     24u
+#define ScnVertex2DTexF_IDX_tex_y     28u
+#define ScnVertex2DTexF_SZ            32u
 
 //Vertex with one texture
-typedef struct STScnVertexTexF_ {
-    ScnFLOAT    x;
-    ScnFLOAT    y;
-    STScnColor  color;
-    STScnPoint  tex;
-} STScnVertexTexF;
+typedef struct STScnVertex2DTexF_ {
+    ScnFLOAT        x;
+    ScnFLOAT        y;
+    STScnColor      color;
+    STScnPoint2D  tex;
+} STScnVertex2DTexF;
 
 
 //--------------------
-//-- STScnVertexTex2F
+//-- STScnVertex2DTex2F
 //--------------------
 
 //These MACROs are useful for shader code.
-#define ScnVertexTex2F_IDX_x        0u
-#define ScnVertexTex2F_IDX_y        4u
-#define ScnVertexTex2F_IDX_color_r  8u
-#define ScnVertexTex2F_IDX_color_g  12u
-#define ScnVertexTex2F_IDX_color_b  16u
-#define ScnVertexTex2F_IDX_color_a  20u
-#define ScnVertexTex2F_IDX_tex_x    24u
-#define ScnVertexTex2F_IDX_tex_y    28u
-#define ScnVertexTex2F_IDX_tex2_x   32u
-#define ScnVertexTex2F_IDX_tex2_y   36u
-#define ScnVertexTex2F_SZ           40u
+#define ScnVertex2DTex2F_IDX_x        0u
+#define ScnVertex2DTex2F_IDX_y        4u
+#define ScnVertex2DTex2F_IDX_color_r  8u
+#define ScnVertex2DTex2F_IDX_color_g  12u
+#define ScnVertex2DTex2F_IDX_color_b  16u
+#define ScnVertex2DTex2F_IDX_color_a  20u
+#define ScnVertex2DTex2F_IDX_tex_x    24u
+#define ScnVertex2DTex2F_IDX_tex_y    28u
+#define ScnVertex2DTex2F_IDX_tex2_x   32u
+#define ScnVertex2DTex2F_IDX_tex2_y   36u
+#define ScnVertex2DTex2F_SZ           40u
 
 //Vertex with 2 textures
-typedef struct STScnVertexTex2F_ {
-    ScnFLOAT    x;
-    ScnFLOAT    y;
-    STScnColor  color;
-    STScnPoint  tex;
-    STScnPoint  tex2;
-} STScnVertexTex2F;
+typedef struct STScnVertex2DTex2F_ {
+    ScnFLOAT        x;
+    ScnFLOAT        y;
+    STScnColor      color;
+    STScnPoint2D    tex;
+    STScnPoint2D    tex2;
+} STScnVertex2DTex2F;
 
 
 //--------------------
-//-- STScnVertexTex3F
+//-- STScnVertex2DTex3F
 //--------------------
 
 //These MACROs are useful for shader code.
-#define ScnVertexTex3F_IDX_x        0u
-#define ScnVertexTex3F_IDX_y        4u
-#define ScnVertexTex3F_IDX_color_r  8u
-#define ScnVertexTex3F_IDX_color_g  12u
-#define ScnVertexTex3F_IDX_color_b  16u
-#define ScnVertexTex3F_IDX_color_a  20u
-#define ScnVertexTex3F_IDX_tex_x    24u
-#define ScnVertexTex3F_IDX_tex_y    28u
-#define ScnVertexTex3F_IDX_tex2_x   32u
-#define ScnVertexTex3F_IDX_tex2_y   36u
-#define ScnVertexTex3F_IDX_tex3_x   40u
-#define ScnVertexTex3F_IDX_tex3_y   44u
-#define ScnVertexTex3F_SZ           48u
+#define ScnVertex2DTex3F_IDX_x        0u
+#define ScnVertex2DTex3F_IDX_y        4u
+#define ScnVertex2DTex3F_IDX_color_r  8u
+#define ScnVertex2DTex3F_IDX_color_g  12u
+#define ScnVertex2DTex3F_IDX_color_b  16u
+#define ScnVertex2DTex3F_IDX_color_a  20u
+#define ScnVertex2DTex3F_IDX_tex_x    24u
+#define ScnVertex2DTex3F_IDX_tex_y    28u
+#define ScnVertex2DTex3F_IDX_tex2_x   32u
+#define ScnVertex2DTex3F_IDX_tex2_y   36u
+#define ScnVertex2DTex3F_IDX_tex3_x   40u
+#define ScnVertex2DTex3F_IDX_tex3_y   44u
+#define ScnVertex2DTex3F_SZ           48u
 
 //Vertex with 3 textures
-typedef struct STScnVertexTex3F_ {
-    ScnFLOAT    x;
-    ScnFLOAT    y;
-    STScnColor  color;
-    STScnPoint  tex;
-    STScnPoint  tex2;
-    STScnPoint  tex3;
-} STScnVertexTex3F;
+typedef struct STScnVertex2DTex3F_ {
+    ScnFLOAT        x;
+    ScnFLOAT        y;
+    STScnColor      color;
+    STScnPoint2D    tex;
+    STScnPoint2D    tex2;
+    STScnPoint2D    tex3;
+} STScnVertex2DTex3F;
 
 #ifdef __cplusplus
 } //extern "C"

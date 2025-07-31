@@ -130,7 +130,7 @@ ScnBOOL ScnGpuTexture_setImage(ScnGpuTextureRef ref, const STScnBitmapProps srcP
     STScnGpuTextureOpq* opq = (STScnGpuTextureOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(opq->cfg.width == srcProps.size.width && opq->cfg.height == srcProps.size.height){
-        const STScnPointI pstPos = { 0, 0 };
+        const STScnPoint2DI pstPos = { 0, 0 };
         if(!ScnBitmap_pasteBitmapData(opq->bmp, pstPos, srcProps, srcData)){
             //error
         } else {
@@ -145,7 +145,7 @@ ScnBOOL ScnGpuTexture_setImage(ScnGpuTextureRef ref, const STScnBitmapProps srcP
     return r;
 }
 
-ScnBOOL ScnGpuTexture_setSubimage(ScnGpuTextureRef ref, const STScnPointI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData, const STScnRectI pSrcRect){
+ScnBOOL ScnGpuTexture_setSubimage(ScnGpuTextureRef ref, const STScnPoint2DI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData, const STScnRectI pSrcRect){
     ScnBOOL r = ScnFALSE;
     STScnGpuTextureOpq* opq = (STScnGpuTextureOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);

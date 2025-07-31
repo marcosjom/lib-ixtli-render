@@ -28,8 +28,8 @@ ScnBOOL     ScnFramebuff_prepare(ScnFramebuffRef ref, ScnGpuDeviceRef gpuDev);
 
 ScnBOOL     ScnFramebuff_bindToOSView(ScnFramebuffRef ref, void* mtkView);
 
-STScnSizeU  ScnFramebuff_getSize(ScnFramebuffRef ref, STScnRectU* dstViewport);
-ScnBOOL     ScnFramebuff_syncSizeAndViewport(ScnFramebuffRef ref, const STScnSizeU size, const STScnRectU viewport);
+STScnSize2DU  ScnFramebuff_getSize(ScnFramebuffRef ref, STScnRectU* dstViewport);
+ScnBOOL     ScnFramebuff_syncSizeAndViewport(ScnFramebuffRef ref, const STScnSize2DU size, const STScnRectU viewport);
 
 
 #ifdef __cplusplus

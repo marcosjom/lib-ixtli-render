@@ -90,8 +90,8 @@ ScnBOOL ScnFramebuff_bindToOSView(ScnFramebuffRef ref, void* mtkView){
 
 //
 
-STScnSizeU  ScnFramebuff_getSize(ScnFramebuffRef ref, STScnRectU* dstViewport){
-    STScnSizeU r = (STScnSizeU)STScnSizeU_Zero;
+STScnSize2DU  ScnFramebuff_getSize(ScnFramebuffRef ref, STScnRectU* dstViewport){
+    STScnSize2DU r = (STScnSize2DU)STScnSize2DU_Zero;
     STScnRectU rr = (STScnRectU)STScnRectU_Zero;
     STScnFramebuffOpq* opq = (STScnFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -103,7 +103,7 @@ STScnSizeU  ScnFramebuff_getSize(ScnFramebuffRef ref, STScnRectU* dstViewport){
     return r;
 }
 
-ScnBOOL ScnFramebuff_syncSizeAndViewport(ScnFramebuffRef ref, const STScnSizeU size, const STScnRectU viewport){
+ScnBOOL ScnFramebuff_syncSizeAndViewport(ScnFramebuffRef ref, const STScnSize2DU size, const STScnRectU viewport){
     ScnBOOL r = ScnFALSE;
     STScnFramebuffOpq* opq = (STScnFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);

@@ -85,7 +85,7 @@ SCN_REF_STRUCT_METHODS_DEC(ScnGpuTexture)
 
 ScnBOOL ScnGpuTexture_prepare(ScnGpuTextureRef ref, const STScnGpuTextureCfg* cfg, const STScnGpuTextureApiItf* itf, void* itfParam);
 ScnBOOL ScnGpuTexture_setImage(ScnGpuTextureRef ref, const STScnBitmapProps srcProps, const ScnBYTE* srcData);
-ScnBOOL ScnGpuTexture_setSubimage(ScnGpuTextureRef ref, const STScnPointI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData, const STScnRectI srcRect);
+ScnBOOL ScnGpuTexture_setSubimage(ScnGpuTextureRef ref, const STScnPoint2DI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData, const STScnRectI srcRect);
 
 
 #ifdef __cplusplus

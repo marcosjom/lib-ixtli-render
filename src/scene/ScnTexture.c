@@ -88,7 +88,7 @@ ScnBOOL ScnTexture_setImage(ScnTextureRef ref, const STScnBitmapProps srcProps, 
     STScnTextureOpq* opq = (STScnTextureOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(opq->cfg.width == srcProps.size.width && opq->cfg.height == srcProps.size.height){
-        const STScnPointI pstPos = { 0, 0 };
+        const STScnPoint2DI pstPos = { 0, 0 };
         if(!ScnBitmap_pasteBitmapData(opq->bmp, pstPos, srcProps, srcData)){
             //error
         } else {
@@ -103,7 +103,7 @@ ScnBOOL ScnTexture_setImage(ScnTextureRef ref, const STScnBitmapProps srcProps, 
     return r;
 }
 
-ScnBOOL ScnTexture_setSubimage(ScnTextureRef ref, const STScnPointI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData, const STScnRectI pSrcRect){
+ScnBOOL ScnTexture_setSubimage(ScnTextureRef ref, const STScnPoint2DI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData, const STScnRectI pSrcRect){
     ScnBOOL r = ScnFALSE;
     STScnTextureOpq* opq = (STScnTextureOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);

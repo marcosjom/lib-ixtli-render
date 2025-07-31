@@ -23,45 +23,45 @@ extern "C" {
 #define STScnVertexIdxPtr_Zero { NULL, 0 }
 
 typedef struct STScnVertexIdxPtr_ {
-    STScnVertexIdx*     ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
+    STScnVertexIdx*   ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
     ScnUI32             idx;    //abstract address
 } STScnVertexIdxPtr;
 
-//STScnVertexPtr, abstract pointer
+//STScnVertex2DPtr, abstract pointer
 
-#define STScnVertexPtr_Zero { NULL, 0 }
+#define STScnVertex2DPtr_Zero { NULL, 0 }
 
-typedef struct STScnVertexPtr_ {
-    STScnVertex*        ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
+typedef struct STScnVertex2DPtr_ {
+    STScnVertex2D*      ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
     ScnUI32             idx;    //abstract address
-} STScnVertexPtr;
+} STScnVertex2DPtr;
 
-//STScnVertexTexPtr, abstract pointer
+//STScnVertex2DTexPtr, abstract pointer
 
-#define STScnVertexTexPtr_Zero { NULL, 0 }
+#define STScnVertex2DTexPtr_Zero { NULL, 0 }
 
-typedef struct STScnVertexTexPtr_ {
-    STScnVertexTex*     ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
+typedef struct STScnVertex2DTexPtr_ {
+    STScnVertex2DTex*   ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
     ScnUI32             idx;    //abstract address
-} STScnVertexTexPtr;
+} STScnVertex2DTexPtr;
 
-//STScnVertexTex2Ptr, abstract pointer
+//STScnVertex2DTex2Ptr, abstract pointer
 
-#define STScnVertexTex2Ptr_Zero { NULL, 0 }
+#define STScnVertex2DTex2Ptr_Zero { NULL, 0 }
 
-typedef struct STScnVertexTex2Ptr_ {
-    STScnVertexTex2*    ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
+typedef struct STScnVertex2DTex2Ptr_ {
+    STScnVertex2DTex2*  ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
     ScnUI32             idx;    //abstract address
-} STScnVertexTex2Ptr;
+} STScnVertex2DTex2Ptr;
 
-//STScnVertexTex3Ptr, abstract pointer
+//STScnVertex2DTex3Ptr, abstract pointer
 
-#define STScnVertexTex3Ptr_Zero { NULL, 0 }
+#define STScnVertex2DTex3Ptr_Zero { NULL, 0 }
 
-typedef struct STScnVertexTex3Ptr_ {
-    STScnVertexTex3*    ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
+typedef struct STScnVertex2DTex3Ptr_ {
+    STScnVertex2DTex3*  ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
     ScnUI32             idx;    //abstract address
-} STScnVertexTex3Ptr;
+} STScnVertex2DTex3Ptr;
 
 //
 
@@ -75,41 +75,41 @@ ScnBOOL         ScnVertexbuffs_prepare(ScnVertexbuffsRef ref, const ScnVertexbuf
 
 ScnVertexbuffRef ScnVertexbuffs_getVertexBuff(ScnVertexbuffsRef ref, const ENScnVertexType type);
 
-//ENScnVertexType_Color //no texture
+//ENScnVertexType_2DColor //no texture
 
-STScnVertexPtr  ScnVertexbuffs_v0Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm);
-ScnBOOL         ScnVertexbuffs_v0Invalidate(ScnVertexbuffsRef ref, const STScnVertexPtr ptr, const ScnUI32 sz);
-ScnBOOL         ScnVertexbuffs_v0Free(ScnVertexbuffsRef ref, const STScnVertexPtr ptr);
+STScnVertex2DPtr ScnVertexbuffs_v0Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm);
+ScnBOOL         ScnVertexbuffs_v0Invalidate(ScnVertexbuffsRef ref, const STScnVertex2DPtr ptr, const ScnUI32 sz);
+ScnBOOL         ScnVertexbuffs_v0Free(ScnVertexbuffsRef ref, const STScnVertex2DPtr ptr);
 //
 STScnVertexIdxPtr ScnVertexbuffs_v0IdxsAlloc(ScnVertexbuffsRef ref, const ScnUI32 amm);
 ScnBOOL         ScnVertexbuffs_v0IdxsInvalidate(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz);
 ScnBOOL         ScnVertexbuffs_v0IdxsFree(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr);
 
-//ENScnVertexType_Tex  //one texture
+//ENScnVertexType_2DTex  //one texture
 
-STScnVertexTexPtr ScnVertexbuffs_v1Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm);
-ScnBOOL         ScnVertexbuffs_v1Invalidate(ScnVertexbuffsRef ref, const STScnVertexTexPtr ptr, const ScnUI32 sz);
-ScnBOOL         ScnVertexbuffs_v1Free(ScnVertexbuffsRef ref, const STScnVertexTexPtr ptr);
+STScnVertex2DTexPtr ScnVertexbuffs_v1Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm);
+ScnBOOL         ScnVertexbuffs_v1Invalidate(ScnVertexbuffsRef ref, const STScnVertex2DTexPtr ptr, const ScnUI32 sz);
+ScnBOOL         ScnVertexbuffs_v1Free(ScnVertexbuffsRef ref, const STScnVertex2DTexPtr ptr);
 //
 STScnVertexIdxPtr ScnVertexbuffs_v1IdxsAlloc(ScnVertexbuffsRef ref, const ScnUI32 amm);
 ScnBOOL         ScnVertexbuffs_v1IdxsInvalidate(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz);
 ScnBOOL         ScnVertexbuffs_v1IdxsFree(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr);
 
-//ENScnVertexType_Tex2 //two textures
+//ENScnVertexType_2DTex2 //two textures
 
-STScnVertexTex2Ptr ScnVertexbuffs_v2Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm);
-ScnBOOL         ScnVertexbuffs_v2Invalidate(ScnVertexbuffsRef ref, const STScnVertexTex2Ptr ptr, const ScnUI32 sz);
-ScnBOOL         ScnVertexbuffs_v2Free(ScnVertexbuffsRef ref, const STScnVertexTex2Ptr ptr);
+STScnVertex2DTex2Ptr ScnVertexbuffs_v2Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm);
+ScnBOOL         ScnVertexbuffs_v2Invalidate(ScnVertexbuffsRef ref, const STScnVertex2DTex2Ptr ptr, const ScnUI32 sz);
+ScnBOOL         ScnVertexbuffs_v2Free(ScnVertexbuffsRef ref, const STScnVertex2DTex2Ptr ptr);
 //
 STScnVertexIdxPtr ScnVertexbuffs_v2IdxsAlloc(ScnVertexbuffsRef ref, const ScnUI32 amm);
 ScnBOOL         ScnVertexbuffs_v2IdxsInvalidate(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz);
 ScnBOOL         ScnVertexbuffs_v2IdxsFree(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr);
 
-//ENScnVertexType_Tex3 //three textures
+//ENScnVertexType_2DTex3 //three textures
 
-STScnVertexTex3Ptr ScnVertexbuffs_v3Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm);
-ScnBOOL         ScnVertexbuffs_v3Invalidate(ScnVertexbuffsRef ref, const STScnVertexTex3Ptr ptr, const ScnUI32 sz);
-ScnBOOL         ScnVertexbuffs_v3Free(ScnVertexbuffsRef ref, const STScnVertexTex3Ptr ptr);
+STScnVertex2DTex3Ptr ScnVertexbuffs_v3Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm);
+ScnBOOL         ScnVertexbuffs_v3Invalidate(ScnVertexbuffsRef ref, const STScnVertex2DTex3Ptr ptr, const ScnUI32 sz);
+ScnBOOL         ScnVertexbuffs_v3Free(ScnVertexbuffsRef ref, const STScnVertex2DTex3Ptr ptr);
 //
 STScnVertexIdxPtr ScnVertexbuffs_v3IdxsAlloc(ScnVertexbuffsRef ref, const ScnUI32 amm);
 ScnBOOL         ScnVertexbuffs_v3IdxsInvalidate(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz);

@@ -10,14 +10,18 @@
 #include "ixrender/core/ScnArraySorted.h"
 #include "ixrender/gpu/ScnGpuDataType.h"
 #include "ixrender/gpu/ScnGpuFramebuffProps.h"
-#include "ixrender/gpu/ScnGpuTransform.h"
+#include "ixrender/gpu/ScnGpuModelProps2D.h"
 
 //STScnRenderFbuffState
 
 typedef struct STScnRenderFbuffState_ {
     ScnContextRef           ctx;
     STScnAbsPtr             props;
-    ScnArrayStruct(stack, STScnGpuTransform);   //stack of transformations
+    ScnArrayStruct(stack, STScnGpuModelProps2D);   //stack of transformations
+    //active (last state, helps to reduce redundant cmds)
+    struct {
+        ScnVertexbuffRef vbuff;
+    } active;
 } STScnRenderFbuffState;
 
 void ScnRenderFbuffState_init(ScnContextRef ctx, STScnRenderFbuffState* obj);
@@ -25,9 +29,13 @@ void ScnRenderFbuffState_destroy(STScnRenderFbuffState* obj);
 //
 SC_INLN void ScnRenderFbuffState_reset(STScnRenderFbuffState* obj){
     ScnArray_empty(&obj->stack);
+    //active
+    {
+        memset(&obj->active, 0, sizeof(obj->active));
+    }
 }
-SC_INLN ScnBOOL ScnRenderFbuffState_addTransform(STScnRenderFbuffState* obj, const STScnGpuTransform* const t){
-    return ScnArray_addPtr(obj->ctx, &obj->stack, t, STScnGpuTransform) != NULL ? ScnTRUE : ScnFALSE;
+SC_INLN ScnBOOL ScnRenderFbuffState_addTransform(STScnRenderFbuffState* obj, const STScnGpuModelProps2D* const t){
+    return ScnArray_addPtr(obj->ctx, &obj->stack, t, STScnGpuModelProps2D) != NULL ? ScnTRUE : ScnFALSE;
 }
 
 //ENScnRenderJobObjType
@@ -78,10 +86,6 @@ typedef struct STScnRenderOpq_ {
         ScnArrayStruct(stack, STScnRenderFbuffState);   //stack of framebuffers
         ScnArrayStruct(cmds, STScnRenderCmd);           //cmds sequence
         ScnArraySortedStruct(objs, STScnRenderJobObj);  //unique references of objects using for thias job
-        //active (last state, helps to reduce redundant cmds)
-        struct {
-            ScnVertexbuffRef vbuff;
-        } active;
     } job;
 } STScnRenderOpq;
 
@@ -194,7 +198,7 @@ ScnBOOL ScnRender_openDevice(ScnRenderRef ref, const STScnGpuDeviceCfg* cfg, con
                 if(ScnBuffer_isNull(viewPropsBuff)){
                     printf("ERROR, ScnRender_allocDynamicBuffLockedOpq_(viewPropsBuff) failed.\n");
                 } else {
-                    nodesPropsBuff = ScnRender_allocDynamicBuffLockedOpq_(opq, sizeof(STScnGpuTransform), 128, ammRenderSlots);
+                    nodesPropsBuff = ScnRender_allocDynamicBuffLockedOpq_(opq, sizeof(STScnGpuModelProps2D), 128, ammRenderSlots);
                     if(ScnBuffer_isNull(nodesPropsBuff)){
                         printf("ERROR, ScnRender_allocDynamicBuffLockedOpq_(nodesPropsBuff) failed.\n");
                     } else {
@@ -226,17 +230,17 @@ ScnBOOL ScnRender_hasOpenDevice(ScnRenderRef ref){
     return !ScnGpuDevice_isNull(opq->gpuDev);
 }
 
-ScnModelRef ScnRender_allocModel(ScnRenderRef ref){
-    ScnModelRef r = ScnObjRef_Zero;
+ScnModel2DRef ScnRender_allocModel(ScnRenderRef ref){
+    ScnModel2DRef r = ScnObjRef_Zero;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnVertexbuffs_isNull(opq->vbuffs)){
-        r = ScnModel_alloc(opq->ctx);
-        if(ScnModel_isNull(r)){
-            printf("ERROR, ScnRender_allocModel::ScnModel_alloc failed.\n");
-        } else if(!ScnModel_setVertexBuffs(r, opq->vbuffs)){
-            printf("ERROR, ScnRender_allocModel::ScnModel_setVertexBuffs failed.\n");
-            ScnModel_releaseAndNull(&r);
+        r = ScnModel2D_alloc(opq->ctx);
+        if(ScnModel2D_isNull(r)){
+            printf("ERROR, ScnRender_allocModel::ScnModel2D_alloc failed.\n");
+        } else if(!ScnModel2D_setVertexBuffs(r, opq->vbuffs)){
+            printf("ERROR, ScnRender_allocModel::ScnModel2D_setVertexBuffs failed.\n");
+            ScnModel2D_releaseAndNull(&r);
         }
     }
     ScnMutex_unlock(opq->mutex);
@@ -254,7 +258,7 @@ ScnFramebuffRef ScnRender_allocFramebuff(ScnRenderRef ref){
         if(ScnFramebuff_isNull(fb)){
             printf("ERROR, ScnRender_allocFramebuff::ScnFramebuff_alloc failed.\n");
         } else if(!ScnFramebuff_prepare(fb, opq->gpuDev)){
-            printf("ERROR, ScnRender_allocFramebuff::ScnModel_setVertexBuffs failed.\n");
+            printf("ERROR, ScnRender_allocFramebuff::ScnModel2D_setVertexBuffs failed.\n");
         } else {
             ScnFramebuff_set(&r, fb);
         }
@@ -325,20 +329,20 @@ ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, cons
         ScnSI32 i; for(i = 0; i < ENScnVertexType_Count; i++){
             ScnUI32 itmSz = 0, ammPerBock = 0;
             switch(i){
-                case ENScnVertexType_Color:
-                    itmSz = sizeof(STScnVertex);
+                case ENScnVertexType_2DColor:
+                    itmSz = sizeof(STScnVertex2D);
                     ammPerBock = 256;
                     break;
-                case ENScnVertexType_Tex:
-                    itmSz = sizeof(STScnVertexTex);
+                case ENScnVertexType_2DTex:
+                    itmSz = sizeof(STScnVertex2DTex);
                     ammPerBock = 1024;
                     break;
-                case ENScnVertexType_Tex2:
-                    itmSz = sizeof(STScnVertexTex2);
+                case ENScnVertexType_2DTex2:
+                    itmSz = sizeof(STScnVertex2DTex2);
                     ammPerBock = 256;
                     break;
-                case ENScnVertexType_Tex3:
-                    itmSz = sizeof(STScnVertexTex3);
+                case ENScnVertexType_2DTex3:
+                    itmSz = sizeof(STScnVertex2DTex3);
                     ammPerBock = 256;
                     break;
                 default: SCN_ASSERT(ScnFALSE); r = ScnFALSE; break;
@@ -373,36 +377,36 @@ ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, cons
             ScnBufferRef idxsBuff = iBuffs[i];
             //size
             switch(i){
-                case ENScnVertexType_Tex3: cfg.szPerRecord = sizeof(STScnVertexTex3); break;
-                case ENScnVertexType_Tex2: cfg.szPerRecord = sizeof(STScnVertexTex2); break;
-                case ENScnVertexType_Tex: cfg.szPerRecord = sizeof(STScnVertexTex); break;
-                case ENScnVertexType_Color: cfg.szPerRecord = sizeof(STScnVertex); break;
+                case ENScnVertexType_2DTex3: cfg.szPerRecord = sizeof(STScnVertex2DTex3); break;
+                case ENScnVertexType_2DTex2: cfg.szPerRecord = sizeof(STScnVertex2DTex2); break;
+                case ENScnVertexType_2DTex: cfg.szPerRecord = sizeof(STScnVertex2DTex); break;
+                case ENScnVertexType_2DColor: cfg.szPerRecord = sizeof(STScnVertex2D); break;
                 default: SCN_ASSERT(ScnFALSE) r = ScnFALSE; break;
             }
             //SCN_ASSERT((cfg.szPerRecord % 4) == 0)
             //elems
             switch(i){
-                case ENScnVertexType_Tex3:
+                case ENScnVertexType_2DTex3:
                     cfg.texCoords[2].amm    = 2;
                     cfg.texCoords[2].type   = ENScnGpuDataType_FLOAT32;
-                    cfg.texCoords[2].offset = ScnVertexTex3_IDX_tex3_x;
-                case ENScnVertexType_Tex2:
+                    cfg.texCoords[2].offset = ScnVertex2DTex3_IDX_tex3_x;
+                case ENScnVertexType_2DTex2:
                     cfg.texCoords[1].amm    = 2;
                     cfg.texCoords[1].type   = ENScnGpuDataType_FLOAT32;
-                    cfg.texCoords[1].offset = ScnVertexTex2_IDX_tex2_x;
-                case ENScnVertexType_Tex:
+                    cfg.texCoords[1].offset = ScnVertex2DTex2_IDX_tex2_x;
+                case ENScnVertexType_2DTex:
                     cfg.texCoords[0].amm    = 2;
                     cfg.texCoords[0].type   = ENScnGpuDataType_FLOAT32;
-                    cfg.texCoords[0].offset = ScnVertexTex_IDX_tex_x;
+                    cfg.texCoords[0].offset = ScnVertex2DTex_IDX_tex_x;
                 default:
                     //color
                     cfg.color.amm           = 4;
                     cfg.color.type          = ENScnGpuDataType_UI8;
-                    cfg.color.offset        = ScnVertex_IDX_color;
+                    cfg.color.offset        = ScnVertex2D_IDX_color;
                     //coord
                     cfg.coord.amm           = 2;
                     cfg.coord.type          = ENScnGpuDataType_FLOAT32;
-                    cfg.coord.offset        = ScnVertex_IDX_x;
+                    cfg.coord.offset        = ScnVertex2D_IDX_x;
                     //indices
                     if(!ScnBuffer_isNull(idxsBuff)){
                         cfg.indices.amm     = 1;
@@ -489,7 +493,8 @@ ScnBufferRef ScnRender_allocBuffer(ScnRenderRef ref, const STScnGpuBufferCfg* cf
 ScnBOOL ScnRender_jobAddUsedObjLockedOpq_(STScnRenderOpq* opq, const ENScnRenderJobObjType type, ScnObjRef* objRef);
 
 void ScnRender_jobResetActiveStateLockedOpq_(STScnRenderOpq* opq){
-    ScnVertexbuff_null(&opq->job.active.vbuff);
+    opq->job.stackUse = 0;
+    ScnArray_empty(&opq->job.cmds);
 }
 
 ScnBOOL ScnRender_jobStart(ScnRenderRef ref){
@@ -519,8 +524,6 @@ ScnBOOL ScnRender_jobStart(ScnRenderRef ref){
         }
         //empty arrays
         if(r){
-            opq->job.stackUse = 0;
-            ScnArray_empty(&opq->job.cmds);
             //reset state
             ScnRender_jobResetActiveStateLockedOpq_(opq);
             //activate
@@ -580,7 +583,7 @@ ScnBOOL ScnRender_jobFramebuffPush(ScnRenderRef ref, ScnFramebuffRef fbuff){
         }
         //set initial state
         if(f != NULL){
-            STScnGpuTransform t = STScnGpuTransform_Identity;
+            STScnGpuModelProps2D t = STScnGpuModelProps2D_Identity;
             ScnRenderFbuffState_reset(f);
             f->props    = ScnBuffer_malloc(opq->viewPropsBuff, sizeof(STScnGpuFramebufferProps));
             if(f->props.ptr == NULL){
@@ -625,7 +628,7 @@ ScnBOOL ScnRender_jobFramebuffPop(ScnRenderRef ref){
 //job models
 
 SC_INLN ScnBOOL ScnRender_job_addSetVertexBuffIfNecesaryLockedOpq_(STScnRenderOpq* opq, STScnRenderFbuffState* f, ScnVertexbuffRef vbuff){
-    if(ScnVertexbuff_isSame(opq->job.active.vbuff, vbuff)){
+    if(ScnVertexbuff_isSame(f->active.vbuff, vbuff)){
         //redundant command
         return ScnTRUE;
     }
@@ -639,6 +642,8 @@ SC_INLN ScnBOOL ScnRender_job_addSetVertexBuffIfNecesaryLockedOpq_(STScnRenderOp
             return ScnFALSE;
         } else if(!ScnRender_jobAddUsedObjLockedOpq_(opq, ENScnRenderJobObjType_Vertexbuff, (ScnObjRef*)&vbuff)){
             printf("ERROR, ScnRender_job_addSetVertexBuffIfNecesaryLockedOpq_::ScnRender_jobAddUsedObjLockedOpq_ failed.\n");
+        } else {
+            f->active.vbuff = vbuff;
         }
     }
     return ScnTRUE;
@@ -686,14 +691,14 @@ SC_INLN ScnBOOL ScnRender_job_addSetVertexBuffIfNecesaryLockedOpq_(STScnRenderOp
         } \
     }
 
-ScnBOOL ScnRender_jobModelAdd_addCommandsWithTransformLockedOpq_(STScnRenderOpq* opq, STScnRenderFbuffState* f, const STScnGpuTransform* const transform, const STScnModelDrawCmd* const cmds, const ScnUI32 cmdsSz){
+ScnBOOL ScnRender_jobModelAdd_addCommandsWithTransformLockedOpq_(STScnRenderOpq* opq, STScnRenderFbuffState* f, const STScnGpuModelProps2D* const transform, const STScnModel2DCmd* const cmds, const ScnUI32 cmdsSz){
     ScnBOOL r = ScnFALSE;
     //add commands with this matrix (do not push it into the stack)
-    STScnAbsPtr tNPtr = ScnBuffer_malloc(opq->nodesPropsBuff, sizeof(STScnGpuTransform));
+    STScnAbsPtr tNPtr = ScnBuffer_malloc(opq->nodesPropsBuff, sizeof(STScnGpuModelProps2D));
     if(tNPtr.ptr == NULL){
         printf("ERROR, ScnRender_jobModelAdd_addCommandsWithTransformLockedOpq_::ScnBuffer_malloc failed.\n");
     } else {
-        *((STScnGpuTransform*)tNPtr.ptr) = *transform;
+        *((STScnGpuModelProps2D*)tNPtr.ptr) = *transform;
         r = ScnTRUE;
         //add transform offset cmd
         if(r){
@@ -707,22 +712,22 @@ ScnBOOL ScnRender_jobModelAdd_addCommandsWithTransformLockedOpq_(STScnRenderOpq*
          }
          //add model commands
         {
-            const STScnModelDrawCmd* c = cmds;
-            const STScnModelDrawCmd* cAfterEnd = c + cmdsSz;
+            const STScnModel2DCmd* c = cmds;
+            const STScnModel2DCmd* cAfterEnd = c + cmdsSz;
             while(r && c < cAfterEnd){
                 switch (c->type) {
                     case ENScnModelDrawCmdType_Undef:
                         //nop
                         break;
-                    case ENScnModelDrawCmdType_v0: ScnRender_jobAddCommandDrawVertsLockeOpq_(opq, f, c, ENScnVertexType_Color, 0); break;
-                    case ENScnModelDrawCmdType_v1: ScnRender_jobAddCommandDrawVertsLockeOpq_(opq, f, c, ENScnVertexType_Tex, 1); break;
-                    case ENScnModelDrawCmdType_v2: ScnRender_jobAddCommandDrawVertsLockeOpq_(opq, f, c, ENScnVertexType_Tex2, 2); break;
-                    case ENScnModelDrawCmdType_v3: ScnRender_jobAddCommandDrawVertsLockeOpq_(opq, f, c, ENScnVertexType_Tex3, 3); break;
+                    case ENScnModelDrawCmdType_2Dv0: ScnRender_jobAddCommandDrawVertsLockeOpq_(opq, f, c, ENScnVertexType_2DColor, 0); break;
+                    case ENScnModelDrawCmdType_2Dv1: ScnRender_jobAddCommandDrawVertsLockeOpq_(opq, f, c, ENScnVertexType_2DTex, 1); break;
+                    case ENScnModelDrawCmdType_2Dv2: ScnRender_jobAddCommandDrawVertsLockeOpq_(opq, f, c, ENScnVertexType_2DTex2, 2); break;
+                    case ENScnModelDrawCmdType_2Dv3: ScnRender_jobAddCommandDrawVertsLockeOpq_(opq, f, c, ENScnVertexType_2DTex3, 3); break;
                         //
-                    case ENScnModelDrawCmdType_i0: ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_Color, 0); break;
-                    case ENScnModelDrawCmdType_i1: ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_Tex, 1); break;
-                    case ENScnModelDrawCmdType_i2: ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_Tex2, 2);break;
-                    case ENScnModelDrawCmdType_i3: ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_Tex3, 3); break;
+                    case ENScnModelDrawCmdType_2Di0: ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_2DColor, 0); break;
+                    case ENScnModelDrawCmdType_2Di1: ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_2DTex, 1); break;
+                    case ENScnModelDrawCmdType_2Di2: ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_2DTex2, 2);break;
+                    case ENScnModelDrawCmdType_2Di3: ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_2DTex3, 3); break;
                     default:
                         SCN_ASSERT(ScnFALSE) //unimplemented cmd
                         break;
@@ -735,7 +740,7 @@ ScnBOOL ScnRender_jobModelAdd_addCommandsWithTransformLockedOpq_(STScnRenderOpq*
     return r;
 }
     
-ScnBOOL ScnRender_jobModelAdd_addCommandsWithPropsLockedOpq_(void* data, const STScnModelProps* const props, const STScnModelDrawCmd* const cmds, const ScnUI32 cmdsSz){
+ScnBOOL ScnRender_jobModelAdd_addCommandsWithPropsLockedOpq_(void* data, const STScnModelProps2D* const props, const STScnModel2DCmd* const cmds, const ScnUI32 cmdsSz){
     ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)data;
     if(opq != NULL){
@@ -750,9 +755,9 @@ ScnBOOL ScnRender_jobModelAdd_addCommandsWithPropsLockedOpq_(void* data, const S
             } else {
                 SCN_ASSERT(!ScnBuffer_isNull(opq->viewPropsBuff)) //program logic error
                 SCN_ASSERT(!ScnBuffer_isNull(opq->nodesPropsBuff)) //program logic error
-                const STScnGpuTransform t = ScnModelProps_toGpuTransform(props);
-                const STScnGpuTransform tPrnt = f->stack.arr[f->stack.use - 1];
-                const STScnGpuTransform tN = ScnGpuTransform_multiply(&tPrnt, &t);
+                const STScnGpuModelProps2D t = ScnModelProps2D_toGpuTransform(props);
+                const STScnGpuModelProps2D tPrnt = f->stack.arr[f->stack.use - 1];
+                const STScnGpuModelProps2D tN = ScnGpuModelProps2D_multiply(&tPrnt, &t);
                 if(!ScnRender_jobModelAdd_addCommandsWithTransformLockedOpq_(opq, f, &tN, cmds, cmdsSz)){
                     printf("ERROR, ScnRender_jobModelAdd_addCommandsWithPropsLockedOpq_::ScnRender_jobModelAdd_addCommandsWithTransformLockedOpq_ failed.\n");
                 } else {
@@ -764,7 +769,7 @@ ScnBOOL ScnRender_jobModelAdd_addCommandsWithPropsLockedOpq_(void* data, const S
     return r;
 }
 
-ScnBOOL ScnRender_jobModelAdd(ScnRenderRef ref, ScnModelRef model){    //equivalent to push-and-pop
+ScnBOOL ScnRender_jobModelAdd(ScnRenderRef ref, ScnModel2DRef model){    //equivalent to push-and-pop
     ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -775,10 +780,10 @@ ScnBOOL ScnRender_jobModelAdd(ScnRenderRef ref, ScnModelRef model){    //equival
     } else {
         SCN_ASSERT(!ScnBuffer_isNull(opq->viewPropsBuff)) //program logic error
         SCN_ASSERT(!ScnBuffer_isNull(opq->nodesPropsBuff)) //program logic error
-        STScnModelPushItf itf = STScnModelPushItf_Zero;
+        STScnModel2DPushItf itf = STScnModel2DPushItf_Zero;
         itf.addCommandsWithProps = ScnRender_jobModelAdd_addCommandsWithPropsLockedOpq_;
-        if(!ScnModel_sendRenderCmds(model, &itf, opq)){
-            printf("ERROR, ScnRender_jobFramebuffPop::ScnModel_sendRenderCmds failed.\n");
+        if(!ScnModel2D_sendRenderCmds(model, &itf, opq)){
+            printf("ERROR, ScnRender_jobFramebuffPop::ScnModel2D_sendRenderCmds failed.\n");
         } else {
             r = ScnTRUE;
         }
@@ -787,7 +792,7 @@ ScnBOOL ScnRender_jobModelAdd(ScnRenderRef ref, ScnModelRef model){    //equival
     return r;
 }
 
-ScnBOOL ScnRender_jobModelAdd_addCommandsWithPropsAndPushLockedOpq_(void* data, const STScnModelProps* const props, const STScnModelDrawCmd* const cmds, const ScnUI32 cmdsSz){
+ScnBOOL ScnRender_jobModelAdd_addCommandsWithPropsAndPushLockedOpq_(void* data, const STScnModelProps2D* const props, const STScnModel2DCmd* const cmds, const ScnUI32 cmdsSz){
     ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)data;
     if(opq != NULL){
@@ -802,9 +807,9 @@ ScnBOOL ScnRender_jobModelAdd_addCommandsWithPropsAndPushLockedOpq_(void* data, 
             } else {
                 SCN_ASSERT(!ScnBuffer_isNull(opq->viewPropsBuff)) //program logic error
                 SCN_ASSERT(!ScnBuffer_isNull(opq->nodesPropsBuff)) //program logic error
-                const STScnGpuTransform t = ScnModelProps_toGpuTransform(props);
-                const STScnGpuTransform tPrnt = f->stack.arr[f->stack.use - 1];
-                const STScnGpuTransform tN = ScnGpuTransform_multiply(&tPrnt, &t);
+                const STScnGpuModelProps2D t = ScnModelProps2D_toGpuTransform(props);
+                const STScnGpuModelProps2D tPrnt = f->stack.arr[f->stack.use - 1];
+                const STScnGpuModelProps2D tN = ScnGpuModelProps2D_multiply(&tPrnt, &t);
                 if(!ScnRender_jobModelAdd_addCommandsWithTransformLockedOpq_(opq, f, &tN, cmds, cmdsSz)){
                     printf("ERROR, ScnRender_jobModelAdd_addCommandsWithPropsAndPushLockedOpq_::ScnRender_jobModelAdd_addCommandsWithTransformLockedOpq_ failed.\n");
                 } else if(!ScnRenderFbuffState_addTransform(f, &tN)){
@@ -818,7 +823,7 @@ ScnBOOL ScnRender_jobModelAdd_addCommandsWithPropsAndPushLockedOpq_(void* data, 
     return r;
 }
 
-ScnBOOL ScnRender_jobModelPush(ScnRenderRef ref, ScnModelRef model){
+ScnBOOL ScnRender_jobModelPush(ScnRenderRef ref, ScnModel2DRef model){
     ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -829,10 +834,10 @@ ScnBOOL ScnRender_jobModelPush(ScnRenderRef ref, ScnModelRef model){
     } else {
         SCN_ASSERT(!ScnBuffer_isNull(opq->viewPropsBuff)) //program logic error
         SCN_ASSERT(!ScnBuffer_isNull(opq->nodesPropsBuff)) //program logic error
-        STScnModelPushItf itf = STScnModelPushItf_Zero;
+        STScnModel2DPushItf itf = STScnModel2DPushItf_Zero;
         itf.addCommandsWithProps = ScnRender_jobModelAdd_addCommandsWithPropsAndPushLockedOpq_;
-        if(!ScnModel_sendRenderCmds(model, &itf, opq)){
-            printf("ERROR, ScnRender_jobModelPush::ScnModel_sendRenderCmds failed.\n");
+        if(!ScnModel2D_sendRenderCmds(model, &itf, opq)){
+            printf("ERROR, ScnRender_jobModelPush::ScnModel2D_sendRenderCmds failed.\n");
         } else {
             r = ScnTRUE;
         }
@@ -866,7 +871,7 @@ ScnBOOL ScnRender_jobModelPop(ScnRenderRef ref){
 
 //job transforms
 
-ScnBOOL ScnRender_jobTransformPush(ScnRenderRef ref, STScnModelProps* tScene){
+ScnBOOL ScnRender_jobTransformPush(ScnRenderRef ref, STScnModelProps2D* tScene){
     ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -879,9 +884,9 @@ ScnBOOL ScnRender_jobTransformPush(ScnRenderRef ref, STScnModelProps* tScene){
         if(f->stack.use < 1){
             printf("ERROR, ScnRender_jobTransformPush::missing parent transform.\n");
         } else {
-            const STScnGpuTransform t = ScnModelProps_toGpuTransform(tScene);
-            const STScnGpuTransform tPrnt = f->stack.arr[f->stack.use - 1];
-            const STScnGpuTransform tN = ScnGpuTransform_multiply(&tPrnt, &t);
+            const STScnGpuModelProps2D t = ScnModelProps2D_toGpuTransform(tScene);
+            const STScnGpuModelProps2D tPrnt = f->stack.arr[f->stack.use - 1];
+            const STScnGpuModelProps2D tN = ScnGpuModelProps2D_multiply(&tPrnt, &t);
             if(!ScnRenderFbuffState_addTransform(f, &tN)){
                 printf("ERROR, ScnRender_jobTransformPush::ScnRenderFbuffState_addTransform failed.\n");
             } else {
@@ -1035,7 +1040,7 @@ void ScnRenderFbuffState_init(ScnContextRef ctx, STScnRenderFbuffState* obj){
     memset(obj, 0, sizeof(*obj));
     ScnContext_set(&obj->ctx, ctx);
     //stack of transformations
-    ScnArray_init(obj->ctx, &obj->stack, 256, 256, STScnGpuTransform);
+    ScnArray_init(obj->ctx, &obj->stack, 256, 256, STScnGpuModelProps2D);
 }
 
 void ScnRenderFbuffState_destroy(STScnRenderFbuffState* obj){

@@ -11,7 +11,7 @@
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/scene/ScnVertices.h"
 #include "ixrender/scene/ScnVertexbuffs.h"
-#include "ixrender/scene/ScnModelProps.h"
+#include "ixrender/scene/ScnModelProps2D.h"
 #include "ixrender/scene/ScnTexture.h"
 
 #ifdef __cplusplus
@@ -40,7 +40,7 @@ typedef enum ENScnRenderShape_ {
 typedef enum ENScnRenderCmd_ {
     ENScnRenderCmd_None = 0       //do nothing
     //models
-    , ENScnRenderCmd_SetTransformOffset //sets the positions of the 'STScnGpuTransform' to be applied for the drawing cmds
+    , ENScnRenderCmd_SetTransformOffset //sets the positions of the 'STScnGpuModelProps2D' to be applied for the drawing cmds
     , ENScnRenderCmd_SetVertexBuff  //activates the vertex buffer
     //modes
     , ENScnRenderCmd_MaskModePush   //pushes drawing-mask mode, where only the alpha value is affected
@@ -100,33 +100,33 @@ typedef struct STScnRenderCmd_ {
 
 typedef enum ENScnModelDrawCmdType_ {
     ENScnModelDrawCmdType_Undef = 0,
-    //
-    ENScnModelDrawCmdType_v0,
-    ENScnModelDrawCmdType_v1,
-    ENScnModelDrawCmdType_v2,
-    ENScnModelDrawCmdType_v3,
-    //
-    ENScnModelDrawCmdType_i0,
-    ENScnModelDrawCmdType_i1,
-    ENScnModelDrawCmdType_i2,
-    ENScnModelDrawCmdType_i3,
+    //2D vertex drawing
+    ENScnModelDrawCmdType_2Dv0,
+    ENScnModelDrawCmdType_2Dv1,
+    ENScnModelDrawCmdType_2Dv2,
+    ENScnModelDrawCmdType_2Dv3,
+    //2D indexed drawing
+    ENScnModelDrawCmdType_2Di0,
+    ENScnModelDrawCmdType_2Di1,
+    ENScnModelDrawCmdType_2Di2,
+    ENScnModelDrawCmdType_2Di3,
     //
     ENScnModelDrawCmdType_Count,
 } ENScnModelDrawCmdType;
 
-//STScnModelDrawCmd
+//STScnModel2DCmd
 
-typedef struct STScnModelDrawCmd_ {
+typedef struct STScnModel2DCmd_ {
     ENScnModelDrawCmdType   type;
     ENScnRenderShape        shape;
     ScnVertexbuffsRef       vbuffs;
     //verts
     struct {
         union {
-            STScnVertexPtr      v0;
-            STScnVertexTexPtr   v1;
-            STScnVertexTex2Ptr  v2;
-            STScnVertexTex3Ptr  v3;
+            STScnVertex2DPtr    v0;
+            STScnVertex2DTexPtr v1;
+            STScnVertex2DTex2Ptr v2;
+            STScnVertex2DTex3Ptr v3;
         };
         ScnUI32 count;
     } verts;
@@ -146,18 +146,18 @@ typedef struct STScnModelDrawCmd_ {
         ScnGpuTextureRef    t1;
         ScnGpuTextureRef    t2;
     } texs;
-} STScnModelDrawCmd;
+} STScnModel2DCmd;
 
-void ScnModelDrawCmd_init(STScnModelDrawCmd* obj);
-void ScnModelDrawCmd_destroy(STScnModelDrawCmd* obj);
+void ScnModel2DCmd_init(STScnModel2DCmd* obj);
+void ScnModel2DCmd_destroy(STScnModel2DCmd* obj);
 
 //STScnGpuBufferApiItf
 
-#define STScnModelPushItf_Zero  { NULL }
+#define STScnModel2DPushItf_Zero  { NULL }
 
-typedef struct STScnModelPushItf_ {
-    ScnBOOL (*addCommandsWithProps)(void* data, const STScnModelProps* const props, const STScnModelDrawCmd* const cmds, const ScnUI32 cmdsSz);
-} STScnModelPushItf;
+typedef struct STScnModel2DPushItf_ {
+    ScnBOOL (*addCommandsWithProps)(void* data, const STScnModelProps2D* const props, const STScnModel2DCmd* const cmds, const ScnUI32 cmdsSz);
+} STScnModel2DPushItf;
 
 #ifdef __cplusplus
 } //extern "C"

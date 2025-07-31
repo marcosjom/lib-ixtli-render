@@ -34,11 +34,11 @@ typedef enum ENScnBitmapColor_ {
     ENScnBitmapColor_Count
 } ENScnBitmapColor;
 
-#define STScnBitmapProps_Zero   { ENScnBitmapColor_undef, STScnSizeI_Zero, 0, 0 }
+#define STScnBitmapProps_Zero   { ENScnBitmapColor_undef, STScnSize2DI_Zero, 0, 0 }
 
 typedef struct STScnBitmapProps_ {
     ENScnBitmapColor    color;
-    STScnSizeI          size;
+    STScnSize2DI          size;
     ScnSI32             bitsPerPx;
     ScnSI32             bytesPerLine;
 } STScnBitmapProps;
@@ -58,7 +58,7 @@ typedef struct STScnBitmap_ {
 SCN_REF_STRUCT_METHODS_DEC(ScnBitmap)
 
 ScnBOOL ScnBitmap_create(ScnBitmapRef ref, const ScnSI32 width, const ScnSI32 height, const ENScnBitmapColor color);
-ScnBOOL ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPointI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData);
+ScnBOOL ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData);
 
 #ifdef __cplusplus
 } //extern "C"

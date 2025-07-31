@@ -28,8 +28,8 @@ ScnBOOL             ScnApiMetal_vertexbuff_activate(void* data);
 ScnBOOL             ScnApiMetal_vertexbuff_deactivate(void* data);
 //frameBuffer (view)
 void                ScnApiMetal_framebuff_view_free(void* data);
-STScnSizeU          ScnApiMetal_framebuff_view_getSize(void* data, STScnRectU* dstViewport);
-ScnBOOL             ScnApiMetal_framebuff_view_syncSizeAndViewport(void* data, const STScnSizeU size, const STScnRectU viewport);
+STScnSize2DU          ScnApiMetal_framebuff_view_getSize(void* data, STScnRectU* dstViewport);
+ScnBOOL             ScnApiMetal_framebuff_view_syncSizeAndViewport(void* data, const STScnSize2DU size, const STScnRectU viewport);
 
 ScnBOOL ScnApiMetal_getApiItf(STScnApiItf* dst){
     if(dst == NULL) return ScnFALSE;
@@ -456,7 +456,7 @@ ScnBOOL ScnApiMetal_vertexbuff_deactivate(void* pObj){
 typedef struct STScnApiMetalFramebuffView_ {
     ScnContextRef       ctx;
     MTKView*            mtkView;
-    STScnSizeU          size;
+    STScnSize2DU          size;
     STScnRectU          viewport;
     STScnApiItf         itf;
 } STScnApiMetalFramebuffView;
@@ -516,13 +516,13 @@ void ScnApiMetal_framebuff_view_free(void* pObj){
     ScnContext_releaseAndNull(&ctx);
 }
 
-STScnSizeU ScnApiMetal_framebuff_view_getSize(void* pObj, STScnRectU* dstViewport){
+STScnSize2DU ScnApiMetal_framebuff_view_getSize(void* pObj, STScnRectU* dstViewport){
     STScnApiMetalFramebuffView* obj = (STScnApiMetalFramebuffView*)pObj;
     if(dstViewport != NULL) *dstViewport = obj->viewport;
     return obj->size;
 }
 
-ScnBOOL ScnApiMetal_framebuff_view_syncSizeAndViewport(void* pObj, const STScnSizeU size, const STScnRectU viewport){
+ScnBOOL ScnApiMetal_framebuff_view_syncSizeAndViewport(void* pObj, const STScnSize2DU size, const STScnRectU viewport){
     ScnBOOL r = ScnFALSE;
     STScnApiMetalFramebuffView* obj = (STScnApiMetalFramebuffView*)pObj;
     if(obj->mtkView != nil && size.width > 0 && size.height > 0){

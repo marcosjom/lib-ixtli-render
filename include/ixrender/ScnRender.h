@@ -18,12 +18,12 @@
 #include "ixrender/gpu/ScnGpuRenderbuff.h"
 #include "ixrender/gpu/ScnGpuFramebuff.h"
 #include "ixrender/gpu/ScnGpuDevice.h"
-#include "ixrender/scene/ScnTransform.h"
+#include "ixrender/scene/ScnTransform2D.h"
 #include "ixrender/scene/ScnBuffer.h"
 #include "ixrender/scene/ScnVertexbuffs.h"
 #include "ixrender/scene/ScnFramebuff.h"
 #include "ixrender/scene/ScnRenderCmd.h"
-#include "ixrender/scene/ScnModel.h"
+#include "ixrender/scene/ScnModel2D.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,7 +51,7 @@ ScnBOOL     ScnRender_openDevice(ScnRenderRef ref, const STScnGpuDeviceCfg* cfg,
 ScnBOOL     ScnRender_hasOpenDevice(ScnRenderRef ref);
 
 //model
-ScnModelRef ScnRender_allocModel(ScnRenderRef ref);
+ScnModel2DRef ScnRender_allocModel(ScnRenderRef ref);
 
 //framebuffer
 ScnFramebuffRef ScnRender_allocFramebuff(ScnRenderRef ref);
@@ -68,8 +68,8 @@ ScnBOOL     ScnRender_jobFramebuffPop(ScnRenderRef ref);
 
 //job models
 
-ScnBOOL     ScnRender_jobModelAdd(ScnRenderRef ref, ScnModelRef model);    //equivalent to push-and-pop
-ScnBOOL     ScnRender_jobModelPush(ScnRenderRef ref, ScnModelRef model);
+ScnBOOL     ScnRender_jobModelAdd(ScnRenderRef ref, ScnModel2DRef model);    //equivalent to push-and-pop
+ScnBOOL     ScnRender_jobModelPush(ScnRenderRef ref, ScnModel2DRef model);
 ScnBOOL     ScnRender_jobModelPop(ScnRenderRef ref);
 
 //job cmds
@@ -88,7 +88,7 @@ ScnVertexbuffsRef   ScnRender_getDefaultVertexbuffs(ScnRenderRef ref);
 ScnVertexbuffsRef   ScnRender_allocVertexbuffs(ScnRenderRef ref);
 ScnBufferRef        ScnRender_allocBuffer(ScnRenderRef ref, const STScnGpuBufferCfg* cfg);
 //
-ScnBOOL             ScnRender_jobTransformPush(ScnRenderRef ref, STScnModelProps* t);
+ScnBOOL             ScnRender_jobTransformPush(ScnRenderRef ref, STScnModelProps2D* t);
 ScnBOOL             ScnRender_jobTransformPop(ScnRenderRef ref);
 
 #ifdef __cplusplus
