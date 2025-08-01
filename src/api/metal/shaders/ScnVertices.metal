@@ -56,16 +56,16 @@ vertexShader(constant STScnGpuFramebufferProps *fbProps [[buffer(0)]]
 
     // Convert the position in pixel coordinates to clip-space by dividing the
     // pixel's coordinates by half the size of the viewport.
-    out.position.x = v.x / fbProps->size.width;
-    out.position.y = v.y / fbProps->size.height;
+    out.position.x = v.x / (fbProps->size.width / 2);
+    out.position.y = v.y / (fbProps->size.height / 2);
     out.position.z = 0.0;
     out.position.w = 1.0;
 
     // Pass the input color directly to the rasterizer.
-    out.color.r = (ScnFLOAT)v.color.r / 255.f;
-    out.color.g = (ScnFLOAT)v.color.g / 255.f;
-    out.color.b = (ScnFLOAT)v.color.b / 255.f;
-    out.color.a = (ScnFLOAT)v.color.a / 255.f;
+    out.color.r = 1.0f; //(ScnFLOAT)v.color.r / 255.f;
+    out.color.g = 1.0f; //(ScnFLOAT)v.color.g / 255.f;
+    out.color.b = 1.0f; //(ScnFLOAT)v.color.b / 255.f;
+    out.color.a = 1.0f; //(ScnFLOAT)v.color.a / 255.f;
     
     return out;
 }

@@ -11,11 +11,13 @@
 #include "ixrender/scene/ScnRenderCmd.h"
 #import <Foundation/Foundation.h>
 #import <MetalKit/MetalKit.h>
+#import <TargetConditionals.h>  //for TARGET_OS_* macros
 
 //STScnGpuDeviceApiItf
 
 ScnGpuDeviceRef     ScnApiMetal_allocDevice(ScnContextRef ctx, const STScnGpuDeviceCfg* cfg);
 void                ScnApiMetal_device_free(void* obj);
+void*               ScnApiMetal_device_getApiDevice(void* obj);
 ScnGpuBufferRef     ScnApiMetal_device_allocBuffer(void* obj, ScnMemElasticRef mem);
 ScnGpuVertexbuffRef ScnApiMetal_device_allocVertexBuff(void* obj, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
 ScnGpuFramebuffRef  ScnApiMetal_device_allocFramebuffFromOSView(void* obj, void* mtkView);
@@ -41,6 +43,7 @@ ScnBOOL ScnApiMetal_getApiItf(STScnApiItf* dst){
     dst->allocDevice        = ScnApiMetal_allocDevice;
     //device
     dst->dev.free           = ScnApiMetal_device_free;
+    dst->dev.getApiDevice   = ScnApiMetal_device_getApiDevice;
     dst->dev.allocBuffer    = ScnApiMetal_device_allocBuffer;
     dst->dev.allocVertexBuff = ScnApiMetal_device_allocVertexBuff;
     dst->dev.allocFramebuffFromOSView = ScnApiMetal_device_allocFramebuffFromOSView;
@@ -70,145 +73,160 @@ typedef struct STScnApiMetalDevice {
 ScnGpuDeviceRef ScnApiMetal_allocDevice(ScnContextRef ctx, const STScnGpuDeviceCfg* cfg){
     ScnGpuDeviceRef r = ScnObjRef_Zero;
     if(!ScnContext_isNull(ctx)){
-        NSArray<id<MTLDevice>> *devs = MTLCopyAllDevices();
-        if(devs == nil){
-            printf("Metal, error, could not retrieve devices.\n");
-        } else {
-            printf("Metal, %d devices found:\n", (int)devs.count);
-            id<MTLDevice> dev = nil;
-            id<MTLCommandQueue> cmdQueue = nil;
-            ScnBOOL devIsExplicitMatch = ScnFALSE;
-            int i; for(i = 0; i < devs.count; i++){
-                id<MTLDevice> d = devs[i];
-                printf("    ---------\n");
-                printf("    Dev#%d/%d: '%s'\n", (i + 1), (int)devs.count, [d.name UTF8String]);
-                //Identification
-                printf("         Arch: '%s'\n", [d.architecture.name UTF8String]);
-                printf("          Loc: '%s' (num: %d)\n", d.location == MTLDeviceLocationBuiltIn ? "BuiltIn" : d.location == MTLDeviceLocationSlot ? "Slot" : d.location == MTLDeviceLocationExternal ? "External" : d.location == MTLDeviceLocationUnspecified ? "Unspecified" :"Unknown", (int)d.locationNumber);
-                printf("       LowPwr: %s\n", d.isLowPower ? "yes" : "no");
-                printf("    Removable: %s\n", d.isRemovable ? "yes" : "no");
-                printf("     Headless: %s\n", d.isHeadless ? "yes" : "no");
-                printf("         Peer: grpId(%llu) idx(%d) count(%d)\n", (ScnUI64)d.peerGroupID, d.peerIndex, d.peerCount);
-                //GPU's Device Memory
-                printf("     CurAlloc: %.2f %s\n", (double)d.currentAllocatedSize / (d.currentAllocatedSize >= (1024 * 1024 * 1024) ? (double)(1024 * 1024 * 1024) : d.currentAllocatedSize >= (1024 * 1024) ? (double)(1024 * 1024) : d.currentAllocatedSize >= (1024) ? (double)(1024) : 1.0), (d.currentAllocatedSize >= (1024 * 1024 * 1024) ? "GBs" : d.currentAllocatedSize >= (1024 * 1024) ? "MBs" : d.currentAllocatedSize >= (1024) ? "KBs" : "bytes"));
-                printf("     MaxAlloc: %.2f %s (recommended)\n", (double)d.recommendedMaxWorkingSetSize / (d.recommendedMaxWorkingSetSize >= (1024 * 1024 * 1024) ? (double)(1024 * 1024 * 1024) : d.recommendedMaxWorkingSetSize >= (1024 * 1024) ? (double)(1024 * 1024) : d.recommendedMaxWorkingSetSize >= (1024) ? (double)(1024) : 1.0), (d.recommendedMaxWorkingSetSize >= (1024 * 1024 * 1024) ? "GBs" : d.recommendedMaxWorkingSetSize >= (1024 * 1024) ? "MBs" : d.recommendedMaxWorkingSetSize >= (1024) ? "KBs" : "bytes"));
-                printf("      MaxRate: %.2f %s/s\n", (double)d.maxTransferRate / (d.maxTransferRate >= (1024 * 1024 * 1024) ? (double)(1024 * 1024 * 1024) : d.maxTransferRate >= (1024 * 1024) ? (double)(1024 * 1024) : d.maxTransferRate >= (1024) ? (double)(1024) : 1.0), (d.maxTransferRate >= (1024 * 1024 * 1024) ? "GBs" : d.maxTransferRate >= (1024 * 1024) ? "MBs" : d.maxTransferRate >= (1024) ? "KBs" : "bytes"));
-                printf("   UnifiedMem: %s\n", d.hasUnifiedMemory ? "yes" : "no");
-                //Compute Support
-                printf(" ThreadGrpMem: %.2f %s\n", (double)d.maxThreadgroupMemoryLength / (d.maxThreadgroupMemoryLength >= (1024 * 1024 * 1024) ? (double)(1024 * 1024 * 1024) : d.maxThreadgroupMemoryLength >= (1024 * 1024) ? (double)(1024 * 1024) : d.maxThreadgroupMemoryLength >= (1024) ? (double)(1024) : 1.0), (d.maxThreadgroupMemoryLength >= (1024 * 1024 * 1024) ? "GBs" : d.maxThreadgroupMemoryLength >= (1024 * 1024) ? "MBs" : d.maxThreadgroupMemoryLength >= (1024) ? "KBs" : "bytes"));
-                printf("  ThrdsPerGrp: (%d, %d, %d)\n", (int)d.maxThreadsPerThreadgroup.width, (int)d.maxThreadsPerThreadgroup.height, (int)d.maxThreadsPerThreadgroup.depth);
-                //Functions Pointer Support
-                printf("     FuncPtrs: %s (compute kernel functions)\n", d.supportsFunctionPointers ? "yes" : "no");
-                printf("    FPtrsRndr: %s\n", d.supportsFunctionPointersFromRender ? "yes" : "no");
-                //Texture and sampler support
-                printf("   32bFltFilt: %s\n", d.supports32BitFloatFiltering ? "yes" : "no");
-                printf("   BCTextComp: %s\n", d.supportsBCTextureCompression ? "yes" : "no");
-                printf("    Depth24-8: %s\n", d.isDepth24Stencil8PixelFormatSupported ? "yes" : "no");
-                printf("  TexLODQuery: %s\n", d.supportsQueryTextureLOD ? "yes" : "no");
-                printf("        RWTex: %s\n", d.readWriteTextureSupport ? "yes" : "no");
-                //Render support
-                printf("   RayTracing: %s\n", d.supportsRaytracing ? "yes" : "no");
-                printf("  RayTracRndr: %s\n", d.supportsRaytracingFromRender ? "yes" : "no");
-                printf("  PrimMotBlur: %s\n", d.supportsPrimitiveMotionBlur ? "yes" : "no");
-                printf("      32bMSAA: %s\n", d.supports32BitMSAA ? "yes" : "no");
-                printf("  PullModeInt: %s\n", d.supportsPullModelInterpolation ? "yes" : "no");
-                printf("ShadBaryCoord: %s\n", d.supportsShaderBarycentricCoordinates ? "yes" : "no");
-                printf("  ProgSmplPos: %s\n", d.areProgrammableSamplePositionsSupported ? "yes" : "no");
-                printf("  RstrOrdGrps: %s\n", d.areRasterOrderGroupsSupported ? "yes" : "no");
-                //
-                const ScnSI32 cfgExplictOptsCount =
-                (
-                 (cfg != NULL && cfg->headless > ENScnGpuDeviceHeadless_Unknown && cfg->headless < ENScnGpuDeviceHeadless_Count ? 1 : 0)
-                 + (cfg != NULL && cfg->removable > ENScnGpuDeviceRemovable_Unknown && cfg->removable < ENScnGpuDeviceRemovable_Count ? 1 : 0)
-                 + (cfg != NULL && cfg->unifiedMem > ENScnGpuDeviceUnifiedMem_Unknown && cfg->unifiedMem < ENScnGpuDeviceUnifiedMem_Count ? 1 : 0)
-                 + (cfg != NULL && cfg->compute > ENScnGpuDeviceCompute_Unknown && cfg->compute < ENScnGpuDeviceCompute_Count ? 1 : 0)
-                 );
-                const ScnBOOL isCfgExplicitMatch =
-                (
-                 cfgExplictOptsCount > 0
-                 && (cfg->headless == ENScnGpuDeviceHeadless_Unknown || (cfg->headless == ENScnGpuDeviceHeadless_Yes && d.isHeadless) || (cfg->headless == ENScnGpuDeviceHeadless_No && !d.isHeadless))
-                 && (cfg->removable == ENScnGpuDeviceRemovable_Unknown || (cfg->removable == ENScnGpuDeviceRemovable_Yes && d.isRemovable) || (cfg->removable == ENScnGpuDeviceRemovable_No && !d.isRemovable))
-                 && (cfg->unifiedMem == ENScnGpuDeviceUnifiedMem_Unknown || (cfg->unifiedMem == ENScnGpuDeviceUnifiedMem_Yes && d.hasUnifiedMemory) || (cfg->unifiedMem == ENScnGpuDeviceUnifiedMem_No && !d.hasUnifiedMemory))
-                 && (cfg->compute == ENScnGpuDeviceCompute_Unknown || (cfg->compute == ENScnGpuDeviceCompute_Yes && (d.maxThreadsPerThreadgroup.width * d.maxThreadsPerThreadgroup.height) > 0) || (cfg->compute == ENScnGpuDeviceCompute_No && (d.maxThreadsPerThreadgroup.width * d.maxThreadsPerThreadgroup.height) == 0))
-                 );
-                if(
-                   dev == nil //first device is default
-                   || (!devIsExplicitMatch && isCfgExplicitMatch) //force explicit match only
-                   || (dev.isHeadless && !d.isHeadless) //allways prefer non-headless devices
-                   || (dev.isRemovable && !d.isRemovable) //allways prefer non-removable devices
-                   || (!dev.hasUnifiedMemory && d.hasUnifiedMemory) //allways prefer unified memory devices
-                   )
-                {
-                    [dev retain];
-                    if(dev != nil){ [dev release]; }
-                    dev = d;
-                    devIsExplicitMatch = isCfgExplicitMatch;
+        id<MTLDevice> dev = nil;
+        id<MTLCommandQueue> cmdQueue = nil;
+        //Search device
+#       if TARGET_OS_OSX
+        {
+            NSArray<id<MTLDevice>> *devs = MTLCopyAllDevices();
+            if(devs == nil){
+                printf("Metal, error, could not retrieve devices.\n");
+            } else {
+                ScnBOOL devIsExplicitMatch = ScnFALSE;
+                printf("Metal, %d devices found:\n", (int)devs.count);
+                int i; for(i = 0; i < devs.count; i++){
+                    id<MTLDevice> d = devs[i];
+                    printf("    ---------\n");
+                    printf("    Dev#%d/%d: '%s'\n", (i + 1), (int)devs.count, [d.name UTF8String]);
+                    //Identification
+                    if(@available(iOS 18, macOS 14.0, *)){
+                    printf("         Arch: '%s'\n", [d.architecture.name UTF8String]);
+                    }
+                    printf("          Loc: '%s' (num: %d)\n", d.location == MTLDeviceLocationBuiltIn ? "BuiltIn" : d.location == MTLDeviceLocationSlot ? "Slot" : d.location == MTLDeviceLocationExternal ? "External" : d.location == MTLDeviceLocationUnspecified ? "Unspecified" :"Unknown", (int)d.locationNumber);
+                    printf("       LowPwr: %s\n", d.isLowPower ? "yes" : "no");
+                    printf("    Removable: %s\n", d.isRemovable ? "yes" : "no");
+                    printf("     Headless: %s\n", d.isHeadless ? "yes" : "no");
+                    printf("         Peer: grpId(%llu) idx(%d) count(%d)\n", (ScnUI64)d.peerGroupID, d.peerIndex, d.peerCount);
+                    //GPU's Device Memory
+                    printf("     CurAlloc: %.2f %s\n", (double)d.currentAllocatedSize / (d.currentAllocatedSize >= (1024 * 1024 * 1024) ? (double)(1024 * 1024 * 1024) : d.currentAllocatedSize >= (1024 * 1024) ? (double)(1024 * 1024) : d.currentAllocatedSize >= (1024) ? (double)(1024) : 1.0), (d.currentAllocatedSize >= (1024 * 1024 * 1024) ? "GBs" : d.currentAllocatedSize >= (1024 * 1024) ? "MBs" : d.currentAllocatedSize >= (1024) ? "KBs" : "bytes"));
+                    printf("     MaxAlloc: %.2f %s (recommended)\n", (double)d.recommendedMaxWorkingSetSize / (d.recommendedMaxWorkingSetSize >= (1024 * 1024 * 1024) ? (double)(1024 * 1024 * 1024) : d.recommendedMaxWorkingSetSize >= (1024 * 1024) ? (double)(1024 * 1024) : d.recommendedMaxWorkingSetSize >= (1024) ? (double)(1024) : 1.0), (d.recommendedMaxWorkingSetSize >= (1024 * 1024 * 1024) ? "GBs" : d.recommendedMaxWorkingSetSize >= (1024 * 1024) ? "MBs" : d.recommendedMaxWorkingSetSize >= (1024) ? "KBs" : "bytes"));
+                    printf("      MaxRate: %.2f %s/s\n", (double)d.maxTransferRate / (d.maxTransferRate >= (1024 * 1024 * 1024) ? (double)(1024 * 1024 * 1024) : d.maxTransferRate >= (1024 * 1024) ? (double)(1024 * 1024) : d.maxTransferRate >= (1024) ? (double)(1024) : 1.0), (d.maxTransferRate >= (1024 * 1024 * 1024) ? "GBs" : d.maxTransferRate >= (1024 * 1024) ? "MBs" : d.maxTransferRate >= (1024) ? "KBs" : "bytes"));
+                    printf("   UnifiedMem: %s\n", d.hasUnifiedMemory ? "yes" : "no");
+                    //Compute Support
+                    printf(" ThreadGrpMem: %.2f %s\n", (double)d.maxThreadgroupMemoryLength / (d.maxThreadgroupMemoryLength >= (1024 * 1024 * 1024) ? (double)(1024 * 1024 * 1024) : d.maxThreadgroupMemoryLength >= (1024 * 1024) ? (double)(1024 * 1024) : d.maxThreadgroupMemoryLength >= (1024) ? (double)(1024) : 1.0), (d.maxThreadgroupMemoryLength >= (1024 * 1024 * 1024) ? "GBs" : d.maxThreadgroupMemoryLength >= (1024 * 1024) ? "MBs" : d.maxThreadgroupMemoryLength >= (1024) ? "KBs" : "bytes"));
+                    printf("  ThrdsPerGrp: (%d, %d, %d)\n", (int)d.maxThreadsPerThreadgroup.width, (int)d.maxThreadsPerThreadgroup.height, (int)d.maxThreadsPerThreadgroup.depth);
+                    //Functions Pointer Support
+                    printf("     FuncPtrs: %s (compute kernel functions)\n", d.supportsFunctionPointers ? "yes" : "no");
+                    if(@available(iOS 18, macOS 12.0, *)){
+                    printf("    FPtrsRndr: %s\n", d.supportsFunctionPointersFromRender ? "yes" : "no");
+                    }
+                    //Texture and sampler support
+                    printf("   32bFltFilt: %s\n", d.supports32BitFloatFiltering ? "yes" : "no");
+                    printf("   BCTextComp: %s\n", d.supportsBCTextureCompression ? "yes" : "no");
+                    printf("    Depth24-8: %s\n", d.isDepth24Stencil8PixelFormatSupported ? "yes" : "no");
+                    printf("  TexLODQuery: %s\n", d.supportsQueryTextureLOD ? "yes" : "no");
+                    printf("        RWTex: %s\n", d.readWriteTextureSupport ? "yes" : "no");
+                    //Render support
+                    printf("   RayTracing: %s\n", d.supportsRaytracing ? "yes" : "no");
+                    if(@available(iOS 18, macOS 12.0, *)){
+                    printf("  RayTracRndr: %s\n", d.supportsRaytracingFromRender ? "yes" : "no");
+                    }
+                    printf("  PrimMotBlur: %s\n", d.supportsPrimitiveMotionBlur ? "yes" : "no");
+                    printf("      32bMSAA: %s\n", d.supports32BitMSAA ? "yes" : "no");
+                    printf("  PullModeInt: %s\n", d.supportsPullModelInterpolation ? "yes" : "no");
+                    printf("ShadBaryCoord: %s\n", d.supportsShaderBarycentricCoordinates ? "yes" : "no");
+                    printf("  ProgSmplPos: %s\n", d.areProgrammableSamplePositionsSupported ? "yes" : "no");
+                    printf("  RstrOrdGrps: %s\n", d.areRasterOrderGroupsSupported ? "yes" : "no");
+                    //
+                    const ScnSI32 cfgExplictOptsCount =
+                    (
+                     (cfg != NULL && cfg->headless > ENScnGpuDeviceHeadless_Unknown && cfg->headless < ENScnGpuDeviceHeadless_Count ? 1 : 0)
+                     + (cfg != NULL && cfg->removable > ENScnGpuDeviceRemovable_Unknown && cfg->removable < ENScnGpuDeviceRemovable_Count ? 1 : 0)
+                     + (cfg != NULL && cfg->unifiedMem > ENScnGpuDeviceUnifiedMem_Unknown && cfg->unifiedMem < ENScnGpuDeviceUnifiedMem_Count ? 1 : 0)
+                     + (cfg != NULL && cfg->compute > ENScnGpuDeviceCompute_Unknown && cfg->compute < ENScnGpuDeviceCompute_Count ? 1 : 0)
+                     );
+                    const ScnBOOL isCfgExplicitMatch =
+                    (
+                     cfgExplictOptsCount > 0
+                     && (cfg->headless == ENScnGpuDeviceHeadless_Unknown || (cfg->headless == ENScnGpuDeviceHeadless_Yes && d.isHeadless) || (cfg->headless == ENScnGpuDeviceHeadless_No && !d.isHeadless))
+                     && (cfg->removable == ENScnGpuDeviceRemovable_Unknown || (cfg->removable == ENScnGpuDeviceRemovable_Yes && d.isRemovable) || (cfg->removable == ENScnGpuDeviceRemovable_No && !d.isRemovable))
+                     && (cfg->unifiedMem == ENScnGpuDeviceUnifiedMem_Unknown || (cfg->unifiedMem == ENScnGpuDeviceUnifiedMem_Yes && d.hasUnifiedMemory) || (cfg->unifiedMem == ENScnGpuDeviceUnifiedMem_No && !d.hasUnifiedMemory))
+                     && (cfg->compute == ENScnGpuDeviceCompute_Unknown || (cfg->compute == ENScnGpuDeviceCompute_Yes && (d.maxThreadsPerThreadgroup.width * d.maxThreadsPerThreadgroup.height) > 0) || (cfg->compute == ENScnGpuDeviceCompute_No && (d.maxThreadsPerThreadgroup.width * d.maxThreadsPerThreadgroup.height) == 0))
+                     );
+                    if(
+                       dev == nil //first device is default
+                       || (!devIsExplicitMatch && isCfgExplicitMatch) //force explicit match only
+                       || (dev.isHeadless && !d.isHeadless) //allways prefer non-headless devices
+                       || (dev.isRemovable && !d.isRemovable) //allways prefer non-removable devices
+                       || (!dev.hasUnifiedMemory && d.hasUnifiedMemory) //allways prefer unified memory devices
+                       )
+                    {
+                        [dev retain];
+                        if(dev != nil){ [dev release]; }
+                        dev = d;
+                        devIsExplicitMatch = isCfgExplicitMatch;
+                    }
+                }
+                if(devs.count > 0){
+                    printf("    ---------\n");
                 }
             }
-            if(devs.count > 0){
-                printf("    ---------\n");
+            if(devs != nil){
+                [devs release];
+                devs = nil;
             }
-            if(dev == nil){
-                printf("Metal, error, could select a device.\n");
+        }
+#       endif
+        if(dev == nil){
+            //Use default device
+            dev = MTLCreateSystemDefaultDevice();
+        }
+        if(dev == nil){
+            printf("Metal, error, could select a device.\n");
+        } else {
+            printf("Selected device: '%s'\n", [dev.name UTF8String]);
+            id<MTLLibrary> defLib = [dev newDefaultLibrary];
+            if (defLib == nil){
+                printf("Metal, error, newDefaultLibrary failed.\n");
+            } else if(nil == (cmdQueue = [dev newCommandQueue])){
+                printf("Metal, error, newCommandQueue failed.\n");
             } else {
-                printf("Selected device: '%s'\n", [dev.name UTF8String]);
-                id<MTLLibrary> defLib = [dev newDefaultLibrary];
-                if (defLib == nil){
-                    printf("Metal, error, newDefaultLibrary failed.\n");
-                } else if(nil == (cmdQueue = [dev newCommandQueue])){
-                    printf("Metal, error, newCommandQueue failed.\n");
+                STScnApiMetalDevice* obj = (STScnApiMetalDevice*)ScnContext_malloc(ctx, sizeof(STScnApiMetalDevice), "STScnApiMetalDevice");
+                if(obj == NULL){
+                    printf("ScnContext_malloc(STScnApiMetalDevice) failed.\n");
                 } else {
-                    STScnApiMetalDevice* obj = (STScnApiMetalDevice*)ScnContext_malloc(ctx, sizeof(STScnApiMetalDevice), "STScnApiMetalDevice");
-                    if(obj == NULL){
-                        printf("ScnContext_malloc(STScnApiMetalDevice) failed.\n");
+                    //init STScnApiMetalDevice
+                    memset(obj, 0, sizeof(*obj));
+                    ScnContext_set(&obj->ctx, ctx);
+                    obj->dev    = dev; [dev retain];
+                    obj->lib    = defLib; [defLib retain];
+                    obj->cmdQueue = cmdQueue; [cmdQueue retain];
+                    //
+                    if(!ScnApiMetal_getApiItf(&obj->itf)){
+                        printf("ScnApiMetal_allocDevice::ScnApiMetal_getApiItf failed.\n");
                     } else {
-                        //init STScnApiMetalDevice
-                        memset(obj, 0, sizeof(*obj));
-                        ScnContext_set(&obj->ctx, ctx);
-                        obj->dev    = dev; [dev retain];
-                        obj->lib    = defLib; [defLib retain];
-                        obj->cmdQueue = cmdQueue; [cmdQueue retain];
-                        //
-                        if(!ScnApiMetal_getApiItf(&obj->itf)){
-                            printf("ScnApiMetal_allocDevice::ScnApiMetal_getApiItf failed.\n");
-                        } else {
-                            ScnGpuDeviceRef d = ScnGpuDevice_alloc(ctx);
-                            if(!ScnGpuDevice_isNull(d)){
-                                if(!ScnGpuDevice_prepare(d, &obj->itf.dev, obj)){
-                                    printf("ScnApiMetal_allocDevice::ScnGpuDevice_prepare failed.\n");
-                                } else {
-                                    ScnGpuDevice_set(&r, d);
-                                    obj = NULL; //consume
-                                }
-                                ScnGpuDevice_releaseAndNull(&d);
+                        ScnGpuDeviceRef d = ScnGpuDevice_alloc(ctx);
+                        if(!ScnGpuDevice_isNull(d)){
+                            if(!ScnGpuDevice_prepare(d, &obj->itf.dev, obj)){
+                                printf("ScnApiMetal_allocDevice::ScnGpuDevice_prepare failed.\n");
+                            } else {
+                                ScnGpuDevice_set(&r, d);
+                                obj = NULL; //consume
                             }
+                            ScnGpuDevice_releaseAndNull(&d);
                         }
-                    }
-                    //release (if not consumed)
-                    if(obj != NULL){
-                        ScnApiMetal_device_free(obj);
-                        obj = NULL;
                     }
                 }
                 //release (if not consumed)
-                /*if(defLib != nil){
-                    [defLib release];
-                    defLib = nil;
-                }*/
+                if(obj != NULL){
+                    ScnApiMetal_device_free(obj);
+                    obj = NULL;
+                }
             }
             //release (if not consumed)
-            if(cmdQueue != nil){
-                [cmdQueue release];
-                cmdQueue = nil;
-            }
-            if(dev != nil){
-                [dev release];
-                dev = nil;
-            }
+            /*if(defLib != nil){
+                [defLib release];
+                defLib = nil;
+            }*/
         }
-        if(devs != nil){
-            [devs release];
-            devs = nil;
+        //release (if not consumed)
+        if(cmdQueue != nil){
+            [cmdQueue release];
+            cmdQueue = nil;
+        }
+        if(dev != nil){
+            [dev release];
+            dev = nil;
         }
     }
     return r;
@@ -241,8 +259,13 @@ typedef struct STScnApiMetalBuffer {
     id<MTLBuffer>   buff;
 } STScnApiMetalBuffer;
 
+void* ScnApiMetal_device_getApiDevice(void* pObj){
+    STScnApiMetalDevice* dev = (STScnApiMetalDevice*)pObj;
+    return (dev != NULL ? dev->dev : NULL);
+}
+
 ScnBOOL ScnApiMetal_buffer_syncAllRanges_(id<MTLBuffer> buff, ScnMemElasticRef mem);
-        
+
 ScnGpuBufferRef ScnApiMetal_device_allocBuffer(void* pObj, ScnMemElasticRef mem){
     ScnGpuBufferRef r = ScnObjRef_Zero;
     STScnApiMetalDevice* dev = (STScnApiMetalDevice*)pObj;
@@ -386,7 +409,7 @@ typedef struct STScnApiMetalVertexBuff {
 ScnGpuVertexbuffRef ScnApiMetal_device_allocVertexBuff(void* pObj, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff){
     ScnGpuVertexbuffRef r = ScnObjRef_Zero;
     STScnApiMetalDevice* dev = (STScnApiMetalDevice*)pObj;
-    if(dev != NULL && dev->dev != NULL && cfg != NULL && !ScnGpuBuffer_isNull(vBuff) && !ScnGpuBuffer_isNull(idxBuff)){
+    if(dev != NULL && dev->dev != NULL && cfg != NULL && !ScnGpuBuffer_isNull(vBuff)){ //idxBuff is optional
         //synced
         STScnApiMetalVertexBuff* obj = (STScnApiMetalVertexBuff*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalVertexBuff), "STScnApiMetalVertexBuff");
         if(obj == NULL){
@@ -499,11 +522,18 @@ ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void*
             } else if(NULL == (obj = (STScnApiMetalFramebuffView*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalFramebuffView), "STScnApiMetalFramebuffView"))){
                 printf("ScnContext_malloc(STScnApiMetalFramebuffView) failed.\n");
             } else {
+                CGSize viewSz = mtkView.drawableSize;
                 memset(obj, 0, sizeof(*obj));
                 ScnContext_set(&obj->ctx, dev->ctx);
-                obj->itf        = dev->itf;
-                obj->mtkView    = mtkView; [obj->mtkView retain];
-                obj->renderState = renderState; [obj->renderState retain];
+                obj->itf            = dev->itf;
+                obj->mtkView        = mtkView; [obj->mtkView retain];
+                obj->size.width     = viewSz.width;
+                obj->size.height    = viewSz.height;
+                obj->viewport.x     = 0;
+                obj->viewport.y     = 0;
+                obj->viewport.width = obj->size.width;
+                obj->viewport.height = obj->size.height;
+                obj->renderState    = renderState; [obj->renderState retain];
                 //
                 ScnGpuFramebuffRef d = ScnGpuFramebuff_alloc(dev->ctx);
                 if(!ScnGpuFramebuff_isNull(d)){
@@ -535,41 +565,214 @@ ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void*
     return r;
 }
 
-ScnBOOL ScnApiMetal_device_render(void* obj, ScnGpuBufferRef fbPropsBuff, ScnGpuBufferRef mdlsPropsBuff, const STScnRenderCmd* const cmds, const ScnUI32 cmdsSz){
+ScnBOOL ScnApiMetal_device_render(void* pObj, ScnGpuBufferRef pFbPropsBuff, ScnGpuBufferRef pMdlsPropsBuff, const STScnRenderCmd* const cmds, const ScnUI32 cmdsSz){
     ScnBOOL r = ScnTRUE;
-    const STScnRenderCmd* c = cmds;
-    const STScnRenderCmd* cAfterEnd = cmds + cmdsSz;
-    while(r && c < cAfterEnd){
-        switch (c->cmdId) {
-            case ENScnRenderCmd_None:
-                //nop
-                break;
-            //framebuffers
-            case ENScnRenderCmd_ActivateFramebuff:
-                
-                break;
-            //models
-            case ENScnRenderCmd_SetTransformOffset: //sets the positions of the 'STScnGpuModelProps2D' to be applied for the drawing cmds
-                break;
-            case ENScnRenderCmd_SetVertexBuff:  //activates the vertex buffer
-                break;
-            //case ENScnRenderCmd_SetTexture:     //activates the texture in a specific slot-index
-            //    break;
-            //modes
-            //case ENScnRenderCmd_MaskModePush:   //pushes drawing-mask mode, where only the alpha value is affected
-            //    break;
-            //case ENScnRenderCmd_MaskModePop:    //pop
-            //    break;
-            //drawing
-            case ENScnRenderCmd_DrawVerts:      //draws something using the vertices
-                break;
-            case ENScnRenderCmd_DrawIndexes:    //draws something using the vertices indexes
-                break;
-            default:
-                SCN_ASSERT(ScnFALSE) //missing implementation
-                break;
+    STScnApiMetalDevice* dev = (STScnApiMetalDevice*)pObj;
+    if(dev != NULL && dev->dev != nil && dev->cmdQueue != nil && !ScnGpuBuffer_isNull(pFbPropsBuff) && !ScnGpuBuffer_isNull(pMdlsPropsBuff)){
+        STScnApiMetalBuffer* fbPropsBuff = (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(pFbPropsBuff);
+        STScnApiMetalBuffer* mdlsPropsBuff = (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(pMdlsPropsBuff);
+        if(fbPropsBuff == NULL || fbPropsBuff->buff == nil){
+            //
+        } else if(mdlsPropsBuff == NULL || mdlsPropsBuff->buff == nil){
+            //
+        } else {
+            STScnApiMetalFramebuffView* fb = NULL;
+            MTLRenderPassDescriptor* renderPassDescriptor = nil;
+            id<MTLCommandBuffer> commandBuffer = nil;
+            id<MTLRenderCommandEncoder> rndrEnc = nil;
+            const STScnRenderCmd* c = cmds;
+            const STScnRenderCmd* cAfterEnd = cmds + cmdsSz;
+            while(r && c < cAfterEnd){
+                switch (c->cmdId) {
+                    case ENScnRenderCmd_None:
+                        //nop
+                        break;
+                        //framebuffers
+                    case ENScnRenderCmd_ActivateFramebuff:
+                        if(!ScnFramebuff_isNull(c->activateFramebuff.ref)){
+                            ScnGpuFramebuffRef gpuFb = ScnFramebuff_getCurrentRenderSlot(c->activateFramebuff.ref);
+                            if(ScnGpuFramebuff_isNull(gpuFb)){
+                                printf("ERROR, ENScnRenderCmd_ActivateFramebuff::ScnGpuFramebuff_isNull.\n");
+                                r = ScnFALSE;
+                            } else {
+                                fb = (STScnApiMetalFramebuffView*)ScnGpuFramebuff_getApiItfParam(gpuFb);
+                                if(fb == NULL || fb->mtkView == nil || fb->renderState == nil){
+                                    printf("ERROR, ENScnRenderCmd_ActivateFramebuff::fb == NULL || fb->mtkView == nil || fb->renderState == nil.\n");
+                                    r = ScnFALSE;
+                                } else {
+                                    renderPassDescriptor = fb->mtkView.currentRenderPassDescriptor;
+                                    //printf("currentRenderPassDescriptor.\n");
+                                    commandBuffer = [dev->cmdQueue commandBuffer];
+                                    //printf("commandBuffer.\n");
+                                    if(renderPassDescriptor == nil || commandBuffer == nil){
+                                        printf("ERROR, ENScnRenderCmd_ActivateFramebuff::renderPassDescriptor == nil || commandBuffer == nil.\n");
+                                        r = ScnFALSE;
+                                    } else {
+                                        commandBuffer.label = @"Ixtli-cmd-buff";
+                                        rndrEnc = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+                                        if(rndrEnc == nil){
+                                            printf("ERROR, ENScnRenderCmd_ActivateFramebuff::renderCommandEncoderWithDescriptor failed.\n");
+                                            r = ScnFALSE;
+                                        } else {
+                                            //printf("renderCommandEncoderWithDescriptor.\n");
+                                            rndrEnc.label = @"ixtli-render-cmd-enc";
+                                            MTLViewport viewPort;
+                                            viewPort.originX = (double)fb->viewport.x;
+                                            viewPort.originY = (double)fb->viewport.y;
+                                            viewPort.width = (double)fb->viewport.width;
+                                            viewPort.height = (double)fb->viewport.height;
+                                            viewPort.znear = 0.0;
+                                            viewPort.zfar = 1.0;
+                                            [rndrEnc setViewport:viewPort];
+                                            //printf("setViewport(%u, %u)-(+%u, +%u).\n", fb->viewport.x, fb->viewport.y, fb->viewport.width, fb->viewport.height);
+                                            [rndrEnc setRenderPipelineState:fb->renderState];
+                                            //printf("setRenderPipelineState.\n");
+                                            //fb props
+                                            [rndrEnc setVertexBuffer:fbPropsBuff->buff
+                                                                    offset:c->activateFramebuff.offset
+                                                                   atIndex:0];
+                                            //printf("setVertexBuffer(idx0, %u offset).\n", c->activateFramebuff.offset);
+                                            //mdl props
+                                            [rndrEnc setVertexBuffer:mdlsPropsBuff->buff
+                                                                    offset:0
+                                                                   atIndex:1];
+                                            //printf("setVertexBuffer(idx1, 0 offset).\n");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                        //models
+                    case ENScnRenderCmd_SetTransformOffset: //sets the positions of the 'STScnGpuModelProps2D' to be applied for the drawing cmds
+                        if(rndrEnc == nil){
+                            printf("ERROR, ENScnRenderCmd_SetTransformOffset::rndrEnc is nil.\n");
+                            r = ScnFALSE;
+                        } else {
+                            [rndrEnc setVertexBufferOffset:c->setTransformOffset.offset atIndex:1];
+                            //printf("setVertexBufferOffset(idx1, %u offset).\n", c->setTransformOffset.offset);
+                        }
+                        break;
+                    case ENScnRenderCmd_SetVertexBuff:  //activates the vertex buffer
+                        if(ScnVertexbuff_isNull(c->setVertexBuff.ref)){
+                            printf("ERROR, ENScnRenderCmd_SetVertexBuff::ScnVertexbuff_isNull.\n");
+                            [rndrEnc setVertexBuffer:nil offset:0 atIndex:2];
+                            //printf("setVertexBuffer(idx2, nil).\n");
+                        } else {
+                            //ScnVertexbuff_get
+                            ScnGpuVertexbuffRef vbuffRef = ScnVertexbuff_getCurrentRenderSlot(c->setVertexBuff.ref);
+                            if(ScnGpuVertexbuff_isNull(vbuffRef)){
+                                printf("ERROR, ENScnRenderCmd_SetVertexBuff::ScnGpuVertexbuff_isNull.\n");
+                                r = ScnFALSE;
+                            } else {
+                                STScnApiMetalVertexBuff* vbuff = (STScnApiMetalVertexBuff*)ScnGpuVertexBuff_getApiItfParam(vbuffRef);
+                                if(vbuff == NULL || ScnGpuBuffer_isNull(vbuff->vBuff)){
+                                    printf("ERROR, ENScnRenderCmd_SetVertexBuff::ScnGpuBuffer_isNull.\n");
+                                    r = ScnFALSE;
+                                } else {
+                                    STScnApiMetalBuffer* buff = (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(vbuff->vBuff);
+                                    if(buff == NULL){
+                                        printf("ERROR, ENScnRenderCmd_SetVertexBuff::uff == NULL.\n");
+                                        r = ScnFALSE;
+                                    } else {
+                                        [rndrEnc setVertexBuffer:buff->buff offset:0 atIndex:2];
+                                        //printf("setVertexBuffer(idx2, 0 offset).\n");
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                        //case ENScnRenderCmd_SetTexture:     //activates the texture in a specific slot-index
+                        //    break;
+                        //modes
+                        //case ENScnRenderCmd_MaskModePush:   //pushes drawing-mask mode, where only the alpha value is affected
+                        //    break;
+                        //case ENScnRenderCmd_MaskModePop:    //pop
+                        //    break;
+                        //drawing
+                    case ENScnRenderCmd_DrawVerts:      //draws something using the vertices
+                        switch (c->drawVerts.shape) {
+                            case ENScnRenderShape_Compute:
+                                //nop
+                                break;
+                                //
+                            case ENScnRenderShape_Texture:     //same as 'ENScnRenderShape_TriangStrip' with possible bitblit-optimization if matrix has no rotation.
+                                if(rndrEnc == NULL){
+                                    //rintf("ERROR, ENScnRenderShape_Texture::rndrEnc == NULL.\n");
+                                    r = ScnFALSE;
+                                } else {
+                                    [rndrEnc drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
+                                    //printf("drawPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
+                                }
+                                break;
+                            case ENScnRenderShape_TriangStrip: //triangles-strip, most common shape
+                                if(rndrEnc == NULL){
+                                    printf("ERROR, ENScnRenderShape_TriangStrip::rndrEnc == NULL.\n");
+                                    r = ScnFALSE;
+                                } else {
+                                    [rndrEnc drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
+                                    //printf("drawPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
+                                }
+                                break;
+                            //case ENScnRenderShape_TriangFan:   //triangles-fan
+                            //    break;
+                                //
+                            case ENScnRenderShape_LineStrip:   //lines-strip
+                                if(rndrEnc == NULL){
+                                    printf("ERROR, ENScnRenderShape_LineStrip::rndrEnc == NULL.\n");
+                                    r = ScnFALSE;
+                                } else {
+                                    [rndrEnc drawPrimitives:MTLPrimitiveTypeLineStrip vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
+                                    //printf("drawPrimitives(MTLPrimitiveTypeLineStrip: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
+                                }
+                                break;
+                            //case ENScnRenderShape_LineLoop:    //lines-loop
+                            //    break;
+                            case ENScnRenderShape_Lines:       //lines
+                                if(rndrEnc == NULL){
+                                    printf("ERROR, ENScnRenderShape_Lines::rndrEnc == NULL.\n");
+                                    r = ScnFALSE;
+                                } else {
+                                    [rndrEnc drawPrimitives:MTLPrimitiveTypeLine vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
+                                    //printf("drawPrimitives(MTLPrimitiveTypeLine: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
+                                }
+                                break;
+                            case ENScnRenderShape_Points:      //points
+                                if(rndrEnc == NULL){
+                                    printf("ERROR, ENScnRenderShape_Points::rndrEnc == NULL.\n");
+                                    r = ScnFALSE;
+                                } else {
+                                    [rndrEnc drawPrimitives:MTLPrimitiveTypePoint vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
+                                    //printf("drawPrimitives(MTLPrimitiveTypePoint: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
+                                }
+                                break;
+                            default:
+                                SCN_ASSERT(ScnFALSE); //missing implementation
+                                break;
+                        }
+                        break;
+                    case ENScnRenderCmd_DrawIndexes:    //draws something using the vertices indexes
+                        break;
+                    default:
+                        SCN_ASSERT(ScnFALSE) //missing implementation
+                        break;
+                }
+                ++c;
+            }
+            //finalize
+            if(rndrEnc != nil){
+                [rndrEnc endEncoding];
+                //printf("endEncoding.\n");
+            }
+            if(commandBuffer != nil){
+                if(fb != NULL && fb->mtkView != NULL){
+                    [commandBuffer presentDrawable:fb->mtkView.currentDrawable];
+                    //printf("presentDrawable.\n");
+                }
+                [commandBuffer commit];
+                //printf("commit.\n");
+            }
         }
-        ++c;
     }
     return r;
 }

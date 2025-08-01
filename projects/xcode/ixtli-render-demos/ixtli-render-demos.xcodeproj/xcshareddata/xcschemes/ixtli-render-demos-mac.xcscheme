@@ -50,6 +50,18 @@
             ReferencedContainer = "container:ixtli-render-demos.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "MTL_LOG_LEVEL"
+            value = "MTLLogLevelDebug"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "MTL_LOG_BUFFER_SIZE"
+            value = "1024"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

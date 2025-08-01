@@ -50,6 +50,8 @@ SCN_REF_STRUCT_METHODS_DEC(ScnGpuBuffer)
 //
 
 ScnBOOL ScnGpuBuffer_prepare(ScnGpuBufferRef ref, const STScnGpuBufferApiItf* itf, void* itfParam);
+void*   ScnGpuBuffer_getApiItfParam(ScnGpuBufferRef ref);
+
 ScnBOOL ScnGpuBuffer_sync(ScnGpuBufferRef ref, const STScnGpuBufferCfg* cfg, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes);
 
 #ifdef __cplusplus

@@ -58,6 +58,7 @@ SCN_REF_STRUCT_METHODS_DEC(ScnGpuFramebuff)
 //
 
 ScnBOOL     ScnGpuFramebuff_prepare(ScnGpuFramebuffRef ref, const STScnGpuFramebuffApiItf* itf, void* itfParam);
+void*       ScnGpuFramebuff_getApiItfParam(ScnGpuFramebuffRef ref);
 
 STScnSize2DU  ScnGpuFramebuff_getSize(ScnGpuFramebuffRef ref, STScnRectU* dstViewport);
 ScnBOOL     ScnGpuFramebuff_syncSizeAndViewport(ScnGpuFramebuffRef ref, const STScnSize2DU size, const STScnRectU viewport);

@@ -163,13 +163,13 @@ ScnBOOL ScnVertexbuff_prepareCurrentRenderSlot(ScnVertexbuffRef ref){
                 printf("ERROR ScnVertexbuff_prepareCurrentRenderSlot::ScnBuffer_prepareNextRenderSlot(vertex) failed.\n");
                 r = ScnFALSE;
             } else if(vbuffHasPtrs){
-                vbuff = ScnBuffer_getCurrentRenderSlotGpuBuffer(opq->buffs.vertex);
+                vbuff = ScnBuffer_getCurrentRenderSlot(opq->buffs.vertex);
             }
             if(r && !ScnBuffer_isNull(opq->buffs.idxs) && !ScnBuffer_prepareCurrentRenderSlot(opq->buffs.idxs, &iBuffHasPtrs)){
                 printf("ERROR ScnVertexbuff_prepareCurrentRenderSlot::ScnBuffer_prepareNextRenderSlot(idxs) failed.\n");
                 r = ScnFALSE;
             } else if(iBuffHasPtrs){
-                iBuff = ScnBuffer_getCurrentRenderSlotGpuBuffer(opq->buffs.idxs);
+                iBuff = ScnBuffer_getCurrentRenderSlot(opq->buffs.idxs);
             }
         }
         //sync gpu-buffer
@@ -185,8 +185,8 @@ ScnBOOL ScnVertexbuff_prepareCurrentRenderSlot(ScnVertexbuffRef ref){
             STScnVertexbuffSlot* slot = &opq->slots.arr[opq->slots.iCur];
             if(ScnGpuVertexbuff_isNull(slot->gpuVBuff)){
                 slot->gpuVBuff = ScnGpuDevice_allocVertexBuff(opq->gpuDev, &opq->cfg, vbuff, iBuff);
-                if(!ScnGpuVertexbuff_isNull(slot->gpuVBuff)){
-                    r = ScnTRUE;
+                if(ScnGpuVertexbuff_isNull(slot->gpuVBuff)){
+                    r = ScnFALSE;
                 }
             } else {
                 r = ScnGpuVertexbuff_sync(slot->gpuVBuff, &opq->cfg, vbuff, iBuff);
@@ -204,6 +204,18 @@ ScnBOOL ScnVertexbuff_moveToNextRenderSlot(ScnVertexbuffRef ref){
     if(opq->slots.arr != NULL && opq->slots.use > 0 && !ScnGpuDevice_isNull(opq->gpuDev)){
         opq->slots.iCur = (opq->slots.iCur + 1) % opq->slots.use;
         r = ScnTRUE;
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnGpuVertexbuffRef ScnVertexbuff_getCurrentRenderSlot(ScnVertexbuffRef ref){
+    ScnGpuVertexbuffRef r = ScnObjRef_Zero;
+    STScnVertexbuffOpq* opq = (STScnVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(opq->slots.arr != NULL && opq->slots.use > 0){
+        STScnVertexbuffSlot* slot = &opq->slots.arr[opq->slots.iCur % opq->slots.use];
+        r = slot->gpuVBuff;
     }
     ScnMutex_unlock(opq->mutex);
     return r;

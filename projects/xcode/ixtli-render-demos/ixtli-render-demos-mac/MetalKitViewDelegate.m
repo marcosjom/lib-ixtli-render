@@ -24,9 +24,10 @@ NS_ASSUME_NONNULL_BEGIN
 #define IXTLI_FRAMES_COUNT_AND_RELEASE_RENDER   120
 
 @implementation MetalKitViewDelegate {
-    ScnContextRef ctx;
-    ScnRenderRef  render;
-    ScnModelRef   model;
+    ScnContextRef   ctx;
+    ScnRenderRef    render;
+    ScnFramebuffRef framebuff;
+    ScnModel2DRef   model;
     //memory leak detection
     STScnMemMap     memmap;
     ScnUI32         framesCount;
@@ -34,11 +35,24 @@ NS_ASSUME_NONNULL_BEGIN
     MTKView         *metalKitView;
 }
 
+- (void)updateModelVerts:(CGSize)sz
+{
+    ScnModel2D_resetDrawCmds(model);
+    STScnVertex2DPtr verts = ScnModel2D_addDraw(model, ENScnRenderShape_TriangStrip, 3);
+    if(verts.ptr != NULL){
+        STScnVertex2D* v;
+        v = &verts.ptr[0]; v->x = 0; v->y = sz.height;           v->color.r = 255;   v->color.g = 55; v->color.b = 155; v->color.a = 255;
+        v = &verts.ptr[1]; v->x = sz.width; v->y = sz.height;    v->color.r = 55;    v->color.g = 155; v->color.b = 255; v->color.a = 255;
+        v = &verts.ptr[2]; v->x = sz.width / 2; v->y = 0;        v->color.r = 155;   v->color.g = 255; v->color.b = 55; v->color.a = 255;
+    }
+}
+
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view
 {
     ctx             = (ScnContextRef)ScnContextRef_Zero;
     render          = (ScnRenderRef)ScnObjRef_Zero;
-    model           = (ScnModelRef)ScnObjRef_Zero;
+    framebuff       = (ScnFramebuffRef)ScnObjRef_Zero;
+    model           = (ScnModel2DRef)ScnObjRef_Zero;
     metalKitView    = nil;
 
     self = [super init];
@@ -82,14 +96,21 @@ NS_ASSUME_NONNULL_BEGIN
                 printf("ERROR, ScnRender_openDevice failed.\n");
             } else {
                 printf("Render initialized.\n");
-                model = ScnRender_allocModel(render);
-                if(!ScnModel_isNull(model)){
-                    STScnVertexPtr verts = ScnModel_addDraw(model, ENScnRenderShape_TriangStrip, 3);
-                    if(verts.ptr != NULL){
-                        STScnVertex v;
-                        v = verts.ptr[0]; v.x = 10; v.y = 10; v.color.r = 255; v.color.g = 55; v.color.b = 155; v.color.a = 255;
-                        v = verts.ptr[1]; v.x = -10; v.y = 10; v.color.r = 255; v.color.g = 55; v.color.b = 155; v.color.a = 255;
-                        v = verts.ptr[2]; v.x = 0; v.y = 0; v.color.r = 255; v.color.g = 55; v.color.b = 155; v.color.a = 255;
+                id<MTLDevice> apiDev = (__bridge id<MTLDevice>)ScnRender_getApiDevice(render);
+                if(apiDev == nil){
+                    printf("ERROR, ScnRender_getApiDevice failed.\n");
+                } else {
+                    view.device = apiDev;
+                    framebuff = ScnRender_allocFramebuff(render);
+                    if(ScnFramebuff_isNull(framebuff)){
+                        printf("ERROR, ScnRender_allocFramebuff failed.\n");
+                    } else if(!ScnFramebuff_bindToOSView(framebuff, (__bridge void*)view)){
+                        printf("ERROR, ScnFramebuff_bindToOSView failed.\n");
+                    } else {
+                        model = ScnRender_allocModel(render);
+                        if(!ScnModel2D_isNull(model)){
+                            [self updateModelVerts:view.drawableSize];
+                        }
                     }
                 }
             }
@@ -102,18 +123,41 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
 {
     NSLog(@"MetalKitViewDelegate, mtkView:drawableSizeWillChange(%f, %f).\n", size.width, size.height);
+    //sync model vertices
+    if(!ScnModel2D_isNull(model)){
+        [self updateModelVerts:size];
+    }
+    //sync framebuffer
+    if(!ScnFramebuff_isNull(framebuff)){
+        const STScnSize2DU pSize = (STScnSize2DU){ (ScnUI32)size.width, (ScnUI32)size.height };
+        const STScnRectU pViewPort = (STScnRectU) { 0u, 0u, pSize.width, pSize.height };
+        if(!ScnFramebuff_syncSizeAndViewport(framebuff, pSize, pViewPort)){
+            printf("ScnFramebuff_syncSizeAndViewport(%u %u) failed.\n", pSize.width, pSize.height);
+        } else {
+            printf("ScnFramebuff_syncSizeAndViewport(%u %u) ok.\n", pSize.width, pSize.height);
+        }
+    }
 }
 
 /// Notifies the app when the system is ready draw a frame into a view.
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
     //NSLog(@"MetalKitViewDelegate, drawInMTKView.\n");
-    if(!ScnRender_isNull(render) && ScnRender_hasOpenDevice(render)){
-        if(!ScnRender_prepareNextRenderSlot(render)){
-            printf("ScnRender_prepareNextRenderSlot failed.\n");
-        } else if(!ScnRender_jobStart(render)){
+    SCN_ASSERT(ScnRender_isNull(render) || view.device == (__bridge id<MTLDevice>)ScnRender_getApiDevice(render))
+    if(!ScnRender_isNull(render) && ScnRender_hasOpenDevice(render) && !ScnFramebuff_isNull(framebuff)){
+        if(!ScnRender_jobStart(render)){
             printf("ScnRender_jobStart failed.\n");
         } else {
+            if(!ScnRender_jobFramebuffPush(render, framebuff)){
+                printf("ScnRender_jobFramebuffPush failed.\n");
+            } else {
+                if(!ScnRender_jobModelAdd(render, model)){
+                    printf("ScnRender_jobModelAdd failed.\n");
+                }
+                if(!ScnRender_jobFramebuffPop(render)){
+                    printf("ScnRender_jobFramebuffPop failed.\n");
+                }
+            }
             if(!ScnRender_jobEnd(render)){
                 printf("ScnRender_jobEnd failed.\n");
             }
@@ -127,9 +171,10 @@ NS_ASSUME_NONNULL_BEGIN
         }
         if(framesCount >= IXTLI_FRAMES_COUNT_AND_RELEASE_RENDER){
             printf("Simulating cleanup after %d frames.\n", framesCount);
-            ScnModel_releaseAndNullify(&model);
-            ScnRender_releaseAndNullify(&render);
-            ScnContext_releaseAndNullify(&ctx);
+            ScnModel2D_releaseAndNull(&model);
+            ScnFramebuff_releaseAndNull(&framebuff);
+            ScnRender_releaseAndNull(&render);
+            ScnContext_releaseAndNull(&ctx);
             //custom memory manager
             {
                 ScnMemMap_printFinalReport(&memmap);

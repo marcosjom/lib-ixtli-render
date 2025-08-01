@@ -142,3 +142,8 @@ ScnBOOL ScnFramebuff_moveToNextRenderSlot(ScnFramebuffRef ref){
     ScnMutex_unlock(opq->mutex);
     return r;
 }
+
+ScnGpuFramebuffRef ScnFramebuff_getCurrentRenderSlot(ScnFramebuffRef ref){
+    STScnFramebuffOpq* opq = (STScnFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    return opq->gpuFramebuff;
+}

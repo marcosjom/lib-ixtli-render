@@ -62,6 +62,11 @@ ScnBOOL ScnGpuVertexbuff_prepare(ScnGpuVertexbuffRef ref, const STScnGpuVertexbu
     return r;
 }
 
+void* ScnGpuVertexBuff_getApiItfParam(ScnGpuVertexbuffRef ref){
+    STScnGpuVertexbuffOpq* opq = (STScnGpuVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    return opq->api.itfParam;
+}
+
 ScnBOOL ScnGpuVertexbuff_sync(ScnGpuVertexbuffRef ref, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff){
     STScnGpuVertexbuffOpq* opq = (STScnGpuVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (opq != NULL && opq->api.itf.sync != NULL ? (*opq->api.itf.sync)(opq->api.itfParam, cfg, vBuff, idxBuff) : ScnFALSE);

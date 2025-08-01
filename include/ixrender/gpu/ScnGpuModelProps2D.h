@@ -22,7 +22,7 @@ extern "C" {
 
 typedef struct STScnGpuModelProps2D {
     STScnColor8     c8;     //color
-    STScnMatrix2D     matrix; //matrix
+    STScnMatrix2D   matrix; //matrix
 } STScnGpuModelProps2D;
 
 #ifndef SNC_COMPILING_SHADER

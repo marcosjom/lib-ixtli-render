@@ -49,6 +49,7 @@ SCN_REF_STRUCT_METHODS_DEC(ScnRender)
 ScnBOOL     ScnRender_prepare(ScnRenderRef ref, const STScnApiItf* itf, void* itfParam);
 ScnBOOL     ScnRender_openDevice(ScnRenderRef ref, const STScnGpuDeviceCfg* cfg, const ScnUI32 ammRenderSlots);
 ScnBOOL     ScnRender_hasOpenDevice(ScnRenderRef ref);
+void*       ScnRender_getApiDevice(ScnRenderRef ref);
 
 //model
 ScnModel2DRef ScnRender_allocModel(ScnRenderRef ref);

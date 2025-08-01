@@ -33,9 +33,10 @@ ScnBOOL         ScnFramebuff_syncSizeAndViewport(ScnFramebuffRef ref, const STSc
 
 //gpu
 
+
 ScnBOOL         ScnFramebuff_prepareCurrentRenderSlot(ScnFramebuffRef ref);
 ScnBOOL         ScnFramebuff_moveToNextRenderSlot(ScnFramebuffRef ref);
-
+ScnGpuFramebuffRef ScnFramebuff_getCurrentRenderSlot(ScnFramebuffRef ref);
 
 #ifdef __cplusplus
 } //extern "C"

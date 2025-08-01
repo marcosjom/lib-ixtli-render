@@ -61,6 +61,11 @@ ScnBOOL ScnGpuFramebuff_prepare(ScnGpuFramebuffRef ref, const STScnGpuFramebuffA
     return r;
 }
 
+void* ScnGpuFramebuff_getApiItfParam(ScnGpuFramebuffRef ref){
+    STScnGpuFramebuffOpq* opq = (STScnGpuFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    return opq->api.itfParam;
+}
+
 STScnSize2DU ScnGpuFramebuff_getSize(ScnGpuFramebuffRef ref, STScnRectU* dstViewport){
     STScnGpuFramebuffOpq* opq = (STScnGpuFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     if(dstViewport != NULL) *dstViewport = (STScnRectU)STScnRectU_Zero;

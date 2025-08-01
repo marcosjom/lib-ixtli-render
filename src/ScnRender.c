@@ -167,7 +167,7 @@ void ScnRender_destroyOpq(void* obj){
 
 //prepare
 
-ScnBufferRef      ScnRender_allocDynamicBuffLockedOpq_(STScnRenderOpq* opq, const ScnUI32 itmSz, const ScnUI32 itmsPerBlock, const ScnUI32 ammRenderSlots);
+ScnBufferRef      ScnRender_allocDynamicBuffLockedOpq_(STScnRenderOpq* opq, const ScnUI32 offsetsAlignment, const ScnUI32 itmSz, const ScnUI32 itmsPerBlock, const ScnUI32 ammRenderSlots);
 ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, const ScnUI32 ammRenderSlots);
 
 ScnBOOL ScnRender_prepare(ScnRenderRef ref, const STScnApiItf* itf, void* itfParam){
@@ -201,11 +201,12 @@ ScnBOOL ScnRender_openDevice(ScnRenderRef ref, const STScnGpuDeviceCfg* cfg, con
                 ScnBufferRef mdlsPropsBuff = ScnObjRef_Zero;
                 ScnVertexbuffsRef vbuffs = ScnObjRef_Zero;
                 //
-                fbPropsBuff = ScnRender_allocDynamicBuffLockedOpq_(opq, sizeof(STScnGpuFramebufferProps), 32, ammRenderSlots);
+                //Note: Metal requires buffers offset to be 32 bytes aligned
+                fbPropsBuff = ScnRender_allocDynamicBuffLockedOpq_(opq, 32, sizeof(STScnGpuFramebufferProps), 32, ammRenderSlots);
                 if(ScnBuffer_isNull(fbPropsBuff)){
                     printf("ERROR, ScnRender_allocDynamicBuffLockedOpq_(fbPropsBuff) failed.\n");
                 } else {
-                    mdlsPropsBuff = ScnRender_allocDynamicBuffLockedOpq_(opq, sizeof(STScnGpuModelProps2D), 128, ammRenderSlots);
+                    mdlsPropsBuff = ScnRender_allocDynamicBuffLockedOpq_(opq, 32, sizeof(STScnGpuModelProps2D), 128, ammRenderSlots);
                     if(ScnBuffer_isNull(mdlsPropsBuff)){
                         printf("ERROR, ScnRender_allocDynamicBuffLockedOpq_(mdlsPropsBuff) failed.\n");
                     } else {
@@ -235,6 +236,11 @@ ScnBOOL ScnRender_openDevice(ScnRenderRef ref, const STScnGpuDeviceCfg* cfg, con
 ScnBOOL ScnRender_hasOpenDevice(ScnRenderRef ref){
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return !ScnGpuDevice_isNull(opq->gpuDev);
+}
+
+void* ScnRender_getApiDevice(ScnRenderRef ref){
+    STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    return !ScnGpuDevice_isNull(opq->gpuDev) ? ScnGpuDevice_getApiDevice(opq->gpuDev) : NULL;
 }
 
 ScnModel2DRef ScnRender_allocModel(ScnRenderRef ref){
@@ -293,10 +299,10 @@ ScnVertexbuffsRef ScnRender_allocVertexbuffs(ScnRenderRef ref){
     return r;
 }
 
-ScnBufferRef ScnRender_allocDynamicBuffLockedOpq_(STScnRenderOpq* opq, const ScnUI32 itmSz, const ScnUI32 itmsPerBlock, const ScnUI32 ammRenderSlots){
+ScnBufferRef ScnRender_allocDynamicBuffLockedOpq_(STScnRenderOpq* opq, const ScnUI32 offsetsAlignment, const ScnUI32 itmSz, const ScnUI32 itmsPerBlock, const ScnUI32 ammRenderSlots){
     ScnBufferRef r        = ScnObjRef_Zero;
     STScnGpuBufferCfg cfg   = STScnGpuBufferCfg_Zero;
-    cfg.mem.idxsAlign       = itmSz;
+    cfg.mem.idxsAlign       = (itmSz + offsetsAlignment - 1) / offsetsAlignment * offsetsAlignment;
     cfg.mem.sizeAlign       = 256;
     cfg.mem.sizeInitial     = 0;
     //calculate sizePerBlock
@@ -356,7 +362,7 @@ ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, cons
             }
             //vertex buffer
             if(r){
-                vBuffs[i] = ScnRender_allocDynamicBuffLockedOpq_(opq, itmSz, ammPerBock, ammRenderSlots);
+                vBuffs[i] = ScnRender_allocDynamicBuffLockedOpq_(opq, itmSz, itmSz, ammPerBock, ammRenderSlots);
                 if(ScnBuffer_isNull(vBuffs[i])){
                     //error
                     SCN_ASSERT(ScnFALSE)
@@ -367,7 +373,7 @@ ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, cons
             if(r){
                 itmSz = sizeof(STScnVertexIdx);
                 ammPerBock = 2048;
-                iBuffs[i] = ScnRender_allocDynamicBuffLockedOpq_(opq, itmSz, ammPerBock, ammRenderSlots);
+                iBuffs[i] = ScnRender_allocDynamicBuffLockedOpq_(opq, itmSz, itmSz, ammPerBock, ammRenderSlots);
                 if(ScnBuffer_isNull(iBuffs[i])){
                     //error
                     SCN_ASSERT(ScnFALSE)
@@ -569,14 +575,14 @@ ScnBOOL ScnRender_jobEnd(ScnRenderRef ref){
                     case ENScnRenderJobObjType_Unknown: break;
                     case ENScnRenderJobObjType_Buff:
                         if(!ScnBuffer_prepareCurrentRenderSlot(o->buff, NULL)){
-                            printf("ScnRender_jobEnd::ScnVertexbuff_prepareCurrentRenderSlot failed.\n");
+                            printf("ScnRender_jobEnd::ScnBuffer_prepareCurrentRenderSlot failed.\n");
                             r = ScnFALSE;
                             break;
                         }
                         break;
                     case ENScnRenderJobObjType_Framebuff:
                         if(!ScnFramebuff_prepareCurrentRenderSlot(o->framebuff)){
-                            printf("ScnRender_jobEnd::ScnVertexbuff_prepareCurrentRenderSlot failed.\n");
+                            printf("ScnRender_jobEnd::ScnFramebuff_prepareCurrentRenderSlot failed.\n");
                             r = ScnFALSE;
                             break;
                         }
@@ -596,8 +602,8 @@ ScnBOOL ScnRender_jobEnd(ScnRenderRef ref){
         }
         //send render commands to gpu
         if(r){
-            ScnGpuBufferRef fbPropsBuff = ScnBuffer_getCurrentRenderSlotGpuBuffer(opq->fbPropsBuff);
-            ScnGpuBufferRef mdlsPropsBuff = ScnBuffer_getCurrentRenderSlotGpuBuffer(opq->mdlsPropsBuff);
+            ScnGpuBufferRef fbPropsBuff = ScnBuffer_getCurrentRenderSlot(opq->fbPropsBuff);
+            ScnGpuBufferRef mdlsPropsBuff = ScnBuffer_getCurrentRenderSlot(opq->mdlsPropsBuff);
             SCN_ASSERT(!ScnGpuBuffer_isNull(fbPropsBuff)) //program logic error
             SCN_ASSERT(!ScnGpuBuffer_isNull(mdlsPropsBuff)) //program logic error
             if(!ScnGpuDevice_render(opq->gpuDev, fbPropsBuff, mdlsPropsBuff, opq->job.cmds.arr, opq->job.cmds.use)){

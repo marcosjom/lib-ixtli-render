@@ -58,6 +58,7 @@ SCN_REF_STRUCT_METHODS_DEC(ScnGpuVertexbuff)
 //
 
 ScnBOOL             ScnGpuVertexbuff_prepare(ScnGpuVertexbuffRef ref, const STScnGpuVertexbuffApiItf* itf, void* itfParam);
+void*               ScnGpuVertexBuff_getApiItfParam(ScnGpuVertexbuffRef ref);
 
 ScnBOOL             ScnGpuVertexbuff_sync(ScnGpuVertexbuffRef ref, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
 ScnBOOL             ScnGpuVertexbuff_activate(ScnGpuVertexbuffRef ref);

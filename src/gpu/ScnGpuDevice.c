@@ -61,6 +61,11 @@ ScnBOOL ScnGpuDevice_prepare(ScnGpuDeviceRef ref, const STScnGpuDeviceApiItf* it
     return r;
 }
 
+void* ScnGpuDevice_getApiDevice(ScnGpuDeviceRef ref){
+    STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    return (opq->api.itf.getApiDevice != NULL ? (*opq->api.itf.getApiDevice)(opq->api.itfParam) : NULL);
+}
+
 ScnGpuBufferRef ScnGpuDevice_allocBuffer(ScnGpuDeviceRef ref, ScnMemElasticRef mem){
     STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (opq->api.itf.allocBuffer != NULL ? (*opq->api.itf.allocBuffer)(opq->api.itfParam, mem) : (ScnGpuBufferRef)ScnObjRef_Zero);

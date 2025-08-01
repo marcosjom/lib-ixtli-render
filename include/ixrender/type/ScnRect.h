@@ -33,7 +33,7 @@ typedef struct STScnRectI {
     ScnSI32     x;
     ScnSI32     y;
     ScnSI32     width;
-    ScnSI32     eight;
+    ScnSI32     height;
 } STScnRectI;
 
 // STScnRectU
@@ -44,7 +44,7 @@ typedef struct STScnRectU {
     ScnUI32     x;
     ScnUI32     y;
     ScnUI32     width;
-    ScnUI32     eight;
+    ScnUI32     height;
 } STScnRectU;
 
 // STScnRectI16

@@ -301,7 +301,7 @@ ScnBOOL ScnBuffer_moveToNextRenderSlot(ScnBufferRef ref){
     return r;
 }
 
-ScnGpuBufferRef ScnBuffer_getCurrentRenderSlotGpuBuffer(ScnBufferRef ref){
+ScnGpuBufferRef ScnBuffer_getCurrentRenderSlot(ScnBufferRef ref){
     ScnGpuBufferRef r = ScnObjRef_Zero;
     STScnBufferOpq* opq = (STScnBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);

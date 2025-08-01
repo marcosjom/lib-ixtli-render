@@ -7,7 +7,6 @@
 
 #import "ViewController.h"
 #import "MetalKitViewDelegate.h"
-#include "ixrender/scene/ScnModel.h"
 
 @implementation ViewController {
     MTKView                 *view;

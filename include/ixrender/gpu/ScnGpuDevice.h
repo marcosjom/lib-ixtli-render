@@ -92,6 +92,7 @@ SCN_REF_STRUCT_METHODS_DEC(ScnGpuDevice)
 
 typedef struct STScnGpuDeviceApiItf {
     void                (*free)(void* obj);
+    void*               (*getApiDevice)(void* obj);
     ScnGpuBufferRef     (*allocBuffer)(void* obj, ScnMemElasticRef mem);
     ScnGpuVertexbuffRef (*allocVertexBuff)(void* obj, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
     ScnGpuFramebuffRef  (*allocFramebuffFromOSView)(void* obj, void* mtkView);
@@ -101,6 +102,7 @@ typedef struct STScnGpuDeviceApiItf {
 //
 
 ScnBOOL             ScnGpuDevice_prepare(ScnGpuDeviceRef ref, const STScnGpuDeviceApiItf* itf, void* itfParam);
+void*               ScnGpuDevice_getApiDevice(ScnGpuDeviceRef ref);
 ScnGpuBufferRef     ScnGpuDevice_allocBuffer(ScnGpuDeviceRef ref, ScnMemElasticRef mem);
 ScnGpuVertexbuffRef ScnGpuDevice_allocVertexBuff(ScnGpuDeviceRef ref, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
 ScnGpuFramebuffRef  ScnGpuDevice_allocFramebuffFromOSView(ScnGpuDeviceRef ref, void* mtkView);

@@ -57,6 +57,7 @@ void                ScnModel2D_setRotRad(ScnModel2DRef ref, const ScnFLOAT rad);
 
 //draw commands
 
+//Removes all drawCmds and frees all vertex pointers.
 void                ScnModel2D_resetDrawCmds(ScnModel2DRef ref);
 //
 STScnVertex2DPtr    ScnModel2D_addDraw(ScnModel2DRef ref, const ENScnRenderShape shape, const ScnUI32 count);

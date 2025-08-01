@@ -36,6 +36,7 @@ ScnBufferRef    ScnVertexbuff_getIdxsBuff(ScnVertexbuffRef ref);
 //gpu-vertexbuffer
 ScnBOOL         ScnVertexbuff_prepareCurrentRenderSlot(ScnVertexbuffRef ref);
 ScnBOOL         ScnVertexbuff_moveToNextRenderSlot(ScnVertexbuffRef ref);
+ScnGpuVertexbuffRef ScnVertexbuff_getCurrentRenderSlot(ScnVertexbuffRef ref);
 
 #ifdef __cplusplus
 } //extern "C"
