@@ -31,8 +31,8 @@ typedef struct STScnGpuBufferCfg {
 #define STScnGpuBufferChanges_Zero { ScnFALSE, NULL, 0 }
 
 typedef struct STScnGpuBufferChanges {
-    ScnBOOL         size;  //buffer's size changed
-    STScnRangeU*    rngs;  //rngs changed
+    ScnBOOL         all;    //the whoe buffer requires synchronization
+    STScnRangeU*    rngs;   //rngs changed
     ScnUI32         rngsUse;
 } STScnGpuBufferChanges;
 

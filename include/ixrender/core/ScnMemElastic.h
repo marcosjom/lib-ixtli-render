@@ -11,6 +11,7 @@
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/core/ScnObjRef.h"
 #include "ixrender/core/ScnMemBlock.h"
+#include "ixrender/type/ScnRange.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,6 +39,7 @@ SCN_REF_STRUCT_METHODS_DEC(ScnMemElastic)
 ScnBOOL     ScnMemElastic_prepare(ScnMemElasticRef ref, const STScnMemElasticCfg* cfg, ScnUI32* optDstBlocksTotalSz);
 ScnBOOL     ScnMemElastic_hasPtrs(ScnMemElasticRef ref); //allocations made?
 ScnUI32     ScnMemElastic_getAddressableSize(ScnMemElasticRef ref); //includes the address zero
+STScnRangeU ScnMemElastic_getUsedAddressesRng(ScnMemElasticRef ref); //range that covers all allocated addresses index
 STScnAbsPtr ScnMemElastic_getNextContinuousAddress(ScnMemElasticRef ref, const ScnUI32 iAddress, ScnUI32* dstContinuousSz);
 //allocations
 STScnAbsPtr ScnMemElastic_malloc(ScnMemElasticRef ref, const ScnUI32 usableSz, ScnUI32* optDstBlocksTotalSz);

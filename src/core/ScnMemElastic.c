@@ -30,9 +30,9 @@ typedef struct STScnMemElasticBlock {
 //STScnMemElasticOpq
 
 typedef struct STScnMemElasticOpq {
-    ScnContextRef     ctx;
-    ScnMutexRef       mutex;
-    STScnMemElasticCfg   cfg;
+    ScnContextRef       ctx;
+    ScnMutexRef         mutex;
+    STScnMemElasticCfg  cfg;
     STScnMemElasticState state;
     ScnArrayStruct(blocks, STScnMemElasticBlock);
 } STScnMemElasticOpq;
@@ -165,6 +165,33 @@ ScnUI32 ScnMemElastic_getAddressableSize(ScnMemElasticRef ref){ //includes the a
             SCN_ASSERT(b->iOffset == r)
             r += b->idxsSz;
             ++b;
+        }
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+STScnRangeU ScnMemElastic_getUsedAddressesRng(ScnMemElasticRef ref){ //highest allocated address index
+    STScnRangeU r = STScnRangeU_Zero;
+    STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(opq->blocks.use > 0){
+        STScnRangeU rngLft = STScnRangeU_Zero;
+        STScnRangeU rngRght = STScnRangeU_Zero;
+        STScnMemElasticBlock* bLft = opq->blocks.arr;
+        STScnMemElasticBlock* bAfterEnd = opq->blocks.arr + opq->blocks.use;
+        while(bLft < bAfterEnd && rngLft.size <= 0){
+            rngLft = ScnMemBlock_getUsedAddressesRng(bLft->block);
+            ++bLft;
+        }
+        while(bLft < bAfterEnd && rngRght.size <= 0){
+            --bAfterEnd;
+            rngRght = ScnMemBlock_getUsedAddressesRng(bAfterEnd->block);
+        }
+        if(rngRght.size == 0) rngRght = rngLft;
+        if(rngLft.size > 0 && rngRght.size > 0){
+            r.start = rngLft.start;
+            r.size  = rngRght.start + rngRght.size - r.start;
         }
     }
     ScnMutex_unlock(opq->mutex);

@@ -39,8 +39,8 @@ ScnBOOL ScnCompare_ScnMemBlockPtr(const ENScnCompareMode mode, const void* data1
 #define STScnMemBlockGap_Zero { 0, 0 }
 
 typedef struct STScnMemBlockGap {
-    ScnUI32 iStart;  //start of gap in bytes
-    ScnUI32 sz;      //size of gap in bytes
+    ScnUI32     iStart;  //start of gap in bytes
+    ScnUI32     sz;      //size of gap in bytes
 } STScnMemBlockGap;
 
 ScnBOOL ScnCompare_ScnMemBlockGap(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz){
@@ -83,8 +83,8 @@ typedef struct STScnMemBlockState {
 //STScnMemBlockOpq
 
 typedef struct STScnMemBlockOpq {
-    ScnContextRef     ctx;
-    ScnMutexRef       mutex;
+    ScnContextRef       ctx;
+    ScnMutexRef         mutex;
     STScnMemBlockChunk  chunk;
     STScnMemBlockCfg    cfg;
     STScnMemBlockState  state;
@@ -209,6 +209,20 @@ ScnUI32 ScnMemBlock_getAddressableSize(ScnMemBlockRef ref){
 STScnAbsPtr ScnMemBlock_getStarAddress(ScnMemBlockRef ref){ //includes the address zero
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (STScnAbsPtr){ opq->chunk.ptr, 0 };
+}
+
+STScnRangeU ScnMemBlock_getUsedAddressesRng(ScnMemBlockRef ref){ //highest allocated address index
+    STScnRangeU r = STScnRangeU_Zero;
+    STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(opq->ptrs.use > 0){
+        const STScnMemBlockPtr* ptrFirst = &opq->ptrs.arr[0];
+        const STScnMemBlockPtr* ptrLast = &opq->ptrs.arr[opq->ptrs.use - 1];
+        r.start = (ScnUI32)((ScnBYTE*)ptrFirst->ptr - opq->chunk.ptr);
+        r.size  = (ScnUI32)((ScnBYTE*)ptrLast->ptr - opq->chunk.ptr) + ptrLast->sz - r.start;
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
 }
 
 //allocations

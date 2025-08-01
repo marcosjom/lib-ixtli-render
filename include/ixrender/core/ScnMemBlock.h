@@ -10,6 +10,7 @@
 
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/core/ScnObjRef.h"
+#include "ixrender/type/ScnRange.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,6 +45,7 @@ ScnBOOL     ScnMemBlock_prepare(ScnMemBlockRef ref, const STScnMemBlockCfg* cfg,
 ScnBOOL     ScnMemBlock_hasPtrs(ScnMemBlockRef ref); //allocations made?
 ScnUI32     ScnMemBlock_getAddressableSize(ScnMemBlockRef ref); //includes the address zero
 STScnAbsPtr ScnMemBlock_getStarAddress(ScnMemBlockRef ref); //includes the address zero
+STScnRangeU ScnMemBlock_getUsedAddressesRng(ScnMemBlockRef ref); //range that covers all allocated addresses index
 //allocations
 STScnAbsPtr ScnMemBlock_malloc(ScnMemBlockRef ref, const ScnUI32 usableSz);
 ScnBOOL     ScnMemBlock_mfree(ScnMemBlockRef ref, const STScnAbsPtr ptr);

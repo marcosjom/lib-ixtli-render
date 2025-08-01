@@ -264,7 +264,7 @@ void* ScnApiMetal_device_getApiDevice(void* pObj){
     return (dev != NULL ? dev->dev : NULL);
 }
 
-ScnBOOL ScnApiMetal_buffer_syncAllRanges_(id<MTLBuffer> buff, ScnMemElasticRef mem);
+ScnBOOL ScnApiMetal_buffer_syncRanges_(id<MTLBuffer> buff, ScnMemElasticRef mem, const STScnRangeU* const rngs, const ScnUI32 rngsUse);
 
 ScnGpuBufferRef ScnApiMetal_device_allocBuffer(void* pObj, ScnMemElasticRef mem){
     ScnGpuBufferRef r = ScnObjRef_Zero;
@@ -276,8 +276,9 @@ ScnGpuBufferRef ScnApiMetal_device_allocBuffer(void* pObj, ScnMemElasticRef mem)
         } else {
             id<MTLBuffer> buff = [dev->dev newBufferWithLength:cpuBuffSz options:MTLResourceStorageModeShared];
             if(buff != nil){
-                if(!ScnApiMetal_buffer_syncAllRanges_(buff, mem)){
-                    printf("ERROR, ScnApiMetal_buffer_syncAllRanges_ failed.\n");
+                const STScnRangeU rngAll = ScnMemElastic_getUsedAddressesRng(mem);
+                if(!ScnApiMetal_buffer_syncRanges_(buff, mem, &rngAll, 1)){
+                    printf("ERROR, ScnApiMetal_buffer_syncRanges_ failed.\n");
                 } else {
                     //synced
                     STScnApiMetalBuffer* obj = (STScnApiMetalBuffer*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalBuffer), "STScnApiMetalBuffer");
@@ -336,12 +337,12 @@ void ScnApiMetal_buffer_free(void* pObj){
 ScnBOOL ScnApiMetal_buffer_sync(void* pObj, const STScnGpuBufferCfg* cfg, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes){
     ScnBOOL r = ScnFALSE;
     STScnApiMetalBuffer* obj = (STScnApiMetalBuffer*)pObj;
-    //ToDo: sync only changes regions
     if(obj->buff == nil){
         printf("ERROR, ScnApiMetal_buffer_sync obj->buff is nil.\n");
     } else if(ScnMemElastic_isNull(mem)){
         printf("ERROR, ScnApiMetal_buffer_sync mem is NULL.\n");
     } else {
+        ScnBOOL buffIsNew = ScnFALSE;
         ScnUI32 buffLen = (ScnUI32)obj->buff.length;
         const ScnUI32 cpuBuffSz = ScnMemElastic_getAddressableSize(mem);
         //resize (if necesary)
@@ -353,46 +354,81 @@ ScnBOOL ScnApiMetal_buffer_sync(void* pObj, const STScnGpuBufferCfg* cfg, ScnMem
                 buffLen = cpuBuffSz;
                 [obj->buff release];
                 obj->buff = buff;
+                buffIsNew = ScnTRUE;
             }
         }
         //sync
         if(buffLen < cpuBuffSz){
             printf("ERROR, ScnApiMetal_buffer_sync::gpuBuff is smaller than cpu-buff.\n");
-        } else if(!ScnApiMetal_buffer_syncAllRanges_(obj->buff, mem)){
-            printf("ERROR, ScnApiMetal_buffer_sync::ScnApiMetal_buffer_syncAllRanges_ failed.\n");
+        } else if(buffIsNew || changes->all){
+            //sync all
+            const STScnRangeU rngAll = ScnMemElastic_getUsedAddressesRng(mem);
+            if(!ScnApiMetal_buffer_syncRanges_(obj->buff, mem, &rngAll, 1)){
+                printf("ERROR, ScnApiMetal_buffer_sync::ScnApiMetal_buffer_syncRanges_ failed.\n");
+            } else {
+                r = ScnTRUE;
+            }
         } else {
-            r = ScnTRUE;
+            //sync ranges only
+            if(!ScnApiMetal_buffer_syncRanges_(obj->buff, mem, changes->rngs, changes->rngsUse)){
+                printf("ERROR, ScnApiMetal_buffer_sync::ScnApiMetal_buffer_syncRanges_ failed.\n");
+            } else {
+                r = ScnTRUE;
+            }
         }
     }
     return r;
 }
 
-
-ScnBOOL ScnApiMetal_buffer_syncAllRanges_(id<MTLBuffer> buff, ScnMemElasticRef mem){
+ScnBOOL ScnApiMetal_buffer_syncRanges_(id<MTLBuffer> buff, ScnMemElasticRef mem, const STScnRangeU* const rngs, const ScnUI32 rngsUse){
     ScnBOOL r = ScnTRUE;
-    STScnAbsPtr ptr = STScnAbsPtr_Zero;
-    ScnUI32 iPos = 0, continuousSz = 0;
+    if(rngsUse <= 0) return ScnTRUE;
+    const STScnRangeU* rng = rngs;
+    const STScnRangeU* rngAfterEnd = rngs + rngsUse;
+    //
     const ScnUI32 buffLen = (ScnUI32)buff.length;
     ScnBYTE* buffPtr = (ScnBYTE*)buff.contents;
-    do {
-        ptr = ScnMemElastic_getNextContinuousAddress(mem, iPos, &continuousSz);
-        if(ptr.ptr == NULL){
-            r = (iPos == 0 ? ScnFALSE : ScnTRUE);
-            break;
+    STScnAbsPtr ptr = STScnAbsPtr_Zero;
+    ScnUI32 continuousSz = 0, copySz = 0, bytesCopied = 0;
+    //
+    STScnRangeU curRng = { rng->start,  rng->size };
+    ++rng;
+    //
+    while(rng <= rngAfterEnd){
+        if( rng == rngAfterEnd || (curRng.start + curRng.size) != rng->start ){
+            //copy current accumulated range
+            while(curRng.size > 0){
+                ptr = ScnMemElastic_getNextContinuousAddress(mem, curRng.start, &continuousSz);
+                if(ptr.ptr == NULL){
+                    break;
+                }
+                SCN_ASSERT(ptr.idx == curRng.start);
+                SCN_ASSERT((curRng.start + continuousSz) <= buffLen);
+                if((curRng.start + continuousSz) > buffLen){
+                    printf("ERROR, gpu-buffer is smaller than cpu-buffer.\n");
+                    r = ScnFALSE;
+                    break;
+                }
+                //copy
+                copySz = (curRng.size < continuousSz ? curRng.size : continuousSz);
+                memcpy(&buffPtr[curRng.start], ptr.ptr, copySz);
+                bytesCopied += copySz;
+                //
+                SCN_ASSERT(curRng.size >= copySz)
+                curRng.start += copySz;
+                curRng.size -= copySz;
+            }
+            //end cycle
+            if(rng == rngAfterEnd) break;
         }
-        SCN_ASSERT(ptr.idx == iPos);
-        SCN_ASSERT((iPos + continuousSz) <= buffLen);
-        if((iPos + continuousSz) > buffLen){
-            printf("ERROR, gpu-buffer is smaller than cpu-buffer.\n");
-            r = ScnFALSE;
-            break;
-        }
-        //copy
-        {
-            memcpy(&buffPtr[iPos], ptr.ptr, continuousSz);
-        }
-        iPos += continuousSz;
-    } while(1);
+        //merge range
+        SCN_ASSERT((curRng.start + curRng.size) == rng->start)
+        curRng.size += rng->size;
+        //next
+        ++rng;
+    }
+    SCN_ASSERT((curRng.start + curRng.size) == (rngs[rngsUse - 1].start + rngs[rngsUse - 1].size))
+    printf("%2.f%% %u of %u bytes synced at buffer.\n", (float)bytesCopied * 100.f / (float)buffLen, bytesCopied, buffLen);
     return r;
 }
 

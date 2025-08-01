@@ -351,6 +351,52 @@ STScnVertex2DTex3Ptr ScnModel2D_addDrawTex3(ScnModel2DRef ref, const ENScnRender
     return r;
 }
 
+//Call these if you updated the vertices values after last render pass.
+
+ScnBOOL ScnModel2D_v0FlagForSync(ScnModel2DRef ref, STScnVertex2DPtr ptr, const ScnUI32 count){
+    ScnBOOL r = ScnFALSE;
+    STScnModel2DOpq* opq = (STScnModel2DOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
+        r = ScnVertexbuffs_v0Invalidate(opq->cmds.vbuffs, ptr, count);
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnBOOL ScnModel2D_v1FlagForSync(ScnModel2DRef ref, STScnVertex2DTexPtr ptr, const ScnUI32 count){
+    ScnBOOL r = ScnFALSE;
+    STScnModel2DOpq* opq = (STScnModel2DOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
+        r = ScnVertexbuffs_v1Invalidate(opq->cmds.vbuffs, ptr, count);
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnBOOL ScnModel2D_v2FlagForSync(ScnModel2DRef ref, STScnVertex2DTex2Ptr ptr, const ScnUI32 count){
+    ScnBOOL r = ScnFALSE;
+    STScnModel2DOpq* opq = (STScnModel2DOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
+        r = ScnVertexbuffs_v2Invalidate(opq->cmds.vbuffs, ptr, count);
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnBOOL ScnModel2D_v3FlagForSync(ScnModel2DRef ref, STScnVertex2DTex3Ptr ptr, const ScnUI32 count){
+    ScnBOOL r = ScnFALSE;
+    STScnModel2DOpq* opq = (STScnModel2DOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
+        r = ScnVertexbuffs_v3Invalidate(opq->cmds.vbuffs, ptr, count);
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
 //
 
 STScnVertexIdxPtr ScnModel2D_addDrawIndexed(ScnModel2DRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, const ScnUI32 countVerts, STScnVertex2DPtr* dstVerts){
@@ -502,6 +548,52 @@ STScnVertexIdxPtr ScnModel2D_addDrawIndexedTex3(ScnModel2DRef ref, const ENScnRe
         ScnMutex_unlock(opq->mutex);
     }
     if(dstVerts != NULL) *dstVerts = v;
+    return r;
+}
+
+//Call these if you updated the vertices values after last render pass.
+
+ScnBOOL ScnModel2D_i0FlagForSync(ScnModel2DRef ref, STScnVertexIdxPtr ptr, const ScnUI32 count){
+    ScnBOOL r = ScnFALSE;
+    STScnModel2DOpq* opq = (STScnModel2DOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
+        r = ScnVertexbuffs_v0IdxsInvalidate(opq->cmds.vbuffs, ptr, count);
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnBOOL ScnModel2D_i1FlagForSync(ScnModel2DRef ref, STScnVertexIdxPtr ptr, const ScnUI32 count){
+    ScnBOOL r = ScnFALSE;
+    STScnModel2DOpq* opq = (STScnModel2DOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
+        r = ScnVertexbuffs_v1IdxsInvalidate(opq->cmds.vbuffs, ptr, count);
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnBOOL ScnModel2D_i2FlagForSync(ScnModel2DRef ref, STScnVertexIdxPtr ptr, const ScnUI32 count){
+    ScnBOOL r = ScnFALSE;
+    STScnModel2DOpq* opq = (STScnModel2DOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
+        r = ScnVertexbuffs_v2IdxsInvalidate(opq->cmds.vbuffs, ptr, count);
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnBOOL ScnModel2D_i3FlagForSync(ScnModel2DRef ref, STScnVertexIdxPtr ptr, const ScnUI32 count){
+    ScnBOOL r = ScnFALSE;
+    STScnModel2DOpq* opq = (STScnModel2DOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
+        r = ScnVertexbuffs_v3IdxsInvalidate(opq->cmds.vbuffs, ptr, count);
+    }
+    ScnMutex_unlock(opq->mutex);
     return r;
 }
 

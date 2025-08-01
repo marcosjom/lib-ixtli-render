@@ -21,30 +21,28 @@ STScnMemMap* gMemmap = NULL;
 NS_ASSUME_NONNULL_BEGIN
 
 #define IXTLI_RENDER_DEMO_RENDER_SLOTS_AMMOUNT  3
-#define IXTLI_FRAMES_COUNT_AND_RELEASE_RENDER   120
+#define IXTLI_FRAMES_COUNT_AND_RELEASE_RENDER   360
 
 @implementation MetalKitViewDelegate {
-    ScnContextRef   ctx;
-    ScnRenderRef    render;
-    ScnFramebuffRef framebuff;
-    ScnModel2DRef   model;
+    ScnContextRef       ctx;
+    ScnRenderRef        render;
+    ScnFramebuffRef     framebuff;
+    ScnModel2DRef       model;
+    STScnVertex2DPtr    verts;
+    ScnUI32             vertsSz;
     //memory leak detection
-    STScnMemMap     memmap;
-    ScnUI32         framesCount;
+    STScnMemMap         memmap;
+    ScnUI32             framesCount;
 @protected
-    MTKView         *metalKitView;
+    MTKView             *metalKitView;
 }
 
 - (void)updateModelVerts:(CGSize)sz
 {
-    ScnModel2D_resetDrawCmds(model);
-    STScnVertex2DPtr verts = ScnModel2D_addDraw(model, ENScnRenderShape_TriangStrip, 3);
-    if(verts.ptr != NULL){
-        STScnVertex2D* v;
-        v = &verts.ptr[0]; v->x = 0; v->y = sz.height;           v->color.r = 255;   v->color.g = 55; v->color.b = 155; v->color.a = 255;
-        v = &verts.ptr[1]; v->x = sz.width; v->y = sz.height;    v->color.r = 55;    v->color.g = 155; v->color.b = 255; v->color.a = 255;
-        v = &verts.ptr[2]; v->x = sz.width / 2; v->y = 0;        v->color.r = 155;   v->color.g = 255; v->color.b = 55; v->color.a = 255;
-    }
+    STScnVertex2D* v;
+    v = &verts.ptr[0]; v->x = 0; v->y = sz.height;           v->color.r = 255;   v->color.g = 55; v->color.b = 155; v->color.a = 255;
+    v = &verts.ptr[1]; v->x = sz.width; v->y = sz.height;    v->color.r = 55;    v->color.g = 155; v->color.b = 255; v->color.a = 255;
+    v = &verts.ptr[2]; v->x = sz.width / 2; v->y = 0;        v->color.r = 155;   v->color.g = 255; v->color.b = 55; v->color.a = 255;
 }
 
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view
@@ -53,6 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
     render          = (ScnRenderRef)ScnObjRef_Zero;
     framebuff       = (ScnFramebuffRef)ScnObjRef_Zero;
     model           = (ScnModel2DRef)ScnObjRef_Zero;
+    verts           = (STScnVertex2DPtr)STScnVertex2DPtr_Zero;
+    vertsSz         = 0;
     metalKitView    = nil;
 
     self = [super init];
@@ -111,6 +111,8 @@ NS_ASSUME_NONNULL_BEGIN
                         NSLog(@"MetalKitViewDelegate, view.drawableSize(%f, %f).\n", size.width, size.height);
                         model = ScnRender_allocModel(render);
                         if(!ScnModel2D_isNull(model)){
+                            vertsSz = 3;
+                            verts   = ScnModel2D_addDraw(model, ENScnRenderShape_TriangStrip, vertsSz);
                             [self updateModelVerts:size];
                         }
                     }
@@ -128,6 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
     //sync model vertices
     if(!ScnModel2D_isNull(model)){
         [self updateModelVerts:size];
+        ScnModel2D_v0FlagForSync(model, verts, vertsSz);
     }
     //sync framebuffer
     if(!ScnFramebuff_isNull(framebuff)){
@@ -173,6 +176,8 @@ NS_ASSUME_NONNULL_BEGIN
         }
         if(framesCount >= IXTLI_FRAMES_COUNT_AND_RELEASE_RENDER){
             printf("Simulating cleanup after %d frames.\n", framesCount);
+            vertsSz = 0;
+            verts = (STScnVertex2DPtr)STScnVertex2DPtr_Zero;
             ScnModel2D_releaseAndNull(&model);
             ScnFramebuff_releaseAndNull(&framebuff);
             ScnRender_releaseAndNull(&render);
