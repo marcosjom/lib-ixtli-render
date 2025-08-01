@@ -23,7 +23,7 @@ typedef struct STScnModel2DOpq {
         union {
             //optimization, allow one command without allocating an array; most models will use one command.
             struct {
-                ScnBOOL           isSet;
+                ScnBOOL         isSet;
                 STScnModel2DCmd cmd;
             } embedded;
             ScnArrayStruct(heap, STScnModel2DCmd);
@@ -351,6 +351,25 @@ STScnVertex2DTex3Ptr ScnModel2D_addDrawTex3(ScnModel2DRef ref, const ENScnRender
     return r;
 }
 
+//dbg
+STScnModel2DCmd* ScnModel2D_findDrawVertCmdLockedOpq_(STScnModel2DOpq* opq, const ENScnModelDrawCmdType type, void* ptrPtr, const ScnUI32 sizePerItm, const ScnUI32 count){
+    STScnModel2DCmd* r = NULL;
+    if(opq->cmds.isHeap){
+        ScnArray_foreach(&opq->cmds.heap, STScnModel2DCmd, cmd,
+            if(cmd->type == type && (void*)cmd->verts.v0.ptr <= (void*)ptrPtr && ((ScnBYTE*)ptrPtr + (sizePerItm * count)) <= ((ScnBYTE*)cmd->verts.v0.ptr + (sizePerItm * cmd->verts.count))){
+                r = cmd;
+                break;
+            }
+        );
+    } else if(opq->cmds.embedded.isSet){
+        STScnModel2DCmd* cmd = &opq->cmds.embedded.cmd;
+        if(cmd->type == type && (void*)cmd->verts.v0.ptr <= (void*)ptrPtr && ((ScnBYTE*)ptrPtr + (sizePerItm * count)) <= ((ScnBYTE*)cmd->verts.v0.ptr + (sizePerItm * cmd->verts.count))){
+            r = cmd;
+        }
+    }
+    return r;
+}
+
 //Call these if you updated the vertices values after last render pass.
 
 ScnBOOL ScnModel2D_v0FlagForSync(ScnModel2DRef ref, STScnVertex2DPtr ptr, const ScnUI32 count){
@@ -358,6 +377,7 @@ ScnBOOL ScnModel2D_v0FlagForSync(ScnModel2DRef ref, STScnVertex2DPtr ptr, const 
     STScnModel2DOpq* opq = (STScnModel2DOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
+        SCN_ASSERT(NULL != ScnModel2D_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Dv0, ptr.ptr, sizeof(ptr.ptr[0]), count)) //user logic error
         r = ScnVertexbuffs_v0Invalidate(opq->cmds.vbuffs, ptr, count);
     }
     ScnMutex_unlock(opq->mutex);
@@ -369,6 +389,7 @@ ScnBOOL ScnModel2D_v1FlagForSync(ScnModel2DRef ref, STScnVertex2DTexPtr ptr, con
     STScnModel2DOpq* opq = (STScnModel2DOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
+        SCN_ASSERT(NULL != ScnModel2D_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Dv1, ptr.ptr, sizeof(ptr.ptr[0]), count)) //user logic error
         r = ScnVertexbuffs_v1Invalidate(opq->cmds.vbuffs, ptr, count);
     }
     ScnMutex_unlock(opq->mutex);
@@ -380,6 +401,7 @@ ScnBOOL ScnModel2D_v2FlagForSync(ScnModel2DRef ref, STScnVertex2DTex2Ptr ptr, co
     STScnModel2DOpq* opq = (STScnModel2DOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
+        SCN_ASSERT(NULL != ScnModel2D_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Dv2, ptr.ptr, sizeof(ptr.ptr[0]), count)) //user logic error
         r = ScnVertexbuffs_v2Invalidate(opq->cmds.vbuffs, ptr, count);
     }
     ScnMutex_unlock(opq->mutex);
@@ -391,6 +413,7 @@ ScnBOOL ScnModel2D_v3FlagForSync(ScnModel2DRef ref, STScnVertex2DTex3Ptr ptr, co
     STScnModel2DOpq* opq = (STScnModel2DOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
+        SCN_ASSERT(NULL != ScnModel2D_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Dv3, ptr.ptr, sizeof(ptr.ptr[0]), count)) //user logic error
         r = ScnVertexbuffs_v3Invalidate(opq->cmds.vbuffs, ptr, count);
     }
     ScnMutex_unlock(opq->mutex);
@@ -551,6 +574,25 @@ STScnVertexIdxPtr ScnModel2D_addDrawIndexedTex3(ScnModel2DRef ref, const ENScnRe
     return r;
 }
 
+//dbg
+STScnModel2DCmd* ScnModel2D_findDrawIdxCmdLockedOpq_(STScnModel2DOpq* opq, const ENScnModelDrawCmdType type, STScnVertexIdxPtr ptr, const ScnUI32 count){
+    STScnModel2DCmd* r = NULL;
+    if(opq->cmds.isHeap){
+        ScnArray_foreach(&opq->cmds.heap, STScnModel2DCmd, cmd,
+            if(cmd->type == type && cmd->idxs.i0.ptr <= ptr.ptr && (ptr.ptr + count) <= (cmd->idxs.i0.ptr + cmd->idxs.count)){
+                r = cmd;
+                break;
+            }
+        );
+    } else if(opq->cmds.embedded.isSet){
+        STScnModel2DCmd* cmd = &opq->cmds.embedded.cmd;
+        if(cmd->type == type && cmd->idxs.i0.ptr <= ptr.ptr && (ptr.ptr + count) <= (cmd->idxs.i0.ptr + cmd->idxs.count)){
+            r = cmd;
+        }
+    }
+    return r;
+}
+
 //Call these if you updated the vertices values after last render pass.
 
 ScnBOOL ScnModel2D_i0FlagForSync(ScnModel2DRef ref, STScnVertexIdxPtr ptr, const ScnUI32 count){
@@ -558,6 +600,7 @@ ScnBOOL ScnModel2D_i0FlagForSync(ScnModel2DRef ref, STScnVertexIdxPtr ptr, const
     STScnModel2DOpq* opq = (STScnModel2DOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
+        SCN_ASSERT(NULL != ScnModel2D_findDrawIdxCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Di0, ptr, count)); //user logic error
         r = ScnVertexbuffs_v0IdxsInvalidate(opq->cmds.vbuffs, ptr, count);
     }
     ScnMutex_unlock(opq->mutex);
@@ -569,6 +612,7 @@ ScnBOOL ScnModel2D_i1FlagForSync(ScnModel2DRef ref, STScnVertexIdxPtr ptr, const
     STScnModel2DOpq* opq = (STScnModel2DOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
+        SCN_ASSERT(NULL != ScnModel2D_findDrawIdxCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Di1, ptr, count)); //user logic error
         r = ScnVertexbuffs_v1IdxsInvalidate(opq->cmds.vbuffs, ptr, count);
     }
     ScnMutex_unlock(opq->mutex);
@@ -580,6 +624,7 @@ ScnBOOL ScnModel2D_i2FlagForSync(ScnModel2DRef ref, STScnVertexIdxPtr ptr, const
     STScnModel2DOpq* opq = (STScnModel2DOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
+        SCN_ASSERT(NULL != ScnModel2D_findDrawIdxCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Di2, ptr, count)); //user logic error
         r = ScnVertexbuffs_v2IdxsInvalidate(opq->cmds.vbuffs, ptr, count);
     }
     ScnMutex_unlock(opq->mutex);
@@ -591,6 +636,7 @@ ScnBOOL ScnModel2D_i3FlagForSync(ScnModel2DRef ref, STScnVertexIdxPtr ptr, const
     STScnModel2DOpq* opq = (STScnModel2DOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnVertexbuffs_isNull(opq->cmds.vbuffs)){
+        SCN_ASSERT(NULL != ScnModel2D_findDrawIdxCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Di3, ptr, count)); //user logic error
         r = ScnVertexbuffs_v3IdxsInvalidate(opq->cmds.vbuffs, ptr, count);
     }
     ScnMutex_unlock(opq->mutex);

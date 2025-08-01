@@ -23,7 +23,7 @@ extern "C" {
 #define STScnVertexIdxPtr_Zero { NULL, 0 }
 
 typedef struct STScnVertexIdxPtr {
-    STScnVertexIdx*   ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
+    STScnVertexIdx*     ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
     ScnUI32             idx;    //abstract address
 } STScnVertexIdxPtr;
 
