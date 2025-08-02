@@ -30,10 +30,13 @@ typedef enum ENScnGpuFramebuffDstType {
 //STScnGpuFramebuffApiItf
 
 typedef struct STScnGpuFramebuffApiItf {
-    void        (*free)(void* data);
+    void            (*free)(void* data);
+    //
+    STScnSize2DU    (*getSize)(void* data);
+    ScnBOOL         (*syncSize)(void* data, const STScnSize2DU size);
     //
     STScnGpuFramebuffProps (*getProps)(void* data);
-    ScnBOOL     (*setProps)(void* data, const STScnGpuFramebuffProps* const props);
+    ScnBOOL         (*setProps)(void* data, const STScnGpuFramebuffProps* const props);
 } STScnGpuFramebuffApiItf;
 
 
@@ -43,11 +46,14 @@ SCN_REF_STRUCT_METHODS_DEC(ScnGpuFramebuff)
 
 //
 
-ScnBOOL     ScnGpuFramebuff_prepare(ScnGpuFramebuffRef ref, const STScnGpuFramebuffApiItf* itf, void* itfParam);
-void*       ScnGpuFramebuff_getApiItfParam(ScnGpuFramebuffRef ref);
+ScnBOOL         ScnGpuFramebuff_prepare(ScnGpuFramebuffRef ref, const STScnGpuFramebuffApiItf* itf, void* itfParam);
+void*           ScnGpuFramebuff_getApiItfParam(ScnGpuFramebuffRef ref);
 
+STScnSize2DU    ScnGpuFramebuff_getSize(ScnGpuFramebuffRef ref);
+ScnBOOL         ScnGpuFramebuff_syncSize(ScnGpuFramebuffRef ref, const STScnSize2DU size);
+//
 STScnGpuFramebuffProps  ScnGpuFramebuff_getProps(ScnGpuFramebuffRef ref);
-ScnBOOL     ScnGpuFramebuff_setProps(ScnGpuFramebuffRef ref, const STScnGpuFramebuffProps* const props);
+ScnBOOL         ScnGpuFramebuff_setProps(ScnGpuFramebuffRef ref, const STScnGpuFramebuffProps* const props);
 
 #ifdef __cplusplus
 } //extern "C"

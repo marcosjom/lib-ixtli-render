@@ -147,11 +147,13 @@ NS_ASSUME_NONNULL_BEGIN
     }
     //sync framebuffer
     if(!ScnFramebuff_isNull(framebuff)){
+        const STScnSize2DU uSize = (STScnSize2DU){ size.width, size.height };
         STScnGpuFramebuffProps props = ScnFramebuff_getProps(framebuff);
-        props.size      = (STScnSize2DU){ (ScnUI32)size.width, (ScnUI32)size.height };
         props.viewport  = (STScnRectU) { 0u, 0u, size.width, size.height };
         props.ortho     = (STScnAABBox3d){ { 0.f, size.width }, { 0.f, size.height }, { 0.f, 1.f } };
-        if(!ScnFramebuff_setProps(framebuff, &props)){
+        if(!ScnFramebuff_syncSize(framebuff, uSize)){
+            printf("ScnFramebuff_syncSize(%.1f %.1f) failed.\n", size.width, size.height);
+        } else if(!ScnFramebuff_setProps(framebuff, &props)){
             printf("ScnFramebuff_syncSizeAndViewport(%.1f %.1f) failed.\n", size.width, size.height);
         } else {
             printf("ScnFramebuff_syncSizeAndViewport(%.1f %.1f) ok.\n", size.width, size.height);

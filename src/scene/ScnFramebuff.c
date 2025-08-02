@@ -90,6 +90,28 @@ ScnBOOL ScnFramebuff_bindToOSView(ScnFramebuffRef ref, void* mtkView){
 
 //
 
+STScnSize2DU ScnFramebuff_getSize(ScnFramebuffRef ref){
+    STScnSize2DU r = (STScnSize2DU)STScnSize2DU_Zero;
+    STScnFramebuffOpq* opq = (STScnFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnGpuFramebuff_isNull(opq->gpuFramebuff)){
+        r = ScnGpuFramebuff_getSize(opq->gpuFramebuff);
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnBOOL ScnFramebuff_syncSize(ScnFramebuffRef ref, const STScnSize2DU size){
+    ScnBOOL r = ScnFALSE;
+    STScnFramebuffOpq* opq = (STScnFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnGpuFramebuff_isNull(opq->gpuFramebuff)){
+        r = ScnGpuFramebuff_syncSize(opq->gpuFramebuff, size);
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
 STScnGpuFramebuffProps ScnFramebuff_getProps(ScnFramebuffRef ref){
     STScnGpuFramebuffProps r = (STScnGpuFramebuffProps)STScnGpuFramebuffProps_Zero;
     STScnFramebuffOpq* opq = (STScnFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);

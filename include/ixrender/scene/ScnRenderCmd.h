@@ -42,6 +42,7 @@ typedef enum ENScnRenderCmd {
     ENScnRenderCmd_None = 0       //do nothing
     //framebuffers
     , ENScnRenderCmd_ActivateFramebuff
+    , ENScnRenderCmd_SetFramebuffProps
     //models
     , ENScnRenderCmd_SetTransformOffset //sets the positions of the 'STScnGpuModelProps2D' to be applied for the drawing cmds
     , ENScnRenderCmd_SetVertexBuff  //activates the vertex buffer
@@ -65,7 +66,13 @@ typedef struct STScnRenderCmd {
         struct {
             ScnFramebuffRef ref;
             ScnUI32         offset; //position of data in viewPropsBuff
+            STScnRectU      viewport;
         } activateFramebuff;
+        //ENScnRenderCmd_SetFramebuffProps
+        struct {
+            ScnUI32         offset; //position of data in viewPropsBuff
+            STScnRectU      viewport;
+        } setFramebuffProps;
         //ENScnRenderCmd_SetTransformOffset
         struct {
             ScnUI32         offset; //position of data in nodesPropsBuff

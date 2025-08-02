@@ -32,6 +32,8 @@ ScnBOOL             ScnApiMetal_vertexbuff_activate(void* data);
 ScnBOOL             ScnApiMetal_vertexbuff_deactivate(void* data);
 //frameBuffer (view)
 void                ScnApiMetal_framebuff_view_free(void* data);
+STScnSize2DU        ScnApiMetal_framebuff_view_getSize(void* pObj);
+ScnBOOL             ScnApiMetal_framebuff_view_syncSize(void* pObj, const STScnSize2DU size);
 STScnGpuFramebuffProps ScnApiMetal_framebuff_view_getProps(void* data);
 ScnBOOL             ScnApiMetal_framebuff_view_setProps(void* data, const STScnGpuFramebuffProps* const props);
 
@@ -528,6 +530,7 @@ ScnBOOL ScnApiMetal_vertexbuff_deactivate(void* pObj){
 typedef struct STScnApiMetalFramebuffView {
     ScnContextRef           ctx;
     MTKView*                mtkView;
+    STScnSize2DU            size;
     STScnGpuFramebuffProps  props;
     STScnApiItf             itf;
     //default shaders
@@ -564,18 +567,18 @@ ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void*
                 obj->mtkView        = mtkView; [obj->mtkView retain];
                 {
                     //size
-                    obj->props.size.width       = viewSz.width;
-                    obj->props.size.height      = viewSz.height;
+                    obj->size.width             = viewSz.width;
+                    obj->size.height            = viewSz.height;
                     //viewport
                     obj->props.viewport.x       = 0;
                     obj->props.viewport.y       = 0;
-                    obj->props.viewport.width   = obj->props.size.width;
-                    obj->props.viewport.height  = obj->props.size.height;
+                    obj->props.viewport.width   = obj->size.width;
+                    obj->props.viewport.height  = obj->size.height;
                     //ortho2d
-                    obj->props.ortho.x.min    = 0.f;
-                    obj->props.ortho.x.max    = obj->props.size.width;
-                    obj->props.ortho.y.min    = 0.f;
-                    obj->props.ortho.y.max    = obj->props.size.height;
+                    obj->props.ortho.x.min      = 0.f;
+                    obj->props.ortho.x.max      = obj->size.width;
+                    obj->props.ortho.y.min      = 0.f;
+                    obj->props.ortho.y.max      = obj->size.height;
                 }
                 obj->renderState    = renderState; [obj->renderState retain];
                 //
@@ -584,6 +587,8 @@ ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void*
                     STScnGpuFramebuffApiItf itf;
                     memset(&itf, 0, sizeof(itf));
                     itf.free        = ScnApiMetal_framebuff_view_free;
+                    itf.getSize     = ScnApiMetal_framebuff_view_getSize;
+                    itf.syncSize    = ScnApiMetal_framebuff_view_syncSize;
                     itf.getProps    = ScnApiMetal_framebuff_view_getProps;
                     itf.setProps    = ScnApiMetal_framebuff_view_setProps;
                     if(!ScnGpuFramebuff_prepare(d, &itf, obj)){
@@ -660,17 +665,21 @@ ScnBOOL ScnApiMetal_device_render(void* pObj, ScnGpuBufferRef pFbPropsBuff, ScnG
                                         } else {
                                             //printf("renderCommandEncoderWithDescriptor.\n");
                                             rndrEnc.label = @"ixtli-render-cmd-enc";
-                                            MTLViewport viewPort;
-                                            viewPort.originX = (double)fb->props.viewport.x;
-                                            viewPort.originY = (double)fb->props.viewport.y;
-                                            viewPort.width = (double)fb->props.viewport.width;
-                                            viewPort.height = (double)fb->props.viewport.height;
-                                            viewPort.znear = 0.0;
-                                            viewPort.zfar = 1.0;
-                                            [rndrEnc setViewport:viewPort];
-                                            //printf("setViewport(%u, %u)-(+%u, +%u).\n", fb->viewport.x, fb->viewport.y, fb->viewport.width, fb->viewport.height);
+                                            //
                                             [rndrEnc setRenderPipelineState:fb->renderState];
                                             //printf("setRenderPipelineState.\n");
+                                            //apply viewport
+                                            {
+                                                MTLViewport viewPort;
+                                                viewPort.originX = (double)c->activateFramebuff.viewport.x;
+                                                viewPort.originY = (double)c->activateFramebuff.viewport.y;
+                                                viewPort.width = (double)c->activateFramebuff.viewport.width;
+                                                viewPort.height = (double)c->activateFramebuff.viewport.height;
+                                                viewPort.znear = 0.0;
+                                                viewPort.zfar = 1.0;
+                                                [rndrEnc setViewport:viewPort];
+                                                //printf("setViewport(%u, %u)-(+%u, +%u).\n", fb->viewport.x, fb->viewport.y, fb->viewport.width, fb->viewport.height);
+                                            }
                                             //fb props
                                             [rndrEnc setVertexBuffer:fbPropsBuff->buff
                                                                     offset:c->activateFramebuff.offset
@@ -685,6 +694,25 @@ ScnBOOL ScnApiMetal_device_render(void* pObj, ScnGpuBufferRef pFbPropsBuff, ScnG
                                     }
                                 }
                             }
+                        }
+                        break;
+                    case ENScnRenderCmd_SetFramebuffProps:
+                        if(rndrEnc != nil){
+                            //apply viewport
+                            {
+                                MTLViewport viewPort;
+                                viewPort.originX = (double)c->setFramebuffProps.viewport.x;
+                                viewPort.originY = (double)c->setFramebuffProps.viewport.y;
+                                viewPort.width = (double)c->setFramebuffProps.viewport.width;
+                                viewPort.height = (double)c->setFramebuffProps.viewport.height;
+                                viewPort.znear = 0.0;
+                                viewPort.zfar = 1.0;
+                                [rndrEnc setViewport:viewPort];
+                                //printf("setViewport(%u, %u)-(+%u, +%u).\n", fb->viewport.x, fb->viewport.y, fb->viewport.width, fb->viewport.height);
+                            }
+                            //fb props
+                            [rndrEnc setVertexBufferOffset:c->setFramebuffProps.offset
+                                                   atIndex:0];
                         }
                         break;
                         //models
@@ -839,6 +867,27 @@ void ScnApiMetal_framebuff_view_free(void* pObj){
     }
     ScnContext_mfree(ctx, obj);
     ScnContext_releaseAndNull(&ctx);
+}
+
+STScnSize2DU ScnApiMetal_framebuff_view_getSize(void* pObj){
+    STScnApiMetalFramebuffView* obj = (STScnApiMetalFramebuffView*)pObj;
+    return obj->size;
+}
+
+ScnBOOL ScnApiMetal_framebuff_view_syncSize(void* pObj, const STScnSize2DU size){
+    ScnBOOL r = ScnFALSE;
+    STScnApiMetalFramebuffView* obj = (STScnApiMetalFramebuffView*)pObj;
+    {
+        obj->size = size;
+        r = ScnTRUE;
+    }
+    /*if(obj->mtkView != nil){
+        const CGSize sz = obj->mtkView.drawableSize;
+        obj->size.width = sz.width;
+        obj->size.height = sz.height;
+        r = ScnTRUE;
+    }*/
+    return r;
 }
 
 STScnGpuFramebuffProps ScnApiMetal_framebuff_view_getProps(void* pObj){

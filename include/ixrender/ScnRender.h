@@ -68,6 +68,10 @@ ScnBOOL     ScnRender_jobEnd(ScnRenderRef ref); //does the magic
 ScnBOOL     ScnRender_jobFramebuffPush(ScnRenderRef ref, ScnFramebuffRef fbuff);
 ScnBOOL     ScnRender_jobFramebuffPop(ScnRenderRef ref);
 
+ScnBOOL     ScnRender_jobFramebuffPropsPush(ScnRenderRef ref, const STScnGpuFramebuffProps props);
+ScnBOOL     ScnRender_jobFramebuffPropsOrthoPush(ScnRenderRef ref, const STScnAABBox3d ortho);
+ScnBOOL     ScnRender_jobFramebuffPropsPop(ScnRenderRef ref);
+
 //job nodes (scene's tree)
 
 ScnBOOL     ScnRender_jobNode2dPush(ScnRenderRef ref, ScnNode2dRef node);
