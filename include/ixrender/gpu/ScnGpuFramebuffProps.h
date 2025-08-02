@@ -10,6 +10,7 @@
 
 #include "ixrender/type/ScnSize.h"
 #include "ixrender/type/ScnRect.h"
+#include "ixrender/type/ScnAABBox.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,12 +18,13 @@ extern "C" {
 
 //STScnNode2dProps
 
-#define STScnGpuFramebufferProps_Zero        { STScnSize2DU_Zero, STScnRectU_Zero }
+#define STScnGpuFramebuffProps_Zero        { STScnSize2DU_Zero, STScnRectU_Zero, STScnAABBox2d_Zero }
 
-typedef struct STScnGpuFramebufferProps {
-    STScnSize2DU    size;       //buffe 2D size
+typedef struct STScnGpuFramebuffProps {
+    STScnSize2DU    size;       //buffer size
     STScnRectU      viewport;   //render viewport
-} STScnGpuFramebufferProps;
+    STScnAABBox2d   ortho2d;    //2d render orthogonal box
+} STScnGpuFramebuffProps;
 
 #ifdef __cplusplus
 } //extern "C"

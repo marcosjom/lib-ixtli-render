@@ -66,13 +66,12 @@ void* ScnGpuFramebuff_getApiItfParam(ScnGpuFramebuffRef ref){
     return opq->api.itfParam;
 }
 
-STScnSize2DU ScnGpuFramebuff_getSize(ScnGpuFramebuffRef ref, STScnRectU* dstViewport){
+STScnGpuFramebuffProps ScnGpuFramebuff_getProps(ScnGpuFramebuffRef ref){
     STScnGpuFramebuffOpq* opq = (STScnGpuFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    if(dstViewport != NULL) *dstViewport = (STScnRectU)STScnRectU_Zero;
-    return (opq != NULL && opq->api.itf.getSize != NULL ? (*opq->api.itf.getSize)(opq->api.itfParam, dstViewport) : (STScnSize2DU)STScnSize2DU_Zero );
+    return (opq != NULL && opq->api.itf.getProps != NULL ? (*opq->api.itf.getProps)(opq->api.itfParam) : (STScnGpuFramebuffProps)STScnGpuFramebuffProps_Zero );
 }
 
-ScnBOOL ScnGpuFramebuff_syncSizeAndViewport(ScnGpuFramebuffRef ref, const STScnSize2DU size, const STScnRectU viewport){
+ScnBOOL ScnGpuFramebuff_setProps(ScnGpuFramebuffRef ref, const STScnGpuFramebuffProps* const props){
     STScnGpuFramebuffOpq* opq = (STScnGpuFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    return (opq != NULL && opq->api.itf.syncSizeAndViewport != NULL ? (*opq->api.itf.syncSizeAndViewport)(opq->api.itfParam, size, viewport) : ScnFALSE );
+    return (opq != NULL && opq->api.itf.setProps != NULL ? (*opq->api.itf.setProps)(opq->api.itfParam, props) : ScnFALSE );
 }

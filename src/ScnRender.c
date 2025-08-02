@@ -202,7 +202,7 @@ ScnBOOL ScnRender_openDevice(ScnRenderRef ref, const STScnGpuDeviceCfg* cfg, con
                 ScnVertexbuffsRef vbuffs = ScnObjRef_Zero;
                 //
                 //Note: Metal requires buffers offset to be 32 bytes aligned
-                fbPropsBuff = ScnRender_allocDynamicBuffLockedOpq_(opq, 32, sizeof(STScnGpuFramebufferProps), 32, ammRenderSlots);
+                fbPropsBuff = ScnRender_allocDynamicBuffLockedOpq_(opq, 32, sizeof(STScnGpuFramebuffProps), 32, ammRenderSlots);
                 if(ScnBuffer_isNull(fbPropsBuff)){
                     printf("ERROR, ScnRender_allocDynamicBuffLockedOpq_(fbPropsBuff) failed.\n");
                 } else {
@@ -684,9 +684,9 @@ ScnBOOL ScnRender_jobFramebuffPush(ScnRenderRef ref, ScnFramebuffRef fbuff){
             STScnGpuModelProps2D t = STScnGpuModelProps2D_Identity;
             ScnRenderFbuffState_reset(f);
             f->fbuff    = fbuff;
-            f->props    = ScnBuffer_malloc(opq->fbPropsBuff, sizeof(STScnGpuFramebufferProps));
+            f->props    = ScnBuffer_malloc(opq->fbPropsBuff, sizeof(STScnGpuFramebuffProps));
             if(f->props.ptr == NULL){
-                printf("ERROR, ScnRender_jobFramebuffPush::ScnBuffer_malloc(STScnGpuFramebufferProps) failed.\n");
+                printf("ERROR, ScnRender_jobFramebuffPush::ScnBuffer_malloc(STScnGpuFramebuffProps) failed.\n");
             } else if(!ScnRenderFbuffState_addTransform(f, &t)){
                 printf("ERROR, ScnRender_jobFramebuffPush::ScnRenderFbuffState_addTransform failed.\n");
             } else if(!ScnRender_jobAddUsedObjLockedOpq_(opq, ENScnRenderJobObjType_Framebuff, (ScnObjRef*)&fbuff)){
@@ -700,11 +700,13 @@ ScnBOOL ScnRender_jobFramebuffPush(ScnRenderRef ref, ScnFramebuffRef fbuff){
                 if(!ScnRender_addCmdLockedOpq_(opq, &cmd)){
                     printf("ERROR, ScnRender_jobFramebuffPush::ScnRender_addCmdLockedOpq_ failed.\n");
                 } else {
-                    STScnGpuFramebufferProps* props = (STScnGpuFramebufferProps*)f->props.ptr;
-                    memset(props, 0, sizeof(*props));
-                    props->size = ScnFramebuff_getSize(fbuff, &props->viewport);
-                    //ToDo: add command to set buffers and offsets
-                    opq->job.stackUse++;
+                    //push fb props
+                    {
+                        STScnGpuFramebuffProps* props = (STScnGpuFramebuffProps*)f->props.ptr;
+                        memset(props, 0, sizeof(*props));
+                        *props = ScnFramebuff_getProps(fbuff);
+                        opq->job.stackUse++;
+                    }
                     r = ScnTRUE;
                 }
             }

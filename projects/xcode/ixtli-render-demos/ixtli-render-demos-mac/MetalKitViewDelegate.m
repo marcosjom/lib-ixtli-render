@@ -27,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
     ScnContextRef       ctx;
     ScnRenderRef        render;
     ScnFramebuffRef     framebuff;
+    ScnNode2dRef        node;
     ScnModel2dRef       model;
     STScnVertex2DPtr    verts;
     ScnUI32             vertsSz;
@@ -39,10 +40,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)updateModelVerts:(CGSize)sz
 {
-    STScnVertex2D* v;
-    v = &verts.ptr[0]; v->x = 0; v->y = sz.height;           v->color.r = 255;   v->color.g = 55; v->color.b = 155; v->color.a = 255;
-    v = &verts.ptr[1]; v->x = sz.width; v->y = sz.height;    v->color.r = 55;    v->color.g = 155; v->color.b = 255; v->color.a = 255;
-    v = &verts.ptr[2]; v->x = sz.width / 2; v->y = 0;        v->color.r = 155;   v->color.g = 255; v->color.b = 55; v->color.a = 255;
+    //build triangle with coord (0,0) as his center
+    const float smallSz = (sz.width < sz.height ? sz.width : sz.height);
+    const float smallSzHalf = smallSz / 2.f;
+    STScnVertex2D* v; float rad;
+    rad = DEG_2_RAD(90.f);
+    v = &verts.ptr[0]; v->x = smallSzHalf * cosf(rad); v->y = smallSzHalf * sinf(rad);  v->color.r = 255; v->color.g = 55;  v->color.b = 155; v->color.a = 255;
+    rad = DEG_2_RAD(90.f + (360.f / 3.f));
+    v = &verts.ptr[1]; v->x = smallSzHalf * cosf(rad); v->y = smallSzHalf * sinf(rad);  v->color.r = 55;  v->color.g = 155; v->color.b = 255; v->color.a = 255;
+    rad = DEG_2_RAD(90.f + (360.f * 2.f / 3.f));
+    v = &verts.ptr[2]; v->x = smallSzHalf * cosf(rad); v->y = smallSzHalf * sinf(rad);  v->color.r = 155; v->color.g = 255; v->color.b = 55;  v->color.a = 255;
+    //move to the center of the viewport
+    ScnNode2d_setTranslateXY(node, sz.width / 2.f, sz.height / 2.f);
 }
 
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view
@@ -50,6 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
     ctx             = (ScnContextRef)ScnContextRef_Zero;
     render          = (ScnRenderRef)ScnObjRef_Zero;
     framebuff       = (ScnFramebuffRef)ScnObjRef_Zero;
+    node            = (ScnNode2dRef)ScnObjRef_Zero;
     model           = (ScnModel2dRef)ScnObjRef_Zero;
     verts           = (STScnVertex2DPtr)STScnVertex2DPtr_Zero;
     vertsSz         = 0;
@@ -107,8 +117,11 @@ NS_ASSUME_NONNULL_BEGIN
                     } else if(!ScnFramebuff_bindToOSView(framebuff, (__bridge void*)view)){
                         printf("ERROR, ScnFramebuff_bindToOSView failed.\n");
                     } else {
+                        node = ScnNode2d_alloc(ctx);
                         model = ScnRender_allocModel(render);
-                        if(!ScnModel2d_isNull(model)){
+                        if(ScnNode2d_isNull(node) || ScnModel2d_isNull(model)){
+                            printf("ERROR, ScnNode2d_alloc or ScnRender_allocModel failed.\n");
+                        } else {
                             vertsSz = 3;
                             verts   = ScnModel2d_addDraw(model, ENScnRenderShape_TriangStrip, vertsSz);
                             [self updateModelVerts:view.drawableSize];
@@ -132,12 +145,14 @@ NS_ASSUME_NONNULL_BEGIN
     }
     //sync framebuffer
     if(!ScnFramebuff_isNull(framebuff)){
-        const STScnSize2DU pSize = (STScnSize2DU){ (ScnUI32)size.width, (ScnUI32)size.height };
-        const STScnRectU pViewPort = (STScnRectU) { 0u, 0u, pSize.width, pSize.height };
-        if(!ScnFramebuff_syncSizeAndViewport(framebuff, pSize, pViewPort)){
-            printf("ScnFramebuff_syncSizeAndViewport(%u %u) failed.\n", pSize.width, pSize.height);
+        STScnGpuFramebuffProps props = ScnFramebuff_getProps(framebuff);
+        props.size      = (STScnSize2DU){ (ScnUI32)size.width, (ScnUI32)size.height };
+        props.viewport  = (STScnRectU) { 0u, 0u, size.width, size.height };
+        props.ortho2d   = (STScnAABBox2d){ 0.f, size.width, 0.f, size.height };
+        if(!ScnFramebuff_setProps(framebuff, &props)){
+            printf("ScnFramebuff_syncSizeAndViewport(%.1f %.1f) failed.\n", size.width, size.height);
         } else {
-            printf("ScnFramebuff_syncSizeAndViewport(%u %u) ok.\n", pSize.width, pSize.height);
+            printf("ScnFramebuff_syncSizeAndViewport(%.1f %.1f) ok.\n", size.width, size.height);
         }
     }
 }
@@ -145,7 +160,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// Notifies the app when the system is ready draw a frame into a view.
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
-    //NSLog(@"MetalKitViewDelegate, drawInMTKView.\n");
+    //animation
+    if(!ScnNode2d_isNull(node)){
+        const float rotDeg = ScnNode2d_getRotDeg(node);
+        ScnNode2d_setRotDeg(node, rotDeg + 1.f);
+    }
+    //render
     SCN_ASSERT(ScnRender_isNull(render) || view.device == (__bridge id<MTLDevice>)ScnRender_getApiDevice(render))
     if(!ScnRender_isNull(render) && ScnRender_hasOpenDevice(render) && !ScnFramebuff_isNull(framebuff)){
         if(!ScnRender_jobStart(render)){
@@ -154,7 +174,9 @@ NS_ASSUME_NONNULL_BEGIN
             if(!ScnRender_jobFramebuffPush(render, framebuff)){
                 printf("ScnRender_jobFramebuffPush failed.\n");
             } else {
-                if(!ScnRender_jobModel2dAdd(render, model)){
+                if(!ScnRender_jobNode2dPropsPush(render, ScnNode2d_getProps(node))){
+                    printf("ScnRender_jobNode2dPropsPush failed.\n");
+                } else if(!ScnRender_jobModel2dAdd(render, model)){
                     printf("ScnRender_jobModel2dAdd failed.\n");
                 }
                 if(!ScnRender_jobFramebuffPop(render)){
@@ -176,6 +198,7 @@ NS_ASSUME_NONNULL_BEGIN
             printf("Simulating cleanup after %d frames.\n", framesCount);
             vertsSz = 0;
             verts = (STScnVertex2DPtr)STScnVertex2DPtr_Zero;
+            ScnNode2d_releaseAndNull(&node);
             ScnModel2d_releaseAndNull(&model);
             ScnFramebuff_releaseAndNull(&framebuff);
             ScnRender_releaseAndNull(&render);

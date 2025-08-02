@@ -104,6 +104,7 @@
 		2CB10CE82E3E49BC0056266A /* ScnNode2d.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB10CE62E3E49BC0056266A /* ScnNode2d.h */; };
 		2CB10CE92E3E49BC0056266A /* ScnNode2d.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10CE72E3E49BC0056266A /* ScnNode2d.c */; };
 		2CB10CEA2E3E49BC0056266A /* ScnNode2d.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10CE72E3E49BC0056266A /* ScnNode2d.c */; };
+		2CB10CEC2E3E59E20056266A /* ScnAABBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB10CEB2E3E59E20056266A /* ScnAABBox.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -191,6 +192,7 @@
 		2C9C87EC2E3CBECB008005C8 /* libixtlu-render-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libixtlu-render-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CB10CE62E3E49BC0056266A /* ScnNode2d.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnNode2d.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/scene/ScnNode2d.h"; sourceTree = "<absolute>"; };
 		2CB10CE72E3E49BC0056266A /* ScnNode2d.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ScnNode2d.c; sourceTree = "<group>"; };
+		2CB10CEB2E3E59E20056266A /* ScnAABBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnAABBox.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/type/ScnAABBox.h"; sourceTree = "<absolute>"; };
 		2CD60FAA2E34FBCC007BAF4D /* libixtli-render-mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libixtli-render-mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -308,6 +310,7 @@
 				2C5CD07E2E36A74C007BBDA6 /* ScnColor.h */,
 				2C5CD0812E36A74C007BBDA6 /* ScnRect.h */,
 				2C42DDA12E3A2F1400EFC81E /* ScnMatrix.h */,
+				2CB10CEB2E3E59E20056266A /* ScnAABBox.h */,
 				2C5CD07D2E36A74C007BBDA6 /* ScnBitmap.h */,
 				2C5CD0762E36A72C007BBDA6 /* ScnBitmap.c */,
 			);
@@ -396,6 +399,7 @@
 				2C5CD0622E3661E2007BBDA6 /* ScnMutex.h in Headers */,
 				2C5CD0642E3661E2007BBDA6 /* ScnSharedPtr.h in Headers */,
 				2C5CD0832E36A74C007BBDA6 /* ScnSize.h in Headers */,
+				2CB10CEC2E3E59E20056266A /* ScnAABBox.h in Headers */,
 				2C5CD0842E36A74C007BBDA6 /* ScnColor.h in Headers */,
 				2C5CD0852E36A74C007BBDA6 /* ScnPoint.h in Headers */,
 				2C5CD0F72E37BC03007BBDA6 /* ScnVertexbuff.h in Headers */,

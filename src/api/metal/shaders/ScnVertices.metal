@@ -37,8 +37,8 @@ struct RasterizerData
 ///
 /// The vertex shader doesn't modify the color values.
 vertex RasterizerData
-vertexShader(constant STScnGpuFramebufferProps *fbProps [[buffer(0)]]
-             , constant STScnGpuFramebufferProps *mdlProps [[buffer(1)]]
+vertexShader(constant STScnGpuFramebuffProps *fbProps [[buffer(0)]]
+             , constant STScnGpuModelProps2D *mdlProps [[buffer(1)]]
              , constant STScnVertex2D *verts [[buffer(2)]]
              , uint iVert [[vertex_id]]
              )
@@ -56,16 +56,18 @@ vertexShader(constant STScnGpuFramebufferProps *fbProps [[buffer(0)]]
 
     // Convert the position in pixel coordinates to clip-space by dividing the
     // pixel's coordinates by half the size of the viewport.
-    out.position.x = v.x / (fbProps->size.width / 2);
-    out.position.y = v.y / (fbProps->size.height / 2);
-    out.position.z = 0.0;
-    out.position.w = 1.0;
+    const float x   = (mdlProps->matrix.e00 * v.x) + (mdlProps->matrix.e01 * v.y) + mdlProps->matrix.e02;
+    const float y   = (mdlProps->matrix.e10 * v.x) + (mdlProps->matrix.e11 * v.y) + mdlProps->matrix.e12;
+    out.position.x  = -1.f + (x * 2.f / (ScnFLOAT)fbProps->size.width);
+    out.position.y  = 1.f - (y * 2.f / (ScnFLOAT)fbProps->size.height);
+    out.position.z  = 0.0;
+    out.position.w  = 1.0;
 
     // Pass the input color directly to the rasterizer.
-    out.color.r = 1.0f; //(ScnFLOAT)v.color.r / 255.f;
-    out.color.g = 1.0f; //(ScnFLOAT)v.color.g / 255.f;
-    out.color.b = 1.0f; //(ScnFLOAT)v.color.b / 255.f;
-    out.color.a = 1.0f; //(ScnFLOAT)v.color.a / 255.f;
+    out.color.r = (ScnFLOAT)v.color.r * (ScnFLOAT)mdlProps->c8.r / (255.f * 255.f);
+    out.color.g = (ScnFLOAT)v.color.g * (ScnFLOAT)mdlProps->c8.g / (255.f * 255.f);
+    out.color.b = (ScnFLOAT)v.color.b * (ScnFLOAT)mdlProps->c8.b / (255.f * 255.f);
+    out.color.a = (ScnFLOAT)v.color.a * (ScnFLOAT)mdlProps->c8.a / (255.f * 255.f);
     
     return out;
 }

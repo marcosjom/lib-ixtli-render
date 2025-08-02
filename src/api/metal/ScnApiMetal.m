@@ -32,8 +32,8 @@ ScnBOOL             ScnApiMetal_vertexbuff_activate(void* data);
 ScnBOOL             ScnApiMetal_vertexbuff_deactivate(void* data);
 //frameBuffer (view)
 void                ScnApiMetal_framebuff_view_free(void* data);
-STScnSize2DU          ScnApiMetal_framebuff_view_getSize(void* data, STScnRectU* dstViewport);
-ScnBOOL             ScnApiMetal_framebuff_view_syncSizeAndViewport(void* data, const STScnSize2DU size, const STScnRectU viewport);
+STScnGpuFramebuffProps ScnApiMetal_framebuff_view_getProps(void* data);
+ScnBOOL             ScnApiMetal_framebuff_view_setProps(void* data, const STScnGpuFramebuffProps* const props);
 
 ScnBOOL ScnApiMetal_getApiItf(STScnApiItf* dst){
     if(dst == NULL) return ScnFALSE;
@@ -526,11 +526,10 @@ ScnBOOL ScnApiMetal_vertexbuff_deactivate(void* pObj){
 //STScnApiMetalFramebuffView
 
 typedef struct STScnApiMetalFramebuffView {
-    ScnContextRef       ctx;
-    MTKView*            mtkView;
-    STScnSize2DU        size;
-    STScnRectU          viewport;
-    STScnApiItf         itf;
+    ScnContextRef           ctx;
+    MTKView*                mtkView;
+    STScnGpuFramebuffProps  props;
+    STScnApiItf             itf;
     //default shaders
     id<MTLRenderPipelineState> renderState; //shader and fragment for this framebuffer
 } STScnApiMetalFramebuffView;
@@ -563,12 +562,21 @@ ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void*
                 ScnContext_set(&obj->ctx, dev->ctx);
                 obj->itf            = dev->itf;
                 obj->mtkView        = mtkView; [obj->mtkView retain];
-                obj->size.width     = viewSz.width;
-                obj->size.height    = viewSz.height;
-                obj->viewport.x     = 0;
-                obj->viewport.y     = 0;
-                obj->viewport.width = obj->size.width;
-                obj->viewport.height = obj->size.height;
+                {
+                    //size
+                    obj->props.size.width       = viewSz.width;
+                    obj->props.size.height      = viewSz.height;
+                    //viewport
+                    obj->props.viewport.x       = 0;
+                    obj->props.viewport.y       = 0;
+                    obj->props.viewport.width   = obj->props.size.width;
+                    obj->props.viewport.height  = obj->props.size.height;
+                    //ortho2d
+                    obj->props.ortho2d.x.min    = 0.f;
+                    obj->props.ortho2d.x.max    = obj->props.size.width;
+                    obj->props.ortho2d.y.min    = 0.f;
+                    obj->props.ortho2d.y.max    = obj->props.size.height;
+                }
                 obj->renderState    = renderState; [obj->renderState retain];
                 //
                 ScnGpuFramebuffRef d = ScnGpuFramebuff_alloc(dev->ctx);
@@ -576,8 +584,8 @@ ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void*
                     STScnGpuFramebuffApiItf itf;
                     memset(&itf, 0, sizeof(itf));
                     itf.free        = ScnApiMetal_framebuff_view_free;
-                    itf.getSize     = ScnApiMetal_framebuff_view_getSize;
-                    itf.syncSizeAndViewport = ScnApiMetal_framebuff_view_syncSizeAndViewport;
+                    itf.getProps    = ScnApiMetal_framebuff_view_getProps;
+                    itf.setProps    = ScnApiMetal_framebuff_view_setProps;
                     if(!ScnGpuFramebuff_prepare(d, &itf, obj)){
                         printf("ScnApiMetal_device_allocFramebuffFromOSView::ScnGpuFramebuff_prepare failed.\n");
                     } else {
@@ -653,10 +661,10 @@ ScnBOOL ScnApiMetal_device_render(void* pObj, ScnGpuBufferRef pFbPropsBuff, ScnG
                                             //printf("renderCommandEncoderWithDescriptor.\n");
                                             rndrEnc.label = @"ixtli-render-cmd-enc";
                                             MTLViewport viewPort;
-                                            viewPort.originX = (double)fb->viewport.x;
-                                            viewPort.originY = (double)fb->viewport.y;
-                                            viewPort.width = (double)fb->viewport.width;
-                                            viewPort.height = (double)fb->viewport.height;
+                                            viewPort.originX = (double)fb->props.viewport.x;
+                                            viewPort.originY = (double)fb->props.viewport.y;
+                                            viewPort.width = (double)fb->props.viewport.width;
+                                            viewPort.height = (double)fb->props.viewport.height;
                                             viewPort.znear = 0.0;
                                             viewPort.zfar = 1.0;
                                             [rndrEnc setViewport:viewPort];
@@ -833,18 +841,16 @@ void ScnApiMetal_framebuff_view_free(void* pObj){
     ScnContext_releaseAndNull(&ctx);
 }
 
-STScnSize2DU ScnApiMetal_framebuff_view_getSize(void* pObj, STScnRectU* dstViewport){
+STScnGpuFramebuffProps ScnApiMetal_framebuff_view_getProps(void* pObj){
     STScnApiMetalFramebuffView* obj = (STScnApiMetalFramebuffView*)pObj;
-    if(dstViewport != NULL) *dstViewport = obj->viewport;
-    return obj->size;
+    return obj->props;
 }
 
-ScnBOOL ScnApiMetal_framebuff_view_syncSizeAndViewport(void* pObj, const STScnSize2DU size, const STScnRectU viewport){
+ScnBOOL ScnApiMetal_framebuff_view_setProps(void* pObj, const STScnGpuFramebuffProps* const props){
     ScnBOOL r = ScnFALSE;
     STScnApiMetalFramebuffView* obj = (STScnApiMetalFramebuffView*)pObj;
-    if(obj->mtkView != nil && size.width > 0 && size.height > 0){
-        obj->size = size;
-        obj->viewport = viewport;
+    if(obj->mtkView != nil && props != NULL){
+        obj->props = *props;
         r = ScnTRUE;
     }
     return r;

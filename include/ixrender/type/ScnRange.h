@@ -9,7 +9,9 @@
 #define ScnRange_h
 
 #include "ixrender/ixtli-defs.h"
-#include "ixrender/core/ScnCompare.h"
+#ifndef SNC_COMPILING_SHADER
+#   include "ixrender/core/ScnCompare.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,7 +26,9 @@ typedef struct STScnRange {
     ScnFLOAT    size;
 } STScnRange;
 
+#ifndef SNC_COMPILING_SHADER
 ScnBOOL ScnCompare_STScnRange(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz);
+#endif
 
 //STScnRangeI
 
@@ -35,7 +39,9 @@ typedef struct STScnRangeI {
     ScnSI32    size;
 } STScnRangeI;
 
+#ifndef SNC_COMPILING_SHADER
 ScnBOOL ScnCompare_STScnRangeI(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz);
+#endif
 
 //STScnRangeU
 
@@ -46,7 +52,19 @@ typedef struct STScnRangeU {
     ScnUI32    size;
 } STScnRangeU;
 
+#ifndef SNC_COMPILING_SHADER
 ScnBOOL ScnCompare_STScnRangeU(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz);
+#endif
+
+// STScnAABBox3d
+
+#define STScnRngLimits_Zero     { 0.f, 0.f }
+#define STScnRngLimits_Identity { 0.f, 1.f }
+
+typedef struct STScnRngLimits {
+    ScnFLOAT    min;
+    ScnFLOAT    max;
+} STScnRngLimits;
 
 #ifdef __cplusplus
 } //extern "C"

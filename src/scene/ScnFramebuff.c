@@ -90,30 +90,27 @@ ScnBOOL ScnFramebuff_bindToOSView(ScnFramebuffRef ref, void* mtkView){
 
 //
 
-STScnSize2DU  ScnFramebuff_getSize(ScnFramebuffRef ref, STScnRectU* dstViewport){
-    STScnSize2DU r = (STScnSize2DU)STScnSize2DU_Zero;
-    STScnRectU rr = (STScnRectU)STScnRectU_Zero;
+STScnGpuFramebuffProps ScnFramebuff_getProps(ScnFramebuffRef ref){
+    STScnGpuFramebuffProps r = (STScnGpuFramebuffProps)STScnGpuFramebuffProps_Zero;
     STScnFramebuffOpq* opq = (STScnFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnGpuFramebuff_isNull(opq->gpuFramebuff)){
-        r = ScnGpuFramebuff_getSize(opq->gpuFramebuff, &rr);
+        r = ScnGpuFramebuff_getProps(opq->gpuFramebuff);
     }
     ScnMutex_unlock(opq->mutex);
-    if(dstViewport != NULL) *dstViewport = rr;
     return r;
 }
 
-ScnBOOL ScnFramebuff_syncSizeAndViewport(ScnFramebuffRef ref, const STScnSize2DU size, const STScnRectU viewport){
+ScnBOOL ScnFramebuff_setProps(ScnFramebuffRef ref, const STScnGpuFramebuffProps* const props){
     ScnBOOL r = ScnFALSE;
     STScnFramebuffOpq* opq = (STScnFramebuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnGpuFramebuff_isNull(opq->gpuFramebuff)){
-        r = ScnGpuFramebuff_syncSizeAndViewport(opq->gpuFramebuff, size, viewport);
+        r = ScnGpuFramebuff_setProps(opq->gpuFramebuff, props);
     }
     ScnMutex_unlock(opq->mutex);
     return r;
 }
-
 
 //gpu
 
