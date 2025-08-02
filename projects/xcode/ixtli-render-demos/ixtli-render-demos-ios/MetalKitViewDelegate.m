@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
     ScnContextRef       ctx;
     ScnRenderRef        render;
     ScnFramebuffRef     framebuff;
-    ScnModel2DRef       model;
+    ScnModel2dRef       model;
     STScnVertex2DPtr    verts;
     ScnUI32             vertsSz;
     //memory leak detection
@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
     ctx             = (ScnContextRef)ScnContextRef_Zero;
     render          = (ScnRenderRef)ScnObjRef_Zero;
     framebuff       = (ScnFramebuffRef)ScnObjRef_Zero;
-    model           = (ScnModel2DRef)ScnObjRef_Zero;
+    model           = (ScnModel2dRef)ScnObjRef_Zero;
     verts           = (STScnVertex2DPtr)STScnVertex2DPtr_Zero;
     vertsSz         = 0;
     metalKitView    = nil;
@@ -110,9 +110,9 @@ NS_ASSUME_NONNULL_BEGIN
                         CGSize size = view.drawableSize;
                         NSLog(@"MetalKitViewDelegate, view.drawableSize(%f, %f).\n", size.width, size.height);
                         model = ScnRender_allocModel(render);
-                        if(!ScnModel2D_isNull(model)){
+                        if(!ScnModel2d_isNull(model)){
                             vertsSz = 3;
-                            verts   = ScnModel2D_addDraw(model, ENScnRenderShape_TriangStrip, vertsSz);
+                            verts   = ScnModel2d_addDraw(model, ENScnRenderShape_TriangStrip, vertsSz);
                             [self updateModelVerts:size];
                         }
                     }
@@ -128,9 +128,9 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSLog(@"MetalKitViewDelegate, mtkView:drawableSizeWillChange(%f, %f).\n", size.width, size.height);
     //sync model vertices
-    if(!ScnModel2D_isNull(model)){
+    if(!ScnModel2d_isNull(model)){
         [self updateModelVerts:size];
-        ScnModel2D_v0FlagForSync(model, verts, vertsSz);
+        ScnModel2d_v0FlagForSync(model, verts, vertsSz);
     }
     //sync framebuffer
     if(!ScnFramebuff_isNull(framebuff)){
@@ -156,8 +156,8 @@ NS_ASSUME_NONNULL_BEGIN
             if(!ScnRender_jobFramebuffPush(render, framebuff)){
                 printf("ScnRender_jobFramebuffPush failed.\n");
             } else {
-                if(!ScnRender_jobModelAdd(render, model)){
-                    printf("ScnRender_jobModelAdd failed.\n");
+                if(!ScnRender_jobModel2dAdd(render, model)){
+                    printf("ScnRender_jobModel2dAdd failed.\n");
                 }
                 if(!ScnRender_jobFramebuffPop(render)){
                     printf("ScnRender_jobFramebuffPop failed.\n");
@@ -178,7 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
             printf("Simulating cleanup after %d frames.\n", framesCount);
             vertsSz = 0;
             verts = (STScnVertex2DPtr)STScnVertex2DPtr_Zero;
-            ScnModel2D_releaseAndNull(&model);
+            ScnModel2d_releaseAndNull(&model);
             ScnFramebuff_releaseAndNull(&framebuff);
             ScnRender_releaseAndNull(&render);
             ScnContext_releaseAndNull(&ctx);

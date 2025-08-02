@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-//STScnModelProps2D
+//STScnNode2dProps
 
 #define STScnGpuModelProps2D_Zero        { STScnColor8_Zero, STScnMatrix2D_Zero }
 #define STScnGpuModelProps2D_Identity    { STScnColor8_255, STScnMatrix2D_Identity }

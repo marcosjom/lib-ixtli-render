@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-//STScnModelProps2D
+//STScnNode2dProps
 
 #define STScnGpuFramebufferProps_Zero        { STScnSize2DU_Zero, STScnRectU_Zero }
 

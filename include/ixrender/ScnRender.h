@@ -23,7 +23,7 @@
 #include "ixrender/scene/ScnVertexbuffs.h"
 #include "ixrender/scene/ScnFramebuff.h"
 #include "ixrender/scene/ScnRenderCmd.h"
-#include "ixrender/scene/ScnModel2D.h"
+#include "ixrender/scene/ScnModel2d.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +52,7 @@ ScnBOOL     ScnRender_hasOpenDevice(ScnRenderRef ref);
 void*       ScnRender_getApiDevice(ScnRenderRef ref);
 
 //model
-ScnModel2DRef ScnRender_allocModel(ScnRenderRef ref);
+ScnModel2dRef ScnRender_allocModel(ScnRenderRef ref);
 
 //framebuffer
 ScnFramebuffRef ScnRender_allocFramebuff(ScnRenderRef ref);
@@ -67,11 +67,15 @@ ScnBOOL     ScnRender_jobEnd(ScnRenderRef ref); //does the magic
 ScnBOOL     ScnRender_jobFramebuffPush(ScnRenderRef ref, ScnFramebuffRef fbuff);
 ScnBOOL     ScnRender_jobFramebuffPop(ScnRenderRef ref);
 
+//job nodes (scene's tree)
+
+ScnBOOL     ScnRender_jobNode2dPropsPush(ScnRenderRef ref, const STScnNode2dProps nodeProps);
+ScnBOOL     ScnRender_jobNode2dPropsPushWithModel(ScnRenderRef ref, const STScnNode2dProps nodeProps, ScnModel2dRef model); //equivalent to jobNodePropsPush() + jobModelAdd() + jobNodePropsPop()
+ScnBOOL     ScnRender_jobNode2dPop(ScnRenderRef ref);
+
 //job models
 
-ScnBOOL     ScnRender_jobModelAdd(ScnRenderRef ref, ScnModel2DRef model);    //equivalent to push-and-pop
-ScnBOOL     ScnRender_jobModelPush(ScnRenderRef ref, ScnModel2DRef model);
-ScnBOOL     ScnRender_jobModelPop(ScnRenderRef ref);
+ScnBOOL     ScnRender_jobModel2dAdd(ScnRenderRef ref, ScnModel2dRef model);
 
 //job cmds
 /*
@@ -87,9 +91,6 @@ void        ScnRender_cmdDawIndexes(ScnRenderRef ref, const ENScnRenderShape mod
 ScnVertexbuffsRef   ScnRender_getDefaultVertexbuffs(ScnRenderRef ref);
 ScnVertexbuffsRef   ScnRender_allocVertexbuffs(ScnRenderRef ref);
 ScnBufferRef        ScnRender_allocBuffer(ScnRenderRef ref, const STScnGpuBufferCfg* cfg);
-//
-ScnBOOL             ScnRender_jobTransformPush(ScnRenderRef ref, STScnModelProps2D* t);
-ScnBOOL             ScnRender_jobTransformPop(ScnRenderRef ref);
 
 #ifdef __cplusplus
 } //extern "C"

@@ -12,7 +12,7 @@
 #include "ixrender/scene/ScnVertices.h"
 #include "ixrender/scene/ScnVertexbuffs.h"
 #include "ixrender/scene/ScnFramebuff.h"
-#include "ixrender/scene/ScnModelProps2D.h"
+#include "ixrender/scene/ScnNode2dProps.h"
 #include "ixrender/scene/ScnTexture.h"
 
 #ifdef __cplusplus
@@ -116,9 +116,9 @@ typedef enum ENScnModelDrawCmdType {
     ENScnModelDrawCmdType_Count,
 } ENScnModelDrawCmdType;
 
-//STScnModel2DCmd
+//STScnModel2dCmd
 
-typedef struct STScnModel2DCmd {
+typedef struct STScnModel2dCmd {
     ENScnModelDrawCmdType   type;
     ENScnRenderShape        shape;
     ScnVertexbuffsRef       vbuffs;
@@ -148,18 +148,18 @@ typedef struct STScnModel2DCmd {
         ScnGpuTextureRef    t1;
         ScnGpuTextureRef    t2;
     } texs;
-} STScnModel2DCmd;
+} STScnModel2dCmd;
 
-void ScnModel2DCmd_init(STScnModel2DCmd* obj);
-void ScnModel2DCmd_destroy(STScnModel2DCmd* obj);
+void ScnModel2dCmd_init(STScnModel2dCmd* obj);
+void ScnModel2dCmd_destroy(STScnModel2dCmd* obj);
 
 //STScnGpuBufferApiItf
 
-#define STScnModel2DPushItf_Zero  { NULL }
+#define STScnModel2dPushItf_Zero  { NULL }
 
-typedef struct STScnModel2DPushItf {
-    ScnBOOL (*addCommandsWithProps)(void* data, const STScnModelProps2D* const props, const STScnModel2DCmd* const cmds, const ScnUI32 cmdsSz);
-} STScnModel2DPushItf;
+typedef struct STScnModel2dPushItf {
+    ScnBOOL (*addCommandsWithProps)(void* data, const STScnModel2dCmd* const cmds, const ScnUI32 cmdsSz);
+} STScnModel2dPushItf;
 
 #ifdef __cplusplus
 } //extern "C"

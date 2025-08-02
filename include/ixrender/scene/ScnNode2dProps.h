@@ -1,12 +1,12 @@
 //
-//  ScnModelProps2D.h
+//  ScnNode2dProps.h
 //  ixtli-render
 //
 //  Created by Marcos Ortega on 27/7/25.
 //
 
-#ifndef ScnModelProps2D_h
-#define ScnModelProps2D_h
+#ifndef ScnNode2dProps_h
+#define ScnNode2dProps_h
 
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/type/ScnColor.h"
@@ -17,17 +17,17 @@
 extern "C" {
 #endif
 
-//STScnModelProps2D
+//STScnNode2dProps
 
-#define STScnModelProps2D_Zero        { STScnColor8_Zero, STScnTransform2D_Zero }
-#define STScnModelProps2D_Identity    { STScnColor8_255, STScnTransform2D_Identity }
+#define STScnNode2dProps_Zero        { STScnColor8_Zero, STScnTransform2D_Zero }
+#define STScnNode2dProps_Identity    { STScnColor8_255, STScnTransform2D_Identity }
 
-typedef struct STScnModelProps2D {
+typedef struct STScnNode2dProps {
     STScnColor8         c8;     //color
     STScnTransform2D    tform;  //transform
-} STScnModelProps2D;
+} STScnNode2dProps;
 
-SC_INLN STScnGpuModelProps2D ScnModelProps2D_toGpuTransform(const STScnModelProps2D* const obj){
+SC_INLN STScnGpuModelProps2D ScnNode2dProps_toGpuTransform(const STScnNode2dProps* const obj){
     return (STScnGpuModelProps2D){
         obj->c8
         , ScnMatrix2D_fromTransforms((const STScnPoint2D){ obj->tform.tx, obj->tform.ty }, DEG_2_RAD(obj->tform.deg), (const STScnSize2D){ obj->tform.sx, obj->tform.sy })
@@ -38,4 +38,4 @@ SC_INLN STScnGpuModelProps2D ScnModelProps2D_toGpuTransform(const STScnModelProp
 } //extern "C"
 #endif
 
-#endif /* ScnModelProps2D_h */
+#endif /* ScnNode2dProps_h */

@@ -7,13 +7,13 @@
 
 #include "ixrender/scene/ScnRenderCmd.h"
 
-//STScnModel2DCmd
+//STScnModel2dCmd
 
-void ScnModel2DCmd_init(STScnModel2DCmd* obj){
+void ScnModel2dCmd_init(STScnModel2dCmd* obj){
     memset(obj, 0, sizeof(*obj));
 }
 
-void ScnModel2DCmd_destroy(STScnModel2DCmd* obj){
+void ScnModel2dCmd_destroy(STScnModel2dCmd* obj){
     //idxs
     //verts
     SCN_ASSERT(!ScnVertexbuffs_isNull(obj->vbuffs) || (obj->verts.count == 0 && obj->verts.v0.ptr == NULL && obj->verts.v0.idx == 0 && obj->idxs.count == 0 && obj->idxs.i0.ptr == NULL && obj->idxs.i0.idx == 0))

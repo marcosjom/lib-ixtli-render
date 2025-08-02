@@ -1,8 +1,8 @@
 //
-//  ScnModelProps2D.c
+//  ScnNode2dProps.c
 //  ixtli-render-mac
 //
 //  Created by Marcos Ortega on 27/7/25.
 //
 
-#include "ixrender/scene/ScnModelProps2D.h"
+#include "ixrender/scene/ScnNode2dProps.h"
