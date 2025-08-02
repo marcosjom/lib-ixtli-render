@@ -571,7 +571,7 @@ ScnBOOL ScnRender_jobEnd(ScnRenderRef ref){
     if(!opq->job.isActive){
         printf("ERROR, ScnRender_jobEnd:: not active.\n");
     } else {
-        printf("ScnRender_jobEnd::%u objs, %u cmds.\n", opq->job.objs.use, opq->job.cmds.use);
+        //printf("ScnRender_jobEnd::%u objs, %u cmds.\n", opq->job.objs.use, opq->job.cmds.use);
         r = ScnTRUE;
         //register root buffers as used objects
         if(r){

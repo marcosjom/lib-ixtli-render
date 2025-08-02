@@ -105,6 +105,7 @@
 		2CB10CE92E3E49BC0056266A /* ScnNode2d.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10CE72E3E49BC0056266A /* ScnNode2d.c */; };
 		2CB10CEA2E3E49BC0056266A /* ScnNode2d.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10CE72E3E49BC0056266A /* ScnNode2d.c */; };
 		2CB10CEC2E3E59E20056266A /* ScnAABBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB10CEB2E3E59E20056266A /* ScnAABBox.h */; };
+		2CB10CEE2E3EB51C0056266A /* ScnArrayEmbed.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB10CED2E3EB51C0056266A /* ScnArrayEmbed.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -193,6 +194,7 @@
 		2CB10CE62E3E49BC0056266A /* ScnNode2d.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnNode2d.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/scene/ScnNode2d.h"; sourceTree = "<absolute>"; };
 		2CB10CE72E3E49BC0056266A /* ScnNode2d.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ScnNode2d.c; sourceTree = "<group>"; };
 		2CB10CEB2E3E59E20056266A /* ScnAABBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnAABBox.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/type/ScnAABBox.h"; sourceTree = "<absolute>"; };
+		2CB10CED2E3EB51C0056266A /* ScnArrayEmbed.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnArrayEmbed.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/core/ScnArrayEmbed.h"; sourceTree = "<absolute>"; };
 		2CD60FAA2E34FBCC007BAF4D /* libixtli-render-mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libixtli-render-mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -239,6 +241,7 @@
 				2C5CD0552E3661E2007BBDA6 /* ScnCompare.h */,
 				2C5CD0532E3661E2007BBDA6 /* ScnArray.h */,
 				2C5CCF902E352715007BBDA6 /* ScnArray.c */,
+				2CB10CED2E3EB51C0056266A /* ScnArrayEmbed.h */,
 				2C5CD0542E3661E2007BBDA6 /* ScnArraySorted.h */,
 				2C5CCF912E352715007BBDA6 /* ScnArraySorted.c */,
 				2C5CD0572E3661E2007BBDA6 /* ScnMemBlock.h */,
@@ -415,6 +418,7 @@
 				2C5CD0EE2E378A64007BBDA6 /* ScnModel2d.h in Headers */,
 				2C5CD0672E3661E2007BBDA6 /* ScnCompare.h in Headers */,
 				2C5CD0932E36A994007BBDA6 /* ScnApiMetal.h in Headers */,
+				2CB10CEE2E3EB51C0056266A /* ScnArrayEmbed.h in Headers */,
 				2C5CD0682E3661E2007BBDA6 /* ScnContext.h in Headers */,
 				2C5CD0412E3661C4007BBDA6 /* ScnVertices.h in Headers */,
 				2C5CD04D2E3661D4007BBDA6 /* ScnGpuRenderbuff.h in Headers */,

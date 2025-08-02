@@ -430,7 +430,7 @@ ScnBOOL ScnApiMetal_buffer_syncRanges_(id<MTLBuffer> buff, ScnMemElasticRef mem,
         ++rng;
     }
     SCN_ASSERT((curRng.start + curRng.size) == (rngs[rngsUse - 1].start + rngs[rngsUse - 1].size))
-    printf("%2.f%% %u of %u bytes synced at buffer.\n", (float)bytesCopied * 100.f / (float)buffLen, bytesCopied, buffLen);
+    //printf("%2.f%% %u of %u bytes synced at buffer.\n", (float)bytesCopied * 100.f / (float)buffLen, bytesCopied, buffLen);
     return r;
 }
 
@@ -877,16 +877,13 @@ STScnSize2DU ScnApiMetal_framebuff_view_getSize(void* pObj){
 ScnBOOL ScnApiMetal_framebuff_view_syncSize(void* pObj, const STScnSize2DU size){
     ScnBOOL r = ScnFALSE;
     STScnApiMetalFramebuffView* obj = (STScnApiMetalFramebuffView*)pObj;
-    {
+    if(obj->mtkView != nil){
+        //const CGSize sz = obj->mtkView.drawableSize;
+        //obj->size.width = sz.width;
+        //obj->size.height = sz.height;
         obj->size = size;
         r = ScnTRUE;
     }
-    /*if(obj->mtkView != nil){
-        const CGSize sz = obj->mtkView.drawableSize;
-        obj->size.width = sz.width;
-        obj->size.height = sz.height;
-        r = ScnTRUE;
-    }*/
     return r;
 }
 

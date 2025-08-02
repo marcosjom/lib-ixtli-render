@@ -137,7 +137,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Notifies the app when the system adjusts the size of its viewable area.
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
 {
-    NSLog(@"MetalKitViewDelegate, mtkView:drawableSizeWillChange(%f, %f).\n", size.width, size.height);
+    //NSLog(@"MetalKitViewDelegate, mtkView:drawableSizeWillChange(%f, %f).\n", size.width, size.height);
     //sync model vertices
     if(!ScnModel2d_isNull(model)){
         [self updateModelVerts:size];

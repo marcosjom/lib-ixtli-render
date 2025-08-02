@@ -7,7 +7,6 @@
 
 #include "ixrender/core/ScnArraySorted.h"
 
-
 ScnSI32 ScnArraySorted_indexForNew_(const void* pArr, const ScnSI32 use, const ScnSI32 arrItmSz, const void* itmPtr, const ScnSI32 itmSz, ScnCompareFunc cmpFunc){
     SCN_ASSERT(cmpFunc != NULL)
     SCN_ASSERT(arrItmSz == itmSz)
