@@ -49,18 +49,14 @@ vertexShader(uint iVert [[vertex_id]]
 
     STScnVertex2D v = verts[iVert];
     
-    // Retrieve the 2D position in pixel coordinates.
-    /*simd_float2 pixelSpacePosition = vertexData[vertexID].position.xy;
-
-    // Retrieve the viewport's size by casting it to a 2D float value.
-    simd_float2 viewportSize = simd_float2(*viewportSizePointer);*/
-
     // Convert the position in pixel coordinates to clip-space by dividing the
     // pixel's coordinates by half the size of the viewport.
     const float x   = (mdlProps->matrix.e00 * v.x) + (mdlProps->matrix.e01 * v.y) + mdlProps->matrix.e02;
     const float y   = (mdlProps->matrix.e10 * v.x) + (mdlProps->matrix.e11 * v.y) + mdlProps->matrix.e12;
-    out.position.x  = -1.f + (x * 2.f / (ScnFLOAT)fbProps->size.width);
-    out.position.y  = 1.f - (y * 2.f / (ScnFLOAT)fbProps->size.height);
+    const float xRel= (x - fbProps->ortho2d.x.min) / (fbProps->ortho2d.x.max - fbProps->ortho2d.x.min);
+    const float yRel= (y - fbProps->ortho2d.y.min) / (fbProps->ortho2d.y.max - fbProps->ortho2d.y.min);
+    out.position.x  = -1.f + (xRel * 2.f);
+    out.position.y  = 1.f - (yRel * 2.f);
     out.position.z  = 0.0;
     out.position.w  = 1.0;
     

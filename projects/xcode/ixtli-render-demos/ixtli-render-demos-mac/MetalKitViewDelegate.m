@@ -174,10 +174,8 @@ NS_ASSUME_NONNULL_BEGIN
             if(!ScnRender_jobFramebuffPush(render, framebuff)){
                 printf("ScnRender_jobFramebuffPush failed.\n");
             } else {
-                if(!ScnRender_jobNode2dPropsPush(render, ScnNode2d_getProps(node))){
-                    printf("ScnRender_jobNode2dPropsPush failed.\n");
-                } else if(!ScnRender_jobModel2dAdd(render, model)){
-                    printf("ScnRender_jobModel2dAdd failed.\n");
+                if(!ScnRender_jobModel2dAddWithNode(render, model, node)){
+                    printf("ScnRender_jobModel2dAddWithNode failed.\n");
                 }
                 if(!ScnRender_jobFramebuffPop(render)){
                     printf("ScnRender_jobFramebuffPop failed.\n");

@@ -158,7 +158,7 @@ void ScnModel2dCmd_destroy(STScnModel2dCmd* obj);
 #define STScnModel2dPushItf_Zero  { NULL }
 
 typedef struct STScnModel2dPushItf {
-    ScnBOOL (*addCommandsWithProps)(void* data, const STScnModel2dCmd* const cmds, const ScnUI32 cmdsSz);
+    ScnBOOL (*addCommandsWithProps)(void* data, const STScnGpuModelProps2D* const props, const STScnModel2dCmd* const cmds, const ScnUI32 cmdsSz);
 } STScnModel2dPushItf;
 
 #ifdef __cplusplus

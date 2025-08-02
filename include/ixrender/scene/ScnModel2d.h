@@ -59,7 +59,7 @@ ScnBOOL             ScnModel2d_i3FlagForSync(ScnModel2dRef ref, STScnVertexIdxPt
 
 //draw commands to consumer
 
-ScnBOOL             ScnModel2d_sendRenderCmds(ScnModel2dRef ref, STScnModel2dPushItf* itf, void* itfParam);
+ScnBOOL             ScnModel2d_sendRenderCmds(ScnModel2dRef ref, const STScnGpuModelProps2D* const props, STScnModel2dPushItf* itf, void* itfParam);
 
 #ifdef __cplusplus
 } //extern "C"

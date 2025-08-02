@@ -70,12 +70,14 @@ ScnBOOL     ScnRender_jobFramebuffPop(ScnRenderRef ref);
 
 //job nodes (scene's tree)
 
+ScnBOOL     ScnRender_jobNode2dPush(ScnRenderRef ref, ScnNode2dRef node);
 ScnBOOL     ScnRender_jobNode2dPropsPush(ScnRenderRef ref, const STScnNode2dProps nodeProps);
-ScnBOOL     ScnRender_jobNode2dPropsPushWithModel(ScnRenderRef ref, const STScnNode2dProps nodeProps, ScnModel2dRef model); //equivalent to jobNodePropsPush() + jobModelAdd() + jobNodePropsPop()
 ScnBOOL     ScnRender_jobNode2dPop(ScnRenderRef ref);
 
 //job models
 
+ScnBOOL     ScnRender_jobModel2dAddWithNode(ScnRenderRef ref, ScnModel2dRef model, ScnNode2dRef node);                      //equivalent to    jobNode2dPush() + jobModelAdd() + jobNodePropsPop()
+ScnBOOL     ScnRender_jobModel2dAddWithNodeProps(ScnRenderRef ref, ScnModel2dRef model, const STScnNode2dProps nodeProps);  //equivalent to jobNodePropsPush() + jobModelAdd() + jobNodePropsPop()
 ScnBOOL     ScnRender_jobModel2dAdd(ScnRenderRef ref, ScnModel2dRef model);
 
 //job cmds

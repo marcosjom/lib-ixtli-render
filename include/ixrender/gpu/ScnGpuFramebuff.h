@@ -33,7 +33,7 @@ typedef struct STScnGpuFramebuffApiItf {
     void        (*free)(void* data);
     //
     STScnGpuFramebuffProps (*getProps)(void* data);
-    ScnBOOL         (*setProps)(void* data, const STScnGpuFramebuffProps* const props);
+    ScnBOOL     (*setProps)(void* data, const STScnGpuFramebuffProps* const props);
 } STScnGpuFramebuffApiItf;
 
 

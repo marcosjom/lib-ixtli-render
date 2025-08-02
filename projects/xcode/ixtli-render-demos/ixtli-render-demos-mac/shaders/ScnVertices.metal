@@ -48,12 +48,6 @@ vertexShader(constant STScnGpuFramebuffProps *fbProps [[buffer(0)]]
 
     STScnVertex2D v = verts[iVert];
     
-    // Retrieve the 2D position in pixel coordinates.
-    /*simd_float2 pixelSpacePosition = vertexData[vertexID].position.xy;
-
-    // Retrieve the viewport's size by casting it to a 2D float value.
-    simd_float2 viewportSize = simd_float2(*viewportSizePointer);*/
-
     // Convert the position in pixel coordinates to clip-space by dividing the
     // pixel's coordinates by half the size of the viewport.
     const float x   = (mdlProps->matrix.e00 * v.x) + (mdlProps->matrix.e01 * v.y) + mdlProps->matrix.e02;

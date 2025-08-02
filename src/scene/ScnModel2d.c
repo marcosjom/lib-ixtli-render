@@ -552,7 +552,7 @@ ScnBOOL ScnModel2d_i3FlagForSync(ScnModel2dRef ref, STScnVertexIdxPtr ptr, const
 
 //draw commands to consumer
 
-ScnBOOL ScnModel2d_sendRenderCmds(ScnModel2dRef ref, STScnModel2dPushItf* itf, void* itfParam){
+ScnBOOL ScnModel2d_sendRenderCmds(ScnModel2dRef ref, const STScnGpuModelProps2D* const props, STScnModel2dPushItf* itf, void* itfParam){
     ScnBOOL r = ScnFALSE;
     STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
     if(itf != NULL && itf->addCommandsWithProps != NULL){
@@ -561,7 +561,7 @@ ScnBOOL ScnModel2d_sendRenderCmds(ScnModel2dRef ref, STScnModel2dPushItf* itf, v
             const STScnModel2dCmd* cmds = ScnModel2d_getDrawCmdsPtrLockedOpq_(opq);
             const ScnUI32 cmdsSz = ScnModel2d_getDrawCmdsCountLockedOpq_(opq);
             //void* data, const STScnNode2dProps* props, const STScnModel2dCmd* cmds, const ScnUI32 cmdsSz
-            r = (*itf->addCommandsWithProps)(itfParam, cmds, cmdsSz);
+            r = (*itf->addCommandsWithProps)(itfParam, props, cmds, cmdsSz);
         }
         ScnMutex_unlock(opq->mutex);
     }
