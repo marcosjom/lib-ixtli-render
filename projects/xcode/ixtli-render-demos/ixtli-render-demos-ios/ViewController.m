@@ -24,5 +24,8 @@
     view.delegate   = delegate;
 }
 
+- (void) touchesEnded:(NSSet<UITouch *> *) touches withEvent:(UIEvent *) event {
+    [delegate startOrStop];
+}
 
 @end

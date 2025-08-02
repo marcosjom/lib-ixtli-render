@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MetalKitViewDelegate : NSObject<MTKViewDelegate>
 
 - (nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
+- (void)startOrStop;
 
 @end
 

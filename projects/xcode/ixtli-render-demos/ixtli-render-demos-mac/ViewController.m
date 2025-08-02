@@ -29,5 +29,8 @@
     // Update the view, if already loaded.
 }
 
+- (void)mouseUp:(NSEvent *)theEvent {
+    [delegate startOrStop];
+}
 
 @end
