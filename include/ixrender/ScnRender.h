@@ -23,6 +23,7 @@
 #include "ixrender/scene/ScnVertexbuffs.h"
 #include "ixrender/scene/ScnFramebuff.h"
 #include "ixrender/scene/ScnRenderCmd.h"
+#include "ixrender/scene/ScnNode2d.h"
 #include "ixrender/scene/ScnModel2d.h"
 
 #ifdef __cplusplus
