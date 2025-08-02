@@ -52,8 +52,9 @@ vertexShader(constant STScnGpuFramebuffProps *fbProps [[buffer(0)]]
     // pixel's coordinates by half the size of the viewport.
     const float x   = (mdlProps->matrix.e00 * v.x) + (mdlProps->matrix.e01 * v.y) + mdlProps->matrix.e02;
     const float y   = (mdlProps->matrix.e10 * v.x) + (mdlProps->matrix.e11 * v.y) + mdlProps->matrix.e12;
-    const float xRel= (x - fbProps->ortho2d.x.min) / (fbProps->ortho2d.x.max - fbProps->ortho2d.x.min);
-    const float yRel= (y - fbProps->ortho2d.y.min) / (fbProps->ortho2d.y.max - fbProps->ortho2d.y.min);
+    const float xRel= (fbProps->ortho.x.max == fbProps->ortho.x.min ? fbProps->ortho.x.max : (x - fbProps->ortho.x.min) / (fbProps->ortho.x.max - fbProps->ortho.x.min));
+    const float yRel= (fbProps->ortho.y.max == fbProps->ortho.y.min ? fbProps->ortho.y.max : (y - fbProps->ortho.y.min) / (fbProps->ortho.y.max - fbProps->ortho.y.min));
+    
     out.position.x  = -1.f + (xRel * 2.f);
     out.position.y  = 1.f - (yRel * 2.f);
     out.position.z  = 0.0;

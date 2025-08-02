@@ -28,8 +28,8 @@ typedef struct STScnAABBox2d {
 
 // STScnAABBox3d
 
-#define STScnAABBox3d_Zero      { STScnAABBoxLmt_Zero, STScnAABBoxLmt_Zero, STScnAABBoxLmt_Zero }
-#define STScnAABBox3d_Identity  { STScnAABBoxLmt_Identity, STScnAABBoxLmt_Identity }
+#define STScnAABBox3d_Zero      { STScnRngLimits_Zero, STScnRngLimits_Zero, STScnRngLimits_Zero }
+#define STScnAABBox3d_Identity  { STScnRngLimits_Identity, STScnRngLimits_Identity, STScnRngLimits_Identity }
 
 typedef struct STScnAABBox3d {
     STScnRngLimits  x;

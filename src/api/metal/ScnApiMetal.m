@@ -572,10 +572,10 @@ ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void*
                     obj->props.viewport.width   = obj->props.size.width;
                     obj->props.viewport.height  = obj->props.size.height;
                     //ortho2d
-                    obj->props.ortho2d.x.min    = 0.f;
-                    obj->props.ortho2d.x.max    = obj->props.size.width;
-                    obj->props.ortho2d.y.min    = 0.f;
-                    obj->props.ortho2d.y.max    = obj->props.size.height;
+                    obj->props.ortho.x.min    = 0.f;
+                    obj->props.ortho.x.max    = obj->props.size.width;
+                    obj->props.ortho.y.min    = 0.f;
+                    obj->props.ortho.y.max    = obj->props.size.height;
                 }
                 obj->renderState    = renderState; [obj->renderState retain];
                 //

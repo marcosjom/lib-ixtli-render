@@ -18,12 +18,12 @@ extern "C" {
 
 //STScnNode2dProps
 
-#define STScnGpuFramebuffProps_Zero        { STScnSize2DU_Zero, STScnRectU_Zero, STScnAABBox2d_Zero }
+#define STScnGpuFramebuffProps_Zero        { STScnSize2DU_Zero, STScnRectU_Zero, STScnAABBox3d_Zero }
 
 typedef struct STScnGpuFramebuffProps {
     STScnSize2DU    size;       //buffer size
     STScnRectU      viewport;   //render viewport
-    STScnAABBox2d   ortho2d;    //2d render orthogonal box
+    STScnAABBox3d   ortho;      //render orthogonal box
 } STScnGpuFramebuffProps;
 
 #ifdef __cplusplus
