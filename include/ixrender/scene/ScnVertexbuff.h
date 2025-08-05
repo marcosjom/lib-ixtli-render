@@ -24,7 +24,7 @@ SCN_REF_STRUCT_METHODS_DEC(ScnVertexbuff)
 
 //
 
-ScnBOOL         ScnVertexbuff_prepare(ScnVertexbuffRef ref, ScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuVertexbuffCfg* cfg, ScnBufferRef vertexBuff, ScnBufferRef idxsBuff);
+ScnBOOL         ScnVertexbuff_prepare(ScnVertexbuffRef ref, ScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuVertexbuffCfg* const cfg, ScnBufferRef vertexBuff, ScnBufferRef idxsBuff);
 
 ScnBOOL         ScnVertexbuff_activate(ScnVertexbuffRef ref);
 ScnBOOL         ScnVertexbuff_deactivate(ScnVertexbuffRef ref);

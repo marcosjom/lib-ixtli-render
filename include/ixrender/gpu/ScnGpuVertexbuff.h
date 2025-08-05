@@ -31,6 +31,8 @@ typedef struct STScnGpuVertexPartDef {
 
 #define STScnGpuVertexbuffCfg_Zero   { 0, STScnGpuVertexPartDef_Zero, STScnGpuVertexPartDef_Zero, STScnGpuVertexPartDef_Zero, { STScnGpuVertexPartDef_Zero, STScnGpuVertexPartDef_Zero, STScnGpuVertexPartDef_Zero } }
 
+#define STScnGpuVertexbuffCfg_2_ENScnVertexType(OBJ)  ((OBJ)->texCoords[ENScnGpuTextureIdx_2].amm > 0 ? ENScnVertexType_2DTex3 : (OBJ)->texCoords[ENScnGpuTextureIdx_1].amm > 0 ? ENScnVertexType_2DTex2 : (OBJ)->texCoords[ENScnGpuTextureIdx_0].amm > 0 ? ENScnVertexType_2DTex : ENScnVertexType_2DColor)
+
 typedef struct STScnGpuVertexbuffCfg {
     ScnUI32                 szPerRecord;    //bytes per record
     STScnGpuVertexPartDef   indices;
@@ -44,7 +46,7 @@ typedef struct STScnGpuVertexbuffCfg {
 typedef struct STScnGpuVertexbuffApiItf {
     void    (*free)(void* data);
     //
-    ScnBOOL (*sync)(void* data, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
+    ScnBOOL (*sync)(void* data, const STScnGpuVertexbuffCfg* const cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
     ScnBOOL (*activate)(void* data);
     ScnBOOL (*deactivate)(void* data);
 } STScnGpuVertexbuffApiItf;
@@ -60,7 +62,7 @@ SCN_REF_STRUCT_METHODS_DEC(ScnGpuVertexbuff)
 ScnBOOL             ScnGpuVertexbuff_prepare(ScnGpuVertexbuffRef ref, const STScnGpuVertexbuffApiItf* itf, void* itfParam);
 void*               ScnGpuVertexBuff_getApiItfParam(ScnGpuVertexbuffRef ref);
 
-ScnBOOL             ScnGpuVertexbuff_sync(ScnGpuVertexbuffRef ref, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
+ScnBOOL             ScnGpuVertexbuff_sync(ScnGpuVertexbuffRef ref, const STScnGpuVertexbuffCfg* const cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
 ScnBOOL             ScnGpuVertexbuff_activate(ScnGpuVertexbuffRef ref);
 ScnBOOL             ScnGpuVertexbuff_deactivate(ScnGpuVertexbuffRef ref);
 

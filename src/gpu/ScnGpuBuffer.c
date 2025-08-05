@@ -67,7 +67,7 @@ void* ScnGpuBuffer_getApiItfParam(ScnGpuBufferRef ref){
     return opq->api.itfParam;
 }
 
-ScnBOOL ScnGpuBuffer_sync(ScnGpuBufferRef ref, const STScnGpuBufferCfg* cfg, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes){
+ScnBOOL ScnGpuBuffer_sync(ScnGpuBufferRef ref, const STScnGpuBufferCfg* const cfg, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes){
     STScnGpuBufferOpq* opq = (STScnGpuBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (opq != NULL && opq->api.itf.sync != NULL ? (*opq->api.itf.sync)(opq->api.itfParam, cfg, mem, changes) : ScnFALSE);
 }

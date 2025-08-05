@@ -129,9 +129,10 @@ void ScnModel2dCmd_destroy(STScnModel2dCmd* obj){
     }
     //texs
     {
-        ScnGpuTexture_releaseAndNull(&obj->texs.t0);
-        ScnGpuTexture_releaseAndNull(&obj->texs.t1);
-        ScnGpuTexture_releaseAndNull(&obj->texs.t2);
+        ScnTexture_releaseAndNull(&obj->texs[0]);
+        ScnTexture_releaseAndNull(&obj->texs[1]);
+        ScnTexture_releaseAndNull(&obj->texs[2]);
+        SCN_ASSERT(ENScnGpuTextureIdx_Count == (sizeof(obj->texs) / sizeof(obj->texs[0])))
     }
     //vbuffs
     ScnVertexbuffs_releaseAndNull(&obj->vbuffs);

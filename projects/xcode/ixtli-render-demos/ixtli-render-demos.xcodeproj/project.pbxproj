@@ -7,22 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2C5CCF992E3535FC007BBDA6 /* libixtli-render-mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C5CCF982E3535FC007BBDA6 /* libixtli-render-mac.a */; };
 		2C5CD0D82E36BC55007BBDA6 /* libixtli-render-mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C5CCF982E3535FC007BBDA6 /* libixtli-render-mac.a */; };
 		2C9C88162E3CC31C008005C8 /* libixtlu-render-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C9C88152E3CC31C008005C8 /* libixtlu-render-ios.a */; };
+		2CB10D712E40C3630056266A /* MetalKitViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D6F2E40C3630056266A /* MetalKitViewDelegate.m */; };
+		2CB10D722E40C3630056266A /* MetalKitViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D6F2E40C3630056266A /* MetalKitViewDelegate.m */; };
+		2CB10D7A2E40C3870056266A /* ScnMemMap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D762E40C3870056266A /* ScnMemMap.c */; };
+		2CB10D7B2E40C3870056266A /* ScnPngLoader.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D772E40C3870056266A /* ScnPngLoader.c */; };
+		2CB10D802E40C3870056266A /* ScnMemMap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D762E40C3870056266A /* ScnMemMap.c */; };
+		2CB10D812E40C3870056266A /* ScnPngLoader.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D772E40C3870056266A /* ScnPngLoader.c */; };
+		2CB10D872E40C7150056266A /* nicabird.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CB10D862E40C7150056266A /* nicabird.png */; };
+		2CB10D882E40C7150056266A /* nicabird.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CB10D862E40C7150056266A /* nicabird.png */; };
+		2CB10D8C2E40DC930056266A /* spng.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D8B2E40DC930056266A /* spng.c */; };
+		2CB10D8D2E40DC930056266A /* spng.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D8B2E40DC930056266A /* spng.c */; };
+		2CB10D962E40E34D0056266A /* cat256.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CB10D932E40E34D0056266A /* cat256.png */; };
+		2CB10D982E40E34D0056266A /* cat256.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CB10D932E40E34D0056266A /* cat256.png */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		2CD60FD32E34FC46007BAF4D /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2C5CCF942E3535B5007BBDA6 /* libixtli-render.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libixtli-render.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -31,8 +30,16 @@
 		2C5CD0C52E36B74F007BBDA6 /* ixtli-render-demos-mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ixtli-render-demos-mac.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C9C87CB2E3CBCB8008005C8 /* ixtli-render-demos-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ixtli-render-demos-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C9C88152E3CC31C008005C8 /* libixtlu-render-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libixtlu-render-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2CC4890E2E3CDD3900BC2DC8 /* game.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = game.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		2CD60FD52E34FC46007BAF4D /* ixtli-render-demos */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "ixtli-render-demos"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CB10D6E2E40C3630056266A /* MetalKitViewDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetalKitViewDelegate.h; sourceTree = "<group>"; };
+		2CB10D6F2E40C3630056266A /* MetalKitViewDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MetalKitViewDelegate.m; sourceTree = "<group>"; };
+		2CB10D752E40C3870056266A /* ScnMemMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScnMemMap.h; sourceTree = "<group>"; };
+		2CB10D762E40C3870056266A /* ScnMemMap.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ScnMemMap.c; sourceTree = "<group>"; };
+		2CB10D772E40C3870056266A /* ScnPngLoader.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ScnPngLoader.c; sourceTree = "<group>"; };
+		2CB10D782E40C3870056266A /* SncPngLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SncPngLoader.h; sourceTree = "<group>"; };
+		2CB10D862E40C7150056266A /* nicabird.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = nicabird.png; sourceTree = "<group>"; };
+		2CB10D8A2E40DC930056266A /* spng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = spng.h; sourceTree = "<group>"; };
+		2CB10D8B2E40DC930056266A /* spng.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = spng.c; sourceTree = "<group>"; };
+		2CB10D932E40E34D0056266A /* cat256.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cat256.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -59,11 +66,6 @@
 			path = "ixtli-render-demos-ios";
 			sourceTree = "<group>";
 		};
-		2CD60FD72E34FC46007BAF4D /* ixtli-render-demos */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "ixtli-render-demos";
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,21 +85,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2CC4890B2E3CDD3900BC2DC8 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		2CD60FD22E34FC46007BAF4D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				2C5CCF992E3535FC007BBDA6 /* libixtli-render-mac.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -112,10 +99,37 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		2CB10D702E40C3630056266A /* demos */ = {
+			isa = PBXGroup;
+			children = (
+				2CB10D6E2E40C3630056266A /* MetalKitViewDelegate.h */,
+				2CB10D6F2E40C3630056266A /* MetalKitViewDelegate.m */,
+				2CB10D862E40C7150056266A /* nicabird.png */,
+				2CB10D932E40E34D0056266A /* cat256.png */,
+			);
+			name = demos;
+			path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/demos";
+			sourceTree = "<absolute>";
+		};
+		2CB10D792E40C3870056266A /* utils */ = {
+			isa = PBXGroup;
+			children = (
+				2CB10D752E40C3870056266A /* ScnMemMap.h */,
+				2CB10D762E40C3870056266A /* ScnMemMap.c */,
+				2CB10D782E40C3870056266A /* SncPngLoader.h */,
+				2CB10D772E40C3870056266A /* ScnPngLoader.c */,
+				2CB10D8A2E40DC930056266A /* spng.h */,
+				2CB10D8B2E40DC930056266A /* spng.c */,
+			);
+			name = utils;
+			path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/utils";
+			sourceTree = "<absolute>";
+		};
 		2CD60FCC2E34FC46007BAF4D = {
 			isa = PBXGroup;
 			children = (
-				2CD60FD72E34FC46007BAF4D /* ixtli-render-demos */,
+				2CB10D702E40C3630056266A /* demos */,
+				2CB10D792E40C3870056266A /* utils */,
 				2C5CD0C62E36B74F007BBDA6 /* ixtli-render-demos-mac */,
 				2C9C87CC2E3CBCB8008005C8 /* ixtli-render-demos-ios */,
 				2C5CCF932E3535B5007BBDA6 /* Frameworks */,
@@ -126,10 +140,8 @@
 		2CD60FD62E34FC46007BAF4D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2CD60FD52E34FC46007BAF4D /* ixtli-render-demos */,
 				2C5CD0C52E36B74F007BBDA6 /* ixtli-render-demos-mac.app */,
 				2C9C87CB2E3CBCB8008005C8 /* ixtli-render-demos-ios.app */,
-				2CC4890E2E3CDD3900BC2DC8 /* game.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -181,47 +193,6 @@
 			productReference = 2C9C87CB2E3CBCB8008005C8 /* ixtli-render-demos-ios.app */;
 			productType = "com.apple.product-type.application";
 		};
-		2CC4890D2E3CDD3900BC2DC8 /* game */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 2CC489242E3CDD3C00BC2DC8 /* Build configuration list for PBXNativeTarget "game" */;
-			buildPhases = (
-				2CC4890A2E3CDD3900BC2DC8 /* Sources */,
-				2CC4890B2E3CDD3900BC2DC8 /* Frameworks */,
-				2CC4890C2E3CDD3900BC2DC8 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = game;
-			packageProductDependencies = (
-			);
-			productName = game;
-			productReference = 2CC4890E2E3CDD3900BC2DC8 /* game.app */;
-			productType = "com.apple.product-type.application";
-		};
-		2CD60FD42E34FC46007BAF4D /* ixtli-render-demos */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 2CD60FDC2E34FC46007BAF4D /* Build configuration list for PBXNativeTarget "ixtli-render-demos" */;
-			buildPhases = (
-				2CD60FD12E34FC46007BAF4D /* Sources */,
-				2CD60FD22E34FC46007BAF4D /* Frameworks */,
-				2CD60FD32E34FC46007BAF4D /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				2CD60FD72E34FC46007BAF4D /* ixtli-render-demos */,
-			);
-			name = "ixtli-render-demos";
-			packageProductDependencies = (
-			);
-			productName = "ixtli-render-demos";
-			productReference = 2CD60FD52E34FC46007BAF4D /* ixtli-render-demos */;
-			productType = "com.apple.product-type.tool";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -236,12 +207,6 @@
 						CreatedOnToolsVersion = 16.4;
 					};
 					2C9C87CA2E3CBCB8008005C8 = {
-						CreatedOnToolsVersion = 16.4;
-					};
-					2CC4890D2E3CDD3900BC2DC8 = {
-						CreatedOnToolsVersion = 16.4;
-					};
-					2CD60FD42E34FC46007BAF4D = {
 						CreatedOnToolsVersion = 16.4;
 					};
 				};
@@ -260,10 +225,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2CD60FD42E34FC46007BAF4D /* ixtli-render-demos */,
 				2C5CD0C42E36B74F007BBDA6 /* ixtli-render-demos-mac */,
 				2C9C87CA2E3CBCB8008005C8 /* ixtli-render-demos-ios */,
-				2CC4890D2E3CDD3900BC2DC8 /* game */,
 			);
 		};
 /* End PBXProject section */
@@ -273,6 +236,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CB10D872E40C7150056266A /* nicabird.png in Resources */,
+				2CB10D982E40E34D0056266A /* cat256.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -280,13 +245,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		2CC4890C2E3CDD3900BC2DC8 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				2CB10D882E40C7150056266A /* nicabird.png in Resources */,
+				2CB10D962E40E34D0056266A /* cat256.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -297,6 +257,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CB10D712E40C3630056266A /* MetalKitViewDelegate.m in Sources */,
+				2CB10D802E40C3870056266A /* ScnMemMap.c in Sources */,
+				2CB10D812E40C3870056266A /* ScnPngLoader.c in Sources */,
+				2CB10D8D2E40DC930056266A /* spng.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -304,20 +268,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		2CC4890A2E3CDD3900BC2DC8 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		2CD60FD12E34FC46007BAF4D /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				2CB10D722E40C3630056266A /* MetalKitViewDelegate.m in Sources */,
+				2CB10D7A2E40C3870056266A /* ScnMemMap.c in Sources */,
+				2CB10D7B2E40C3870056266A /* ScnPngLoader.c in Sources */,
+				2CB10D8C2E40DC930056266A /* spng.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -432,58 +386,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		2CC489252E3CDD3C00BC2DC8 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = game/game.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSMainStoryboardFile = Main;
-				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.mortegam.ixtli-render.demos.game";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				REGISTER_APP_GROUPS = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-			};
-			name = Debug;
-		};
-		2CC489262E3CDD3C00BC2DC8 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = game/game.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSMainStoryboardFile = Main;
-				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.mortegam.ixtli-render.demos.game";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				REGISTER_APP_GROUPS = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Release;
 		};
@@ -606,22 +508,6 @@
 			};
 			name = Release;
 		};
-		2CD60FDD2E34FC46007BAF4D /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		2CD60FDE2E34FC46007BAF4D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -643,29 +529,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2CC489242E3CDD3C00BC2DC8 /* Build configuration list for PBXNativeTarget "game" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				2CC489252E3CDD3C00BC2DC8 /* Debug */,
-				2CC489262E3CDD3C00BC2DC8 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		2CD60FD02E34FC46007BAF4D /* Build configuration list for PBXProject "ixtli-render-demos" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2CD60FDA2E34FC46007BAF4D /* Debug */,
 				2CD60FDB2E34FC46007BAF4D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		2CD60FDC2E34FC46007BAF4D /* Build configuration list for PBXNativeTarget "ixtli-render-demos" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				2CD60FDD2E34FC46007BAF4D /* Debug */,
-				2CD60FDE2E34FC46007BAF4D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

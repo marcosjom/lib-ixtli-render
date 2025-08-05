@@ -81,15 +81,15 @@ typedef struct STScnRenderCmd {
         struct {
             ScnVertexbuffRef ref;
         } setVertexBuff;
+        //ENScnRenderCmd_SetTexture
+        struct {
+            ScnTextureRef   ref;
+            ScnUI32         index;   //slot-index
+        } setTexture;
         //ENScnRenderCmd_MaskModePush
         //  nothing
         //ENScnRenderCmd_MaskModePop
         //  nothing
-        //ENScnRenderCmd_SetTexture
-        struct {
-            ScnUI32         index;   //slot-index
-            ScnTextureRef   tex;     //ScnGpuTextureRef  tex;  //texture-id
-        } setTexture;
         //ENScnRenderCmd_DrawVerts
         struct {
             ENScnRenderShape shape;
@@ -150,11 +150,7 @@ typedef struct STScnModel2dCmd {
         ScnUI32 count;
     } idxs;
     //texs
-    struct {
-        ScnGpuTextureRef    t0;
-        ScnGpuTextureRef    t1;
-        ScnGpuTextureRef    t2;
-    } texs;
+    ScnTextureRef texs[ENScnGpuTextureIdx_Count];
 } STScnModel2dCmd;
 
 void ScnModel2dCmd_init(STScnModel2dCmd* obj);

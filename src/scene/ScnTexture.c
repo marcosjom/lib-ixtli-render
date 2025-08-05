@@ -7,7 +7,58 @@
 
 #include "ixrender/scene/ScnTexture.h"
 #include "ixrender/core/ScnArray.h"
+#include "ixrender/core/ScnArraySorted.h"
 #include "ixrender/type/ScnColor.h"
+
+//STScnTextureChanges
+
+typedef struct STScnTextureChanges {
+    ScnContextRef   ctx;
+    ScnBOOL         all; //the whole buffer must be synchronized
+    ScnUI32         rectsPixelsAccum;
+    ScnArraySortedStruct(rects, STScnRectU16);
+} STScnTextureChanges;
+
+ScnBOOL ScnCompare_STScnRectU16(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz);
+
+void    ScnTextureChanges_init(ScnContextRef ctx, STScnTextureChanges* obj);
+void    ScnTextureChanges_destroy(STScnTextureChanges* obj);
+void    ScnTextureChanges_reset(STScnTextureChanges* obj);
+void    ScnTextureChanges_mergeWithOther(STScnTextureChanges* obj, const STScnTextureChanges* const other);
+
+SC_INLN ScnBOOL ScnTextureChanges_mergeRng(STScnTextureChanges* obj, const STScnRectU16* const rect){
+    SCN_ASSERT(!obj->all) //optimization, call only if obj->all == ScnFALSE
+    //add new range
+    if(NULL != ScnArraySorted_addPtr(obj->ctx, &obj->rects, rect, STScnRectU16)){
+        obj->rectsPixelsAccum += (rect->width * rect->height);
+        return ScnTRUE;
+    }
+    return ScnFALSE;
+}
+
+SC_INLN void ScnTextureChanges_invalidateAll(STScnTextureChanges* obj){
+    obj->all = ScnTRUE;
+    ScnArraySorted_empty(&obj->rects);
+}
+
+#ifdef SCN_DEBUG
+ScnBOOL ScnTextureChanges_validate(STScnTextureChanges* obj);
+#endif
+
+//STScnTextureSlot
+
+typedef struct STScnTextureSlot {
+    ScnContextRef   ctx;
+    ScnGpuTextureRef gpuTex;
+    //state
+    struct {
+        ScnUI32     totalSzLast;
+    } state;
+    STScnTextureChanges changes;
+} STScnTextureSlot;
+
+void ScnTextureSlot_init(ScnContextRef ctx, STScnTextureSlot* opq);
+void ScnTextureSlot_destroy(STScnTextureSlot* opq);
 
 //STScnTextureOpq
 
@@ -16,12 +67,16 @@ typedef struct STScnTextureOpq {
     ScnMutexRef         mutex;
     //
     STScnGpuTextureCfg  cfg;    //config
+    ScnGpuDeviceRef     gpuDev;
     ScnBitmapRef        bmp;    //bitmap
-    //changes
+    STScnTextureChanges changes;
+    //slots (render)
     struct {
-        ScnBOOL         whole;  //all the content is new
-        ScnArrayStruct(rects, STScnRectI); //subimages areas
-    } changes;
+        STScnTextureSlot* arr;
+        ScnUI16         use;
+        ScnUI16         sz;
+        ScnUI16         iCur;
+    } slots;
 } STScnTextureOpq;
 
 ScnSI32 ScnTexture_getOpqSz(void){
@@ -34,9 +89,7 @@ void ScnTexture_initZeroedOpq(ScnContextRef ctx, void* obj) {
     ScnContext_set(&opq->ctx, ctx);
     opq->mutex = ScnContext_allocMutex(opq->ctx);
     //changes
-    {
-        ScnArray_init(opq->ctx, &opq->changes.rects, 0, 32, STScnRectI);
-    }
+    ScnTextureChanges_init(ctx, &opq->changes);
 }
 
 void ScnTexture_destroyOpq(void* obj){
@@ -46,16 +99,30 @@ void ScnTexture_destroyOpq(void* obj){
     //
     ScnBitmap_releaseAndNull(&opq->bmp);
     //changes
+    ScnTextureChanges_destroy(&opq->changes);
+    //slots
     {
-        ScnArray_destroy(opq->ctx, &opq->changes.rects);
+        if(opq->slots.arr != NULL){
+            STScnTextureSlot* s = opq->slots.arr;
+            const STScnTextureSlot* sAfterEnd = s + opq->slots.use;
+            while(s < sAfterEnd){
+                ScnTextureSlot_destroy(s);
+                ++s;
+            }
+            ScnContext_mfree(opq->ctx, opq->slots.arr);
+            opq->slots.arr = NULL;
+        }
+        opq->slots.use = opq->slots.sz = 0;
     }
+    ScnGpuDevice_releaseAndNull(&opq->gpuDev);
+    //
     ScnMutex_freeAndNullify(&opq->mutex);
     ScnContext_releaseAndNull(&opq->ctx);
 }
 
 //
 
-ScnBOOL ScnTexture_prepare(ScnTextureRef ref, const STScnGpuTextureCfg* cfg) {
+ScnBOOL ScnTexture_prepare(ScnTextureRef ref, ScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const optSrcProps, const void* optSrcData) {
     ScnBOOL r = ScnFALSE;
     STScnTextureOpq* opq = (STScnTextureOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -63,18 +130,38 @@ ScnBOOL ScnTexture_prepare(ScnTextureRef ref, const STScnGpuTextureCfg* cfg) {
         ScnBitmapRef bmp = ScnBitmap_alloc(opq->ctx);
         if(!ScnBitmap_create(bmp, cfg->width, cfg->height, cfg->color)){
             //error
+        } else if(optSrcProps != NULL && optSrcData != NULL && !ScnBitmap_pasteBitmapData(bmp, (STScnPoint2DI){ 0, 0 }, (STScnRectI){ 0, 0, optSrcProps->size.width, optSrcProps->size.height }, optSrcProps, optSrcData)){
+            //error
         } else {
-            //swap
-            ScnBitmap_set(&opq->bmp, bmp);
-            //cfg
-            opq->cfg = *cfg;
-            //ScnStruct_stRelease(ScnTextureCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
-            //ScnStruct_stClone(ScnTextureCfg_getSharedStructMap(), cfg, sizeof(*cfg), &opq->cfg, sizeof(opq->cfg));
-            //changes
-            opq->changes.whole = ScnTRUE;
-            ScnArray_empty(&opq->changes.rects);
-            //
-            r = ScnTRUE;
+            STScnTextureSlot* slots = ScnContext_malloc(opq->ctx, sizeof(STScnTextureSlot) * ammRenderSlots, "ScnTexture_prepare::slots");
+            if(slots != NULL){
+                //slots (render)
+                {
+                    STScnTextureSlot* s = slots;
+                    const STScnTextureSlot* sAfterEnd = s + ammRenderSlots;
+                    while(s < sAfterEnd){
+                        ScnTextureSlot_init(opq->ctx, s);
+                        //force first full-sync
+                        ScnTextureChanges_invalidateAll(&s->changes);
+                        //
+                        ++s;
+                    }
+                    opq->slots.arr = slots;
+                    opq->slots.use = opq->slots.sz = ammRenderSlots;
+                }
+                //set
+                ScnBitmap_set(&opq->bmp, bmp);
+                //cfg
+                opq->cfg = *cfg;
+                ScnGpuDevice_set(&opq->gpuDev, gpuDev);
+                //ScnStruct_stRelease(ScnTextureCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
+                //ScnStruct_stClone(ScnTextureCfg_getSharedStructMap(), cfg, sizeof(*cfg), &opq->cfg, sizeof(opq->cfg));
+                //changes
+                opq->changes.all = ScnTRUE;
+                ScnArray_empty(&opq->changes.rects);
+                //
+                r = ScnTRUE;
+            }
         }
         ScnBitmap_release(&bmp);
     }
@@ -82,18 +169,21 @@ ScnBOOL ScnTexture_prepare(ScnTextureRef ref, const STScnGpuTextureCfg* cfg) {
     return r;
 }
 
+//
 
-ScnBOOL ScnTexture_setImage(ScnTextureRef ref, const STScnBitmapProps srcProps, const ScnBYTE* srcData){
+ScnBOOL ScnTexture_setImage(ScnTextureRef ref, const STScnBitmapProps* const srcProps, const void* srcData){
     ScnBOOL r = ScnFALSE;
     STScnTextureOpq* opq = (STScnTextureOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    if(!(srcProps != NULL && srcData != NULL)){
+        return r;
+    }
     ScnMutex_lock(opq->mutex);
-    if(opq->cfg.width == srcProps.size.width && opq->cfg.height == srcProps.size.height){
-        const STScnPoint2DI pstPos = { 0, 0 };
-        if(!ScnBitmap_pasteBitmapData(opq->bmp, pstPos, srcProps, srcData)){
+    if(opq->cfg.width == srcProps->size.width && opq->cfg.height == srcProps->size.height){
+        if(!ScnBitmap_pasteBitmapData(opq->bmp, (STScnPoint2DI){ 0, 0 }, (STScnRectI){ 0, 0, srcProps->size.width, srcProps->size.height }, srcProps, srcData)){
             //error
         } else {
             //changes
-            opq->changes.whole = ScnTRUE;
+            opq->changes.all = ScnTRUE;
             ScnArray_empty(&opq->changes.rects);
             //
             r = ScnTRUE;
@@ -103,34 +193,209 @@ ScnBOOL ScnTexture_setImage(ScnTextureRef ref, const STScnBitmapProps srcProps, 
     return r;
 }
 
-ScnBOOL ScnTexture_setSubimage(ScnTextureRef ref, const STScnPoint2DI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData, const STScnRectI pSrcRect){
+ScnBOOL ScnTexture_setSubimage(ScnTextureRef ref, const STScnPoint2DI pos, const STScnBitmapProps* const srcProps, const void* srcData, const STScnRectI pSrcRect){
     ScnBOOL r = ScnFALSE;
     STScnTextureOpq* opq = (STScnTextureOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    if(!(srcProps != NULL && srcData != NULL)){
+        return r;
+    }
     ScnMutex_lock(opq->mutex);
     if(opq->cfg.width >0 && opq->cfg.height > 0){
         /*STScnRectI srcRect = pSrcRect;
-        const STScnColor8 pstColor = { 255, 255, 255, 255 };
-        if(!ScnBitmap_pasteValidatedSrcRect(&opq->bmp, pos, srcProps, &srcRect)){
-            //error
-        } else if(!ScnBitmap_pasteBitmapDataRect(&opq->bmp, pos, srcProps, srcData, srcRect, pstColor)){
-            //error
-        } else {
-            //changes
-            if(opq->changes.whole){
-                //already flagged
-            } else if(opq->cfg.width == srcRect.width && opq->cfg.height == srcRect.height){
-                //whole image changed
-                opq->changes.whole = ScnTRUE;
-                ScnArray_empty(&opq->changes.rects);
-            } else {
-                //add rect
-                ScnArray_addValue(opq->ctx, &opq->changes.rects, srcRect, STScnRectI);
-            }
-            //
-            r = ScnTRUE;
-        }*/
+         const STScnColor8 pstColor = { 255, 255, 255, 255 };
+         if(!ScnBitmap_pasteValidatedSrcRect(&opq->bmp, pos, srcProps, &srcRect)){
+         //error
+         } else if(!ScnBitmap_pasteBitmapDataRect(&opq->bmp, pos, srcProps, srcData, srcRect, pstColor)){
+         //error
+         } else {
+         //changes
+         if(opq->changes.whole){
+         //already flagged
+         } else if(opq->cfg.width == srcRect.width && opq->cfg.height == srcRect.height){
+         //whole image changed
+         opq->changes.whole = ScnTRUE;
+         ScnArray_empty(&opq->changes.rects);
+         } else {
+         //add rect
+         ScnArray_addValue(opq->ctx, &opq->changes.rects, srcRect, STScnRectI);
+         }
+         //
+         r = ScnTRUE;
+         }*/
         SCN_ASSERT(ScnFALSE) //implement
     }
     ScnMutex_unlock(opq->mutex);
     return r;
+}
+
+//gpu-buffer
+
+ScnBOOL ScnTexture_prepareCurrentRenderSlot(ScnTextureRef ref){
+    ScnBOOL r = ScnFALSE;
+    STScnTextureOpq* opq = (STScnTextureOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(opq->slots.arr != NULL && opq->slots.use > 0 && !ScnBitmap_isNull(opq->bmp) && !ScnGpuDevice_isNull(opq->gpuDev)){
+        //sync gpu-buffer
+        void* bmpData = NULL;
+        STScnBitmapProps bmpProps =ScnBitmap_getProps(opq->bmp, &bmpData);
+        STScnTextureSlot* slot = &opq->slots.arr[opq->slots.iCur];
+        //forward accumulated changes to all slots
+        {
+            const ScnUI32 iFirst = opq->slots.iCur % opq->slots.use;
+            ScnUI32 iSlot = iFirst;
+            do {
+                STScnTextureSlot* slot = &opq->slots.arr[iSlot];
+                ScnTextureChanges_mergeWithOther(&slot->changes, &opq->changes);
+                //next
+                iSlot = (iSlot + 1) % opq->slots.use;
+            } while(iSlot != iFirst);
+            //reset accumulates changes
+            ScnTextureChanges_reset(&opq->changes);
+        }
+        //
+        if(ScnGpuTexture_isNull(slot->gpuTex)){
+            slot->gpuTex = ScnGpuDevice_allocTexture(opq->gpuDev, &opq->cfg, &bmpProps, bmpData);
+            if(!ScnGpuTexture_isNull(slot->gpuTex)){
+                r = ScnTRUE;
+            }
+        } else {
+            STScnGpuTextureChanges changes = STScnGpuTextureChanges_Zero;
+            changes.all = slot->changes.all;
+            if(!changes.all){
+                changes.rects = slot->changes.rects.arr;
+                changes.recsUse = slot->changes.rects.use;
+            }
+            if(!changes.all && changes.recsUse == 0){
+                //no changes to update
+                r = ScnTRUE;
+            } else {
+                r = ScnGpuTexture_sync(slot->gpuTex, &opq->cfg, &bmpProps, bmpData, &changes);
+            }
+        }
+        //reset current slot changes
+        ScnTextureChanges_reset(&slot->changes);
+    }
+    ScnMutex_unlock(opq->mutex);
+    //
+    return r;
+}
+
+ScnBOOL ScnTexture_moveToNextRenderSlot(ScnTextureRef ref){
+    ScnBOOL r = ScnFALSE;
+    STScnTextureOpq* opq = (STScnTextureOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(opq->slots.arr != NULL && opq->slots.use > 0 && !ScnBitmap_isNull(opq->bmp) && !ScnGpuDevice_isNull(opq->gpuDev)){
+        //move to next render slot
+        opq->slots.iCur = (opq->slots.iCur + 1) % opq->slots.use;
+        r = ScnTRUE;
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnGpuTextureRef ScnTexture_getCurrentRenderSlot(ScnTextureRef ref){
+    ScnGpuTextureRef r = ScnObjRef_Zero;
+    STScnTextureOpq* opq = (STScnTextureOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(opq->slots.arr != NULL && opq->slots.use > 0){
+        STScnTextureSlot* slot = &opq->slots.arr[opq->slots.iCur % opq->slots.use];
+        r = slot->gpuTex;
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+//STScnTextureChanges
+
+void ScnTextureChanges_init(ScnContextRef ctx, STScnTextureChanges* obj){
+    memset(obj, 0, sizeof(*obj));
+    ScnContext_set(&obj->ctx, ctx);
+    ScnArraySorted_init(ctx, &obj->rects, 0, 32, STScnRectU16, ScnCompare_STScnRectU16);
+}
+
+void ScnTextureChanges_destroy(STScnTextureChanges* obj){
+    ScnArraySorted_destroy(obj->ctx, &obj->rects);
+    ScnContext_releaseAndNull(&obj->ctx);
+}
+
+#ifdef SCN_DEBUG
+ScnBOOL ScnTextureChanges_validate(STScnTextureChanges* obj){
+    return ScnTRUE;
+}
+#endif
+
+void ScnTextureChanges_reset(STScnTextureChanges* obj){
+    obj->all = ScnFALSE;
+    obj->rectsPixelsAccum = 0;
+    ScnArraySorted_empty(&obj->rects);
+}
+
+void ScnTextureChanges_mergeWithOther(STScnTextureChanges* obj, const STScnTextureChanges* const other){
+    if(!obj->all){
+        if(other->all){
+            //all
+            ScnTextureChanges_reset(obj);
+            obj->all = ScnTRUE;
+        } else {
+            //merge ranges
+            const STScnRectU16* rect = other->rects.arr;
+            if(obj->rects.use == 0){
+                //memcpy
+                if(other->rects.use > 0){
+                    ScnArraySorted_prepareForGrowth(obj->ctx, &obj->rects, other->rects.use, STScnRectU16);
+                    if(other->rects.use <= obj->rects.sz){
+                        memcpy(obj->rects.arr, other->rects.arr, sizeof(obj->rects.arr[0]) * other->rects.use);
+                        obj->rects.use = other->rects.use;
+                    }
+                }
+                obj->rectsPixelsAccum = other->rectsPixelsAccum;
+                SCN_ASSERT(obj->rects.use == other->rects.use)
+                SCN_ASSERT(ScnTextureChanges_validate(obj))
+            } else {
+                //one by one
+                const STScnRectU16* rectAfterEnd = rect + other->rects.use;
+                while(rect < rectAfterEnd){
+                    if(!ScnTextureChanges_mergeRng(obj, rect)){
+                        break;
+                    }
+                    //next
+                    ++rect;
+                }
+                SCN_ASSERT(ScnTextureChanges_validate(obj))
+            }
+        }
+    }
+}
+
+//STScnTextureSlot
+
+void ScnTextureSlot_init(ScnContextRef ctx, STScnTextureSlot* opq){
+    memset(opq, 0, sizeof(*opq));
+    ScnContext_set(&opq->ctx, ctx);
+    ScnTextureChanges_init(opq->ctx, &opq->changes);
+}
+
+void ScnTextureSlot_destroy(STScnTextureSlot* opq){
+    ScnTextureChanges_destroy(&opq->changes);
+    ScnGpuTexture_releaseAndNull(&opq->gpuTex);
+    ScnContext_releaseAndNull(&opq->ctx);
+}
+
+//STScnRectU16
+
+ScnBOOL ScnCompare_STScnRectU16(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz){
+    SCN_ASSERT(dataSz == sizeof(STScnRectU16))
+    if(dataSz == sizeof(STScnRectU16)){
+        const STScnRectU16* d1 = (STScnRectU16*)data1;
+        const STScnRectU16* d2 = (STScnRectU16*)data2;
+        switch (mode) {
+            case ENScnCompareMode_Equal: return d1->y == d2->y && d1->x == d2->x;
+            case ENScnCompareMode_Lower: return d1->y < d2->y || (d1->y == d2->y && d1->x < d2->x);
+            case ENScnCompareMode_LowerOrEqual: return d1->y < d2->y || (d1->y == d2->y && d1->x <= d2->x);
+            case ENScnCompareMode_Greater: return d1->y > d2->y || (d1->y == d2->y && d1->x > d2->x);
+            case ENScnCompareMode_GreaterOrEqual: return d1->y > d2->y || (d1->y == d2->y && d1->x >= d2->x);
+            default: SCN_ASSERT(ScnFALSE) break;
+        }
+    }
+    return ScnFALSE;
 }

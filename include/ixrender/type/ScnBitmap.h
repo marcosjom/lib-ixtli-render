@@ -12,6 +12,7 @@
 #include "ixrender/core/ScnObjRef.h"
 #include "ixrender/type/ScnPoint.h"
 #include "ixrender/type/ScnSize.h"
+#include "ixrender/type/ScnRect.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,18 +20,13 @@ extern "C" {
 
 typedef enum ENScnBitmapColor {
     ENScnBitmapColor_undef = 0,
+    //
     ENScnBitmapColor_ALPHA8,        //only alpha (8 bits)
-    ENScnBitmapColor_GRIS8,        //grayscale (8 bits)
-    ENScnBitmapColor_GRISALPHA8,    //grayscale and alpha (8 bits each component)
-    ENScnBitmapColor_RGB4,        //RGB (4 bits each component)
-    ENScnBitmapColor_RGB8,        //RGB (8 bits each component)
-    ENScnBitmapColor_RGBA4,        //RGBA (4 bits each component)
-    ENScnBitmapColor_RGBA8,        //RGBA (8 bits each component)
-    ENScnBitmapColor_ARGB4,        //ARGB (4 bits each component)
-    ENScnBitmapColor_ARGB8,        //ARGB (8 bits each component)
-    ENScnBitmapColor_BGRA8,        //BGRA (8 bits each component)
-    ENScnBitmapColor_SWF_PIX15,    //
-    ENScnBitmapColor_SWF_PIX24,    //reserved+R+G+B
+    ENScnBitmapColor_GRAY8,         //grayscale (8 bits)
+    ENScnBitmapColor_GRAYALPHA8,    //grayscale and alpha (8 bits each component)
+    ENScnBitmapColor_RGB8,          //RGB (8 bits each component)
+    ENScnBitmapColor_RGBA8,         //RGBA (8 bits each component)
+    //
     ENScnBitmapColor_Count
 } ENScnBitmapColor;
 
@@ -38,7 +34,7 @@ typedef enum ENScnBitmapColor {
 
 typedef struct STScnBitmapProps {
     ENScnBitmapColor    color;
-    STScnSize2DI          size;
+    STScnSize2DI        size;
     ScnSI32             bitsPerPx;
     ScnSI32             bytesPerLine;
 } STScnBitmapProps;
@@ -58,7 +54,10 @@ typedef struct STScnBitmap {
 SCN_REF_STRUCT_METHODS_DEC(ScnBitmap)
 
 ScnBOOL ScnBitmap_create(ScnBitmapRef ref, const ScnSI32 width, const ScnSI32 height, const ENScnBitmapColor color);
-ScnBOOL ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData);
+ScnBOOL ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI dstPos, const STScnRectI srcRect, const STScnBitmapProps* const srcProps, const void* srcData);
+//
+STScnBitmapProps    ScnBitmap_getProps(ScnBitmapRef ref, void** optDstData);
+void*               ScnBitmap_getData(ScnBitmapRef ref);
 
 #ifdef __cplusplus
 } //extern "C"

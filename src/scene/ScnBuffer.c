@@ -22,11 +22,8 @@ typedef struct STScnBufferChanges {
 void    ScnBufferChanges_init(ScnContextRef ctx, STScnBufferChanges* obj);
 void    ScnBufferChanges_destroy(STScnBufferChanges* obj);
 void    ScnBufferChanges_reset(STScnBufferChanges* obj);
-SC_INLN void ScnBufferChanges_invalidateAll(STScnBufferChanges* obj){
-    obj->all = ScnTRUE;
-    ScnArraySorted_empty(&obj->rngs);
-}
 void    ScnBufferChanges_mergeWithOther(STScnBufferChanges* obj, const STScnBufferChanges* const other);
+
 SC_INLN ScnBOOL ScnBufferChanges_mergeRng(STScnBufferChanges* obj, const STScnRangeU* const rng){
     SCN_ASSERT(!obj->all) //optimization, call only if obj->all == ScnFALSE
     STScnRangeU* gStart = obj->rngs.arr;
@@ -73,6 +70,12 @@ SC_INLN ScnBOOL ScnBufferChanges_mergeRng(STScnBufferChanges* obj, const STScnRa
     }
     return ScnFALSE;
 }
+
+SC_INLN void ScnBufferChanges_invalidateAll(STScnBufferChanges* obj){
+    obj->all = ScnTRUE;
+    ScnArraySorted_empty(&obj->rngs);
+}
+
 #ifdef SCN_DEBUG
 ScnBOOL ScnBufferChanges_validate(STScnBufferChanges* obj);
 #endif
@@ -155,7 +158,7 @@ void ScnBuffer_destroyOpq(void* obj){
 
 //
 
-ScnBOOL ScnBuffer_prepare(ScnBufferRef ref, ScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuBufferCfg* cfg) {
+ScnBOOL ScnBuffer_prepare(ScnBufferRef ref, ScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuBufferCfg* const cfg) {
     ScnBOOL r = ScnFALSE;
     STScnBufferOpq* opq = (STScnBufferOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);

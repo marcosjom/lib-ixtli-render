@@ -37,7 +37,7 @@ struct RasterizerData
 ///
 /// The vertex shader doesn't modify the color values.
 vertex RasterizerData
-vertexShader(constant STScnGpuFramebuffProps *fbProps [[buffer(0)]]
+ixtliVertexShader(constant STScnGpuFramebuffProps *fbProps [[buffer(0)]]
              , constant STScnGpuModelProps2D *mdlProps [[buffer(1)]]
              , constant STScnVertex2D *verts [[buffer(2)]]
              , uint iVert [[vertex_id]]

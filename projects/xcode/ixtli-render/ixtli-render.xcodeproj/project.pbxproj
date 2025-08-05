@@ -106,6 +106,10 @@
 		2CB10CEA2E3E49BC0056266A /* ScnNode2d.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10CE72E3E49BC0056266A /* ScnNode2d.c */; };
 		2CB10CEC2E3E59E20056266A /* ScnAABBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB10CEB2E3E59E20056266A /* ScnAABBox.h */; };
 		2CB10CEE2E3EB51C0056266A /* ScnArrayEmbed.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB10CED2E3EB51C0056266A /* ScnArrayEmbed.h */; };
+		2CB10CF42E3F985B0056266A /* ScnPngLoader.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10CF22E3F985B0056266A /* ScnPngLoader.c */; };
+		2CB10CF52E3F985B0056266A /* SncPngLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB10CF32E3F985B0056266A /* SncPngLoader.h */; };
+		2CB10CF62E3F985B0056266A /* ScnPngLoader.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10CF22E3F985B0056266A /* ScnPngLoader.c */; };
+		2CB10D912E40DCA60056266A /* spng.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CB10D8E2E40DCA60056266A /* spng.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -195,6 +199,13 @@
 		2CB10CE72E3E49BC0056266A /* ScnNode2d.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ScnNode2d.c; sourceTree = "<group>"; };
 		2CB10CEB2E3E59E20056266A /* ScnAABBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnAABBox.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/type/ScnAABBox.h"; sourceTree = "<absolute>"; };
 		2CB10CED2E3EB51C0056266A /* ScnArrayEmbed.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnArrayEmbed.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/core/ScnArrayEmbed.h"; sourceTree = "<absolute>"; };
+		2CB10CF22E3F985B0056266A /* ScnPngLoader.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ScnPngLoader.c; sourceTree = "<group>"; };
+		2CB10CF32E3F985B0056266A /* SncPngLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SncPngLoader.h; sourceTree = "<group>"; };
+		2CB10D832E40C3F20056266A /* MetalKitViewDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetalKitViewDelegate.h; sourceTree = "<group>"; };
+		2CB10D842E40C3F20056266A /* MetalKitViewDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MetalKitViewDelegate.m; sourceTree = "<group>"; };
+		2CB10D892E40C7230056266A /* nicabird.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = nicabird.png; sourceTree = "<group>"; };
+		2CB10D8E2E40DCA60056266A /* spng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = spng.h; sourceTree = "<group>"; };
+		2CB10D8F2E40DCA60056266A /* spng.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = spng.c; sourceTree = "<group>"; };
 		2CD60FAA2E34FBCC007BAF4D /* libixtli-render-mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libixtli-render-mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -221,6 +232,10 @@
 			children = (
 				2C42DDB02E3A7C5D00EFC81E /* ScnMemMap.h */,
 				2C42DDB12E3A7C5D00EFC81E /* ScnMemMap.c */,
+				2CB10CF32E3F985B0056266A /* SncPngLoader.h */,
+				2CB10CF22E3F985B0056266A /* ScnPngLoader.c */,
+				2CB10D8E2E40DCA60056266A /* spng.h */,
+				2CB10D8F2E40DCA60056266A /* spng.c */,
 			);
 			name = utils;
 			path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/utils";
@@ -346,6 +361,17 @@
 			path = api;
 			sourceTree = "<group>";
 		};
+		2CB10D852E40C3F20056266A /* demos */ = {
+			isa = PBXGroup;
+			children = (
+				2CB10D892E40C7230056266A /* nicabird.png */,
+				2CB10D832E40C3F20056266A /* MetalKitViewDelegate.h */,
+				2CB10D842E40C3F20056266A /* MetalKitViewDelegate.m */,
+			);
+			name = demos;
+			path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/demos";
+			sourceTree = "<absolute>";
+		};
 		2CBBE48D2E34FD3B00CBC1AC /* src */ = {
 			isa = PBXGroup;
 			children = (
@@ -367,6 +393,7 @@
 			isa = PBXGroup;
 			children = (
 				2CBBE48D2E34FD3B00CBC1AC /* src */,
+				2CB10D852E40C3F20056266A /* demos */,
 				2C42DDB22E3A7C5D00EFC81E /* utils */,
 				2CD60FAB2E34FBCC007BAF4D /* Products */,
 			);
@@ -413,6 +440,7 @@
 				2C5CD08A2E36A86B007BBDA6 /* ScnGpuDevice.h in Headers */,
 				2C5CD0882E36A74C007BBDA6 /* ScnRect.h in Headers */,
 				2C5CD0652E3661E2007BBDA6 /* ScnArray.h in Headers */,
+				2CB10CF52E3F985B0056266A /* SncPngLoader.h in Headers */,
 				2CB10CE82E3E49BC0056266A /* ScnNode2d.h in Headers */,
 				2C5CD0662E3661E2007BBDA6 /* ScnObjRef.h in Headers */,
 				2C5CD0EE2E378A64007BBDA6 /* ScnModel2d.h in Headers */,
@@ -426,6 +454,7 @@
 				2C5CD06C2E3661F2007BBDA6 /* ixtli-render.h in Headers */,
 				2C5CD04E2E3661D4007BBDA6 /* ScnGpuTexture.h in Headers */,
 				2C5CD04F2E3661D4007BBDA6 /* ScnGpuVertexbuff.h in Headers */,
+				2CB10D912E40DCA60056266A /* spng.h in Headers */,
 				2C5CD0502E3661D4007BBDA6 /* ScnGpuBuffer.h in Headers */,
 				2C5CD0512E3661D4007BBDA6 /* ScnGpuDataType.h in Headers */,
 				2C5CD0522E3661D4007BBDA6 /* ScnGpuFramebuff.h in Headers */,
@@ -551,6 +580,7 @@
 				2C9C87F62E3CBF00008005C8 /* ScnRenderCmd.c in Sources */,
 				2C9C87F82E3CBF00008005C8 /* ScnVertices.metal in Sources */,
 				2C9C87F92E3CBF00008005C8 /* ScnMemBlock.c in Sources */,
+				2CB10CF42E3F985B0056266A /* ScnPngLoader.c in Sources */,
 				2C9C87FA2E3CBF00008005C8 /* ScnContext.c in Sources */,
 				2C9C87FC2E3CBF00008005C8 /* ScnRender.c in Sources */,
 				2C9C87FD2E3CBF00008005C8 /* ScnMemory.c in Sources */,
@@ -585,6 +615,7 @@
 				2C5CD06F2E3667D5007BBDA6 /* ScnGpuFramebuff.c in Sources */,
 				2C5CD0FB2E37BD10007BBDA6 /* ScnTexture.c in Sources */,
 				2C5CD0262E365874007BBDA6 /* ScnGpuTexture.c in Sources */,
+				2CB10CF62E3F985B0056266A /* ScnPngLoader.c in Sources */,
 				2C5CD06D2E366585007BBDA6 /* ScnGpuVertexbuff.c in Sources */,
 				2C5CD01B2E3640C9007BBDA6 /* ScnRenderCmd.c in Sources */,
 				2C5CD06E2E36667E007BBDA6 /* ScnGpuRenderbuff.c in Sources */,

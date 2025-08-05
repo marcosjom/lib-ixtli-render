@@ -53,10 +53,16 @@ ScnBOOL     ScnRender_hasOpenDevice(ScnRenderRef ref);
 void*       ScnRender_getApiDevice(ScnRenderRef ref);
 
 //model
+
 ScnModel2dRef ScnRender_allocModel(ScnRenderRef ref);
 
 //framebuffer
+
 ScnFramebuffRef ScnRender_allocFramebuff(ScnRenderRef ref);
+
+//texture
+
+ScnTextureRef ScnRender_allocTexture(ScnRenderRef ref, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const optSrcProps, const void* optSrcData);
 
 //job
 
@@ -97,7 +103,8 @@ void        ScnRender_cmdDawIndexes(ScnRenderRef ref, const ENScnRenderShape mod
 
 ScnVertexbuffsRef   ScnRender_getDefaultVertexbuffs(ScnRenderRef ref);
 ScnVertexbuffsRef   ScnRender_allocVertexbuffs(ScnRenderRef ref);
-ScnBufferRef        ScnRender_allocBuffer(ScnRenderRef ref, const STScnGpuBufferCfg* cfg);
+ScnBufferRef        ScnRender_allocBuffer(ScnRenderRef ref, const STScnGpuBufferCfg* const cfg);
+ScnBOOL             ScnRender_jobSetTexture(ScnRenderRef ref, const ENScnGpuTextureIdx idx, ScnTextureRef tex);
 
 #ifdef __cplusplus
 } //extern "C"

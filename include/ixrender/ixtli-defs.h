@@ -10,7 +10,7 @@
 
 #define SCN_DEBUG
 //#define SCN_SILENT_MODE
-//#define SCN_VERBOSE_MODE
+#define SCN_VERBOSE_MODE
 
 #ifdef SCN_DEBUG
 #   define SCN_ASSERTS_ACTIVATED
@@ -25,7 +25,7 @@
 #       define SCN_ASSERT(EVAL) ((void)0);
 #   else
 #   include <assert.h>         //assert
-#       define SCN_ASSERT(EVAL)     { if(!(EVAL)){ SCN_PRINTF_ERROR("ASSERT, cond '" #EVAL "'.\n"); SCN_PRINTF_ERROR("ASSERT, file '%s'\n", __FILE__); SCN_PRINTF_ERROR("ASSERT, line %d.\n", __LINE__); assert(0); }}
+#       define SCN_ASSERT(EVAL)     { if(!(EVAL)){ SCN_PRINTF_ERROR("ASSERT failed.\n"); SCN_PRINTF_ERROR("ASSERT, file '%s'\n", __FILE__); SCN_PRINTF_ERROR("ASSERT, line %d.\n", __LINE__); assert(0); }}
 #   endif
 #else
 #   define SCN_ASSERT(EVAL)     ((void)0);

@@ -38,11 +38,10 @@ struct RasterizerData
 ///
 /// The vertex shader doesn't modify the color values.
 vertex RasterizerData
-vertexShader(uint iVert [[vertex_id]]
-             , constant STScnGpuFramebuffProps *fbProps [[buffer(0)]]
+ixtliVertexShader(constant STScnGpuFramebuffProps *fbProps [[buffer(0)]]
              , constant STScnGpuModelProps2D *mdlProps [[buffer(1)]]
              , constant STScnVertex2D *verts [[buffer(2)]]
-             
+             , uint iVert [[vertex_id]]
              )
 {
     RasterizerData out;
@@ -61,9 +60,9 @@ vertexShader(uint iVert [[vertex_id]]
     out.position.z  = 0.0;
     out.position.w  = 1.0;
     
-    //metal::os_log_default.log_info("fbProps(%u x %u) viewport(%u, %u)(+%u, +%u)", fbProps->size.width, fbProps->size.height, fbProps->viewport.x, fbProps->viewport.y, fbProps->viewport.width, fbProps->viewport.height);
-    //metal::os_log_default.log_info("mdlProps c8(%u, %u, %u, %u) m(%.1f, %.1f, %.1f)-(%.1f, %.1f, %.1f)", mdlProps->c8.r, mdlProps->c8.g, mdlProps->c8.b, mdlProps->c8.a, mdlProps->matrix._m00, mdlProps->matrix._m01, mdlProps->matrix._m02, mdlProps->matrix._m10, mdlProps->matrix._m11, mdlProps->matrix._m12);
-    //metal::os_log_default.log_info("v[%u] = (%.1f, %.1f) c8(%u, %u, %u, %u)", iVert, v.x, v.y, v.color.r, v.color.g, v.color.b, v.color.a);
+    metal::os_log_default.log_info("viewport(%u, %u)(+%u, +%u)", fbProps->viewport.x, fbProps->viewport.y, fbProps->viewport.width, fbProps->viewport.height);
+    metal::os_log_default.log_info("mdlProps c8(%u, %u, %u, %u) m(%.1f, %.1f, %.1f)-(%.1f, %.1f, %.1f)", mdlProps->c8.r, mdlProps->c8.g, mdlProps->c8.b, mdlProps->c8.a, mdlProps->matrix._m00, mdlProps->matrix._m01, mdlProps->matrix._m02, mdlProps->matrix._m10, mdlProps->matrix._m11, mdlProps->matrix._m12);
+    metal::os_log_default.log_info("v[%u] = (%.1f, %.1f) c8(%u, %u, %u, %u)", iVert, v.x, v.y, v.color.r, v.color.g, v.color.b, v.color.a);
 
     // Pass the input color directly to the rasterizer.
     out.color.r = (ScnFLOAT)v.color.r * (ScnFLOAT)mdlProps->c8.r / (255.f * 255.f);
@@ -71,18 +70,38 @@ vertexShader(uint iVert [[vertex_id]]
     out.color.b = (ScnFLOAT)v.color.b * (ScnFLOAT)mdlProps->c8.b / (255.f * 255.f);
     out.color.a = (ScnFLOAT)v.color.a * (ScnFLOAT)mdlProps->c8.a / (255.f * 255.f);
     
-    //metal::os_log_default.log_info("v[%u] = (%.1f, %.1f) c(%.1f, %.1f, %.1f, %.1f)", iVert, out.position.x, out.position.y, out.color.r, out.color.g, out.color.b, out.color.a);
+    metal::os_log_default.log_info("v[%u] = (%.1f, %.1f) c(%.1f, %.1f, %.1f, %.1f)", iVert, out.position.x, out.position.y, out.color.r, out.color.g, out.color.b, out.color.a);
 
     return out;
 }
 
 /// A basic fragment shader that returns the color data from the rasterizer
 /// without modifying it.
-fragment float4 fragmentShader(RasterizerData in [[stage_in]])
+fragment float4 ixtliFragmentShader(RasterizerData in [[stage_in]])
 {
     // Return the color the rasterizer interpolates between the triangle's
     // three vertex colors.
-    //metal::os_log_default.log_info("stage_in = (%.1f, %.1f) c(%.1f, %.1f, %.1f, %.1f)", in.position.x, in.position.y, in.color.r, in.color.g, in.color.b, in.color.a);
+    return in.color;
+}
+
+fragment float4 ixtliFragmentShaderTex(RasterizerData in [[stage_in]])
+{
+    // Return the color the rasterizer interpolates between the triangle's
+    // three vertex colors.
+    return in.color;
+}
+
+fragment float4 ixtliFragmentShaderTex2(RasterizerData in [[stage_in]])
+{
+    // Return the color the rasterizer interpolates between the triangle's
+    // three vertex colors.
+    return in.color;
+}
+
+fragment float4 ixtliFragmentShaderTex3(RasterizerData in [[stage_in]])
+{
+    // Return the color the rasterizer interpolates between the triangle's
+    // three vertex colors.
     return in.color;
 }
 

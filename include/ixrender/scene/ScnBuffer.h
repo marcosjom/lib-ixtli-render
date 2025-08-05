@@ -35,7 +35,7 @@ SCN_REF_STRUCT_METHODS_DEC(ScnBuffer)
 
 //
 
-ScnBOOL     ScnBuffer_prepare(ScnBufferRef ref, ScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuBufferCfg* cfg);
+ScnBOOL     ScnBuffer_prepare(ScnBufferRef ref, ScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuBufferCfg* const cfg);
 ScnBOOL     ScnBuffer_hasPtrs(ScnBufferRef ref); //allocations made?
 ScnUI32     ScnBuffer_getRenderSlotsCount(ScnBufferRef ref);
 

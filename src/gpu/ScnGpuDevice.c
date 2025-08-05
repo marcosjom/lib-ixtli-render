@@ -71,7 +71,7 @@ ScnGpuBufferRef ScnGpuDevice_allocBuffer(ScnGpuDeviceRef ref, ScnMemElasticRef m
     return (opq->api.itf.allocBuffer != NULL ? (*opq->api.itf.allocBuffer)(opq->api.itfParam, mem) : (ScnGpuBufferRef)ScnObjRef_Zero);
 }
 
-ScnGpuVertexbuffRef ScnGpuDevice_allocVertexBuff(ScnGpuDeviceRef ref, const STScnGpuVertexbuffCfg* cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff){
+ScnGpuVertexbuffRef ScnGpuDevice_allocVertexBuff(ScnGpuDeviceRef ref, const STScnGpuVertexbuffCfg* const cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff){
     STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (opq->api.itf.allocVertexBuff != NULL ? (*opq->api.itf.allocVertexBuff)(opq->api.itfParam, cfg, vBuff, idxBuff) : (ScnGpuVertexbuffRef)ScnObjRef_Zero);
 }
@@ -79,6 +79,11 @@ ScnGpuVertexbuffRef ScnGpuDevice_allocVertexBuff(ScnGpuDeviceRef ref, const STSc
 ScnGpuFramebuffRef ScnGpuDevice_allocFramebuffFromOSView(ScnGpuDeviceRef ref, void* mtkView){
     STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (opq->api.itf.allocFramebuffFromOSView != NULL ? (*opq->api.itf.allocFramebuffFromOSView)(opq->api.itfParam, mtkView) : (ScnGpuFramebuffRef)ScnObjRef_Zero);
+}
+
+ScnGpuTextureRef ScnGpuDevice_allocTexture(ScnGpuDeviceRef ref, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData){
+    STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    return (opq->api.itf.allocTexture != NULL ? (*opq->api.itf.allocTexture)(opq->api.itfParam, cfg, srcProps, srcData) : (ScnGpuTextureRef)ScnObjRef_Zero);
 }
 
 ScnBOOL ScnGpuDevice_render(ScnGpuDeviceRef ref, ScnGpuBufferRef fbPropsBuff, ScnGpuBufferRef mdlsPropsBuff, const struct STScnRenderCmd* const cmds, const ScnUI32 cmdsSz){

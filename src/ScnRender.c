@@ -33,7 +33,8 @@ typedef struct STScnRenderFbuffState {
     } stacks;
     //active (last state, helps to reduce redundant cmds)
     struct {
-        ScnVertexbuffRef vbuff;
+        ScnVertexbuffRef    vbuff;
+        ScnTextureRef       texs[ENScnGpuTextureIdx_Count];
     } active;
 } STScnRenderFbuffState;
 
@@ -67,6 +68,7 @@ typedef enum ENScnRenderJobObjType {
     ENScnRenderJobObjType_Buff,
     ENScnRenderJobObjType_Framebuff,
     ENScnRenderJobObjType_Vertexbuff,
+    ENScnRenderJobObjType_Texture,
     //
     ENScnRenderJobObjType_Count
 } ENScnRenderJobObjType;
@@ -80,6 +82,7 @@ typedef struct STScnRenderJobObj {
         ScnBufferRef        buff;
         ScnFramebuffRef     framebuff;
         ScnVertexbuffRef    vertexbuff;
+        ScnTextureRef       texture;
     };
 } STScnRenderJobObj;
 
@@ -100,8 +103,8 @@ typedef struct STScnRenderOpq {
         void*           itfParam;
     } api;
     ScnGpuDeviceRef     gpuDev;
-    ScnBufferRef        fbPropsBuff;  //buffer with viewport properties
-    ScnBufferRef        mdlsPropsBuff; //buffer with models
+    ScnBufferRef        fbPropsBuff;    //buffer with viewport properties
+    ScnBufferRef        mdlsPropsBuff;  //buffer with models
     ScnVertexbuffsRef   vbuffs;         //buffers with vertices and indices
     //job
     struct {
@@ -298,6 +301,27 @@ ScnFramebuffRef ScnRender_allocFramebuff(ScnRenderRef ref){
     return r;
 }
 
+//texture
+
+ScnTextureRef ScnRender_allocTexture(ScnRenderRef ref, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const optSrcProps, const void* optSrcData){
+    ScnTextureRef r = ScnObjRef_Zero;
+    STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnGpuDevice_isNull(opq->gpuDev) && opq->ammRenderSlots > 0){
+        ScnTextureRef fb = ScnTexture_alloc(opq->ctx);
+        if(ScnTexture_isNull(fb)){
+            printf("ERROR, ScnRender_allocTexture::ScnTexture_alloc failed.\n");
+        } else if(!ScnTexture_prepare(fb, opq->gpuDev, opq->ammRenderSlots, cfg, optSrcProps, optSrcData)){
+            printf("ERROR, ScnRender_allocTexture::ScnTexture_prepare failed.\n");
+        } else {
+            ScnTexture_set(&r, fb);
+        }
+        ScnTexture_releaseAndNull(&fb);
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
 //Vertices
 
 ScnVertexbuffsRef ScnRender_getDefaultVertexbuffs(ScnRenderRef ref){
@@ -407,10 +431,10 @@ ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, cons
             ScnBufferRef idxsBuff = iBuffs[i];
             //size
             switch(i){
-                case ENScnVertexType_2DTex3: cfg.szPerRecord = sizeof(STScnVertex2DTex3); break;
-                case ENScnVertexType_2DTex2: cfg.szPerRecord = sizeof(STScnVertex2DTex2); break;
-                case ENScnVertexType_2DTex: cfg.szPerRecord = sizeof(STScnVertex2DTex); break;
                 case ENScnVertexType_2DColor: cfg.szPerRecord = sizeof(STScnVertex2D); break;
+                case ENScnVertexType_2DTex: cfg.szPerRecord = sizeof(STScnVertex2DTex); break;
+                case ENScnVertexType_2DTex2: cfg.szPerRecord = sizeof(STScnVertex2DTex2); break;
+                case ENScnVertexType_2DTex3: cfg.szPerRecord = sizeof(STScnVertex2DTex3); break;
                 default: SCN_ASSERT(ScnFALSE) r = ScnFALSE; break; //missing implementation
             }
             //SCN_ASSERT((cfg.szPerRecord % 4) == 0)
@@ -500,7 +524,7 @@ ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, cons
 
 //Buffers
 
-ScnBufferRef ScnRender_allocBuffer(ScnRenderRef ref, const STScnGpuBufferCfg* cfg){ //allocates a new buffer
+ScnBufferRef ScnRender_allocBuffer(ScnRenderRef ref, const STScnGpuBufferCfg* const cfg){ //allocates a new buffer
     ScnBufferRef r = ScnObjRef_Zero;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -611,6 +635,13 @@ ScnBOOL ScnRender_jobEnd(ScnRenderRef ref){
                             break;
                         }
                         break;
+                    case ENScnRenderJobObjType_Texture:
+                        if(!ScnTexture_prepareCurrentRenderSlot(o->texture)){
+                            printf("ScnRender_jobEnd::ScnTexture_prepareCurrentRenderSlot failed.\n");
+                            r = ScnFALSE;
+                            break;
+                        }
+                        break;
                     default:
                         SCN_ASSERT(ScnFALSE) //missing implementation
                         break;
@@ -621,9 +652,9 @@ ScnBOOL ScnRender_jobEnd(ScnRenderRef ref){
         if(r){
             ScnGpuBufferRef fbPropsBuff = ScnBuffer_getCurrentRenderSlot(opq->fbPropsBuff);
             ScnGpuBufferRef mdlsPropsBuff = ScnBuffer_getCurrentRenderSlot(opq->mdlsPropsBuff);
-            SCN_ASSERT(!ScnGpuBuffer_isNull(fbPropsBuff)) //program logic error
-            SCN_ASSERT(!ScnGpuBuffer_isNull(mdlsPropsBuff)) //program logic error
-            if(!ScnGpuDevice_render(opq->gpuDev, fbPropsBuff, mdlsPropsBuff, opq->job.cmds.arr, opq->job.cmds.use)){
+            if(ScnGpuBuffer_isNull(fbPropsBuff) || ScnGpuBuffer_isNull(mdlsPropsBuff)){
+                //Nothing to render
+            } else if(!ScnGpuDevice_render(opq->gpuDev, fbPropsBuff, mdlsPropsBuff, opq->job.cmds.arr, opq->job.cmds.use)){
                 printf("ScnRender_jobEnd::ScnGpuDevice_render failed.\n");
                 r = ScnFALSE;
             }
@@ -650,6 +681,13 @@ ScnBOOL ScnRender_jobEnd(ScnRenderRef ref){
                     case ENScnRenderJobObjType_Vertexbuff:
                         if(!ScnVertexbuff_moveToNextRenderSlot(o->vertexbuff)){
                             printf("ScnRender_jobEnd::ScnVertexbuff_moveToNextRenderSlot failed.\n");
+                            r = ScnFALSE;
+                            break;
+                        }
+                        break;
+                    case ENScnRenderJobObjType_Texture:
+                        if(!ScnTexture_moveToNextRenderSlot(o->texture)){
+                            printf("ScnRender_jobEnd::ScnTexture_moveToNextRenderSlot failed.\n");
                             r = ScnFALSE;
                             break;
                         }
@@ -884,6 +922,46 @@ ScnBOOL ScnRender_jobFramebuffPropsPop(ScnRenderRef ref){
     return r;
 }
 
+//job textures
+
+ScnBOOL ScnRender_jobSetTextureLockedOpq_(STScnRenderOpq* opq, STScnRenderFbuffState* f, const ENScnGpuTextureIdx idx, ScnTextureRef tex){
+    ScnBOOL r = ScnFALSE;
+    if(!ScnRender_jobAddUsedObjLockedOpq_(opq, ENScnRenderJobObjType_Texture, (ScnObjRef*)&tex)){
+        printf("ERROR, ScnRender_jobSetTexture::ScnRender_jobAddUsedObjLockedOpq_ failed.\n");
+    } else {
+        //add cmd
+        STScnRenderCmd cmd;
+        cmd.cmdId               = ENScnRenderCmd_SetTexture;
+        cmd.setTexture.ref      = tex;
+        cmd.setTexture.index    = idx;
+        if(!ScnRender_addCmdLockedOpq_(opq, &cmd)){
+            printf("ERROR, ScnRender_jobSetTexture::ScnRender_addCmdLockedOpq_ failed.\n");
+        } else {
+            f->active.texs[idx] = tex; //do not retain
+            r = ScnTRUE;
+        }
+    }
+    return r;
+}
+
+ScnBOOL ScnRender_jobSetTexture(ScnRenderRef ref, const ENScnGpuTextureIdx idx, ScnTextureRef tex){
+    ScnBOOL r = ScnFALSE;
+    STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!opq->job.isActive){
+        printf("ERROR, ScnRender_jobSetTexture:: not active.\n");
+    } else if(opq->job.stackUse <= 0){ //cmds-queues are per-framebuffer
+        printf("ERROR, ScnRender_jobSetTexture::no active framebuffer.\n");
+    } else if(idx < 0 || idx >= ENScnGpuTextureIdx_Count){
+        printf("ERROR, ScnRender_jobSetTexture::idx-out-of-bounds.\n");
+    } else {
+        STScnRenderFbuffState* f = &opq->job.stack.arr[opq->job.stackUse - 1];
+        r = ScnRender_jobSetTextureLockedOpq_(opq, f, idx, tex);
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
 
 //job models
 
@@ -980,15 +1058,67 @@ ScnBOOL ScnRender_jobModel2dAdd_addCommandsWithTransformLockedOpq_(STScnRenderOp
                     case ENScnModelDrawCmdType_Undef:
                         //nop
                         break;
-                    case ENScnModelDrawCmdType_2Dv0: ScnRender_jobAddCommandDrawVertsLockeOpq_(opq, f, c, ENScnVertexType_2DColor, 0); break;
-                    case ENScnModelDrawCmdType_2Dv1: ScnRender_jobAddCommandDrawVertsLockeOpq_(opq, f, c, ENScnVertexType_2DTex, 1); break;
-                    case ENScnModelDrawCmdType_2Dv2: ScnRender_jobAddCommandDrawVertsLockeOpq_(opq, f, c, ENScnVertexType_2DTex2, 2); break;
-                    case ENScnModelDrawCmdType_2Dv3: ScnRender_jobAddCommandDrawVertsLockeOpq_(opq, f, c, ENScnVertexType_2DTex3, 3); break;
+                    case ENScnModelDrawCmdType_2Dv0:
+                        ScnRender_jobAddCommandDrawVertsLockeOpq_(opq, f, c, ENScnVertexType_2DColor, 0);
+                        break;
+                    case ENScnModelDrawCmdType_2Dv1:
+                        if(!ScnTexture_isSame(f->active.texs[ENScnGpuTextureIdx_0], c->texs[0]) && !ScnRender_jobSetTextureLockedOpq_(opq, f, ENScnGpuTextureIdx_0, c->texs[0])){
+                            r = ScnFALSE;
+                        }
+                        ScnRender_jobAddCommandDrawVertsLockeOpq_(opq, f, c, ENScnVertexType_2DTex, 1);
+                        break;
+                    case ENScnModelDrawCmdType_2Dv2:
+                        if(!ScnTexture_isSame(f->active.texs[ENScnGpuTextureIdx_0], c->texs[0]) && !ScnRender_jobSetTextureLockedOpq_(opq, f, ENScnGpuTextureIdx_0, c->texs[0])){
+                            r = ScnFALSE;
+                        }
+                        if(!ScnTexture_isSame(f->active.texs[ENScnGpuTextureIdx_1], c->texs[1]) && !ScnRender_jobSetTextureLockedOpq_(opq, f, ENScnGpuTextureIdx_1, c->texs[1])){
+                            r = ScnFALSE;
+                        }
+                        ScnRender_jobAddCommandDrawVertsLockeOpq_(opq, f, c, ENScnVertexType_2DTex2, 2);
+                        break;
+                    case ENScnModelDrawCmdType_2Dv3:
+                        if(!ScnTexture_isSame(f->active.texs[ENScnGpuTextureIdx_0], c->texs[0]) && !ScnRender_jobSetTextureLockedOpq_(opq, f, ENScnGpuTextureIdx_0, c->texs[0])){
+                            r = ScnFALSE;
+                        }
+                        if(!ScnTexture_isSame(f->active.texs[ENScnGpuTextureIdx_1], c->texs[1]) && !ScnRender_jobSetTextureLockedOpq_(opq, f, ENScnGpuTextureIdx_1, c->texs[1])){
+                            r = ScnFALSE;
+                        }
+                        if(!ScnTexture_isSame(f->active.texs[ENScnGpuTextureIdx_2], c->texs[2]) && !ScnRender_jobSetTextureLockedOpq_(opq, f, ENScnGpuTextureIdx_2, c->texs[2])){
+                            r = ScnFALSE;
+                        }
+                        ScnRender_jobAddCommandDrawVertsLockeOpq_(opq, f, c, ENScnVertexType_2DTex3, 3);
+                        break;
                         //
-                    case ENScnModelDrawCmdType_2Di0: ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_2DColor, 0); break;
-                    case ENScnModelDrawCmdType_2Di1: ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_2DTex, 1); break;
-                    case ENScnModelDrawCmdType_2Di2: ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_2DTex2, 2);break;
-                    case ENScnModelDrawCmdType_2Di3: ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_2DTex3, 3); break;
+                    case ENScnModelDrawCmdType_2Di0:
+                        ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_2DColor, 0);
+                        break;
+                    case ENScnModelDrawCmdType_2Di1:
+                        if(!ScnTexture_isSame(f->active.texs[ENScnGpuTextureIdx_0], c->texs[0]) && !ScnRender_jobSetTextureLockedOpq_(opq, f, ENScnGpuTextureIdx_0, c->texs[0])){
+                            r = ScnFALSE;
+                        }
+                        ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_2DTex, 1);
+                        break;
+                    case ENScnModelDrawCmdType_2Di2:
+                        if(!ScnTexture_isSame(f->active.texs[ENScnGpuTextureIdx_0], c->texs[0]) && !ScnRender_jobSetTextureLockedOpq_(opq, f, ENScnGpuTextureIdx_0, c->texs[0])){
+                            r = ScnFALSE;
+                        }
+                        if(!ScnTexture_isSame(f->active.texs[ENScnGpuTextureIdx_1], c->texs[1]) && !ScnRender_jobSetTextureLockedOpq_(opq, f, ENScnGpuTextureIdx_1, c->texs[1])){
+                            r = ScnFALSE;
+                        }
+                        ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_2DTex2, 2);
+                        break;
+                    case ENScnModelDrawCmdType_2Di3:
+                        if(!ScnTexture_isSame(f->active.texs[ENScnGpuTextureIdx_0], c->texs[0]) && !ScnRender_jobSetTextureLockedOpq_(opq, f, ENScnGpuTextureIdx_0, c->texs[0])){
+                            r = ScnFALSE;
+                        }
+                        if(!ScnTexture_isSame(f->active.texs[ENScnGpuTextureIdx_1], c->texs[1]) && !ScnRender_jobSetTextureLockedOpq_(opq, f, ENScnGpuTextureIdx_1, c->texs[1])){
+                            r = ScnFALSE;
+                        }
+                        if(!ScnTexture_isSame(f->active.texs[ENScnGpuTextureIdx_2], c->texs[2]) && !ScnRender_jobSetTextureLockedOpq_(opq, f, ENScnGpuTextureIdx_2, c->texs[2])){
+                            r = ScnFALSE;
+                        }
+                        ScnRender_jobAddCommandDrawIndexesLockeOpq_(opq, f, c, ENScnVertexType_2DTex3, 3);
+                        break;
                     default:
                         SCN_ASSERT(ScnFALSE) //missing implementation
                         break;
@@ -1090,7 +1220,7 @@ ScnBOOL ScnRender_jobNode2dPropsPop(ScnRenderRef ref){
 
 
 ScnBOOL ScnRender_jobModel2dAddWithNode(ScnRenderRef ref, ScnModel2dRef model, ScnNode2dRef node){ //equivalent to jobNode2dPush() + jobModelAdd() + jobNodePropsPop()
-    return ScnRender_jobModel2dAddWithNodeProps(ref, model, ScnNode2d_getProps(node));
+    return !ScnModel2d_isNull(model) && !ScnNode2d_isNull(node) ? ScnRender_jobModel2dAddWithNodeProps(ref, model, ScnNode2d_getProps(node)) : ScnFALSE;
 }
 
 ScnBOOL ScnRender_jobModel2dAddWithNodeProps(ScnRenderRef ref, ScnModel2dRef model, const STScnNode2dProps nodeProps){ //equivalent to jobNodePropsPush() + jobModelAdd() + jobNodePropsPop()
@@ -1258,6 +1388,7 @@ void ScnRenderJobObj_destroy(STScnRenderJobObj* obj){
         case ENScnRenderJobObjType_Buff:
         case ENScnRenderJobObjType_Framebuff:
         case ENScnRenderJobObjType_Vertexbuff:
+        case ENScnRenderJobObjType_Texture:
             ScnObjRef_releaseAndNull(&obj->objRef);
             break;
         default:

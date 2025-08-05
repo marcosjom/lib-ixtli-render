@@ -24,7 +24,6 @@ typedef enum ENScnGpuTextureIdx {
     ENScnGpuTextureIdx_0 = 0,
     ENScnGpuTextureIdx_1,
     ENScnGpuTextureIdx_2,
-    ENScnGpuTextureIdx_3,
     //Count
     ENScnGpuTextureIdx_Count
 } ENScnGpuTextureIdx;
@@ -49,7 +48,7 @@ typedef enum ENScnGpuTexturePixelMode {
 
 //STScnGpuTextureCfg
 
-#define STScnGpuTextureCfg_Zero   { ENScnBitmapColor_undef, 0, 0, ScnFALSE }
+#define STScnGpuTextureCfg_Zero   { ENScnBitmapColor_undef, 0, 0, ScnFALSE, ENScnGpuTextureCoordMode_Repeat, ENScnGpuTexturePixelMode_Nearest, ENScnGpuTexturePixelMode_Nearest }
 
 typedef struct STScnGpuTextureCfg {
     ENScnBitmapColor    color;
@@ -57,24 +56,26 @@ typedef struct STScnGpuTextureCfg {
     ScnUI32             height;
     ScnBOOL             mipmapEnabled;
     ENScnGpuTextureCoordMode coordMode;
-    ENScnGpuTexturePixelMode pixelMode;
+    ENScnGpuTexturePixelMode magMode;
+    ENScnGpuTexturePixelMode minMode;
 } STScnGpuTextureCfg;
 
 //STScnGpuTextureChanges
 
+#define STScnGpuTextureChanges_Zero {  ScnFALSE, NULL, 0 }
+
 typedef struct STScnGpuTextureChanges {
-    ScnBOOL         whole;  //all the content is new
-    STScnRectI*     rects;  //subimages areas
+    ScnBOOL         all;    //all the content is new
+    STScnRectU16*   rects;  //subimages areas
     ScnUI32         recsUse;
 } STScnGpuTextureChanges;
 
 //STScnGpuTextureApiItf
 
 typedef struct STScnGpuTextureApiItf {
-    void* (*create)(const STScnGpuTextureCfg* cfg, void* usrData);
-    void  (*destroy)(void* data, void* usrData);
+    void        (*free)(void* data);
     //
-    ScnBOOL  (*sync)(void* data, const STScnGpuTextureCfg* cfg, const STScnBitmapProps srcProps, const ScnBYTE* srcData, const STScnGpuTextureChanges* changes, void* usrData);
+    ScnBOOL     (*sync)(void* data, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData, const STScnGpuTextureChanges* const changes);
 } STScnGpuTextureApiItf;
 
 //ScnGpuTextureRef
@@ -83,9 +84,10 @@ SCN_REF_STRUCT_METHODS_DEC(ScnGpuTexture)
 
 //
 
-ScnBOOL ScnGpuTexture_prepare(ScnGpuTextureRef ref, const STScnGpuTextureCfg* cfg, const STScnGpuTextureApiItf* itf, void* itfParam);
-ScnBOOL ScnGpuTexture_setImage(ScnGpuTextureRef ref, const STScnBitmapProps srcProps, const ScnBYTE* srcData);
-ScnBOOL ScnGpuTexture_setSubimage(ScnGpuTextureRef ref, const STScnPoint2DI pos, const STScnBitmapProps srcProps, const ScnBYTE* srcData, const STScnRectI srcRect);
+ScnBOOL ScnGpuTexture_prepare(ScnGpuTextureRef ref, const STScnGpuTextureApiItf* itf, void* itfParam);
+void*   ScnGpuTexture_getApiItfParam(ScnGpuTextureRef ref);
+//
+ScnBOOL ScnGpuTexture_sync(ScnGpuTextureRef ref, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData, const STScnGpuTextureChanges* const changes);
 
 
 #ifdef __cplusplus

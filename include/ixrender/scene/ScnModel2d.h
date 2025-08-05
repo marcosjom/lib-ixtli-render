@@ -13,7 +13,7 @@
 #include "ixrender/type/ScnColor.h"
 #include "ixrender/type/ScnPoint.h"
 #include "ixrender/type/ScnSize.h"
-#include "ixrender/gpu/ScnGpuTexture.h"
+#include "ixrender/scene/ScnTexture.h"
 #include "ixrender/scene/ScnTransform2D.h"
 #include "ixrender/scene/ScnNode2dProps.h"
 #include "ixrender/scene/ScnRenderCmd.h"
@@ -38,9 +38,9 @@ void                ScnModel2d_resetDrawCmds(ScnModel2dRef ref);
 //
 //The Ptrs returned by these methods are valid until 'ScnModel2d_resetDrawCmds' is called or the ScnModel2d is freed.
 STScnVertex2DPtr    ScnModel2d_addDraw(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 count);
-STScnVertex2DTexPtr ScnModel2d_addDrawTex(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 count, ScnGpuTextureRef t0);
-STScnVertex2DTex2Ptr ScnModel2d_addDrawTex2(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 count, ScnGpuTextureRef t0, ScnGpuTextureRef t1);
-STScnVertex2DTex3Ptr ScnModel2d_addDrawTex3(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 count, ScnGpuTextureRef t0, ScnGpuTextureRef t1, ScnGpuTextureRef t2);
+STScnVertex2DTexPtr ScnModel2d_addDrawTex(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 count, ScnTextureRef t0);
+STScnVertex2DTex2Ptr ScnModel2d_addDrawTex2(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 count, ScnTextureRef t0, ScnTextureRef t1);
+STScnVertex2DTex3Ptr ScnModel2d_addDrawTex3(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 count, ScnTextureRef t0, ScnTextureRef t1, ScnTextureRef t2);
 //Call these if you updated the vertices values after last render pass.
 ScnBOOL             ScnModel2d_v0FlagForSync(ScnModel2dRef ref, STScnVertex2DPtr ptr, const ScnUI32 count);
 ScnBOOL             ScnModel2d_v1FlagForSync(ScnModel2dRef ref, STScnVertex2DTexPtr ptr, const ScnUI32 count);
@@ -48,9 +48,9 @@ ScnBOOL             ScnModel2d_v2FlagForSync(ScnModel2dRef ref, STScnVertex2DTex
 ScnBOOL             ScnModel2d_v3FlagForSync(ScnModel2dRef ref, STScnVertex2DTex3Ptr ptr, const ScnUI32 count);
 //The Ptrs returned by these methods are valid until 'ScnModel2d_resetDrawCmds' is called or the ScnModel2d is freed.
 STScnVertexIdxPtr   ScnModel2d_addDrawIndexed(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, const ScnUI32 countVerts, STScnVertex2DPtr* dstVerts);
-STScnVertexIdxPtr   ScnModel2d_addDrawIndexedTex(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, ScnGpuTextureRef t0, const ScnUI32 countVerts, STScnVertex2DTexPtr* dstVerts);
-STScnVertexIdxPtr   ScnModel2d_addDrawIndexedTex2(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, ScnGpuTextureRef t0, ScnGpuTextureRef t1, const ScnUI32 countVerts, STScnVertex2DTex2Ptr* dstVerts);
-STScnVertexIdxPtr   ScnModel2d_addDrawIndexedTex3(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, ScnGpuTextureRef t0, ScnGpuTextureRef t1, ScnGpuTextureRef t2, const ScnUI32 countVerts, STScnVertex2DTex3Ptr* dstVerts);
+STScnVertexIdxPtr   ScnModel2d_addDrawIndexedTex(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, ScnTextureRef t0, const ScnUI32 countVerts, STScnVertex2DTexPtr* dstVerts);
+STScnVertexIdxPtr   ScnModel2d_addDrawIndexedTex2(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, ScnTextureRef t0, ScnTextureRef t1, const ScnUI32 countVerts, STScnVertex2DTex2Ptr* dstVerts);
+STScnVertexIdxPtr   ScnModel2d_addDrawIndexedTex3(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, ScnTextureRef t0, ScnTextureRef t1, ScnTextureRef t2, const ScnUI32 countVerts, STScnVertex2DTex3Ptr* dstVerts);
 //Call these if you updated the vertices values after last render pass.
 ScnBOOL             ScnModel2d_i0FlagForSync(ScnModel2dRef ref, STScnVertexIdxPtr ptr, const ScnUI32 count);
 ScnBOOL             ScnModel2d_i1FlagForSync(ScnModel2dRef ref, STScnVertexIdxPtr ptr, const ScnUI32 count);

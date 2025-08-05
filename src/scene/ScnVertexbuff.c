@@ -82,7 +82,7 @@ void ScnVertexbuff_destroyOpq(void* obj){
 
 //
 
-ScnBOOL ScnVertexbuff_prepare(ScnVertexbuffRef ref, ScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuVertexbuffCfg* cfg, ScnBufferRef vertexBuff, ScnBufferRef idxsBuff) {
+ScnBOOL ScnVertexbuff_prepare(ScnVertexbuffRef ref, ScnGpuDeviceRef gpuDev, const ScnUI32 ammRenderSlots, const STScnGpuVertexbuffCfg* const cfg, ScnBufferRef vertexBuff, ScnBufferRef idxsBuff) {
     ScnBOOL r = ScnFALSE;
     STScnVertexbuffOpq* opq = (STScnVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
