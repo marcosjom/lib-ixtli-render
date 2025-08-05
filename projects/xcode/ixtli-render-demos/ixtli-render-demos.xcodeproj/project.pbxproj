@@ -30,16 +30,16 @@
 		2C5CD0C52E36B74F007BBDA6 /* ixtli-render-demos-mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ixtli-render-demos-mac.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C9C87CB2E3CBCB8008005C8 /* ixtli-render-demos-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ixtli-render-demos-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C9C88152E3CC31C008005C8 /* libixtlu-render-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libixtlu-render-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2CB10D6E2E40C3630056266A /* MetalKitViewDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetalKitViewDelegate.h; sourceTree = "<group>"; };
-		2CB10D6F2E40C3630056266A /* MetalKitViewDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MetalKitViewDelegate.m; sourceTree = "<group>"; };
-		2CB10D752E40C3870056266A /* ScnMemMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScnMemMap.h; sourceTree = "<group>"; };
-		2CB10D762E40C3870056266A /* ScnMemMap.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ScnMemMap.c; sourceTree = "<group>"; };
-		2CB10D772E40C3870056266A /* ScnPngLoader.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ScnPngLoader.c; sourceTree = "<group>"; };
-		2CB10D782E40C3870056266A /* SncPngLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SncPngLoader.h; sourceTree = "<group>"; };
-		2CB10D862E40C7150056266A /* nicabird.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = nicabird.png; sourceTree = "<group>"; };
-		2CB10D8A2E40DC930056266A /* spng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = spng.h; sourceTree = "<group>"; };
-		2CB10D8B2E40DC930056266A /* spng.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = spng.c; sourceTree = "<group>"; };
-		2CB10D932E40E34D0056266A /* cat256.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cat256.png; sourceTree = "<group>"; };
+		2CB10D6E2E40C3630056266A /* MetalKitViewDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MetalKitViewDelegate.h; path = ../../../demos/MetalKitViewDelegate.h; sourceTree = SOURCE_ROOT; };
+		2CB10D6F2E40C3630056266A /* MetalKitViewDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MetalKitViewDelegate.m; path = ../../../demos/MetalKitViewDelegate.m; sourceTree = SOURCE_ROOT; };
+		2CB10D752E40C3870056266A /* ScnMemMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnMemMap.h; path = ../../../src/utils/ScnMemMap.h; sourceTree = SOURCE_ROOT; };
+		2CB10D762E40C3870056266A /* ScnMemMap.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnMemMap.c; path = ../../../src/utils/ScnMemMap.c; sourceTree = SOURCE_ROOT; };
+		2CB10D772E40C3870056266A /* ScnPngLoader.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnPngLoader.c; path = ../../../src/utils/ScnPngLoader.c; sourceTree = SOURCE_ROOT; };
+		2CB10D782E40C3870056266A /* SncPngLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SncPngLoader.h; path = ../../../src/utils/SncPngLoader.h; sourceTree = SOURCE_ROOT; };
+		2CB10D862E40C7150056266A /* nicabird.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = nicabird.png; path = ../../../demos/nicabird.png; sourceTree = SOURCE_ROOT; };
+		2CB10D8A2E40DC930056266A /* spng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = spng.h; path = ../../../src/utils/spng.h; sourceTree = SOURCE_ROOT; };
+		2CB10D8B2E40DC930056266A /* spng.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = spng.c; path = ../../../src/utils/spng.c; sourceTree = SOURCE_ROOT; };
+		2CB10D932E40E34D0056266A /* cat256.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cat256.png; path = ../../../demos/cat256.png; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -108,8 +108,8 @@
 				2CB10D932E40E34D0056266A /* cat256.png */,
 			);
 			name = demos;
-			path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/demos";
-			sourceTree = "<absolute>";
+			path = ../../../demos;
+			sourceTree = SOURCE_ROOT;
 		};
 		2CB10D792E40C3870056266A /* utils */ = {
 			isa = PBXGroup;
@@ -122,8 +122,8 @@
 				2CB10D8B2E40DC930056266A /* spng.c */,
 			);
 			name = utils;
-			path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/utils";
-			sourceTree = "<absolute>";
+			path = ../../../src/utils;
+			sourceTree = SOURCE_ROOT;
 		};
 		2CD60FCC2E34FC46007BAF4D = {
 			isa = PBXGroup;

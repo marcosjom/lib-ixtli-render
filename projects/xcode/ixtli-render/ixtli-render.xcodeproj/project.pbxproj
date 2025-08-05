@@ -129,24 +129,24 @@
 		2C42DDA12E3A2F1400EFC81E /* ScnMatrix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnMatrix.h; path = ../../../include/ixrender/type/ScnMatrix.h; sourceTree = SOURCE_ROOT; };
 		2C42DDA52E3A360900EFC81E /* ScnGpuFramebuffProps.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnGpuFramebuffProps.h; path = ../../../include/ixrender/gpu/ScnGpuFramebuffProps.h; sourceTree = SOURCE_ROOT; };
 		2C42DDA72E3A49D100EFC81E /* ScnFramebuff.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnFramebuff.h; path = ../../../include/ixrender/scene/ScnFramebuff.h; sourceTree = SOURCE_ROOT; };
-		2C42DDA82E3A49D100EFC81E /* ScnFramebuff.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnFramebuff.c; path = ../../../src/scene/ScnFramebuff.c; sourceTree = SOURCE_ROOT; };
-		2C42DDB02E3A7C5D00EFC81E /* ScnMemMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnMemMap.h; path = ../../../utils/ScnMemMap.h; sourceTree = SOURCE_ROOT; };
-		2C42DDB12E3A7C5D00EFC81E /* ScnMemMap.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnMemMap.c; path = ../../../utils/ScnMemMap.c; sourceTree = SOURCE_ROOT; };
-		2C5CCF6C2E350A31007BBDA6 /* ScnContext.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnContext.c; path = ../../../src/core/ScnContext.c; sourceTree = SOURCE_ROOT; };
-		2C5CCF6D2E350A31007BBDA6 /* ScnMemory.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnMemory.c; path = ../../../src/core/ScnMemory.c; sourceTree = SOURCE_ROOT; };
-		2C5CCF6E2E350A31007BBDA6 /* ScnMutex.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnMutex.c; path = ../../../src/core/ScnMutex.c; sourceTree = SOURCE_ROOT; };
-		2C5CCF6F2E350A31007BBDA6 /* ScnSharedPtr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnSharedPtr.c; path = ../../../src/core/ScnSharedPtr.c; sourceTree = SOURCE_ROOT; };
-		2C5CCF902E352715007BBDA6 /* ScnArray.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnArray.c; path = ../../../src/core/ScnArray.c; sourceTree = SOURCE_ROOT; };
-		2C5CCF912E352715007BBDA6 /* ScnArraySorted.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnArraySorted.c; path = ../../../src/core/ScnArraySorted.c; sourceTree = SOURCE_ROOT; };
-		2C5CCFA52E355776007BBDA6 /* ScnGpuBuffer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnGpuBuffer.c; path = ../../../src/gpu/ScnGpuBuffer.c; sourceTree = SOURCE_ROOT; };
-		2C5CCFA92E355799007BBDA6 /* ScnGpuVertexbuff.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnGpuVertexbuff.c; path = ../../../src/gpu/ScnGpuVertexbuff.c; sourceTree = SOURCE_ROOT; };
-		2C5CCFAD2E3557B8007BBDA6 /* ScnGpuTexture.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnGpuTexture.c; path = ../../../src/gpu/ScnGpuTexture.c; sourceTree = SOURCE_ROOT; };
-		2C5CCFB32E355805007BBDA6 /* ScnGpuRenderbuff.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnGpuRenderbuff.c; path = ../../../src/gpu/ScnGpuRenderbuff.c; sourceTree = SOURCE_ROOT; };
-		2C5CCFB72E355853007BBDA6 /* ScnGpuFramebuff.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnGpuFramebuff.c; path = ../../../src/gpu/ScnGpuFramebuff.c; sourceTree = SOURCE_ROOT; };
-		2C5CCFC52E3634C7007BBDA6 /* ScnMemBlock.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnMemBlock.c; path = ../../../src/core/ScnMemBlock.c; sourceTree = SOURCE_ROOT; };
-		2C5CCFC62E3634C7007BBDA6 /* ScnMemElastic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnMemElastic.c; path = ../../../src/core/ScnMemElastic.c; sourceTree = SOURCE_ROOT; };
-		2C5CCFCF2E36359D007BBDA6 /* ScnRenderCmd.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnRenderCmd.c; path = ../../../src/scene/ScnRenderCmd.c; sourceTree = SOURCE_ROOT; };
-		2C5CCFD52E363607007BBDA6 /* ScnVertexbuffs.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnVertexbuffs.c; path = ../../../src/scene/ScnVertexbuffs.c; sourceTree = SOURCE_ROOT; };
+		2C42DDA82E3A49D100EFC81E /* ScnFramebuff.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnFramebuff.c; path = ../../../src/ixrender/scene/ScnFramebuff.c; sourceTree = SOURCE_ROOT; };
+		2C42DDB02E3A7C5D00EFC81E /* ScnMemMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnMemMap.h; path = ../../../src/utils/ScnMemMap.h; sourceTree = SOURCE_ROOT; };
+		2C42DDB12E3A7C5D00EFC81E /* ScnMemMap.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnMemMap.c; path = ../../../src/utils/ScnMemMap.c; sourceTree = SOURCE_ROOT; };
+		2C5CCF6C2E350A31007BBDA6 /* ScnContext.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnContext.c; path = ../../../src/ixrender/core/ScnContext.c; sourceTree = SOURCE_ROOT; };
+		2C5CCF6D2E350A31007BBDA6 /* ScnMemory.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnMemory.c; path = ../../../src/ixrender/core/ScnMemory.c; sourceTree = SOURCE_ROOT; };
+		2C5CCF6E2E350A31007BBDA6 /* ScnMutex.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnMutex.c; path = ../../../src/ixrender/core/ScnMutex.c; sourceTree = SOURCE_ROOT; };
+		2C5CCF6F2E350A31007BBDA6 /* ScnSharedPtr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnSharedPtr.c; path = ../../../src/ixrender/core/ScnSharedPtr.c; sourceTree = SOURCE_ROOT; };
+		2C5CCF902E352715007BBDA6 /* ScnArray.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnArray.c; path = ../../../src/ixrender/core/ScnArray.c; sourceTree = SOURCE_ROOT; };
+		2C5CCF912E352715007BBDA6 /* ScnArraySorted.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnArraySorted.c; path = ../../../src/ixrender/core/ScnArraySorted.c; sourceTree = SOURCE_ROOT; };
+		2C5CCFA52E355776007BBDA6 /* ScnGpuBuffer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnGpuBuffer.c; path = ../../../src/ixrender/gpu/ScnGpuBuffer.c; sourceTree = SOURCE_ROOT; };
+		2C5CCFA92E355799007BBDA6 /* ScnGpuVertexbuff.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnGpuVertexbuff.c; path = ../../../src/ixrender/gpu/ScnGpuVertexbuff.c; sourceTree = SOURCE_ROOT; };
+		2C5CCFAD2E3557B8007BBDA6 /* ScnGpuTexture.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnGpuTexture.c; path = ../../../src/ixrender/gpu/ScnGpuTexture.c; sourceTree = SOURCE_ROOT; };
+		2C5CCFB32E355805007BBDA6 /* ScnGpuRenderbuff.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnGpuRenderbuff.c; path = ../../../src/ixrender/gpu/ScnGpuRenderbuff.c; sourceTree = SOURCE_ROOT; };
+		2C5CCFB72E355853007BBDA6 /* ScnGpuFramebuff.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnGpuFramebuff.c; path = ../../../src/ixrender/gpu/ScnGpuFramebuff.c; sourceTree = SOURCE_ROOT; };
+		2C5CCFC52E3634C7007BBDA6 /* ScnMemBlock.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnMemBlock.c; path = ../../../src/ixrender/core/ScnMemBlock.c; sourceTree = SOURCE_ROOT; };
+		2C5CCFC62E3634C7007BBDA6 /* ScnMemElastic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnMemElastic.c; path = ../../../src/ixrender/core/ScnMemElastic.c; sourceTree = SOURCE_ROOT; };
+		2C5CCFCF2E36359D007BBDA6 /* ScnRenderCmd.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnRenderCmd.c; path = ../../../src/ixrender/scene/ScnRenderCmd.c; sourceTree = SOURCE_ROOT; };
+		2C5CCFD52E363607007BBDA6 /* ScnVertexbuffs.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnVertexbuffs.c; path = ../../../src/ixrender/scene/ScnVertexbuffs.c; sourceTree = SOURCE_ROOT; };
 		2C5CD0332E3661C4007BBDA6 /* ScnNode2dProps.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnNode2dProps.h; path = ../../../include/ixrender/scene/ScnNode2dProps.h; sourceTree = SOURCE_ROOT; };
 		2C5CD0372E3661C4007BBDA6 /* ScnRenderCmd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnRenderCmd.h; path = ../../../include/ixrender/scene/ScnRenderCmd.h; sourceTree = SOURCE_ROOT; };
 		2C5CD0392E3661C4007BBDA6 /* ScnTransform2D.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnTransform2D.h; path = ../../../include/ixrender/scene/ScnTransform2D.h; sourceTree = SOURCE_ROOT; };
@@ -171,9 +171,9 @@
 		2C5CD0692E3661F2007BBDA6 /* ixtli-defs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "ixtli-defs.h"; path = "../../../include/ixrender/ixtli-defs.h"; sourceTree = SOURCE_ROOT; };
 		2C5CD06A2E3661F2007BBDA6 /* ixtli-render.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "ixtli-render.h"; path = "../../../include/ixrender/ixtli-render.h"; sourceTree = SOURCE_ROOT; };
 		2C5CD0722E36A186007BBDA6 /* ScnRender.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnRender.h; path = ../../../include/ixrender/ScnRender.h; sourceTree = SOURCE_ROOT; };
-		2C5CD0732E36A186007BBDA6 /* ScnRender.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnRender.c; path = ../../../src/ScnRender.c; sourceTree = SOURCE_ROOT; };
-		2C5CD0762E36A72C007BBDA6 /* ScnBitmap.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnBitmap.c; path = ../../../src/type/ScnBitmap.c; sourceTree = SOURCE_ROOT; };
-		2C5CD0772E36A72C007BBDA6 /* ScnRange.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnRange.c; path = ../../../src/type/ScnRange.c; sourceTree = SOURCE_ROOT; };
+		2C5CD0732E36A186007BBDA6 /* ScnRender.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnRender.c; path = ../../../src/ixrender/ScnRender.c; sourceTree = SOURCE_ROOT; };
+		2C5CD0762E36A72C007BBDA6 /* ScnBitmap.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnBitmap.c; path = ../../../src/ixrender/type/ScnBitmap.c; sourceTree = SOURCE_ROOT; };
+		2C5CD0772E36A72C007BBDA6 /* ScnRange.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnRange.c; path = ../../../src/ixrender/type/ScnRange.c; sourceTree = SOURCE_ROOT; };
 		2C5CD07D2E36A74C007BBDA6 /* ScnBitmap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnBitmap.h; path = ../../../include/ixrender/type/ScnBitmap.h; sourceTree = SOURCE_ROOT; };
 		2C5CD07E2E36A74C007BBDA6 /* ScnColor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnColor.h; path = ../../../include/ixrender/type/ScnColor.h; sourceTree = SOURCE_ROOT; };
 		2C5CD07F2E36A74C007BBDA6 /* ScnPoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnPoint.h; path = ../../../include/ixrender/type/ScnPoint.h; sourceTree = SOURCE_ROOT; };
@@ -181,31 +181,31 @@
 		2C5CD0812E36A74C007BBDA6 /* ScnRect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnRect.h; path = ../../../include/ixrender/type/ScnRect.h; sourceTree = SOURCE_ROOT; };
 		2C5CD0822E36A74C007BBDA6 /* ScnSize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnSize.h; path = ../../../include/ixrender/type/ScnSize.h; sourceTree = SOURCE_ROOT; };
 		2C5CD0892E36A86B007BBDA6 /* ScnGpuDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnGpuDevice.h; path = ../../../include/ixrender/gpu/ScnGpuDevice.h; sourceTree = SOURCE_ROOT; };
-		2C5CD08B2E36A879007BBDA6 /* ScnGpuDevice.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnGpuDevice.c; path = ../../../src/gpu/ScnGpuDevice.c; sourceTree = SOURCE_ROOT; };
-		2C5CD0902E36A979007BBDA6 /* ScnApiMetal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ScnApiMetal.m; path = ../../../src/api/metal/ScnApiMetal.m; sourceTree = SOURCE_ROOT; };
+		2C5CD08B2E36A879007BBDA6 /* ScnGpuDevice.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnGpuDevice.c; path = ../../../src/ixrender/gpu/ScnGpuDevice.c; sourceTree = SOURCE_ROOT; };
+		2C5CD0902E36A979007BBDA6 /* ScnApiMetal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ScnApiMetal.m; path = ../../../src/ixrender/api/metal/ScnApiMetal.m; sourceTree = SOURCE_ROOT; };
 		2C5CD0922E36A994007BBDA6 /* ScnApiMetal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnApiMetal.h; path = ../../../include/ixrender/api/ScnApiMetal.h; sourceTree = SOURCE_ROOT; };
-		2C5CD0D92E36BDDD007BBDA6 /* ScnVertices.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; name = ScnVertices.metal; path = ../../../src/api/metal/shaders/ScnVertices.metal; sourceTree = SOURCE_ROOT; };
+		2C5CD0D92E36BDDD007BBDA6 /* ScnVertices.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; name = ScnVertices.metal; path = ../../../src/ixrender/api/metal/shaders/ScnVertices.metal; sourceTree = SOURCE_ROOT; };
 		2C5CD0E02E36C526007BBDA6 /* ixtli-render-metal.metallib */ = {isa = PBXFileReference; explicitFileType = "archive.metal-library"; includeInIndex = 0; path = "ixtli-render-metal.metallib"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C5CD0ED2E378A64007BBDA6 /* ScnModel2d.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnModel2d.h; path = ../../../include/ixrender/scene/ScnModel2d.h; sourceTree = SOURCE_ROOT; };
-		2C5CD0EF2E378A78007BBDA6 /* ScnModel2d.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnModel2d.c; path = ../../../src/scene/ScnModel2d.c; sourceTree = SOURCE_ROOT; };
+		2C5CD0EF2E378A78007BBDA6 /* ScnModel2d.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnModel2d.c; path = ../../../src/ixrender/scene/ScnModel2d.c; sourceTree = SOURCE_ROOT; };
 		2C5CD0F12E37BC03007BBDA6 /* ScnBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnBuffer.h; path = ../../../include/ixrender/scene/ScnBuffer.h; sourceTree = SOURCE_ROOT; };
-		2C5CD0F22E37BC03007BBDA6 /* ScnBuffer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnBuffer.c; path = ../../../src/scene/ScnBuffer.c; sourceTree = SOURCE_ROOT; };
+		2C5CD0F22E37BC03007BBDA6 /* ScnBuffer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnBuffer.c; path = ../../../src/ixrender/scene/ScnBuffer.c; sourceTree = SOURCE_ROOT; };
 		2C5CD0F32E37BC03007BBDA6 /* ScnVertexbuff.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnVertexbuff.h; path = ../../../include/ixrender/scene/ScnVertexbuff.h; sourceTree = SOURCE_ROOT; };
-		2C5CD0F42E37BC03007BBDA6 /* ScnVertexbuff.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnVertexbuff.c; path = ../../../src/scene/ScnVertexbuff.c; sourceTree = SOURCE_ROOT; };
+		2C5CD0F42E37BC03007BBDA6 /* ScnVertexbuff.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnVertexbuff.c; path = ../../../src/ixrender/scene/ScnVertexbuff.c; sourceTree = SOURCE_ROOT; };
 		2C5CD0F92E37BD10007BBDA6 /* ScnTexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnTexture.h; path = ../../../include/ixrender/scene/ScnTexture.h; sourceTree = SOURCE_ROOT; };
-		2C5CD0FA2E37BD10007BBDA6 /* ScnTexture.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnTexture.c; path = ../../../src/scene/ScnTexture.c; sourceTree = SOURCE_ROOT; };
+		2C5CD0FA2E37BD10007BBDA6 /* ScnTexture.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnTexture.c; path = ../../../src/ixrender/scene/ScnTexture.c; sourceTree = SOURCE_ROOT; };
 		2C9C87EC2E3CBECB008005C8 /* libixtlu-render-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libixtlu-render-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CB10CE62E3E49BC0056266A /* ScnNode2d.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnNode2d.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/scene/ScnNode2d.h"; sourceTree = "<absolute>"; };
 		2CB10CE72E3E49BC0056266A /* ScnNode2d.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ScnNode2d.c; sourceTree = "<group>"; };
 		2CB10CEB2E3E59E20056266A /* ScnAABBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnAABBox.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/type/ScnAABBox.h"; sourceTree = "<absolute>"; };
 		2CB10CED2E3EB51C0056266A /* ScnArrayEmbed.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnArrayEmbed.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/core/ScnArrayEmbed.h"; sourceTree = "<absolute>"; };
-		2CB10CF22E3F985B0056266A /* ScnPngLoader.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ScnPngLoader.c; sourceTree = "<group>"; };
-		2CB10CF32E3F985B0056266A /* SncPngLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SncPngLoader.h; sourceTree = "<group>"; };
+		2CB10CF22E3F985B0056266A /* ScnPngLoader.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnPngLoader.c; path = ../../../src/utils/ScnPngLoader.c; sourceTree = SOURCE_ROOT; };
+		2CB10CF32E3F985B0056266A /* SncPngLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SncPngLoader.h; path = ../../../src/utils/SncPngLoader.h; sourceTree = SOURCE_ROOT; };
 		2CB10D832E40C3F20056266A /* MetalKitViewDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetalKitViewDelegate.h; sourceTree = "<group>"; };
 		2CB10D842E40C3F20056266A /* MetalKitViewDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MetalKitViewDelegate.m; sourceTree = "<group>"; };
 		2CB10D892E40C7230056266A /* nicabird.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = nicabird.png; sourceTree = "<group>"; };
-		2CB10D8E2E40DCA60056266A /* spng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = spng.h; sourceTree = "<group>"; };
-		2CB10D8F2E40DCA60056266A /* spng.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = spng.c; sourceTree = "<group>"; };
+		2CB10D8E2E40DCA60056266A /* spng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = spng.h; path = ../../../src/utils/spng.h; sourceTree = SOURCE_ROOT; };
+		2CB10D8F2E40DCA60056266A /* spng.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = spng.c; path = ../../../src/utils/spng.c; sourceTree = SOURCE_ROOT; };
 		2CD60FAA2E34FBCC007BAF4D /* libixtli-render-mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libixtli-render-mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -238,8 +238,8 @@
 				2CB10D8F2E40DCA60056266A /* spng.c */,
 			);
 			name = utils;
-			path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/utils";
-			sourceTree = "<absolute>";
+			path = ../../../src/utils;
+			sourceTree = SOURCE_ROOT;
 		};
 		2C5CCF6A2E3509C8007BBDA6 /* core */ = {
 			isa = PBXGroup;
@@ -265,7 +265,7 @@
 				2C5CCFC62E3634C7007BBDA6 /* ScnMemElastic.c */,
 			);
 			name = core;
-			path = ../../../src/core;
+			path = ../../../src/ixrender/core;
 			sourceTree = SOURCE_ROOT;
 		};
 		2C5CCFA02E355724007BBDA6 /* gpu */ = {
@@ -288,7 +288,7 @@
 				2C42DD9D2E3A2C9300EFC81E /* ScnGpuModelProps2D.h */,
 			);
 			name = gpu;
-			path = ../../../src/gpu;
+			path = ../../../src/ixrender/gpu;
 			sourceTree = SOURCE_ROOT;
 		};
 		2C5CCFBA2E355BAE007BBDA6 /* scene */ = {
@@ -315,7 +315,7 @@
 				2C5CD0EF2E378A78007BBDA6 /* ScnModel2d.c */,
 			);
 			name = scene;
-			path = ../../../src/scene;
+			path = ../../../src/ixrender/scene;
 			sourceTree = SOURCE_ROOT;
 		};
 		2C5CD0792E36A72C007BBDA6 /* type */ = {
@@ -332,8 +332,9 @@
 				2C5CD07D2E36A74C007BBDA6 /* ScnBitmap.h */,
 				2C5CD0762E36A72C007BBDA6 /* ScnBitmap.c */,
 			);
-			path = type;
-			sourceTree = "<group>";
+			name = type;
+			path = ../../../src/ixrender/type;
+			sourceTree = SOURCE_ROOT;
 		};
 		2C5CD08D2E36A934007BBDA6 /* shaders */ = {
 			isa = PBXGroup;
@@ -358,8 +359,9 @@
 				2C5CD0922E36A994007BBDA6 /* ScnApiMetal.h */,
 				2C5CD08E2E36A934007BBDA6 /* metal */,
 			);
-			path = api;
-			sourceTree = "<group>";
+			name = api;
+			path = ../../../src/ixrender/api;
+			sourceTree = SOURCE_ROOT;
 		};
 		2CB10D852E40C3F20056266A /* demos */ = {
 			isa = PBXGroup;
@@ -369,10 +371,10 @@
 				2CB10D842E40C3F20056266A /* MetalKitViewDelegate.m */,
 			);
 			name = demos;
-			path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/demos";
-			sourceTree = "<absolute>";
+			path = ../../../demos;
+			sourceTree = SOURCE_ROOT;
 		};
-		2CBBE48D2E34FD3B00CBC1AC /* src */ = {
+		2CBBE48D2E34FD3B00CBC1AC /* ixrender */ = {
 			isa = PBXGroup;
 			children = (
 				2C5CD0692E3661F2007BBDA6 /* ixtli-defs.h */,
@@ -385,14 +387,14 @@
 				2C5CD08F2E36A934007BBDA6 /* api */,
 				2C5CCFBA2E355BAE007BBDA6 /* scene */,
 			);
-			name = src;
-			path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/src";
+			name = ixrender;
+			path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/src/ixrender";
 			sourceTree = "<absolute>";
 		};
 		2CD60FA12E34FBCC007BAF4D = {
 			isa = PBXGroup;
 			children = (
-				2CBBE48D2E34FD3B00CBC1AC /* src */,
+				2CBBE48D2E34FD3B00CBC1AC /* ixrender */,
 				2CB10D852E40C3F20056266A /* demos */,
 				2C42DDB22E3A7C5D00EFC81E /* utils */,
 				2CD60FAB2E34FBCC007BAF4D /* Products */,

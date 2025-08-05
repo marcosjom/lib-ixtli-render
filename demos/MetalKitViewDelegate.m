@@ -10,8 +10,8 @@
 #include "ixrender/ScnRender.h"
 #include "ixrender/api/ScnApiMetal.h"
 #include "ixrender/type/ScnBitmap.h"
-#include "../utils/ScnMemMap.h"
-#include "../utils/SncPngLoader.h"
+#include "../src/utils/ScnMemMap.h"
+#include "../src/utils/SncPngLoader.h"
 
 // Custom memory allocation for this demos and tests,
 // for detecting memory-leaks using ScnMemMap.
