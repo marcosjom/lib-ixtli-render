@@ -61,10 +61,6 @@ typedef struct STScnMatrix2D {
         ScnFLOAT r[3][2];  //for a 3x3 matrix, the last 3 elemments are allways asummed to be [0, 0, 1].
         ScnFLOAT e[6];     //for a 3x3 matrix, the last 3 elemments are allways asummed to be [0, 0, 1].
     };
-    ScnFLOAT    x;
-    ScnFLOAT    y;
-    ScnFLOAT    width;
-    ScnFLOAT    height;
 } STScnMatrix2D;
 
 //Transform

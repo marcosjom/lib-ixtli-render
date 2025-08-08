@@ -23,7 +23,7 @@ ScnSI32 ScnArraySorted_indexForNew_(const void* pArr, const ScnSI32 use, const S
             return posEnd + 1;
         } else if((*cmpFunc)(ENScnCompareMode_GreaterOrEqual, &arr[posStart * itmSz], itmPtr, itmSz)){
             return posStart;
-        } else { \
+        } else {
             const ScnUI32 posMidd = (posStart + posEnd) / 2;
             if((*cmpFunc)(ENScnCompareMode_LowerOrEqual, &arr[posMidd * itmSz], itmPtr, itmSz)){
                 posStart = posMidd + 1;

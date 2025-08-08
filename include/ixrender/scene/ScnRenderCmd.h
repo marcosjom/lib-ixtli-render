@@ -44,7 +44,7 @@ typedef enum ENScnRenderCmd {
     , ENScnRenderCmd_ActivateFramebuff
     , ENScnRenderCmd_SetFramebuffProps
     //models
-    , ENScnRenderCmd_SetTransformOffset //sets the positions of the 'STScnGpuModelProps2D' to be applied for the drawing cmds
+    , ENScnRenderCmd_SetTransformOffset //sets the positions of the 'STScnGpuModelProps2d' to be applied for the drawing cmds
     , ENScnRenderCmd_SetVertexBuff  //activates the vertex buffer
     , ENScnRenderCmd_SetTexture     //activates the texture in a specific slot-index
     //modes
@@ -161,7 +161,7 @@ void ScnModel2dCmd_destroy(STScnModel2dCmd* obj);
 #define STScnModel2dPushItf_Zero  { NULL }
 
 typedef struct STScnModel2dPushItf {
-    ScnBOOL (*addCommandsWithProps)(void* data, const STScnGpuModelProps2D* const props, const STScnModel2dCmd* const cmds, const ScnUI32 cmdsSz);
+    ScnBOOL (*addCommandsWithProps)(void* data, const STScnGpuModelProps2d* const props, const STScnModel2dCmd* const cmds, const ScnUI32 cmdsSz);
 } STScnModel2dPushItf;
 
 #ifdef __cplusplus

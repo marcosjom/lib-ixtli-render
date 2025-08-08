@@ -18,7 +18,8 @@
 #include "ixrender/gpu/ScnGpuRenderbuff.h"
 #include "ixrender/gpu/ScnGpuFramebuff.h"
 #include "ixrender/gpu/ScnGpuDevice.h"
-#include "ixrender/scene/ScnTransform2D.h"
+#include "ixrender/scene/ScnResourceMode.h"
+#include "ixrender/scene/ScnTransform2d.h"
 #include "ixrender/scene/ScnBuffer.h"
 #include "ixrender/scene/ScnVertexbuffs.h"
 #include "ixrender/scene/ScnFramebuff.h"
@@ -44,6 +45,8 @@ typedef struct STScnApiItf {
 
 //ScnRenderRef
 
+#define ScnRenderRef_Zero   ScnObjRef_Zero
+
 SCN_REF_STRUCT_METHODS_DEC(ScnRender)
 
 //init
@@ -51,6 +54,7 @@ ScnBOOL     ScnRender_prepare(ScnRenderRef ref, const STScnApiItf* itf, void* it
 ScnBOOL     ScnRender_openDevice(ScnRenderRef ref, const STScnGpuDeviceCfg* cfg, const ScnUI32 ammRenderSlots);
 ScnBOOL     ScnRender_hasOpenDevice(ScnRenderRef ref);
 void*       ScnRender_getApiDevice(ScnRenderRef ref);
+STScnGpuDeviceDesc ScnRender_getDeviceDesc(ScnRenderRef ref);
 
 //model
 
@@ -62,7 +66,7 @@ ScnFramebuffRef ScnRender_allocFramebuff(ScnRenderRef ref);
 
 //texture
 
-ScnTextureRef ScnRender_allocTexture(ScnRenderRef ref, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const optSrcProps, const void* optSrcData);
+ScnTextureRef ScnRender_allocTexture(ScnRenderRef ref, const ENScnResourceMode mode, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const optSrcProps, const void* optSrcData);
 
 //job
 

@@ -55,6 +55,8 @@ typedef struct STScnGpuVertexbuffApiItf {
 
 //ScnGpuVertexbuffRef
 
+#define ScnGpuVertexbuffRef_Zero   ScnObjRef_Zero
+
 SCN_REF_STRUCT_METHODS_DEC(ScnGpuVertexbuff)
 
 //

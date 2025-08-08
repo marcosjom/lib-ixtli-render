@@ -10,8 +10,8 @@
 
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/type/ScnColor.h"
-#include "ixrender/scene/ScnTransform2D.h"
-#include "ixrender/gpu/ScnGpuModelProps2D.h"
+#include "ixrender/scene/ScnTransform2d.h"
+#include "ixrender/gpu/ScnGpuModelProps2d.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,16 +19,16 @@ extern "C" {
 
 //STScnNode2dProps
 
-#define STScnNode2dProps_Zero        { STScnColor8_Zero, STScnTransform2D_Zero }
-#define STScnNode2dProps_Identity    { STScnColor8_255, STScnTransform2D_Identity }
+#define STScnNode2dProps_Zero        { STScnColor8_Zero, STScnTransform2d_Zero }
+#define STScnNode2dProps_Identity    { STScnColor8_255, STScnTransform2d_Identity }
 
 typedef struct STScnNode2dProps {
     STScnColor8         c8;     //color
-    STScnTransform2D    tform;  //transform
+    STScnTransform2d    tform;  //transform
 } STScnNode2dProps;
 
-SC_INLN STScnGpuModelProps2D ScnNode2dProps_toGpuTransform(const STScnNode2dProps* const obj){
-    return (STScnGpuModelProps2D){
+SC_INLN STScnGpuModelProps2d ScnNode2dProps_toGpuTransform(const STScnNode2dProps* const obj){
+    return (STScnGpuModelProps2d){
         obj->c8
         , ScnMatrix2D_fromTransforms((const STScnPoint2D){ obj->tform.tx, obj->tform.ty }, DEG_2_RAD(obj->tform.deg), (const STScnSize2D){ obj->tform.sx, obj->tform.sy })
     };

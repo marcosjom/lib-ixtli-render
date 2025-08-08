@@ -13,7 +13,7 @@
 #include "ixrender/type/ScnColor.h"
 #include "ixrender/type/ScnPoint.h"
 #include "ixrender/type/ScnSize.h"
-#include "ixrender/scene/ScnTransform2D.h"
+#include "ixrender/scene/ScnTransform2d.h"
 #include "ixrender/scene/ScnNode2dProps.h"
 
 #ifdef __cplusplus
@@ -21,6 +21,8 @@ extern "C" {
 #endif
 
 //ScnNode2dRef
+
+#define ScnNode2dRef_Zero   ScnObjRef_Zero
 
 SCN_REF_STRUCT_METHODS_DEC(ScnNode2d)
 
@@ -36,7 +38,7 @@ void                ScnNode2d_setColorRGBA8(ScnNode2dRef ref, const ScnUI8 r, co
 
 //transform
 
-STScnTransform2D    ScnNode2d_getTransform(ScnNode2dRef ref);
+STScnTransform2d    ScnNode2d_getTransform(ScnNode2dRef ref);
 STScnPoint2D        ScnNode2d_getTranslate(ScnNode2dRef ref);
 STScnSize2D         ScnNode2d_getScale(ScnNode2dRef ref);
 ScnFLOAT            ScnNode2d_getRotDeg(ScnNode2dRef ref);

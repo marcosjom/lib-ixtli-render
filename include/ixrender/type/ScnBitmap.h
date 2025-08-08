@@ -13,33 +13,11 @@
 #include "ixrender/type/ScnPoint.h"
 #include "ixrender/type/ScnSize.h"
 #include "ixrender/type/ScnRect.h"
+#include "ixrender/type/ScnBitmapProps.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef enum ENScnBitmapColor {
-    ENScnBitmapColor_undef = 0,
-    //
-    ENScnBitmapColor_ALPHA8,        //only alpha (8 bits)
-    ENScnBitmapColor_GRAY8,         //grayscale (8 bits)
-    ENScnBitmapColor_GRAYALPHA8,    //grayscale and alpha (8 bits each component)
-    ENScnBitmapColor_RGB8,          //RGB (8 bits each component)
-    ENScnBitmapColor_RGBA8,         //RGBA (8 bits each component)
-    //
-    ENScnBitmapColor_Count
-} ENScnBitmapColor;
-
-#define STScnBitmapProps_Zero   { ENScnBitmapColor_undef, STScnSize2DI_Zero, 0, 0 }
-
-typedef struct STScnBitmapProps {
-    ENScnBitmapColor    color;
-    STScnSize2DI        size;
-    ScnSI32             bitsPerPx;
-    ScnSI32             bytesPerLine;
-} STScnBitmapProps;
-
-STScnBitmapProps ScnBitmapProps_build(const ScnSI32 width, const ScnSI32 height, const ENScnBitmapColor color);
 
 //STScnBitmap
 
@@ -50,6 +28,8 @@ typedef struct STScnBitmap {
 } STScnBitmap;
 
 //ScnBitmapRef
+
+#define ScnBitmapRef_Zero   ScnObjRef_Zero
 
 SCN_REF_STRUCT_METHODS_DEC(ScnBitmap)
 

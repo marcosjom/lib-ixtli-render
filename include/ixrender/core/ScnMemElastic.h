@@ -32,6 +32,8 @@ typedef struct STScnMemElasticCfg {
 
 //ScnMemElasticRef
 
+#define ScnMemElasticRef_Zero   ScnObjRef_Zero
+
 SCN_REF_STRUCT_METHODS_DEC(ScnMemElastic)
 
 //

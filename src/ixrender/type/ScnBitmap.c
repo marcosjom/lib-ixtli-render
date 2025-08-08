@@ -7,48 +7,6 @@
 
 #include "ixrender/type/ScnBitmap.h"
 
-
-//
-
-typedef struct STScnBitmapColorDesc {
-    ScnUI8              bitsPerPx;
-    const char*         name;
-    ENScnBitmapColor    color;
-} STScnBitmapColorDesc;
-
-static const STScnBitmapColorDesc ScnBitmap_colorMap[] = {
-    {0, "undef", ENScnBitmapColor_undef },
-    {8, "ALPHA8", ENScnBitmapColor_ALPHA8},
-    {8, "GRAY8", ENScnBitmapColor_GRAY8 },
-    {16, "GRAYALPHA8", ENScnBitmapColor_GRAYALPHA8 },
-    {24, "RGB8", ENScnBitmapColor_RGB8 },
-    {32, "RGBA8", ENScnBitmapColor_RGBA8 },
-};
-
-//STScnBitmapProps
-
-STScnBitmapProps ScnBitmapProps_build(const ScnSI32 width, const ScnSI32 height, const ENScnBitmapColor color){
-    STScnBitmapProps r = STScnBitmapProps_Zero;
-    if(color < (sizeof(ScnBitmap_colorMap) / sizeof(ScnBitmap_colorMap[0]))){
-        const STScnBitmapColorDesc* d = &ScnBitmap_colorMap[color];
-        if(d->bitsPerPx == 0){
-            ScnMemory_setZeroSt(r, STScnBitmapProps);
-        } else {
-            r.bitsPerPx = d->bitsPerPx;
-            {
-                const ScnUI32 align = 4;
-                const ScnUI32 bitsPerLine = (width * d->bitsPerPx);
-                //aligned to byte and word
-                r.bytesPerLine    = (((bitsPerLine / 8) + ((bitsPerLine % 8) != 0 ? 1 : 0)) + align - 1) / align * align;
-            }
-            r.color         = color;
-            r.size.width    = width;
-            r.size.height   = height;
-        }
-    }
-    return r;
-}
-
 //STScnBitmapOpq
 
 typedef struct STScnBitmapOpq {
@@ -156,9 +114,7 @@ ScnBOOL ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI pDstPos,
     if((srcRectNorm.y + srcRectNorm.height) > srcProps->size.height) { srcRectNorm.height = srcProps->size.height - srcRectNorm.y; }
     //
     ScnMutex_lock(opq->mutex);
-    if(opq->props.color != srcProps->color){
-        printf("ERROR, ScnBitmap_pasteBitmapData color missmatch.\n");
-    } else if((pDstPos.x + srcRectNorm.width) <= 0 || (pDstPos.y + srcRectNorm.height) <= 0){
+    if((pDstPos.x + srcRectNorm.width) <= 0 || (pDstPos.y + srcRectNorm.height) <= 0){
         //nothing top copy to dst
         r = ScnTRUE;
     } else if(pDstPos.x >= opq->props.size.width || pDstPos.y >= opq->props.size.height){
@@ -173,24 +129,57 @@ ScnBOOL ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI pDstPos,
         SCN_ASSERT(dstPosNorm.x >= 0 && dstPosNorm.y >= 0 && dstPosNorm.x < opq->props.size.width && dstPosNorm.y < opq->props.size.height)
         SCN_ASSERT(srcRectNorm.width > 0 && srcRectNorm.height > 0)
         SCN_ASSERT(srcRectNorm.x >= 0 && srcRectNorm.y >= 0 && (srcRectNorm.x + srcRectNorm.width) <= srcProps->size.width && (srcRectNorm.y + srcRectNorm.height) <= srcProps->size.height)
-        //copy
-        if(dstPosNorm.x == 0 && srcRectNorm.width == opq->props.size.width && opq->props.bytesPerLine == srcProps->bytesPerLine){
-            //full lines memcpy
-            memcpy(opq->data, srcData, opq->props.bytesPerLine * opq->props.size.height);
-            r = ScnTRUE;
-        } else {
-            //copy lines
-            ScnBYTE* dst = &opq->data[(dstPosNorm.y * opq->props.bytesPerLine) + (dstPosNorm.x * (opq->props.bitsPerPx / 8))];
+        if(opq->props.color == srcProps->color){
+            //copy
+            if(dstPosNorm.x == 0 && srcRectNorm.width == opq->props.size.width && opq->props.bytesPerLine == srcProps->bytesPerLine){
+                //full lines memcpy
+                SCN_ASSERT(pSrcRect.height <= opq->props.size.height);
+                memcpy(opq->data, srcData, opq->props.bytesPerLine * pSrcRect.height);
+                r = ScnTRUE;
+            } else {
+                //copy lines
+                ScnBYTE* dst = &opq->data[(dstPosNorm.y * opq->props.bytesPerLine) + (dstPosNorm.x * (opq->props.bitsPerPx / 8))];
+                const ScnBYTE* src = &((ScnBYTE*)srcData)[(srcRectNorm.y * srcProps->bytesPerLine) + (srcRectNorm.x * (srcProps->bitsPerPx / 8))];
+                const ScnBYTE* srcAfterEnd = src + (srcRectNorm.height * srcProps->bytesPerLine);
+                const ScnUI32 copyPerLn = srcRectNorm.width * (srcProps->bitsPerPx / 8);
+                while(src < srcAfterEnd){
+                    memcpy(dst, src, copyPerLn);
+                    //next line
+                    dst += opq->props.bytesPerLine;
+                    src += srcProps->bytesPerLine;
+                }
+                r = ScnTRUE;
+            }
+        } else if(srcProps->color == ENScnBitmapColor_RGB8 && opq->props.color == ENScnBitmapColor_RGBA8){
+            //per-pixel op
+            ScnBYTE *dstPx = NULL, *dstAfterEnd = NULL;
+            ScnBYTE* dst = (ScnBYTE*)&opq->data[(dstPosNorm.y * opq->props.bytesPerLine) + (dstPosNorm.x * (opq->props.bitsPerPx / 8))];
+            const ScnBYTE* srcPx = NULL;
             const ScnBYTE* src = &((ScnBYTE*)srcData)[(srcRectNorm.y * srcProps->bytesPerLine) + (srcRectNorm.x * (srcProps->bitsPerPx / 8))];
             const ScnBYTE* srcAfterEnd = src + (srcRectNorm.height * srcProps->bytesPerLine);
-            const ScnUI32 copyPerLn = srcRectNorm.width * (srcProps->bitsPerPx / 8);
+            SCN_ASSERT(src >= (ScnBYTE*)srcData && src <= &((ScnBYTE*)srcData)[((srcRectNorm.y + srcRectNorm.height) * srcProps->bytesPerLine)])
+            SCN_ASSERT(dst >= (ScnBYTE*)opq->data && dst <= (ScnBYTE*)&opq->data[opq->props.size.height * opq->props.bytesPerLine]);
             while(src < srcAfterEnd){
-                memcpy(dst, src, copyPerLn);
+                srcPx = src;
+                dstPx = dst;
+                dstAfterEnd = dstPx + (srcRectNorm.width * 4);
+                while(dstPx < dstAfterEnd){
+                    *(dstPx++) = *(srcPx++);
+                    *(dstPx++) = *(srcPx++);
+                    *(dstPx++) = *(srcPx++);
+                    *(dstPx++) = 0xFFu;
+                    SCN_ASSERT(srcPx >= (ScnBYTE*)srcData && srcPx <= &((ScnBYTE*)srcData)[((srcRectNorm.y + srcRectNorm.height) * srcProps->bytesPerLine)]);
+                    SCN_ASSERT(dstPx >= (ScnBYTE*)opq->data && dstPx <= (ScnBYTE*)&opq->data[opq->props.size.height * opq->props.bytesPerLine]);
+                }
                 //next line
                 dst += opq->props.bytesPerLine;
                 src += srcProps->bytesPerLine;
+                SCN_ASSERT(src >= (ScnBYTE*)srcData && src <= &((ScnBYTE*)srcData)[((srcRectNorm.y + srcRectNorm.height) * srcProps->bytesPerLine)])
+                SCN_ASSERT(dst >= (ScnBYTE*)opq->data && dst <= (ScnBYTE*)&opq->data[opq->props.size.height * opq->props.bytesPerLine]);
             }
             r = ScnTRUE;
+        } else {
+            SCN_PRINTF_ERROR("ERROR, ScnBitmap_pasteBitmapData unsupported color combination.\n");
         }
     }
     ScnMutex_unlock(opq->mutex);

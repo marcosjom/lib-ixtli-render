@@ -12,6 +12,14 @@
 #include "ixrender/gpu/ScnGpuDevice.h"
 #include "ixrender/ScnRender.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 ScnBOOL ScnApiMetal_getApiItf(STScnApiItf* dst);
+
+#ifdef __cplusplus
+} //extern "C"
+#endif
 
 #endif /* ScnApiMetal_h */

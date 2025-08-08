@@ -66,6 +66,11 @@ void* ScnGpuDevice_getApiDevice(ScnGpuDeviceRef ref){
     return (opq->api.itf.getApiDevice != NULL ? (*opq->api.itf.getApiDevice)(opq->api.itfParam) : NULL);
 }
 
+STScnGpuDeviceDesc ScnGpuDevice_getDesc(ScnGpuDeviceRef ref){
+    STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    return (opq->api.itf.getDesc != NULL ? (*opq->api.itf.getDesc)(opq->api.itfParam) : (STScnGpuDeviceDesc)STScnGpuDeviceDesc_Zero);
+}
+
 ScnGpuBufferRef ScnGpuDevice_allocBuffer(ScnGpuDeviceRef ref, ScnMemElasticRef mem){
     STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (opq->api.itf.allocBuffer != NULL ? (*opq->api.itf.allocBuffer)(opq->api.itfParam, mem) : (ScnGpuBufferRef)ScnObjRef_Zero);

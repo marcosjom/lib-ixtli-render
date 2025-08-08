@@ -39,6 +39,8 @@ typedef struct STScnMemBlockCfg {
 
 //ScnMemBlockRef
 
+#define ScnMemBlockRef_Zero   ScnObjRef_Zero
+
 SCN_REF_STRUCT_METHODS_DEC(ScnMemBlock)
 
 ScnBOOL     ScnMemBlock_prepare(ScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STScnAbsPtr* dstPtrAfterEnd);

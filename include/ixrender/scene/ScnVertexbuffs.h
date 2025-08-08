@@ -67,6 +67,8 @@ typedef struct STScnVertex2DTex3Ptr {
 
 //ScnVertexbuffsRef
 
+#define ScnVertexbuffsRef_Zero   ScnObjRef_Zero
+
 SCN_REF_STRUCT_METHODS_DEC(ScnVertexbuffs)
 
 //Prepare

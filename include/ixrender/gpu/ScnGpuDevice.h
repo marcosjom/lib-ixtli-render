@@ -84,7 +84,17 @@ typedef struct STScnGpuDeviceCfg {
     ENScnGpuDeviceCompute       compute;
 } STScnGpuDeviceCfg;
 
+//STScnGpuDeviceCfg
+
+#define STScnGpuDeviceDesc_Zero   { ScnFALSE }
+
+typedef struct STScnGpuDeviceDesc {
+    ScnBOOL     isTexFmtInfoRequired;   //the device requires texture format info, if TRUE 'STScnGpuModelProps2d.texs' will be populated
+} STScnGpuDeviceDesc;
+
 //ScnGpuDeviceRef
+
+#define ScnGpuDeviceRef_Zero   ScnObjRef_Zero
 
 SCN_REF_STRUCT_METHODS_DEC(ScnGpuDevice)
 
@@ -93,6 +103,7 @@ SCN_REF_STRUCT_METHODS_DEC(ScnGpuDevice)
 typedef struct STScnGpuDeviceApiItf {
     void                (*free)(void* obj);
     void*               (*getApiDevice)(void* obj);
+    STScnGpuDeviceDesc  (*getDesc)(void* obj);
     ScnGpuBufferRef     (*allocBuffer)(void* obj, ScnMemElasticRef mem);
     ScnGpuVertexbuffRef (*allocVertexBuff)(void* obj, const STScnGpuVertexbuffCfg* const cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
     ScnGpuFramebuffRef  (*allocFramebuffFromOSView)(void* obj, void* mtkView);
@@ -104,6 +115,7 @@ typedef struct STScnGpuDeviceApiItf {
 
 ScnBOOL             ScnGpuDevice_prepare(ScnGpuDeviceRef ref, const STScnGpuDeviceApiItf* itf, void* itfParam);
 void*               ScnGpuDevice_getApiDevice(ScnGpuDeviceRef ref);
+STScnGpuDeviceDesc  ScnGpuDevice_getDesc(ScnGpuDeviceRef ref);
 ScnGpuBufferRef     ScnGpuDevice_allocBuffer(ScnGpuDeviceRef ref, ScnMemElasticRef mem);
 ScnGpuVertexbuffRef ScnGpuDevice_allocVertexBuff(ScnGpuDeviceRef ref, const STScnGpuVertexbuffCfg* const cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
 ScnGpuFramebuffRef  ScnGpuDevice_allocFramebuffFromOSView(ScnGpuDeviceRef ref, void* mtkView);

@@ -14,7 +14,7 @@
 #include "ixrender/type/ScnPoint.h"
 #include "ixrender/type/ScnSize.h"
 #include "ixrender/scene/ScnTexture.h"
-#include "ixrender/scene/ScnTransform2D.h"
+#include "ixrender/scene/ScnTransform2d.h"
 #include "ixrender/scene/ScnNode2dProps.h"
 #include "ixrender/scene/ScnRenderCmd.h"
 #include "ixrender/scene/ScnVertexbuffs.h"
@@ -24,6 +24,8 @@ extern "C" {
 #endif
 
 //ScnModel2dRef
+
+#define ScnModel2dRef_Zero   ScnObjRef_Zero
 
 SCN_REF_STRUCT_METHODS_DEC(ScnModel2d)
 
@@ -46,6 +48,9 @@ ScnBOOL             ScnModel2d_v0FlagForSync(ScnModel2dRef ref, STScnVertex2DPtr
 ScnBOOL             ScnModel2d_v1FlagForSync(ScnModel2dRef ref, STScnVertex2DTexPtr ptr, const ScnUI32 count);
 ScnBOOL             ScnModel2d_v2FlagForSync(ScnModel2dRef ref, STScnVertex2DTex2Ptr ptr, const ScnUI32 count);
 ScnBOOL             ScnModel2d_v3FlagForSync(ScnModel2dRef ref, STScnVertex2DTex3Ptr ptr, const ScnUI32 count);
+ScnBOOL             ScnModel2d_v1UpdateTexture(ScnModel2dRef ref, STScnVertex2DTexPtr ptr, ScnTextureRef tex);
+ScnBOOL             ScnModel2d_v2UpdateTexture(ScnModel2dRef ref, STScnVertex2DTex2Ptr ptr, ScnTextureRef tex, const ScnUI32 iTex);
+ScnBOOL             ScnModel2d_v3UpdateTexture(ScnModel2dRef ref, STScnVertex2DTex3Ptr ptr, ScnTextureRef tex, const ScnUI32 iTex);
 //The Ptrs returned by these methods are valid until 'ScnModel2d_resetDrawCmds' is called or the ScnModel2d is freed.
 STScnVertexIdxPtr   ScnModel2d_addDrawIndexed(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, const ScnUI32 countVerts, STScnVertex2DPtr* dstVerts);
 STScnVertexIdxPtr   ScnModel2d_addDrawIndexedTex(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, ScnTextureRef t0, const ScnUI32 countVerts, STScnVertex2DTexPtr* dstVerts);
@@ -59,7 +64,7 @@ ScnBOOL             ScnModel2d_i3FlagForSync(ScnModel2dRef ref, STScnVertexIdxPt
 
 //draw commands to consumer
 
-ScnBOOL             ScnModel2d_sendRenderCmds(ScnModel2dRef ref, const STScnGpuModelProps2D* const props, STScnModel2dPushItf* itf, void* itfParam);
+ScnBOOL             ScnModel2d_sendRenderCmds(ScnModel2dRef ref, const STScnGpuModelProps2d* const props, STScnModel2dPushItf* itf, void* itfParam);
 
 #ifdef __cplusplus
 } //extern "C"

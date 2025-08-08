@@ -83,55 +83,49 @@ NS_ASSUME_NONNULL_BEGIN
                 printf("ERROR, ScnRender_openDevice failed.\n");
             } else {
                 printf("Render initialized.\n");
-                id<MTLDevice> apiDev = (__bridge id<MTLDevice>)ScnRender_getApiDevice(render);
-                if(apiDev == nil){
-                    printf("ERROR, ScnRender_getApiDevice failed.\n");
+                framebuff = ScnRender_allocFramebuff(render);
+                if(ScnFramebuff_isNull(framebuff)){
+                    printf("ERROR, ScnRender_allocFramebuff failed.\n");
+                } else if(!ScnFramebuff_bindToOSView(framebuff, (__bridge void*)metalKitView)){
+                    printf("ERROR, ScnFramebuff_bindToOSView failed.\n");
                 } else {
-                    metalKitView.device = apiDev;
-                    framebuff = ScnRender_allocFramebuff(render);
-                    if(ScnFramebuff_isNull(framebuff)){
-                        printf("ERROR, ScnRender_allocFramebuff failed.\n");
-                    } else if(!ScnFramebuff_bindToOSView(framebuff, (__bridge void*)metalKitView)){
-                        printf("ERROR, ScnFramebuff_bindToOSView failed.\n");
-                    } else {
-                        //load texture
-                        const char* texPath = [[NSString stringWithFormat:@"%@/cat256.png", [[NSBundle mainBundle] resourcePath]] UTF8String];
-                        if(!ScnPngLoader_loadFromPath(ctx, texPath, &bmp.props, (void**)&bmp.data.ptr, &bmp.data.use)){
-                            printf("ERROR, ScnPngLoader_loadFromPath failed for: '%s'.\n", texPath);
-                        } else
-                        /*const char* texPath = "runtime-drawing";
-                        bmp.props       = ScnBitmapProps_build(256, 256, ENScnBitmapColor_RGBA8);
-                        bmp.data.use    = bmp.props.bytesPerLine * bmp.props.size.height;
-                        bmp.data.ptr    = (ScnBYTE*)ScnContext_malloc(ctx, bmp.data.use, "bmp.data.ptr ");
-                        {
-                            ScnUI32* p32 = (ScnUI32*)bmp.data.ptr;
-                            const ScnUI32* p32AfterEnd = p32 + (bmp.data.use / 4);
-                            while(p32 < p32AfterEnd){
-                                *p32 = (0xA0 << 24) | (0x10 << 16) | (0x25 << 8) | 0xFF;
-                                ++p32;
-                            }
-                        }*/
-                        {
-                            printf("PNG loaded: '%s'.\n", texPath);
-                            STScnGpuTextureCfg texCfg = STScnGpuTextureCfg_Zero;
-                            texCfg.width = bmp.props.size.width;
-                            texCfg.height = bmp.props.size.height;
-                            texCfg.color = bmp.props.color;
-                            tex = ScnRender_allocTexture(render, &texCfg, &bmp.props, bmp.data.ptr);
-                            if(ScnTexture_isNull(tex)){
-                                printf("ERROR, ScnRender_allocTexture failed for: '%s'.\n", texPath);
+                    //load texture
+                    const char* texPath = [[NSString stringWithFormat:@"%@/cat256.png", [[NSBundle mainBundle] resourcePath]] UTF8String];
+                    if(!ScnPngLoader_loadFromPath(ctx, texPath, &bmp.props, (void**)&bmp.data.ptr, &bmp.data.use)){
+                        printf("ERROR, ScnPngLoader_loadFromPath failed for: '%s'.\n", texPath);
+                    } else
+                    /*const char* texPath = "runtime-drawing";
+                    bmp.props       = ScnBitmapProps_build(256, 256, ENScnBitmapColor_RGBA8);
+                    bmp.data.use    = bmp.props.bytesPerLine * bmp.props.size.height;
+                    bmp.data.ptr    = (ScnBYTE*)ScnContext_malloc(ctx, bmp.data.use, "bmp.data.ptr ");
+                    {
+                        ScnUI32* p32 = (ScnUI32*)bmp.data.ptr;
+                        const ScnUI32* p32AfterEnd = p32 + (bmp.data.use / 4);
+                        while(p32 < p32AfterEnd){
+                            *p32 = (0xA0 << 24) | (0x10 << 16) | (0x25 << 8) | 0xFF;
+                            ++p32;
+                        }
+                    }*/
+                    {
+                        printf("PNG loaded: '%s'.\n", texPath);
+                        STScnGpuTextureCfg texCfg = STScnGpuTextureCfg_Zero;
+                        texCfg.width = bmp.props.size.width;
+                        texCfg.height = bmp.props.size.height;
+                        texCfg.color = bmp.props.color;
+                        tex = ScnRender_allocTexture(render, ENScnResourceMode_Static, &texCfg, &bmp.props, bmp.data.ptr);
+                        if(ScnTexture_isNull(tex)){
+                            printf("ERROR, ScnRender_allocTexture failed for: '%s'.\n", texPath);
+                        } else {
+                            node = ScnNode2d_alloc(ctx);
+                            model = ScnRender_allocModel(render);
+                            if(ScnNode2d_isNull(node) || ScnModel2d_isNull(model)){
+                                printf("ERROR, ScnNode2d_alloc or ScnRender_allocModel failed.\n");
                             } else {
-                                node = ScnNode2d_alloc(ctx);
-                                model = ScnRender_allocModel(render);
-                                if(ScnNode2d_isNull(node) || ScnModel2d_isNull(model)){
-                                    printf("ERROR, ScnNode2d_alloc or ScnRender_allocModel failed.\n");
-                                } else {
-                                    vertsSz = 3;
-                                    verts   = ScnModel2d_addDrawTex(model, ENScnRenderShape_TriangStrip, vertsSz, tex);
-                                    [self updateModelVerts:metalKitView.drawableSize];
-                                    framesCount = 0;
-                                    printf("Ixtli and demo initialized.\n");
-                                }
+                                vertsSz = 3;
+                                verts   = ScnModel2d_addDrawTex(model, ENScnRenderShape_TriangStrip, vertsSz, tex);
+                                [self updateModelVerts:metalKitView.drawableSize];
+                                framesCount = 0;
+                                printf("Ixtli and demo initialized.\n");
                             }
                         }
                     }

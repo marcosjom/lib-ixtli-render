@@ -111,7 +111,8 @@ STScnVertex2DPtr ScnModel2d_addDraw(ScnModel2dRef ref, const ENScnRenderShape sh
 STScnVertex2DTexPtr ScnModel2d_addDrawTex(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 count, ScnTextureRef t0){
     STScnVertex2DTexPtr r = STScnVertex2DTexPtr_Zero;
     STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    if(!(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && count > 0)){
+    SCN_ASSERT(!ScnTexture_isNull(t0))
+    if(!(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && count > 0 && !ScnTexture_isNull(t0))){
         return r;
     }
     ScnMutex_lock(opq->mutex);
@@ -142,7 +143,9 @@ STScnVertex2DTexPtr ScnModel2d_addDrawTex(ScnModel2dRef ref, const ENScnRenderSh
 STScnVertex2DTex2Ptr ScnModel2d_addDrawTex2(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 count, ScnTextureRef t0, ScnTextureRef t1){
     STScnVertex2DTex2Ptr r = STScnVertex2DTex2Ptr_Zero;
     STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    if(!(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && count > 0)){
+    SCN_ASSERT(!ScnTexture_isNull(t0))
+    SCN_ASSERT(!ScnTexture_isNull(t1))
+    if(!(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && count > 0 && !ScnTexture_isNull(t0) && !ScnTexture_isNull(t1))){
         return r;
     }
     ScnMutex_lock(opq->mutex);
@@ -174,7 +177,10 @@ STScnVertex2DTex2Ptr ScnModel2d_addDrawTex2(ScnModel2dRef ref, const ENScnRender
 STScnVertex2DTex3Ptr ScnModel2d_addDrawTex3(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 count, ScnTextureRef t0, ScnTextureRef t1, ScnTextureRef t2){
     STScnVertex2DTex3Ptr r = STScnVertex2DTex3Ptr_Zero;
     STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    if(!(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && count > 0)){
+    SCN_ASSERT(!ScnTexture_isNull(t0))
+    SCN_ASSERT(!ScnTexture_isNull(t1))
+    SCN_ASSERT(!ScnTexture_isNull(t2))
+    if(!(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && count > 0 && !ScnTexture_isNull(t0) && !ScnTexture_isNull(t1) && !ScnTexture_isNull(t2))){
         return r;
     }
     ScnMutex_lock(opq->mutex);
@@ -264,6 +270,66 @@ ScnBOOL ScnModel2d_v3FlagForSync(ScnModel2dRef ref, STScnVertex2DTex3Ptr ptr, co
     return r;
 }
 
+
+ScnBOOL ScnModel2d_v1UpdateTexture(ScnModel2dRef ref, STScnVertex2DTexPtr ptr, ScnTextureRef tex){
+    ScnBOOL r = ScnFALSE;
+    STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    SCN_ASSERT(!ScnTexture_isNull(tex))
+    if(!(!ScnTexture_isNull(tex))){
+        return r;
+    }
+    ScnMutex_lock(opq->mutex);
+    if(!ScnVertexbuffs_isNull(opq->vbuffs)){
+        STScnModel2dCmd* cmd = ScnModel2d_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Dv1, ptr.ptr, sizeof(ptr.ptr[0]), 1);
+        SCN_ASSERT(cmd != NULL) //user logic error
+        if(cmd != NULL){
+            ScnTexture_set(&cmd->texs[0], tex);
+        }
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnBOOL ScnModel2d_v2UpdateTexture(ScnModel2dRef ref, STScnVertex2DTex2Ptr ptr, ScnTextureRef tex, const ScnUI32 iTex){
+    ScnBOOL r = ScnFALSE;
+    SCN_ASSERT(iTex >= 0 && iTex < ENScnGpuTextureIdx_Count)
+    SCN_ASSERT(!ScnTexture_isNull(tex))
+    if(!(iTex >= 0 && iTex < ENScnGpuTextureIdx_Count && !ScnTexture_isNull(tex))){
+        return r;
+    }
+    STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnVertexbuffs_isNull(opq->vbuffs)){
+        STScnModel2dCmd* cmd = ScnModel2d_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Dv2, ptr.ptr, sizeof(ptr.ptr[0]), 1);
+        SCN_ASSERT(cmd != NULL) //user logic error
+        if(cmd != NULL){
+            ScnTexture_set(&cmd->texs[iTex], tex);
+        }
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnBOOL ScnModel2d_v3UpdateTexture(ScnModel2dRef ref, STScnVertex2DTex3Ptr ptr, ScnTextureRef tex, const ScnUI32 iTex){
+    ScnBOOL r = ScnFALSE;
+    SCN_ASSERT(iTex >= 0 && iTex < ENScnGpuTextureIdx_Count)
+    SCN_ASSERT(!ScnTexture_isNull(tex))
+    if(!(iTex >= 0 && iTex < ENScnGpuTextureIdx_Count && !ScnTexture_isNull(tex))){
+        return r;
+    }
+    STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnVertexbuffs_isNull(opq->vbuffs)){
+        STScnModel2dCmd* cmd = ScnModel2d_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Dv3, ptr.ptr, sizeof(ptr.ptr[0]), 1);
+        SCN_ASSERT(cmd != NULL) //user logic error
+        if(cmd != NULL){
+            ScnTexture_set(&cmd->texs[iTex], tex);
+        }
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
 //
 
 STScnVertexIdxPtr ScnModel2d_addDrawIndexed(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, const ScnUI32 countVerts, STScnVertex2DPtr* dstVerts){
@@ -312,7 +378,8 @@ STScnVertexIdxPtr ScnModel2d_addDrawIndexedTex(ScnModel2dRef ref, const ENScnRen
     STScnVertexIdxPtr r = STScnVertexIdxPtr_Zero;
     STScnVertex2DTexPtr v = STScnVertex2DTexPtr_Zero;
     STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    if(!(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && countIdxs > 0 && countVerts > 0)){
+    SCN_ASSERT(!ScnTexture_isNull(t0))
+    if(!(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && countIdxs > 0 && countVerts > 0 && !ScnTexture_isNull(t0))){
         if(dstVerts != NULL) *dstVerts = v;
         return r;
     }
@@ -355,7 +422,9 @@ STScnVertexIdxPtr ScnModel2d_addDrawIndexedTex2(ScnModel2dRef ref, const ENScnRe
     STScnVertexIdxPtr r = STScnVertexIdxPtr_Zero;
     STScnVertex2DTex2Ptr v = STScnVertex2DTex2Ptr_Zero;
     STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    if(!(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && countIdxs > 0 && countVerts > 0)){
+    SCN_ASSERT(!ScnTexture_isNull(t0))
+    SCN_ASSERT(!ScnTexture_isNull(t1))
+    if(!(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && countIdxs > 0 && countVerts > 0 && !ScnTexture_isNull(t0) && !ScnTexture_isNull(t1))){
         if(dstVerts != NULL) *dstVerts = v;
         return r;
     }
@@ -399,7 +468,10 @@ STScnVertexIdxPtr ScnModel2d_addDrawIndexedTex3(ScnModel2dRef ref, const ENScnRe
     STScnVertexIdxPtr r = STScnVertexIdxPtr_Zero;
     STScnVertex2DTex3Ptr v = STScnVertex2DTex3Ptr_Zero;
     STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    if(!(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && countIdxs > 0 && countVerts > 0)){
+    SCN_ASSERT(!ScnTexture_isNull(t0))
+    SCN_ASSERT(!ScnTexture_isNull(t1))
+    SCN_ASSERT(!ScnTexture_isNull(t2))
+    if(!(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && countIdxs > 0 && countVerts > 0 && !ScnTexture_isNull(t0) && !ScnTexture_isNull(t1) && !ScnTexture_isNull(t2))){
         if(dstVerts != NULL) *dstVerts = v;
         return r;
     }
@@ -502,7 +574,7 @@ ScnBOOL ScnModel2d_i3FlagForSync(ScnModel2dRef ref, STScnVertexIdxPtr ptr, const
 
 //draw commands to consumer
 
-ScnBOOL ScnModel2d_sendRenderCmds(ScnModel2dRef ref, const STScnGpuModelProps2D* const props, STScnModel2dPushItf* itf, void* itfParam){
+ScnBOOL ScnModel2d_sendRenderCmds(ScnModel2dRef ref, const STScnGpuModelProps2d* const props, STScnModel2dPushItf* itf, void* itfParam){
     ScnBOOL r = ScnFALSE;
     STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
     if(!(itf != NULL && itf->addCommandsWithProps != NULL)){

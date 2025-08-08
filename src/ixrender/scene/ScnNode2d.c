@@ -67,7 +67,7 @@ void ScnNode2d_setColorRGBA8(ScnNode2dRef ref, const ScnUI8 r, const ScnUI8 g, c
 
 //transform
 
-STScnTransform2D ScnNode2d_getTransform(ScnNode2dRef ref){
+STScnTransform2d ScnNode2d_getTransform(ScnNode2dRef ref){
     STScnNode2dOpq* opq = (STScnNode2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return opq->props.tform;
 }
