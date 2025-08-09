@@ -24,8 +24,8 @@
 #   if defined(__METAL__) || defined(__METAL_MACOS__) || defined(__METAL_IOS__)
 #       define SCN_ASSERT(EVAL) ((void)0);
 #   else
-#   include <assert.h>         //assert
-#       define SCN_ASSERT(EVAL)     { if(!(EVAL)){ SCN_PRINTF_ERROR("ASSERT failed.\n"); SCN_PRINTF_ERROR("ASSERT, file '%s'\n", __FILE__); SCN_PRINTF_ERROR("ASSERT, line %d.\n", __LINE__); assert(0); }}
+#   include <assert.h> //assert()
+#       define SCN_ASSERT(EVAL) { if(!(EVAL)){ SCN_PRINTF_ERROR("ASSERT failed.\n"); SCN_PRINTF_ERROR("ASSERT, file '%s'\n", __FILE__); SCN_PRINTF_ERROR("ASSERT, line %d.\n", __LINE__); assert(0); }}
 #   endif
 #else
 #   define SCN_ASSERT(EVAL)     ((void)0);
@@ -35,14 +35,14 @@
 
 #if defined(SNC_COMPILING_SHADER)
 #   define SCN_PRINTF_ALLWAYS(STR_FMT, ...)     ((void)0)
-#elif defined(__ANDROID__) //Android
-#   include <android/log.h>
+#elif defined(__ANDROID__)
+#   include <android/log.h> //__android_log_print()
 #   define SCN_PRINTF_ALLWAYS(STR_FMT, ...)     __android_log_print(ANDROID_LOG_INFO, "Render", STR_FMT, ##__VA_ARGS__)
 #elif defined(__QNX__) //BB10
-#   include <stdio.h>
+#   include <stdio.h> //fprintf()
 #   define SCN_PRINTF_ALLWAYS(STR_FMT, ...)     fprintf(stdout, "Render, " STR_FMT, ##__VA_ARGS__); fflush(stdout)
 #else
-#   include <stdio.h>
+#   include <stdio.h> //printf()
 #   define SCN_PRINTF_ALLWAYS(STR_FMT, ...)     printf("Render, " STR_FMT, ##__VA_ARGS__)
 #endif
 
@@ -55,7 +55,7 @@
 #       define SCN_PRINTF_INFO(STR_FMT, ...)    ((void)0)
 #       define SCN_PRINTF_ERROR(STR_FMT, ...)   ((void)0)
 #       define SCN_PRINTF_WARNING(STR_FMT, ...) ((void)0)
-#   elif defined(__ANDROID__) //Android
+#   elif defined(__ANDROID__)
 #        ifndef SCN_VERBOSE_MODE
 #        define SCN_PRINTF_INFO(STR_FMT, ...)   ((void)0)
 #        else
@@ -86,7 +86,7 @@
 
 //Helpers
 
-#define ScnMemory_setZeroSt(ST, TYPE)    memset(&(ST), 0, sizeof(ST))
+#define ScnMemory_setZeroSt(ST)     ScnMemset(&(ST), 0, sizeof(ST))
 
 #define SCN_ITF_SET_MISSING_METHOD_TO_NOP(ITF, ITF_NAME, M_NAME) \
     if(itf->M_NAME == NULL) itf->M_NAME = ITF_NAME ## _nop_ ## M_NAME
@@ -139,5 +139,26 @@ typedef long long           ScnSI64;    //ScnSI64, Signed 64-bit integer value
 typedef unsigned long long  ScnUI64;    //ScnUI64[n], Unsigned 64-bit array—n is the number of array elements
 typedef double              ScnDOUBLE;  //double
 #endif
+
+#if !defined(SNC_COMPILING_SHADER)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//string.h
+void* ScnMemset(void* dst, const ScnSI32 ch, const ScnUI32 count);
+void* ScnMemcpy(void* dst, const void* src, const ScnUI32 count);
+void* ScnMemmove(void* dst, const void* src, const ScnUI32 count);
+
+//math.h
+ScnFLOAT ScnSinf(ScnFLOAT num);
+ScnFLOAT ScnCosf(ScnFLOAT num);
+
+#ifdef __cplusplus
+} //extern "C"
+#endif
+
+#endif //!defined(SNC_COMPILING_SHADER)
 
 #endif /* ixtli_defs_h */

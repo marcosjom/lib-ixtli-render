@@ -108,6 +108,7 @@ typedef struct STScnGpuDeviceApiItf {
     ScnGpuVertexbuffRef (*allocVertexBuff)(void* obj, const STScnGpuVertexbuffCfg* const cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
     ScnGpuFramebuffRef  (*allocFramebuffFromOSView)(void* obj, void* mtkView);
     ScnGpuTextureRef    (*allocTexture)(void* obj, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData);
+    ScnGpuSamplerRef    (*allocSampler)(void* obj, const STScnGpuSamplerCfg* const cfg);
     ScnBOOL             (*render)(void* obj, ScnGpuBufferRef fbPropsBuff, ScnGpuBufferRef mdlsPropsBuff, const struct STScnRenderCmd* const cmds, const ScnUI32 cmdsSz);
 } STScnGpuDeviceApiItf;
 
@@ -120,6 +121,7 @@ ScnGpuBufferRef     ScnGpuDevice_allocBuffer(ScnGpuDeviceRef ref, ScnMemElasticR
 ScnGpuVertexbuffRef ScnGpuDevice_allocVertexBuff(ScnGpuDeviceRef ref, const STScnGpuVertexbuffCfg* const cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
 ScnGpuFramebuffRef  ScnGpuDevice_allocFramebuffFromOSView(ScnGpuDeviceRef ref, void* mtkView);
 ScnGpuTextureRef    ScnGpuDevice_allocTexture(ScnGpuDeviceRef ref, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData);
+ScnGpuSamplerRef    ScnGpuDevice_allocSampler(ScnGpuDeviceRef ref, const STScnGpuSamplerCfg* const cfg);
 ScnBOOL             ScnGpuDevice_render(ScnGpuDeviceRef ref, ScnGpuBufferRef fbPropsBuff, ScnGpuBufferRef mdlsPropsBuff, const struct STScnRenderCmd* const cmds, const ScnUI32 cmdsSz);
 
 #ifdef __cplusplus

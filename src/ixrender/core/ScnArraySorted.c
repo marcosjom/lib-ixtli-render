@@ -88,9 +88,9 @@ void* ScnArraySorted_addPtr_(ScnContextRef ctx, void** arr, ScnSI32* use, ScnSI3
         SCN_ASSERT(dstIndex >= 0 && dstIndex <= *use)
         if(dstIndex < *use){
             //create gap
-            memmove(&bArr[(dstIndex + 1) * arrItmSz], &bArr[dstIndex * arrItmSz], (*use - dstIndex) * arrItmSz);
+            ScnMemmove(&bArr[(dstIndex + 1) * arrItmSz], &bArr[dstIndex * arrItmSz], (*use - dstIndex) * arrItmSz);
         }
-        memcpy(&bArr[dstIndex * arrItmSz], itmPtr, itmSz);
+        ScnMemcpy(&bArr[dstIndex * arrItmSz], itmPtr, itmSz);
         *use = *use + 1;
         return &bArr[dstIndex * arrItmSz];
     }

@@ -116,7 +116,7 @@ void ScnMemBlock_destroyOpq(void* obj){
             ScnContext_mfree(opq->ctx, opq->chunk.ptr);
             opq->chunk.ptr    = NULL;
         }
-        ScnMemory_setZeroSt(opq->chunk, STScnMemBlockChunk);
+        ScnMemory_setZeroSt(opq->chunk);
     }
     {
         opq->cfg = (STScnMemBlockCfg)STScnMemBlockCfg_Zero;
@@ -171,7 +171,7 @@ ScnBOOL ScnMemBlock_prepare(ScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STS
                 ScnArraySorted_empty(&opq->ptrs);
                 ScnArraySorted_empty(&opq->gaps);
                 //reset state
-                ScnMemory_setZeroSt(opq->state, STScnMemBlockState);
+                ScnMemory_setZeroSt(opq->state);
                 //register the whole range as the initial gap
                 if(chunkN.rngStart < chunkN.rngAfterEnd){
                     STScnMemBlockGap gap = STScnMemBlockGap_Zero;
@@ -358,7 +358,7 @@ void ScnMemBlock_clear(ScnMemBlockRef ref){ //clears the index, all pointers are
         ScnArraySorted_empty(&opq->ptrs);
         ScnArraySorted_empty(&opq->gaps);
         //reset state
-        ScnMemory_setZeroSt(opq->state, STScnMemBlockState);
+        ScnMemory_setZeroSt(opq->state);
         //register the whole range as the initial gap
         if(opq->chunk.rngStart < opq->chunk.rngAfterEnd){
             STScnMemBlockGap gap = STScnMemBlockGap_Zero;

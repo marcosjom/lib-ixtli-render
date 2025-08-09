@@ -13,6 +13,7 @@
 #include "ixrender/type/ScnPoint.h"
 #include "ixrender/type/ScnRect.h"
 #include "ixrender/type/ScnBitmap.h"
+#include "ixrender/gpu/ScnGpuSampler.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,36 +29,16 @@ typedef enum ENScnGpuTextureIdx {
     ENScnGpuTextureIdx_Count
 } ENScnGpuTextureIdx;
 
-//ENScnGpuTextureCoordMode
-
-typedef enum ENScnGpuTextureCoordMode {
-    ENScnGpuTextureCoordMode_Repeat = 0, //pattern
-    ENScnGpuTextureCoordMode_Clamp,      //single-image
-    //
-    ENScnGpuTextureCoordMode_Count
-} ENScnGpuTextureCoordMode;
-
-//ENScnGpuTexturePixelMode
-
-typedef enum ENScnGpuTexturePixelMode {
-    ENScnGpuTexturePixelMode_Nearest = 0, //fast selection of nearest color
-    ENScnGpuTexturePixelMode_Linear,      //calculation of merged color
-    //
-    ENScnGpuTexturePixelMode_Count
-} ENScnGpuTexturePixelMode;
-
 //STScnGpuTextureCfg
 
-#define STScnGpuTextureCfg_Zero   { ENScnBitmapColor_undef, 0, 0, ScnFALSE, ENScnGpuTextureCoordMode_Repeat, ENScnGpuTexturePixelMode_Nearest, ENScnGpuTexturePixelMode_Nearest }
+#define STScnGpuTextureCfg_Zero   { ENScnBitmapColor_undef, 0, 0, ScnFALSE, STScnGpuSamplerCfg_Zero }
 
 typedef struct STScnGpuTextureCfg {
     ENScnBitmapColor    color;
     ScnUI32             width;
     ScnUI32             height;
     ScnBOOL             mipmapEnabled;
-    ENScnGpuTextureCoordMode coordMode;
-    ENScnGpuTexturePixelMode magMode;
-    ENScnGpuTexturePixelMode minMode;
+    STScnGpuSamplerCfg  sampler;
 } STScnGpuTextureCfg;
 
 //STScnGpuTextureChanges
@@ -86,10 +67,10 @@ SCN_REF_STRUCT_METHODS_DEC(ScnGpuTexture)
 
 //
 
-ScnBOOL ScnGpuTexture_prepare(ScnGpuTextureRef ref, const STScnGpuTextureApiItf* itf, void* itfParam);
-void*   ScnGpuTexture_getApiItfParam(ScnGpuTextureRef ref);
+ScnBOOL     ScnGpuTexture_prepare(ScnGpuTextureRef ref, const STScnGpuTextureApiItf* itf, void* itfParam);
+void*       ScnGpuTexture_getApiItfParam(ScnGpuTextureRef ref);
 //
-ScnBOOL ScnGpuTexture_sync(ScnGpuTextureRef ref, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData, const STScnGpuTextureChanges* const changes);
+ScnBOOL     ScnGpuTexture_sync(ScnGpuTextureRef ref, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData, const STScnGpuTextureChanges* const changes);
 
 
 #ifdef __cplusplus

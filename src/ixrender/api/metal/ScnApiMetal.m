@@ -8,7 +8,10 @@
 #include "ixrender/api/ScnApiMetal.h"
 #include "ixrender/gpu/ScnGpuDevice.h"
 #include "ixrender/gpu/ScnGpuBuffer.h"
+#include "ixrender/gpu/ScnGpuSampler.h"
+#include "ixrender/gpu/ScnGpuTexture.h"
 #include "ixrender/scene/ScnRenderCmd.h"
+//
 #import <Foundation/Foundation.h>
 #import <MetalKit/MetalKit.h>
 #import <TargetConditionals.h>  //for TARGET_OS_* macros
@@ -23,6 +26,7 @@ ScnGpuBufferRef     ScnApiMetal_device_allocBuffer(void* obj, ScnMemElasticRef m
 ScnGpuVertexbuffRef ScnApiMetal_device_allocVertexBuff(void* obj, const STScnGpuVertexbuffCfg* const cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
 ScnGpuFramebuffRef  ScnApiMetal_device_allocFramebuffFromOSView(void* obj, void* mtkView);
 ScnGpuTextureRef    ScnApiMetal_device_allocTexture(void* obj, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData);
+ScnGpuSamplerRef    ScnApiMetal_device_allocSampler(void* obj, const STScnGpuSamplerCfg* const cfg);
 ScnBOOL             ScnApiMetal_device_render(void* obj, ScnGpuBufferRef fbPropsBuff, ScnGpuBufferRef mdlsPropsBuff, const STScnRenderCmd* const cmds, const ScnUI32 cmdsSz);
 //buffer
 void                ScnApiMetal_buffer_free(void* data);
@@ -42,7 +46,7 @@ ScnBOOL             ScnApiMetal_framebuff_view_setProps(void* data, const STScnG
 ScnBOOL ScnApiMetal_getApiItf(STScnApiItf* dst){
     if(dst == NULL) return ScnFALSE;
     //
-    memset(dst, 0, sizeof(*dst));
+    ScnMemory_setZeroSt(*dst);
     //gobal
     dst->allocDevice        = ScnApiMetal_allocDevice;
     //device
@@ -53,6 +57,7 @@ ScnBOOL ScnApiMetal_getApiItf(STScnApiItf* dst){
     dst->dev.allocVertexBuff = ScnApiMetal_device_allocVertexBuff;
     dst->dev.allocFramebuffFromOSView = ScnApiMetal_device_allocFramebuffFromOSView;
     dst->dev.allocTexture   = ScnApiMetal_device_allocTexture;
+    dst->dev.allocSampler   = ScnApiMetal_device_allocSampler;
     dst->dev.render         = ScnApiMetal_device_render;
     //buffer
     dst->buff.free          = ScnApiMetal_buffer_free;
@@ -65,6 +70,14 @@ ScnBOOL ScnApiMetal_getApiItf(STScnApiItf* dst){
     //
     return ScnTRUE;
 }
+
+// STScnApiMetalSampler
+
+typedef struct STScnApiMetalSampler {
+    ScnContextRef           ctx;
+    STScnGpuSamplerCfg      cfg;
+    id<MTLSamplerState>     smplr;
+} STScnApiMetalSampler;
 
 //STScnApiMetalDevice
 
@@ -192,7 +205,7 @@ ScnGpuDeviceRef ScnApiMetal_allocDevice(ScnContextRef ctx, const STScnGpuDeviceC
                     printf("ScnContext_malloc(STScnApiMetalDevice) failed.\n");
                 } else {
                     //init STScnApiMetalDevice
-                    memset(obj, 0, sizeof(*obj));
+                    ScnMemory_setZeroSt(*obj);
                     ScnContext_set(&obj->ctx, ctx);
                     obj->dev    = dev; [dev retain];
                     obj->lib    = defLib; [defLib retain];
@@ -256,6 +269,91 @@ void ScnApiMetal_device_free(void* pObj){
     ScnContext_releaseAndNull(&ctx);
 }
 
+// STScnApiMetalSampler
+
+void                ScnApiMetal_sampler_free(void* pObj);
+STScnGpuSamplerCfg  ScnApiMetal_sampler_getCfg(void* data);
+
+ScnGpuSamplerRef ScnApiMetal_device_allocSampler(void* pObj, const STScnGpuSamplerCfg* const cfg){
+    ScnGpuSamplerRef r = ScnGpuSamplerRef_Zero;
+    STScnApiMetalDevice* dev = (STScnApiMetalDevice*)pObj;
+    if(dev != NULL && dev->dev != nil && cfg != NULL){
+        MTLSamplerDescriptor* desc = [MTLSamplerDescriptor new];
+        if(desc == nil){
+            printf("[MTLSamplerDescriptor new] failed.\n");
+        } else {
+            const MTLSamplerAddressMode addressMode = (cfg->address == ENScnGpusamplerAddress_Clamp ? MTLSamplerAddressModeClampToEdge : MTLSamplerAddressModeRepeat);
+            desc.minFilter = (cfg->magFilter == ENScnGpuSamplerFilter_Linear ? MTLSamplerMinMagFilterLinear : MTLSamplerMinMagFilterNearest);
+            desc.magFilter = (cfg->minFilter == ENScnGpuSamplerFilter_Linear ? MTLSamplerMinMagFilterLinear : MTLSamplerMinMagFilterNearest);
+            desc.sAddressMode = desc.tAddressMode = desc.rAddressMode = addressMode;
+            id<MTLSamplerState> sampler = [dev->dev newSamplerStateWithDescriptor:desc];
+            if(sampler == nil){
+                printf("[dev newSamplerStateWithDescriptor] failed.\n");
+            } else {
+                STScnApiMetalSampler* obj = (STScnApiMetalSampler*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalSampler), "STScnApiMetalSampler");
+                if(obj == NULL){
+                    printf("ScnContext_malloc(STScnApiMetalSampler) failed.\n");
+                } else {
+                    ScnMemory_setZeroSt(*obj);
+                    ScnContext_set(&obj->ctx, dev->ctx);
+                    obj->cfg    = *cfg;
+                    obj->smplr  = sampler; [sampler retain];
+                    //
+                    ScnGpuSamplerRef s = ScnGpuSampler_alloc(dev->ctx);
+                    if(!ScnGpuSampler_isNull(s)){
+                        STScnGpuSamplerApiItf itf;
+                        ScnMemory_setZeroSt(itf);
+                        itf.free    = ScnApiMetal_sampler_free;
+                        itf.getCfg  = ScnApiMetal_sampler_getCfg;
+                        if(!ScnGpuSampler_prepare(s, &itf, obj)){
+                            printf("ScnApiMetal_device_allocSampler::ScnGpuSampler_prepare failed.\n");
+                        } else {
+                            ScnGpuSampler_set(&r, s);
+                            obj = NULL; //consume
+                        }
+                        ScnGpuSampler_releaseAndNull(&s);
+                    }
+                }
+                //release (if not consumed)
+                if(obj != NULL){
+                    ScnApiMetal_sampler_free(obj);
+                    obj = NULL;
+                }
+                //
+                [sampler release];
+                sampler = nil;
+            }
+            //
+            [desc release];
+            desc = nil;
+        }
+    }
+    return r;
+}
+
+void ScnApiMetal_sampler_free(void* pObj){
+    STScnApiMetalSampler* obj = (STScnApiMetalSampler*)pObj;
+    ScnContextRef ctx = obj->ctx;
+    {
+        if(obj->smplr != nil){
+            [obj->smplr release];
+            obj->smplr = nil;
+        }
+        ScnContext_null(&obj->ctx);
+    }
+    ScnContext_mfree(ctx, obj);
+    ScnContext_releaseAndNull(&ctx);
+}
+
+STScnGpuSamplerCfg ScnApiMetal_sampler_getCfg(void* pObj){
+    STScnGpuSamplerCfg r = STScnGpuSamplerCfg_Zero;
+    STScnApiMetalSampler* obj = (STScnApiMetalSampler*)pObj;
+    if(obj != NULL ){
+        r = obj->cfg;
+    }
+    return r;
+}
+
 //STScnApiMetalBuffer
 
 typedef struct STScnApiMetalBuffer {
@@ -299,7 +397,7 @@ ScnGpuBufferRef ScnApiMetal_device_allocBuffer(void* pObj, ScnMemElasticRef mem)
                     if(obj == NULL){
                         printf("ScnContext_malloc(STScnApiMetalBuffer) failed.\n");
                     } else {
-                        memset(obj, 0, sizeof(*obj));
+                        ScnMemory_setZeroSt(*obj);
                         ScnContext_set(&obj->ctx, dev->ctx);
                         obj->itf        = dev->itf;
                         obj->dev        = dev->dev;  //retain?
@@ -425,7 +523,7 @@ ScnBOOL ScnApiMetal_buffer_syncRanges_(id<MTLBuffer> buff, ScnMemElasticRef mem,
                 }
                 //copy
                 copySz = (curRng.size < continuousSz ? curRng.size : continuousSz);
-                memcpy(&buffPtr[curRng.start], ptr.ptr, copySz);
+                ScnMemcpy(&buffPtr[curRng.start], ptr.ptr, copySz);
                 bytesCopied += copySz;
                 //
                 SCN_ASSERT(curRng.size >= copySz)
@@ -467,7 +565,7 @@ ScnGpuVertexbuffRef ScnApiMetal_device_allocVertexBuff(void* pObj, const STScnGp
         if(obj == NULL){
             printf("ScnContext_malloc(STScnApiMetalVertexBuff) failed.\n");
         } else {
-            memset(obj, 0, sizeof(*obj));
+            ScnMemory_setZeroSt(*obj);
             ScnContext_set(&obj->ctx, dev->ctx);
             obj->itf        = dev->itf;
             obj->cfg        = *cfg;
@@ -539,12 +637,13 @@ ScnBOOL ScnApiMetal_vertexbuff_deactivate(void* pObj){
     return r;
 }
 
-// ScnGpuTextureRef
+// STScnApiMetalTexture
 
 typedef struct STScnApiMetalTexture {
     ScnContextRef           ctx;
     STScnGpuTextureCfg      cfg;
     id<MTLTexture>          tex;
+    ScnGpuSamplerRef        sampler;
     STScnApiItf             itf;
 } STScnApiMetalTexture;
 
@@ -584,30 +683,35 @@ ScnGpuTextureRef ScnApiMetal_device_allocTexture(void* pObj, const STScnGpuTextu
             } else if(NULL == (obj = (STScnApiMetalTexture*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalTexture), "STScnApiMetalTexture"))){
                 printf("ScnContext_malloc(STScnApiMetalTexture) failed.\n");
             } else {
-                memset(obj, 0, sizeof(*obj));
+                ScnMemory_setZeroSt(*obj);
                 ScnContext_set(&obj->ctx, dev->ctx);
                 obj->itf            = dev->itf;
                 obj->tex            = tex; [obj->tex retain];
                 obj->cfg            = *cfg;
-                //
-                ScnGpuTextureRef d = ScnGpuTexture_alloc(dev->ctx);
-                if(!ScnGpuTexture_isNull(d)){
-                    STScnGpuTextureApiItf itf;
-                    memset(&itf, 0, sizeof(itf));
-                    itf.free        = ScnApiMetal_texture_free;
-                    itf.sync        = ScnApiMetal_texture_sync;
-                    if(!ScnGpuTexture_prepare(d, &itf, obj)){
-                        printf("ScnApiMetal_device_allocTexture::ScnGpuTexture_prepare failed.\n");
-                    } else {
-                        ScnGpuTexture_set(&r, d);
-                        obj = NULL; //consume
+                obj->sampler        = ScnApiMetal_device_allocSampler(dev, &cfg->sampler);
+                if(ScnGpuSampler_isNull(obj->sampler)){
+                    printf("ScnApiMetal_device_allocTexture::ScnApiMetal_device_allocSampler failed.\n");
+                } else {
+                    ScnGpuTextureRef d = ScnGpuTexture_alloc(dev->ctx);
+                    if(!ScnGpuTexture_isNull(d)){
+                        STScnGpuTextureApiItf itf;
+                        ScnMemory_setZeroSt(itf);
+                        itf.free        = ScnApiMetal_texture_free;
+                        itf.sync        = ScnApiMetal_texture_sync;
+                        if(!ScnGpuTexture_prepare(d, &itf, obj)){
+                            printf("ScnApiMetal_device_allocTexture::ScnGpuTexture_prepare failed.\n");
+                        } else {
+                            //apply data
+                            if(srcProps != NULL && srcData != NULL){
+                                MTLRegion region = { { 0, 0, 0 }, {cfg->width, cfg->height, 1} };
+                                [tex replaceRegion:region mipmapLevel:0 withBytes:srcData bytesPerRow:srcProps->bytesPerLine];
+                            }
+                            //
+                            ScnGpuTexture_set(&r, d);
+                            obj = NULL; //consume
+                        }
+                        ScnGpuTexture_releaseAndNull(&d);
                     }
-                    ScnGpuTexture_releaseAndNull(&d);
-                }
-                //apply data
-                if(srcProps != NULL && srcData != NULL){
-                    MTLRegion region = { { 0, 0, 0 }, {cfg->width, cfg->height, 1} };
-                    [tex replaceRegion:region mipmapLevel:0 withBytes:srcData bytesPerRow:srcProps->bytesPerLine];
                 }
             }
             //
@@ -630,6 +734,7 @@ void ScnApiMetal_texture_free(void* pObj){
             [obj->tex release];
             obj->tex = nil;
         }
+        ScnGpuSampler_releaseAndNull(&obj->sampler);
         ScnContext_null(&obj->ctx);
     }
     ScnContext_mfree(ctx, obj);
@@ -701,7 +806,7 @@ ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void*
             STScnApiMetalRenderStates_destroy(&renderStates);
         } else {
             CGSize viewSz = mtkView.drawableSize;
-            memset(obj, 0, sizeof(*obj));
+            ScnMemory_setZeroSt(*obj);
             ScnContext_set(&obj->ctx, dev->ctx);
             obj->itf            = dev->itf;
             obj->mtkView        = mtkView; [obj->mtkView retain];
@@ -725,7 +830,7 @@ ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void*
             ScnGpuFramebuffRef d = ScnGpuFramebuff_alloc(dev->ctx);
             if(!ScnGpuFramebuff_isNull(d)){
                 STScnGpuFramebuffApiItf itf;
-                memset(&itf, 0, sizeof(itf));
+                ScnMemory_setZeroSt(itf);
                 itf.free        = ScnApiMetal_framebuff_view_free;
                 itf.getSize     = ScnApiMetal_framebuff_view_getSize;
                 itf.syncSize    = ScnApiMetal_framebuff_view_syncSize;
@@ -901,9 +1006,8 @@ ScnBOOL ScnApiMetal_device_render(void* pObj, ScnGpuBufferRef pFbPropsBuff, ScnG
                         break;
                    case ENScnRenderCmd_SetTexture:     //activates the texture in a specific slot-index
                         if(ScnTexture_isNull(c->setTexture.ref)){
-                            printf("ERROR, ENScnRenderCmd_SetTexture::ScnTexture_isNull.\n");
                             [rndrEnc setFragmentTexture:nil atIndex:c->setTexture.index];
-                            //printf("setFragmentTexture(idx2, nil).\n");
+                            [rndrEnc setFragmentSamplerState:nil atIndex:c->setTexture.index];
                         } else {
                             ScnGpuTextureRef texRef = ScnTexture_getCurrentRenderSlot(c->setTexture.ref);
                             if(ScnGpuTexture_isNull(texRef)){
@@ -911,11 +1015,18 @@ ScnBOOL ScnApiMetal_device_render(void* pObj, ScnGpuBufferRef pFbPropsBuff, ScnG
                                 r = ScnFALSE;
                             } else {
                                 STScnApiMetalTexture* tex = (STScnApiMetalTexture*)ScnGpuTexture_getApiItfParam(texRef);
-                                if(tex == NULL || tex->tex == nil){
-                                    printf("ERROR, ENScnRenderCmd_SetVertexBuff::tex->tex.\n");
+                                if(tex == NULL || tex->tex == nil || ScnGpuSampler_isNull(tex->sampler)){
+                                    printf("ERROR, ENScnRenderCmd_SetVertexBuff::tex->tex is NULL.\n");
                                     r = ScnFALSE;
                                 } else {
-                                    [rndrEnc setFragmentTexture:tex->tex atIndex:c->setTexture.index];
+                                    STScnApiMetalSampler* smplr = (STScnApiMetalSampler*)ScnGpuSampler_getApiItfParam(tex->sampler);
+                                    if(smplr->smplr == nil){
+                                        printf("ERROR, ENScnRenderCmd_SetVertexBuff::smplr->smplr is NULL.\n");
+                                        r = ScnFALSE;
+                                    } else {
+                                        [rndrEnc setFragmentTexture:tex->tex atIndex:c->setTexture.index];
+                                        [rndrEnc setFragmentSamplerState:smplr->smplr atIndex:c->setTexture.index];
+                                    }
                                 }
                             }
                         }
@@ -1068,7 +1179,7 @@ ScnBOOL ScnApiMetal_framebuff_view_setProps(void* pObj, const STScnGpuFramebuffP
 // STScnApiMetalRenderStates
 
 void STScnApiMetalRenderStates_init(STScnApiMetalRenderStates* obj){
-    memset(obj, 0, sizeof(*obj));
+    ScnMemory_setZeroSt(*obj);
 }
 
 void STScnApiMetalRenderStates_destroy(STScnApiMetalRenderStates* obj){

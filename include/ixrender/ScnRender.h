@@ -58,15 +58,19 @@ STScnGpuDeviceDesc ScnRender_getDeviceDesc(ScnRenderRef ref);
 
 //model
 
-ScnModel2dRef ScnRender_allocModel(ScnRenderRef ref);
+ScnModel2dRef       ScnRender_allocModel(ScnRenderRef ref);
 
 //framebuffer
 
-ScnFramebuffRef ScnRender_allocFramebuff(ScnRenderRef ref);
+ScnFramebuffRef     ScnRender_allocFramebuff(ScnRenderRef ref);
 
 //texture
 
-ScnTextureRef ScnRender_allocTexture(ScnRenderRef ref, const ENScnResourceMode mode, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const optSrcProps, const void* optSrcData);
+ScnTextureRef       ScnRender_allocTexture(ScnRenderRef ref, const ENScnResourceMode mode, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const optSrcProps, const void* optSrcData);
+
+//sampler
+
+ScnGpuSamplerRef    ScnRender_allocSampler(ScnRenderRef ref, const STScnGpuSamplerCfg* const cfg);
 
 //job
 

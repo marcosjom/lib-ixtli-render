@@ -140,7 +140,7 @@ ScnBufferRef ScnVertexbuff_getIdxsBuff(ScnVertexbuffRef ref){
 //STScnVertexbuffSlot
 
 void ScnVertexbuffSlot_init(ScnContextRef ctx, STScnVertexbuffSlot* opq){
-    memset(opq, 0, sizeof(*opq));
+    ScnMemory_setZeroSt(*opq);
 }
 
 void ScnVertexbuffSlot_destroy(STScnVertexbuffSlot* opq){

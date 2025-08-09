@@ -33,7 +33,7 @@ void ScnGpuBuffer_destroyOpq(void* obj){
         if(opq->api.itf.free != NULL){
             (*opq->api.itf.free)(opq->api.itfParam);
         }
-        ScnMemory_setZeroSt(opq->api.itf, STScnGpuBufferApiItf);
+        ScnMemory_setZeroSt(opq->api.itf);
         opq->api.itfParam = NULL;
     }
 }
@@ -49,7 +49,7 @@ ScnBOOL ScnGpuBuffer_prepare(ScnGpuBufferRef ref, const STScnGpuBufferApiItf* it
             if(opq->api.itf.free != NULL){
                 (*opq->api.itf.free)(opq->api.itfParam);
             }
-            ScnMemory_setZeroSt(opq->api.itf, STScnGpuBufferApiItf);
+            ScnMemory_setZeroSt(opq->api.itf);
             opq->api.itfParam = NULL;
             //
             if(itf != NULL){

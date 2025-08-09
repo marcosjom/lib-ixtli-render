@@ -32,7 +32,7 @@ void ScnGpuDevice_destroyOpq(void* obj){
         if(opq->api.itf.free != NULL){
             (*opq->api.itf.free)(opq->api.itfParam);
         }
-        ScnMemory_setZeroSt(opq->api.itf, STScnGpuDeviceApiItf);
+        ScnMemory_setZeroSt(opq->api.itf);
         opq->api.itfParam = NULL;
     }
 }
@@ -48,7 +48,7 @@ ScnBOOL ScnGpuDevice_prepare(ScnGpuDeviceRef ref, const STScnGpuDeviceApiItf* it
             if(opq->api.itf.free != NULL){
                 (*opq->api.itf.free)(opq->api.itfParam);
             }
-            ScnMemory_setZeroSt(opq->api.itf, STScnGpuDeviceApiItf);
+            ScnMemory_setZeroSt(opq->api.itf);
             opq->api.itfParam = NULL;
             //
             if(itf != NULL){
@@ -89,6 +89,11 @@ ScnGpuFramebuffRef ScnGpuDevice_allocFramebuffFromOSView(ScnGpuDeviceRef ref, vo
 ScnGpuTextureRef ScnGpuDevice_allocTexture(ScnGpuDeviceRef ref, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData){
     STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return (opq->api.itf.allocTexture != NULL ? (*opq->api.itf.allocTexture)(opq->api.itfParam, cfg, srcProps, srcData) : (ScnGpuTextureRef)ScnObjRef_Zero);
+}
+
+ScnGpuSamplerRef ScnGpuDevice_allocSampler(ScnGpuDeviceRef ref, const STScnGpuSamplerCfg* const cfg){
+    STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    return (opq->api.itf.allocSampler != NULL ? (*opq->api.itf.allocSampler)(opq->api.itfParam, cfg) : (ScnGpuSamplerRef)ScnGpuSamplerRef_Zero);
 }
 
 ScnBOOL ScnGpuDevice_render(ScnGpuDeviceRef ref, ScnGpuBufferRef fbPropsBuff, ScnGpuBufferRef mdlsPropsBuff, const struct STScnRenderCmd* const cmds, const ScnUI32 cmdsSz){

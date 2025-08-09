@@ -6,7 +6,6 @@
 //
 
 #include "ixrender/type/ScnBitmapProps.h"
-#include <string.h>
 
 //
 
@@ -32,7 +31,7 @@ STScnBitmapProps ScnBitmapProps_build(const ScnSI32 width, const ScnSI32 height,
     if(color < (sizeof(ScnBitmap_colorMap) / sizeof(ScnBitmap_colorMap[0]))){
         const STScnBitmapColorDesc* d = &ScnBitmap_colorMap[color];
         if(d->bitsPerPx == 0){
-            ScnMemory_setZeroSt(r, STScnBitmapProps);
+            ScnMemory_setZeroSt(r);
         } else {
             r.bitsPerPx = d->bitsPerPx;
             {

@@ -8,7 +8,6 @@
 #ifndef ScnObjRef_h
 #define ScnObjRef_h
 
-#include <string.h> //for memset (in SCN_REF_STRUCT_METHODS_DEC)
 #include "ixrender/core/ScnContext.h"
 #include "ixrender/core/ScnSharedPtr.h"
 
@@ -52,7 +51,7 @@ SC_INLN void    ScnObjRef_set(ScnObjRef* ref, ScnObjRef other) { if(!ScnObjRef_i
         if(opq != NULL){ \
             STScnSharedPtr* ptr = ScnSharedPtr_alloc(ctx.itf, STNAME ##_destroyOpq, opq, #STNAME "_ptr"); \
             if(ptr != NULL){ \
-                memset(opq, 0, opqSz); \
+                ScnMemset(opq, 0, opqSz); \
                 STNAME ##_initZeroedOpq(ctx, opq); \
                 r.ptr = ptr; opq = NULL; \
             } \

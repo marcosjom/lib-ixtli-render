@@ -12,14 +12,6 @@
 #include "ixrender/type/ScnPoint.h"
 #include "ixrender/type/ScnSize.h"
 
-#if defined(SNC_COMPILING_SHADER)
-    //for sqrt(), sin(), cos(), etc...
-#elif defined(__OBJC__)
-#   import <Foundation/Foundation.h> //for sqrt(), sin(), cos(), etc...
-#else
-#   include <math.h> //for sqrt(), sin(), cos(), etc...
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -83,8 +75,8 @@ SC_INLN void ScnMatrix2D_scale(STScnMatrix2D* obj, const STScnSize2D s){
 
 #ifndef SNC_COMPILING_SHADER
 SC_INLN void ScnMatrix2D_rotateRad(STScnMatrix2D* obj, const ScnFLOAT rad){
-    const ScnFLOAT vSin    = sin(rad);
-    const ScnFLOAT vCos    = cos(rad);
+    const ScnFLOAT vSin    = ScnSinf(rad);
+    const ScnFLOAT vCos    = ScnCosf(rad);
     const ScnFLOAT e00     = obj->e00;
     const ScnFLOAT e10     = obj->e10;
     obj->e00    = (e00 * vCos)  + (obj->e01 * vSin);
@@ -97,8 +89,8 @@ SC_INLN void ScnMatrix2D_rotateRad(STScnMatrix2D* obj, const ScnFLOAT rad){
 #ifndef SNC_COMPILING_SHADER
 SC_INLN void ScnMatrix2D_rotateDeg(STScnMatrix2D* obj, const ScnFLOAT deg){
     const ScnFLOAT rad     = DEG_2_RAD(deg);
-    const ScnFLOAT vSin    = sin(rad);
-    const ScnFLOAT vCos    = cos(rad);
+    const ScnFLOAT vSin    = ScnSinf(rad);
+    const ScnFLOAT vCos    = ScnCosf(rad);
     const ScnFLOAT e00     = obj->e00;
     const ScnFLOAT e10     = obj->e10;
     obj->e00    = (e00 * vCos)  + (obj->e01 * vSin);
@@ -157,8 +149,8 @@ SC_INLN STScnMatrix2D ScnMatrix2D_inverse(const STScnMatrix2D* obj){
 
 #ifndef SNC_COMPILING_SHADER
 SC_INLN STScnMatrix2D ScnMatrix2D_fromTransforms(const STScnPoint2D traslation, const ScnFLOAT radRot, const STScnSize2D scale){
-    const ScnFLOAT vSin = sin(radRot);
-    const ScnFLOAT vCos = cos(radRot);
+    const ScnFLOAT vSin = ScnSinf(radRot);
+    const ScnFLOAT vCos = ScnCosf(radRot);
     return (STScnMatrix2D) {
         vCos * scale.width, -vSin * scale.height, traslation.x
         , vSin * scale.width, vCos * scale.height, traslation.y

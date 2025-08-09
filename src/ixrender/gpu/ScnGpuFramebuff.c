@@ -32,7 +32,7 @@ void ScnGpuFramebuff_destroyOpq(void* obj){
         if(opq->api.itf.free != NULL){
             (*opq->api.itf.free)(opq->api.itfParam);
         }
-        ScnMemory_setZeroSt(opq->api.itf, STScnGpuFramebuffApiItf);
+        ScnMemory_setZeroSt(opq->api.itf);
         opq->api.itfParam = NULL;
     }
 }
@@ -48,7 +48,7 @@ ScnBOOL ScnGpuFramebuff_prepare(ScnGpuFramebuffRef ref, const STScnGpuFramebuffA
             if(opq->api.itf.free != NULL){
                 (*opq->api.itf.free)(opq->api.itfParam);
             }
-            ScnMemory_setZeroSt(opq->api.itf, STScnGpuFramebuffApiItf);
+            ScnMemory_setZeroSt(opq->api.itf);
             opq->api.itfParam = NULL;
             //
             if(itf != NULL){

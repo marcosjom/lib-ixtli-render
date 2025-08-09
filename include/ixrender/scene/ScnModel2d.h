@@ -61,6 +61,9 @@ ScnBOOL             ScnModel2d_i0FlagForSync(ScnModel2dRef ref, STScnVertexIdxPt
 ScnBOOL             ScnModel2d_i1FlagForSync(ScnModel2dRef ref, STScnVertexIdxPtr ptr, const ScnUI32 count);
 ScnBOOL             ScnModel2d_i2FlagForSync(ScnModel2dRef ref, STScnVertexIdxPtr ptr, const ScnUI32 count);
 ScnBOOL             ScnModel2d_i3FlagForSync(ScnModel2dRef ref, STScnVertexIdxPtr ptr, const ScnUI32 count);
+ScnBOOL             ScnModel2d_i1UpdateTexture(ScnModel2dRef ref, STScnVertexIdxPtr ptr, ScnTextureRef tex);
+ScnBOOL             ScnModel2d_i2UpdateTexture(ScnModel2dRef ref, STScnVertexIdxPtr ptr, ScnTextureRef tex, const ScnUI32 iTex);
+ScnBOOL             ScnModel2d_i3UpdateTexture(ScnModel2dRef ref, STScnVertexIdxPtr ptr, ScnTextureRef tex, const ScnUI32 iTex);
 
 //draw commands to consumer
 

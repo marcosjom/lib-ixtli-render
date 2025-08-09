@@ -210,7 +210,6 @@ STScnVertex2DTex3Ptr ScnModel2d_addDrawTex3(ScnModel2dRef ref, const ENScnRender
     return r;
 }
 
-//dbg
 STScnModel2dCmd* ScnModel2d_findDrawVertCmdLockedOpq_(STScnModel2dOpq* opq, const ENScnModelDrawCmdType type, void* ptrPtr, const ScnUI32 sizePerItm, const ScnUI32 count){
     ScnArrayEmbed_foreach(&opq->cmds, STScnModel2dCmd, cmd,
         if(cmd->type == type && (void*)cmd->verts.v0.ptr <= (void*)ptrPtr && ((ScnBYTE*)ptrPtr + (sizePerItm * count)) <= ((ScnBYTE*)cmd->verts.v0.ptr + (sizePerItm * cmd->verts.count))){
@@ -227,7 +226,10 @@ ScnBOOL ScnModel2d_v0FlagForSync(ScnModel2dRef ref, STScnVertex2DPtr ptr, const 
     STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnVertexbuffs_isNull(opq->vbuffs)){
-        SCN_ASSERT(NULL != ScnModel2d_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Dv0, ptr.ptr, sizeof(ptr.ptr[0]), count)) //user logic error
+        SCN_ASSERT(
+                   NULL != ScnModel2d_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Dv0, ptr.ptr, sizeof(ptr.ptr[0]), count)
+                   || NULL != ScnModel2d_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Di0, ptr.ptr, sizeof(ptr.ptr[0]), count)
+                   ) //user logic error
         r = ScnVertexbuffs_v0Invalidate(opq->vbuffs, ptr, count);
     }
     ScnMutex_unlock(opq->mutex);
@@ -239,7 +241,10 @@ ScnBOOL ScnModel2d_v1FlagForSync(ScnModel2dRef ref, STScnVertex2DTexPtr ptr, con
     STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnVertexbuffs_isNull(opq->vbuffs)){
-        SCN_ASSERT(NULL != ScnModel2d_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Dv1, ptr.ptr, sizeof(ptr.ptr[0]), count)) //user logic error
+        SCN_ASSERT(
+                   NULL != ScnModel2d_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Dv1, ptr.ptr, sizeof(ptr.ptr[0]), count)
+                   || NULL != ScnModel2d_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Di1, ptr.ptr, sizeof(ptr.ptr[0]), count)
+                   ) //user logic error
         r = ScnVertexbuffs_v1Invalidate(opq->vbuffs, ptr, count);
     }
     ScnMutex_unlock(opq->mutex);
@@ -251,7 +256,10 @@ ScnBOOL ScnModel2d_v2FlagForSync(ScnModel2dRef ref, STScnVertex2DTex2Ptr ptr, co
     STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnVertexbuffs_isNull(opq->vbuffs)){
-        SCN_ASSERT(NULL != ScnModel2d_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Dv2, ptr.ptr, sizeof(ptr.ptr[0]), count)) //user logic error
+        SCN_ASSERT(
+                   NULL != ScnModel2d_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Dv2, ptr.ptr, sizeof(ptr.ptr[0]), count)
+                   || NULL != ScnModel2d_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Di2, ptr.ptr, sizeof(ptr.ptr[0]), count)
+                   ) //user logic error
         r = ScnVertexbuffs_v2Invalidate(opq->vbuffs, ptr, count);
     }
     ScnMutex_unlock(opq->mutex);
@@ -263,13 +271,15 @@ ScnBOOL ScnModel2d_v3FlagForSync(ScnModel2dRef ref, STScnVertex2DTex3Ptr ptr, co
     STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(!ScnVertexbuffs_isNull(opq->vbuffs)){
-        SCN_ASSERT(NULL != ScnModel2d_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Dv3, ptr.ptr, sizeof(ptr.ptr[0]), count)) //user logic error
+        SCN_ASSERT(
+                   NULL != ScnModel2d_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Dv3, ptr.ptr, sizeof(ptr.ptr[0]), count)
+                   || NULL != ScnModel2d_findDrawVertCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Di3, ptr.ptr, sizeof(ptr.ptr[0]), count)
+                   ) //user logic error
         r = ScnVertexbuffs_v3Invalidate(opq->vbuffs, ptr, count);
     }
     ScnMutex_unlock(opq->mutex);
     return r;
 }
-
 
 ScnBOOL ScnModel2d_v1UpdateTexture(ScnModel2dRef ref, STScnVertex2DTexPtr ptr, ScnTextureRef tex){
     ScnBOOL r = ScnFALSE;
@@ -331,6 +341,15 @@ ScnBOOL ScnModel2d_v3UpdateTexture(ScnModel2dRef ref, STScnVertex2DTex3Ptr ptr, 
 }
 
 //
+
+STScnModel2dCmd* ScnModel2d_findDrawIndexedCmdLockedOpq_(STScnModel2dOpq* opq, const ENScnModelDrawCmdType type, void* ptrPtr, const ScnUI32 sizePerItm, const ScnUI32 count){
+    ScnArrayEmbed_foreach(&opq->cmds, STScnModel2dCmd, cmd,
+        if(cmd->type == type && (void*)cmd->idxs.i0.ptr <= (void*)ptrPtr && ((ScnBYTE*)ptrPtr + (sizePerItm * count)) <= ((ScnBYTE*)cmd->idxs.i0.ptr + (sizePerItm * cmd->idxs.count))){
+            return cmd;
+        }
+    );
+    return NULL;
+}
 
 STScnVertexIdxPtr ScnModel2d_addDrawIndexed(ScnModel2dRef ref, const ENScnRenderShape shape, const ScnUI32 countIdxs, const ScnUI32 countVerts, STScnVertex2DPtr* dstVerts){
     STScnVertexIdxPtr r = STScnVertexIdxPtr_Zero;
@@ -567,6 +586,65 @@ ScnBOOL ScnModel2d_i3FlagForSync(ScnModel2dRef ref, STScnVertexIdxPtr ptr, const
     if(!ScnVertexbuffs_isNull(opq->vbuffs)){
         SCN_ASSERT(NULL != ScnModel2d_findDrawIdxCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Di3, ptr, count)); //user logic error
         r = ScnVertexbuffs_v3IdxsInvalidate(opq->vbuffs, ptr, count);
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnBOOL ScnModel2d_i1UpdateTexture(ScnModel2dRef ref, STScnVertexIdxPtr ptr, ScnTextureRef tex){
+    ScnBOOL r = ScnFALSE;
+    STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    SCN_ASSERT(!ScnTexture_isNull(tex))
+    if(!(!ScnTexture_isNull(tex))){
+        return r;
+    }
+    ScnMutex_lock(opq->mutex);
+    if(!ScnVertexbuffs_isNull(opq->vbuffs)){
+        STScnModel2dCmd* cmd = ScnModel2d_findDrawIndexedCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Di1, ptr.ptr, sizeof(ptr.ptr[0]), 1);
+        SCN_ASSERT(cmd != NULL) //user logic error
+        if(cmd != NULL){
+            ScnTexture_set(&cmd->texs[0], tex);
+        }
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnBOOL ScnModel2d_i2UpdateTexture(ScnModel2dRef ref, STScnVertexIdxPtr ptr, ScnTextureRef tex, const ScnUI32 iTex){
+    ScnBOOL r = ScnFALSE;
+    SCN_ASSERT(iTex >= 0 && iTex < ENScnGpuTextureIdx_Count)
+    SCN_ASSERT(!ScnTexture_isNull(tex))
+    if(!(iTex >= 0 && iTex < ENScnGpuTextureIdx_Count && !ScnTexture_isNull(tex))){
+        return r;
+    }
+    STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnVertexbuffs_isNull(opq->vbuffs)){
+        STScnModel2dCmd* cmd = ScnModel2d_findDrawIndexedCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Di2, ptr.ptr, sizeof(ptr.ptr[0]), 1);
+        SCN_ASSERT(cmd != NULL) //user logic error
+        if(cmd != NULL){
+            ScnTexture_set(&cmd->texs[iTex], tex);
+        }
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnBOOL ScnModel2d_i3UpdateTexture(ScnModel2dRef ref, STScnVertexIdxPtr ptr, ScnTextureRef tex, const ScnUI32 iTex){
+    ScnBOOL r = ScnFALSE;
+    SCN_ASSERT(iTex >= 0 && iTex < ENScnGpuTextureIdx_Count)
+    SCN_ASSERT(!ScnTexture_isNull(tex))
+    if(!(iTex >= 0 && iTex < ENScnGpuTextureIdx_Count && !ScnTexture_isNull(tex))){
+        return r;
+    }
+    STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnVertexbuffs_isNull(opq->vbuffs)){
+        STScnModel2dCmd* cmd = ScnModel2d_findDrawIndexedCmdLockedOpq_(opq, ENScnModelDrawCmdType_2Di3, ptr.ptr, sizeof(ptr.ptr[0]), 1);
+        SCN_ASSERT(cmd != NULL) //user logic error
+        if(cmd != NULL){
+            ScnTexture_set(&cmd->texs[iTex], tex);
+        }
     }
     ScnMutex_unlock(opq->mutex);
     return r;

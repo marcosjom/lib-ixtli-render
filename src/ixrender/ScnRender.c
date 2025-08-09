@@ -47,7 +47,7 @@ void ScnRenderFbuffState_destroy(STScnRenderFbuffState* obj);
 //
 
 SC_INLN void ScnRenderFbuffState_resetActiveState(STScnRenderFbuffState* obj){
-    memset(&obj->active, 0, sizeof(obj->active));
+    ScnMemory_setZeroSt(obj->active);
 }
 
 
@@ -182,7 +182,7 @@ void ScnRender_destroyOpq(void* obj){
     ScnGpuDevice_releaseAndNull(&opq->gpuDev);
     //api
     {
-        ScnMemory_setZeroSt(opq->api.itf, STScnApiItf);
+        ScnMemory_setZeroSt(opq->api.itf);
         opq->api.itfParam = NULL;
     }
     //
@@ -333,6 +333,24 @@ ScnTextureRef ScnRender_allocTexture(ScnRenderRef ref, const ENScnResourceMode m
     return r;
 }
 
+//sampler
+
+ScnGpuSamplerRef ScnRender_allocSampler(ScnRenderRef ref, const STScnGpuSamplerCfg* const cfg){
+    ScnGpuSamplerRef r = ScnObjRef_Zero;
+    STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if(!ScnGpuDevice_isNull(opq->gpuDev)){
+        ScnGpuSamplerRef s = ScnGpuDevice_allocSampler(opq->gpuDev, cfg);
+        if(ScnGpuSampler_isNull(s)){
+            printf("ERROR, ScnRender_allocTexture::ScnGpuDevice_allocSampler failed.\n");
+            ScnGpuSampler_set(&r, s);
+        }
+        ScnGpuSampler_releaseAndNull(&s);
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
 //Vertices
 
 ScnVertexbuffsRef ScnRender_getDefaultVertexbuffs(ScnRenderRef ref){
@@ -386,9 +404,9 @@ ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, cons
     ScnBufferRef vBuffs[ENScnVertexType_Count];
     ScnBufferRef iBuffs[ENScnVertexType_Count];
     ScnVertexbuffRef vbs[ENScnVertexType_Count];
-    memset(vBuffs, 0, sizeof(vBuffs));
-    memset(iBuffs, 0, sizeof(iBuffs));
-    memset(vbs, 0, sizeof(vbs));
+    ScnMemory_setZeroSt(vBuffs);
+    ScnMemory_setZeroSt(iBuffs);
+    ScnMemory_setZeroSt(vbs);
     //initial bufffers
     if(r){
         ScnSI32 i; for(i = 0; i < ENScnVertexType_Count; i++){
@@ -1446,7 +1464,7 @@ void ScnRender_cmdDawIndexes(ScnRenderRef ref, const ENScnRenderShape mode, cons
 //STScnRenderFbuffState
 
 void ScnRenderFbuffState_init(ScnContextRef ctx, STScnRenderFbuffState* obj){
-    memset(obj, 0, sizeof(*obj));
+    ScnMemory_setZeroSt(*obj);
     ScnContext_set(&obj->ctx, ctx);
     //stacks
     {
@@ -1468,7 +1486,7 @@ void ScnRenderFbuffState_destroy(STScnRenderFbuffState* obj){
 //STScnRenderJobObj
 
 void ScnRenderJobObj_init(STScnRenderJobObj* obj){
-    memset(obj, 0, sizeof(*obj));
+    ScnMemory_setZeroSt(*obj);
 }
 
 void ScnRenderJobObj_destroy(STScnRenderJobObj* obj){

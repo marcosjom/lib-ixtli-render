@@ -11,7 +11,6 @@
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/core/ScnContext.h"
 #include "ixrender/core/ScnCompare.h"
-#include <string.h> //memset
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,7 +27,7 @@ struct { \
 
 #define ScnArraySorted_init(CTX_REF, ARRSTPTR, INITIAL_SZ, GROWTH, ARR_TYPE, CMP_FUNC) \
 { \
-    memset(ARRSTPTR, 0, sizeof(*ARRSTPTR)); \
+    ScnMemory_setZeroSt(*(ARRSTPTR)); \
     if(INITIAL_SZ > 0){ \
         ARR_TYPE* arrN = (ARR_TYPE*)ScnContext_malloc(CTX_REF, sizeof(ARR_TYPE) * (INITIAL_SZ), #ARRSTPTR); \
         if(arrN != NULL){ \

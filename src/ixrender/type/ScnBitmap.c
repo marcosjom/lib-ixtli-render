@@ -134,7 +134,7 @@ ScnBOOL ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI pDstPos,
             if(dstPosNorm.x == 0 && srcRectNorm.width == opq->props.size.width && opq->props.bytesPerLine == srcProps->bytesPerLine){
                 //full lines memcpy
                 SCN_ASSERT(pSrcRect.height <= opq->props.size.height);
-                memcpy(opq->data, srcData, opq->props.bytesPerLine * pSrcRect.height);
+                ScnMemcpy(opq->data, srcData, opq->props.bytesPerLine * pSrcRect.height);
                 r = ScnTRUE;
             } else {
                 //copy lines
@@ -143,7 +143,7 @@ ScnBOOL ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI pDstPos,
                 const ScnBYTE* srcAfterEnd = src + (srcRectNorm.height * srcProps->bytesPerLine);
                 const ScnUI32 copyPerLn = srcRectNorm.width * (srcProps->bitsPerPx / 8);
                 while(src < srcAfterEnd){
-                    memcpy(dst, src, copyPerLn);
+                    ScnMemcpy(dst, src, copyPerLn);
                     //next line
                     dst += opq->props.bytesPerLine;
                     src += srcProps->bytesPerLine;

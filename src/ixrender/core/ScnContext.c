@@ -7,7 +7,6 @@
 
 #include "ixrender/core/ScnContext.h"
 #include "ixrender/core/ScnSharedPtr.h"
-#include <string.h> //memset, memcpy
 
 //ScnContextRef
 
@@ -24,8 +23,8 @@ ScnContextRef ScnContext_alloc(STScnContextItf* ctx){
         STScnContextItf* itf = (STScnContextItf*)(ctx->mem.malloc)(sizeof(STScnContextItf), "ScnContext_alloc::itf");
         STScnSharedPtr* ptr  = ScnSharedPtr_alloc(ctx, ScnContext_destroyOpq_, opq, "ScnContext_alloc");
         if(opq != NULL && itf != NULL && ptr != NULL){
-            memset(opq, 0, sizeof(*opq));
-            memcpy(itf, ctx, sizeof(*itf));
+            ScnMemory_setZeroSt(*opq);
+            ScnMemcpy(itf, ctx, sizeof(*itf));
             r.ptr = ptr; ptr = NULL; //consume
             r.itf = itf; itf = NULL; //consume
             opq = NULL; //consume
@@ -127,7 +126,7 @@ ScnMutexRef ScnContext_allocMutex(ScnContextRef ref){
 
 STScnContextItf ScnContextItf_getDefault(void){
     STScnContextItf itf;
-    memset(&itf, 0, sizeof(itf));
+    ScnMemory_setZeroSt(itf);
     ScnContextItf_fillMissingMembers(&itf);
     return itf;
 }

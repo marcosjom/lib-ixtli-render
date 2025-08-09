@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		2C0FA2622E463066007E31FC /* ScnResourceMode.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C0FA2612E463066007E31FC /* ScnResourceMode.h */; };
+		2C378E052E467CF700C73424 /* ScnGpuSampler.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C378E042E467CF700C73424 /* ScnGpuSampler.c */; };
+		2C378E062E467CF700C73424 /* ScnGpuSampler.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C378E042E467CF700C73424 /* ScnGpuSampler.c */; };
+		2C378E082E467D0800C73424 /* ScnGpuSampler.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C378E072E467D0800C73424 /* ScnGpuSampler.h */; };
+		2C378E492E4752A400C73424 /* ixtli-defs.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C378E482E4752A400C73424 /* ixtli-defs.c */; };
+		2C378E4A2E4752A400C73424 /* ixtli-defs.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C378E482E4752A400C73424 /* ixtli-defs.c */; };
 		2C42DD9E2E3A2C9300EFC81E /* ScnGpuModelProps2d.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C42DD9D2E3A2C9300EFC81E /* ScnGpuModelProps2d.h */; };
 		2C42DDA22E3A2F1400EFC81E /* ScnMatrix.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C42DDA12E3A2F1400EFC81E /* ScnMatrix.h */; };
 		2C42DDA62E3A360900EFC81E /* ScnGpuFramebuffProps.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C42DDA52E3A360900EFC81E /* ScnGpuFramebuffProps.h */; };
@@ -48,7 +53,6 @@
 		2C5CD0672E3661E2007BBDA6 /* ScnCompare.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C5CD0552E3661E2007BBDA6 /* ScnCompare.h */; };
 		2C5CD0682E3661E2007BBDA6 /* ScnContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C5CD0562E3661E2007BBDA6 /* ScnContext.h */; };
 		2C5CD06B2E3661F2007BBDA6 /* ixtli-defs.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C5CD0692E3661F2007BBDA6 /* ixtli-defs.h */; };
-		2C5CD06C2E3661F2007BBDA6 /* ixtli-render.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C5CD06A2E3661F2007BBDA6 /* ixtli-render.h */; };
 		2C5CD06D2E366585007BBDA6 /* ScnGpuVertexbuff.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C5CCFA92E355799007BBDA6 /* ScnGpuVertexbuff.c */; };
 		2C5CD06E2E36667E007BBDA6 /* ScnGpuRenderbuff.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C5CCFB32E355805007BBDA6 /* ScnGpuRenderbuff.c */; };
 		2C5CD06F2E3667D5007BBDA6 /* ScnGpuFramebuff.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C5CCFB72E355853007BBDA6 /* ScnGpuFramebuff.c */; };
@@ -129,7 +133,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2C0FA2612E463066007E31FC /* ScnResourceMode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnResourceMode.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/scene/ScnResourceMode.h"; sourceTree = "<absolute>"; };
+		2C0FA2612E463066007E31FC /* ScnResourceMode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnResourceMode.h; path = ../../../include/ixrender/scene/ScnResourceMode.h; sourceTree = SOURCE_ROOT; };
+		2C378E042E467CF700C73424 /* ScnGpuSampler.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnGpuSampler.c; path = ../../../src/ixrender/gpu/ScnGpuSampler.c; sourceTree = SOURCE_ROOT; };
+		2C378E072E467D0800C73424 /* ScnGpuSampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnGpuSampler.h; path = ../../../include/ixrender/gpu/ScnGpuSampler.h; sourceTree = SOURCE_ROOT; };
+		2C378E482E4752A400C73424 /* ixtli-defs.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "ixtli-defs.c"; sourceTree = "<group>"; };
 		2C42DD9D2E3A2C9300EFC81E /* ScnGpuModelProps2d.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnGpuModelProps2d.h; path = ../../../include/ixrender/gpu/ScnGpuModelProps2d.h; sourceTree = SOURCE_ROOT; };
 		2C42DDA12E3A2F1400EFC81E /* ScnMatrix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnMatrix.h; path = ../../../include/ixrender/type/ScnMatrix.h; sourceTree = SOURCE_ROOT; };
 		2C42DDA52E3A360900EFC81E /* ScnGpuFramebuffProps.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnGpuFramebuffProps.h; path = ../../../include/ixrender/gpu/ScnGpuFramebuffProps.h; sourceTree = SOURCE_ROOT; };
@@ -174,7 +181,6 @@
 		2C5CD05C2E3661E2007BBDA6 /* ScnObjRef.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnObjRef.h; path = ../../../include/ixrender/core/ScnObjRef.h; sourceTree = SOURCE_ROOT; };
 		2C5CD05D2E3661E2007BBDA6 /* ScnSharedPtr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnSharedPtr.h; path = ../../../include/ixrender/core/ScnSharedPtr.h; sourceTree = SOURCE_ROOT; };
 		2C5CD0692E3661F2007BBDA6 /* ixtli-defs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "ixtli-defs.h"; path = "../../../include/ixrender/ixtli-defs.h"; sourceTree = SOURCE_ROOT; };
-		2C5CD06A2E3661F2007BBDA6 /* ixtli-render.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "ixtli-render.h"; path = "../../../include/ixrender/ixtli-render.h"; sourceTree = SOURCE_ROOT; };
 		2C5CD0722E36A186007BBDA6 /* ScnRender.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnRender.h; path = ../../../include/ixrender/ScnRender.h; sourceTree = SOURCE_ROOT; };
 		2C5CD0732E36A186007BBDA6 /* ScnRender.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnRender.c; path = ../../../src/ixrender/ScnRender.c; sourceTree = SOURCE_ROOT; };
 		2C5CD0762E36A72C007BBDA6 /* ScnBitmap.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnBitmap.c; path = ../../../src/ixrender/type/ScnBitmap.c; sourceTree = SOURCE_ROOT; };
@@ -199,13 +205,13 @@
 		2C5CD0F42E37BC03007BBDA6 /* ScnVertexbuff.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnVertexbuff.c; path = ../../../src/ixrender/scene/ScnVertexbuff.c; sourceTree = SOURCE_ROOT; };
 		2C5CD0F92E37BD10007BBDA6 /* ScnTexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnTexture.h; path = ../../../include/ixrender/scene/ScnTexture.h; sourceTree = SOURCE_ROOT; };
 		2C5CD0FA2E37BD10007BBDA6 /* ScnTexture.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnTexture.c; path = ../../../src/ixrender/scene/ScnTexture.c; sourceTree = SOURCE_ROOT; };
-		2C7F07572E4629F3009702BE /* ScnBitmapProps.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnBitmapProps.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/sys-nbframework/sys-nbframework-src/include/ixrender/type/ScnBitmapProps.h"; sourceTree = "<absolute>"; };
-		2C7F07592E462A02009702BE /* ScnBitmapProps.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ScnBitmapProps.c; sourceTree = "<group>"; };
+		2C7F07572E4629F3009702BE /* ScnBitmapProps.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnBitmapProps.h; path = "../../../../sys-nbframework/sys-nbframework-src/include/ixrender/type/ScnBitmapProps.h"; sourceTree = SOURCE_ROOT; };
+		2C7F07592E462A02009702BE /* ScnBitmapProps.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnBitmapProps.c; path = ../../../src/ixrender/type/ScnBitmapProps.c; sourceTree = SOURCE_ROOT; };
 		2C9C87EC2E3CBECB008005C8 /* libixtlu-render-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libixtlu-render-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2CB10CE62E3E49BC0056266A /* ScnNode2d.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnNode2d.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/scene/ScnNode2d.h"; sourceTree = "<absolute>"; };
-		2CB10CE72E3E49BC0056266A /* ScnNode2d.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ScnNode2d.c; sourceTree = "<group>"; };
-		2CB10CEB2E3E59E20056266A /* ScnAABBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnAABBox.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/type/ScnAABBox.h"; sourceTree = "<absolute>"; };
-		2CB10CED2E3EB51C0056266A /* ScnArrayEmbed.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnArrayEmbed.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/core/ScnArrayEmbed.h"; sourceTree = "<absolute>"; };
+		2CB10CE62E3E49BC0056266A /* ScnNode2d.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnNode2d.h; path = ../../../include/ixrender/scene/ScnNode2d.h; sourceTree = SOURCE_ROOT; };
+		2CB10CE72E3E49BC0056266A /* ScnNode2d.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnNode2d.c; path = ../../../src/ixrender/scene/ScnNode2d.c; sourceTree = SOURCE_ROOT; };
+		2CB10CEB2E3E59E20056266A /* ScnAABBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnAABBox.h; path = ../../../include/ixrender/type/ScnAABBox.h; sourceTree = SOURCE_ROOT; };
+		2CB10CED2E3EB51C0056266A /* ScnArrayEmbed.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnArrayEmbed.h; path = ../../../include/ixrender/core/ScnArrayEmbed.h; sourceTree = SOURCE_ROOT; };
 		2CB10CF22E3F985B0056266A /* ScnPngLoader.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnPngLoader.c; path = ../../../src/utils/ScnPngLoader.c; sourceTree = SOURCE_ROOT; };
 		2CB10CF32E3F985B0056266A /* SncPngLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SncPngLoader.h; path = ../../../src/utils/SncPngLoader.h; sourceTree = SOURCE_ROOT; };
 		2CB10D832E40C3F20056266A /* MetalKitViewDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MetalKitViewDelegate.h; sourceTree = "<group>"; };
@@ -278,6 +284,8 @@
 		2C5CCFA02E355724007BBDA6 /* gpu */ = {
 			isa = PBXGroup;
 			children = (
+				2C42DD9D2E3A2C9300EFC81E /* ScnGpuModelProps2d.h */,
+				2C42DDA52E3A360900EFC81E /* ScnGpuFramebuffProps.h */,
 				2C5CD0482E3661D4007BBDA6 /* ScnGpuDataType.h */,
 				2C5CD0892E36A86B007BBDA6 /* ScnGpuDevice.h */,
 				2C5CD08B2E36A879007BBDA6 /* ScnGpuDevice.c */,
@@ -287,12 +295,12 @@
 				2C5CCFA92E355799007BBDA6 /* ScnGpuVertexbuff.c */,
 				2C5CD0492E3661D4007BBDA6 /* ScnGpuFramebuff.h */,
 				2C5CCFB72E355853007BBDA6 /* ScnGpuFramebuff.c */,
+				2C378E072E467D0800C73424 /* ScnGpuSampler.h */,
+				2C378E042E467CF700C73424 /* ScnGpuSampler.c */,
 				2C5CD04B2E3661D4007BBDA6 /* ScnGpuTexture.h */,
 				2C5CCFAD2E3557B8007BBDA6 /* ScnGpuTexture.c */,
 				2C5CD04A2E3661D4007BBDA6 /* ScnGpuRenderbuff.h */,
 				2C5CCFB32E355805007BBDA6 /* ScnGpuRenderbuff.c */,
-				2C42DDA52E3A360900EFC81E /* ScnGpuFramebuffProps.h */,
-				2C42DD9D2E3A2C9300EFC81E /* ScnGpuModelProps2d.h */,
 			);
 			name = gpu;
 			path = ../../../src/ixrender/gpu;
@@ -388,7 +396,7 @@
 			isa = PBXGroup;
 			children = (
 				2C5CD0692E3661F2007BBDA6 /* ixtli-defs.h */,
-				2C5CD06A2E3661F2007BBDA6 /* ixtli-render.h */,
+				2C378E482E4752A400C73424 /* ixtli-defs.c */,
 				2C5CD0722E36A186007BBDA6 /* ScnRender.h */,
 				2C5CD0732E36A186007BBDA6 /* ScnRender.c */,
 				2C5CCF6A2E3509C8007BBDA6 /* core */,
@@ -444,6 +452,7 @@
 				2C5CD0832E36A74C007BBDA6 /* ScnSize.h in Headers */,
 				2CB10CEC2E3E59E20056266A /* ScnAABBox.h in Headers */,
 				2C5CD0842E36A74C007BBDA6 /* ScnColor.h in Headers */,
+				2C378E082E467D0800C73424 /* ScnGpuSampler.h in Headers */,
 				2C5CD0852E36A74C007BBDA6 /* ScnPoint.h in Headers */,
 				2C5CD0F72E37BC03007BBDA6 /* ScnVertexbuff.h in Headers */,
 				2C5CD0F82E37BC03007BBDA6 /* ScnBuffer.h in Headers */,
@@ -464,7 +473,6 @@
 				2C5CD0412E3661C4007BBDA6 /* ScnVertices.h in Headers */,
 				2C5CD04D2E3661D4007BBDA6 /* ScnGpuRenderbuff.h in Headers */,
 				2C5CD06B2E3661F2007BBDA6 /* ixtli-defs.h in Headers */,
-				2C5CD06C2E3661F2007BBDA6 /* ixtli-render.h in Headers */,
 				2C5CD04E2E3661D4007BBDA6 /* ScnGpuTexture.h in Headers */,
 				2C5CD04F2E3661D4007BBDA6 /* ScnGpuVertexbuff.h in Headers */,
 				2CB10D912E40DCA60056266A /* spng.h in Headers */,
@@ -600,6 +608,7 @@
 				2C9C87FD2E3CBF00008005C8 /* ScnMemory.c in Sources */,
 				2C9C87FE2E3CBF00008005C8 /* ScnGpuVertexbuff.c in Sources */,
 				2C9C88002E3CBF00008005C8 /* ScnFramebuff.c in Sources */,
+				2C378E492E4752A400C73424 /* ixtli-defs.c in Sources */,
 				2C9C88012E3CBF00008005C8 /* ScnVertexbuff.c in Sources */,
 				2C7F075A2E462A02009702BE /* ScnBitmapProps.c in Sources */,
 				2C9C88022E3CBF00008005C8 /* ScnMutex.c in Sources */,
@@ -609,6 +618,7 @@
 				2C9C88062E3CBF00008005C8 /* ScnGpuRenderbuff.c in Sources */,
 				2C9C88072E3CBF00008005C8 /* ScnApiMetal.m in Sources */,
 				2C9C88082E3CBF00008005C8 /* ScnGpuDevice.c in Sources */,
+				2C378E062E467CF700C73424 /* ScnGpuSampler.c in Sources */,
 				2C9C88092E3CBF00008005C8 /* ScnBitmap.c in Sources */,
 				2C9C880A2E3CBF00008005C8 /* ScnGpuTexture.c in Sources */,
 				2C9C880B2E3CBF00008005C8 /* ScnRange.c in Sources */,
@@ -636,6 +646,7 @@
 				2C5CD06E2E36667E007BBDA6 /* ScnGpuRenderbuff.c in Sources */,
 				2C5CD0F52E37BC03007BBDA6 /* ScnVertexbuff.c in Sources */,
 				2C5CD0F62E37BC03007BBDA6 /* ScnBuffer.c in Sources */,
+				2C378E4A2E4752A400C73424 /* ixtli-defs.c in Sources */,
 				2C5CD08C2E36A879007BBDA6 /* ScnGpuDevice.c in Sources */,
 				2C7F075B2E462A02009702BE /* ScnBitmapProps.c in Sources */,
 				2C5CCF702E350A31007BBDA6 /* ScnContext.c in Sources */,
@@ -645,6 +656,7 @@
 				2C5CCFC72E3634C7007BBDA6 /* ScnMemBlock.c in Sources */,
 				2C5CCFC82E3634C7007BBDA6 /* ScnMemElastic.c in Sources */,
 				2C5CD0742E36A186007BBDA6 /* ScnRender.c in Sources */,
+				2C378E052E467CF700C73424 /* ScnGpuSampler.c in Sources */,
 				2C5CCF712E350A31007BBDA6 /* ScnMemory.c in Sources */,
 				2C5CCF722E350A31007BBDA6 /* ScnMutex.c in Sources */,
 				2C5CCF732E350A31007BBDA6 /* ScnSharedPtr.c in Sources */,

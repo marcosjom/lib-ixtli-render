@@ -34,7 +34,7 @@ void ScnGpuTexture_destroyOpq(void* obj){
         if(opq->api.itf.free != NULL){
             (*opq->api.itf.free)(opq->api.itfParam);
         }
-        ScnMemory_setZeroSt(opq->api.itf, STScnGpuTextureApiItf);
+        ScnMemory_setZeroSt(opq->api.itf);
         opq->api.itfParam = NULL;
     }
 }
@@ -50,7 +50,7 @@ ScnBOOL ScnGpuTexture_prepare(ScnGpuTextureRef ref, const STScnGpuTextureApiItf*
             if(opq->api.itf.free != NULL){
                 (*opq->api.itf.free)(opq->api.itfParam);
             }
-            ScnMemory_setZeroSt(opq->api.itf, STScnGpuFramebuffApiItf);
+            ScnMemory_setZeroSt(opq->api.itf);
             opq->api.itfParam = NULL;
             //
             if(itf != NULL){

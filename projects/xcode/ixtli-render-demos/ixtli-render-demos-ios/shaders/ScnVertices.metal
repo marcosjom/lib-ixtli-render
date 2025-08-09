@@ -104,10 +104,10 @@ ixtliVertexShaderTex(constant STScnGpuFramebuffProps *fbProps [[buffer(0)]]
 fragment float4 ixtliFragmentShaderTex(
                                        RasterizerDataTex in [[stage_in]]
                                        , texture2d<float> tex0 [[ texture(0) ]]
+                                       , sampler smplr0 [[sampler(0)]]
                                        )
 {
-    constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
-    float4 colorSample = tex0.sample(textureSampler, in.tex0Coord);
+    float4 colorSample = tex0.sample(smplr0, in.tex0Coord);
     switch(in.tex0Fmt){
         case ENScnBitmapColor_GRAY8:
             //Convert this Red format in Metal to Gray+Alpha
@@ -176,12 +176,13 @@ ixtliVertexShaderTex2(constant STScnGpuFramebuffProps *fbProps [[buffer(0)]]
 
 fragment float4 ixtliFragmentShaderTex2(
                                         RasterizerDataTex2 in [[stage_in]]
-                                       , texture2d<float> tex0 [[ texture(0) ]]
+                                        , texture2d<float> tex0 [[ texture(0) ]]
                                         , texture2d<float> tex1 [[ texture(1) ]]
+                                        , sampler smplr0 [[sampler(0)]]
+                                        , sampler smplr1 [[sampler(1)]]
                                        )
 {
-    constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
-    float4 colorSample = tex0.sample(textureSampler, in.tex0Coord);
+    float4 colorSample = tex0.sample(smplr0, in.tex0Coord);
     switch(in.tex0Fmt){
         case ENScnBitmapColor_GRAY8:
             //Convert this Red format in Metal to Gray+Alpha
@@ -196,7 +197,7 @@ fragment float4 ixtliFragmentShaderTex2(
         default:
             break;
     }
-    float4 colorSample1 = tex1.sample(textureSampler, in.tex0Coord);
+    float4 colorSample1 = tex1.sample(smplr1, in.tex0Coord);
     switch(in.tex1Fmt){
         case ENScnBitmapColor_GRAY8:
             //Convert this Red format in Metal to Gray+Alpha
@@ -268,13 +269,15 @@ ixtliVertexShaderTex3(constant STScnGpuFramebuffProps *fbProps [[buffer(0)]]
 
 fragment float4 ixtliFragmentShaderTex3(
                                         RasterizerDataTex3 in [[stage_in]]
-                                       , texture2d<float> tex0 [[ texture(0) ]]
+                                        , texture2d<float> tex0 [[ texture(0) ]]
                                         , texture2d<float> tex1 [[ texture(1) ]]
                                         , texture2d<float> tex2 [[ texture(2) ]]
+                                        , sampler smplr0 [[sampler(0)]]
+                                        , sampler smplr1 [[sampler(1)]]
+                                        , sampler smplr2 [[sampler(2)]]
                                        )
 {
-    constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
-    float4 colorSample = tex0.sample(textureSampler, in.tex0Coord);
+    float4 colorSample = tex0.sample(smplr0, in.tex0Coord);
     switch(in.tex0Fmt){
         case ENScnBitmapColor_GRAY8:
             //Convert this Red format in Metal to Gray+Alpha
@@ -289,7 +292,7 @@ fragment float4 ixtliFragmentShaderTex3(
         default:
             break;
     }
-    float4 colorSample1 = tex1.sample(textureSampler, in.tex0Coord);
+    float4 colorSample1 = tex1.sample(smplr1, in.tex0Coord);
     switch(in.tex1Fmt){
         case ENScnBitmapColor_GRAY8:
             //Convert this Red format in Metal to Gray+Alpha
@@ -304,7 +307,7 @@ fragment float4 ixtliFragmentShaderTex3(
         default:
             break;
     }
-    float4 colorSample2 = tex2.sample(textureSampler, in.tex0Coord);
+    float4 colorSample2 = tex2.sample(smplr2, in.tex0Coord);
     switch(in.tex2Fmt){
         case ENScnBitmapColor_GRAY8:
             //Convert this Red format in Metal to Gray+Alpha

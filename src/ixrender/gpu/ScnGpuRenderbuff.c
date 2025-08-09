@@ -46,7 +46,7 @@ void ScnGpuRenderbuff_destroyOpq(void* obj){
             }
             opq->api.data = NULL;
         }
-        ScnMemory_setZeroSt(opq->api.itf, STScnGpuRenderbuffApiItf);
+        ScnMemory_setZeroSt(opq->api.itf);
         opq->api.itfParam = NULL;
     }
     //
@@ -77,7 +77,7 @@ ScnBOOL ScnGpuRenderbuff_prepare(ScnGpuRenderbuffRef ref, const STScnGpuRenderbu
                     }
                     opq->api.data = NULL;
                 }
-                ScnMemory_setZeroSt(opq->api.itf, STScnGpuRenderbuffApiItf);
+                ScnMemory_setZeroSt(opq->api.itf);
                 opq->api.itfParam = NULL;
                 //
                 if(itf != NULL){

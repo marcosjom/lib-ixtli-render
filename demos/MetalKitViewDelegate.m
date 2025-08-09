@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)initIxtli {
     STScnContextItf ctxItf;
-    memset(&ctxItf, 0, sizeof(ctxItf));
+    ScnMemset(&ctxItf, 0, sizeof(ctxItf));
     //define context interface
     {
         //custom memory allocation (for memory leaks dtection)
@@ -198,7 +198,7 @@ NS_ASSUME_NONNULL_BEGIN
     node            = (ScnNode2dRef)ScnObjRef_Zero;
     model           = (ScnModel2dRef)ScnObjRef_Zero;
     verts           = (STScnVertex2DTexPtr)STScnVertex2DTexPtr_Zero;
-    memset(&tex, 0, sizeof(tex));
+    ScnMemset(&tex, 0, sizeof(tex));
     vertsSz         = 0;
     metalKitView    = nil;
 

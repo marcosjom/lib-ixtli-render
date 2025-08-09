@@ -23,7 +23,7 @@ void* ScnArray_addPtr_(ScnContextRef ctx, void** arr, ScnSI32* use, ScnSI32* sz,
     }
     if(*use < *sz){
         void* ptr = &((ScnBYTE*)*arr)[arrItmSz * (*use)];
-        memcpy(ptr, itmPtr, itmSz);
+        ScnMemcpy(ptr, itmPtr, itmSz);
         *use = *use + 1;
         return ptr;
     }

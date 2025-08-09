@@ -342,7 +342,7 @@ ScnGpuTextureRef ScnTexture_getCurrentRenderSlot(ScnTextureRef ref){
 //STScnTextureChanges
 
 void ScnTextureChanges_init(ScnContextRef ctx, STScnTextureChanges* obj){
-    memset(obj, 0, sizeof(*obj));
+    ScnMemory_setZeroSt(*obj);
     ScnContext_set(&obj->ctx, ctx);
     ScnArraySorted_init(ctx, &obj->rects, 0, 32, STScnRectU16, ScnCompare_STScnRectU16);
 }
@@ -378,7 +378,7 @@ void ScnTextureChanges_mergeWithOther(STScnTextureChanges* obj, const STScnTextu
                 if(other->rects.use > 0){
                     ScnArraySorted_prepareForGrowth(obj->ctx, &obj->rects, other->rects.use, STScnRectU16);
                     if(other->rects.use <= obj->rects.sz){
-                        memcpy(obj->rects.arr, other->rects.arr, sizeof(obj->rects.arr[0]) * other->rects.use);
+                        ScnMemcpy(obj->rects.arr, other->rects.arr, sizeof(obj->rects.arr[0]) * other->rects.use);
                         obj->rects.use = other->rects.use;
                     }
                 }
@@ -404,7 +404,7 @@ void ScnTextureChanges_mergeWithOther(STScnTextureChanges* obj, const STScnTextu
 //STScnTextureSlot
 
 void ScnTextureSlot_init(ScnContextRef ctx, STScnTextureSlot* opq){
-    memset(opq, 0, sizeof(*opq));
+    ScnMemory_setZeroSt(*opq);
     ScnContext_set(&opq->ctx, ctx);
     ScnTextureChanges_init(opq->ctx, &opq->changes);
 }

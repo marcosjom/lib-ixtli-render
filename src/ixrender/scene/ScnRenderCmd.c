@@ -10,7 +10,7 @@
 //STScnModel2dCmd
 
 void ScnModel2dCmd_init(STScnModel2dCmd* obj){
-    memset(obj, 0, sizeof(*obj));
+    ScnMemory_setZeroSt(*obj);
 }
 
 void ScnModel2dCmd_destroy(STScnModel2dCmd* obj){
