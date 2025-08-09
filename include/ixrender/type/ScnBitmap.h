@@ -33,8 +33,8 @@ typedef struct STScnBitmap {
 
 SCN_REF_STRUCT_METHODS_DEC(ScnBitmap)
 
-ScnBOOL ScnBitmap_create(ScnBitmapRef ref, const ScnSI32 width, const ScnSI32 height, const ENScnBitmapColor color);
-ScnBOOL ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI dstPos, const STScnRectI srcRect, const STScnBitmapProps* const srcProps, const void* srcData);
+ScnBOOL             ScnBitmap_create(ScnBitmapRef ref, const ScnSI32 width, const ScnSI32 height, const ENScnBitmapColor color);
+STScnRectI          ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI dstPos, const STScnRectI srcRect, const STScnBitmapProps* const srcProps, const void* srcData); //returns { 0, 0, -1, -1 } on error
 //
 STScnBitmapProps    ScnBitmap_getProps(ScnBitmapRef ref, void** optDstData);
 void*               ScnBitmap_getData(ScnBitmapRef ref);

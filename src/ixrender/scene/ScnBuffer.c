@@ -7,128 +7,8 @@
 
 #include "ixrender/scene/ScnBuffer.h"
 #include "ixrender/core/ScnArraySorted.h"
+#include "ixrender/type/ScnChangeRngs.h"
 #include "ixrender/gpu/ScnGpuBuffer.h"
-
-
-//STScnBufferChanges
-
-typedef struct STScnBufferChanges {
-    ScnContextRef   ctx;
-    ScnBOOL         all; //the whole buffer must be synchronized
-    ScnUI32         rngsBytesAccum;
-    ScnArraySortedStruct(rngs, STScnRangeU);
-} STScnBufferChanges;
-
-void    ScnBufferChanges_init(ScnContextRef ctx, STScnBufferChanges* obj);
-void    ScnBufferChanges_destroy(STScnBufferChanges* obj);
-void    ScnBufferChanges_reset(STScnBufferChanges* obj);
-void    ScnBufferChanges_mergeWithOther(STScnBufferChanges* obj, const STScnBufferChanges* const other);
-#ifdef SCN_DEBUG
-ScnBOOL ScnBufferChanges_validate(STScnBufferChanges* obj);
-#endif
-
-SC_INLN ScnBOOL ScnBufferChanges_mergeRng(STScnBufferChanges* obj, const STScnRangeU* rng){
-    SCN_ASSERT(!obj->all) //optimization, call only if obj->all == ScnFALSE
-    STScnRangeU* gStart = obj->rngs.arr;
-    const ScnSI32 iNxtRng = ScnArraySorted_indexForNew(&obj->rngs, rng); SCN_ASSERT(iNxtRng >= 0)
-    STScnRangeU* mrged = NULL;
-#   ifdef SCN_ASSERTS_ACTIVATED
-    const STScnRangeU rngParam = *rng;
-    ScnBOOL newRngAdded = ScnFALSE;
-    ScnBOOL newRngExpandedPrevRng = ScnFALSE;
-    ScnBOOL newRngExpandedNextRng = ScnFALSE;
-    ScnUI32 newRngMergedCount = 0;
-#   endif
-    //eval against prev range
-    if(iNxtRng > 0){
-        STScnRangeU* prv = &gStart[iNxtRng - 1];
-        SCN_ASSERT(prv->start <= rng->start)
-        if((prv->start + prv->size) >= (rng->start + rng->size)){
-            //new range fully covered by previous range
-            return ScnTRUE;
-        } else if((prv->start + prv->size) >= rng->start){
-            //new range expands prev range
-            SCN_ASSERT((rng->start + rng->size) >= prv->start);
-            obj->rngsBytesAccum += (rng->start + rng->size) - prv->start - prv->size;
-            prv->size = (rng->start + rng->size) - prv->start;
-            mrged = prv;
-            rng = NULL;
-#           ifdef SCN_ASSERTS_ACTIVATED
-            newRngExpandedPrevRng = ScnTRUE;
-#           endif
-        }
-        SCN_ASSERT(rng == NULL || (prv->start + prv->size) < rng->start)
-    }
-    //eval against next range
-    if(mrged == NULL && iNxtRng < obj->rngs.use){
-        STScnRangeU* nxt = &gStart[iNxtRng];
-        SCN_ASSERT(rng->start <= nxt->start)
-        if(nxt->start == rng->start && (nxt->start + nxt->size) >= (rng->start + rng->size)){
-            //new range fully covered by next range
-            return ScnTRUE;
-        } else if((rng->start + rng->size) >= nxt->start){
-            //new range expands next range
-            SCN_ASSERT((nxt->start + nxt->size) >= rng->start);
-            obj->rngsBytesAccum += (nxt->start - rng->start);
-            nxt->size = (nxt->start + nxt->size) - rng->start;
-            nxt->start = rng->start;
-            mrged = nxt;
-            rng = NULL;
-#           ifdef SCN_ASSERTS_ACTIVATED
-            newRngExpandedNextRng = ScnTRUE;
-#           endif
-        }
-    }
-    //eval new merged-range consuming othe ranges
-    if(mrged != NULL){
-        STScnRangeU* prev = mrged++;
-        const STScnRangeU* gAfterEnd = obj->rngs.arr + obj->rngs.use;
-        while(mrged < gAfterEnd){
-            SCN_ASSERT(prev->start < mrged->start)
-            if((prev->start + prev->size) >= mrged->start){
-                //new merged range consumes next range
-                if((prev->start + prev->size) < (mrged->start + mrged->size)){
-                    //prev range is expanded by next range
-                    obj->rngsBytesAccum -= (prev->start + prev->size) - mrged->start;
-                    prev->size = (mrged->start + mrged->size) - prev->start;
-                }
-                //remove
-                {
-                    STScnRangeU* r = mrged + 1;
-                    while(r < gAfterEnd){
-                        *(r - 1) = *r;
-                        r++;
-                    }
-                }
-#               ifdef SCN_ASSERTS_ACTIVATED
-                ++newRngMergedCount;
-#               endif
-                //
-                --mrged;
-                --gAfterEnd;
-                --obj->rngs.use;
-            }
-            //next
-            prev = mrged++;
-        }
-        SCN_ASSERT(ScnBufferChanges_validate(obj));
-    }
-    //add new range (not merged)
-    if(rng != NULL && NULL != ScnArraySorted_addPtr(obj->ctx, &obj->rngs, rng, STScnRangeU)){
-        obj->rngsBytesAccum += rng->size;
-#       ifdef SCN_ASSERTS_ACTIVATED
-        newRngAdded = ScnTRUE;
-#       endif
-        SCN_ASSERT(ScnBufferChanges_validate(obj));
-        return ScnTRUE;
-    }
-    return ScnFALSE;
-}
-
-SC_INLN void ScnBufferChanges_invalidateAll(STScnBufferChanges* obj){
-    obj->all = ScnTRUE;
-    ScnArraySorted_empty(&obj->rngs);
-}
 
 //STScnBufferSlot
 
@@ -139,7 +19,7 @@ typedef struct STScnBufferSlot {
     struct {
         ScnUI32     totalSzLast;
     } state;
-    STScnBufferChanges changes;
+    STScnChangesRngs changes;
 } STScnBufferSlot;
 
 void ScnBufferSlot_init(ScnContextRef ctx, STScnBufferSlot* opq);
@@ -158,7 +38,7 @@ typedef struct STScnBufferOpq {
     struct {
         ScnUI32         totalSzLast;
     } state;
-    STScnBufferChanges  changes;
+    STScnChangesRngs  changes;
     //slots (render)
     struct {
         STScnBufferSlot* arr;
@@ -178,7 +58,7 @@ void ScnBuffer_initZeroedOpq(ScnContextRef ctx, void* obj) {
     ScnContext_set(&opq->ctx, ctx);
     opq->mutex = ScnContext_allocMutex(opq->ctx);
     //
-    ScnBufferChanges_init(opq->ctx, &opq->changes);
+    ScnChangesRngs_init(opq->ctx, &opq->changes);
 }
 
 void ScnBuffer_destroyOpq(void* obj){
@@ -186,7 +66,7 @@ void ScnBuffer_destroyOpq(void* obj){
     //
     ScnMemElastic_releaseAndNull(&opq->mem);
     //ScnStruct_stRelease(ScnBufferCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
-    ScnBufferChanges_destroy(&opq->changes);
+    ScnChangesRngs_destroy(&opq->changes);
     //slots
     {
         if(opq->slots.arr != NULL){
@@ -225,7 +105,7 @@ ScnBOOL ScnBuffer_prepare(ScnBufferRef ref, ScnGpuDeviceRef gpuDev, const ScnUI3
                     while(s < sAfterEnd){
                         ScnBufferSlot_init(opq->ctx, s);
                         //force first full-sync
-                        ScnBufferChanges_invalidateAll(&s->changes);
+                        ScnChangesRngs_invalidateAll(&s->changes);
                         //
                         ++s;
                     }
@@ -290,7 +170,7 @@ ScnBOOL ScnBuffer_invalidateAll(ScnBufferRef ref){ //forces the full buffer to b
     ScnMutex_lock(opq->mutex);
     if(!ScnMemElastic_isNull(opq->mem)){
         //changes
-        ScnBufferChanges_invalidateAll(&opq->changes);
+        ScnChangesRngs_invalidateAll(&opq->changes);
         r = ScnTRUE;
     }
     ScnMutex_unlock(opq->mutex);
@@ -303,7 +183,7 @@ ScnBOOL ScnBuffer_mInvalidateLockedOpq_(STScnBufferOpq* opq, const STScnAbsPtr p
     rng.start   = ptr.idx / opq->cfg.mem.sizeAlign * opq->cfg.mem.sizeAlign;
     rng.size    = ((ptr.idx + sz + opq->cfg.mem.sizeAlign - 1) / opq->cfg.mem.sizeAlign * opq->cfg.mem.sizeAlign) - rng.start;
     SCN_ASSERT(rng.start <= ptr.idx && (ptr.idx + sz) <= (rng.start + rng.size))
-    if(!ScnBufferChanges_mergeRng(&opq->changes, &rng)){
+    if(!ScnChangesRngs_mergeRng(&opq->changes, &rng)){
         r = ScnFALSE;
     }
     return r;
@@ -318,7 +198,7 @@ STScnAbsPtr ScnBuffer_malloc(ScnBufferRef ref, const ScnUI32 usableSz){
         r = ScnMemElastic_malloc(opq->mem, usableSz, &totalSz);
         if(opq->state.totalSzLast != totalSz){
             opq->state.totalSzLast = totalSz;
-            ScnBufferChanges_invalidateAll(&opq->changes);
+            ScnChangesRngs_invalidateAll(&opq->changes);
         } else if(r.ptr != NULL && usableSz > 0 && !opq->changes.all){
             ScnBuffer_mInvalidateLockedOpq_(opq, r, usableSz);
         }
@@ -367,12 +247,12 @@ ScnBOOL ScnBuffer_prepareCurrentRenderSlot(ScnBufferRef ref, ScnBOOL* dstHasPtrs
             ScnUI32 iSlot = iFirst;
             do {
                 STScnBufferSlot* slot = &opq->slots.arr[iSlot];
-                ScnBufferChanges_mergeWithOther(&slot->changes, &opq->changes);
+                ScnChangesRngs_mergeWithOther(&slot->changes, &opq->changes);
                 //next
                 iSlot = (iSlot + 1) % opq->slots.use;
             } while(iSlot != iFirst);
             //reset accumulates changes
-            ScnBufferChanges_reset(&opq->changes);
+            ScnChangesRngs_reset(&opq->changes);
         }
         //
         hasPtrs = ScnMemElastic_hasPtrs(opq->mem);
@@ -399,7 +279,7 @@ ScnBOOL ScnBuffer_prepareCurrentRenderSlot(ScnBufferRef ref, ScnBOOL* dstHasPtrs
             }
         }
         //reset current slot changes
-        ScnBufferChanges_reset(&slot->changes);
+        ScnChangesRngs_reset(&slot->changes);
     }
     ScnMutex_unlock(opq->mutex);
     //
@@ -433,96 +313,16 @@ ScnGpuBufferRef ScnBuffer_getCurrentRenderSlot(ScnBufferRef ref){
     return r;
 }
 
-//STScnBufferChanges
-
-void ScnBufferChanges_init(ScnContextRef ctx, STScnBufferChanges* obj){
-    ScnMemory_setZeroSt(*obj);
-    ScnContext_set(&obj->ctx, ctx);
-    ScnArraySorted_init(ctx, &obj->rngs, 0, 128, STScnRangeU, ScnCompare_STScnRangeU);
-}
-
-void ScnBufferChanges_destroy(STScnBufferChanges* obj){
-    ScnArraySorted_destroy(obj->ctx, &obj->rngs);
-    ScnContext_releaseAndNull(&obj->ctx);
-}
-
-#ifdef SCN_DEBUG
-ScnBOOL ScnBufferChanges_validate(STScnBufferChanges* obj){
-    ScnBOOL r = ScnTRUE;
-    ScnUI32 prevAfterEnd = 0, szAccum = 0;
-    const STScnRangeU* rng = obj->rngs.arr;
-    const STScnRangeU* rngAfterEnd = rng + obj->rngs.use;
-    while(rng < rngAfterEnd){
-        if(prevAfterEnd > rng->start){
-            SCN_ASSERT(ScnFALSE)
-            r = ScnFALSE;
-            break;
-        }
-        prevAfterEnd = rng->start + rng->size;
-        szAccum += rng->size;
-        //next
-        ++rng;
-    }
-    if(obj->rngsBytesAccum != szAccum){
-        SCN_ASSERT(ScnFALSE)
-        r = ScnFALSE;
-    }
-    return r;
-}
-#endif
-
-void ScnBufferChanges_reset(STScnBufferChanges* obj){
-    obj->all = ScnFALSE;
-    obj->rngsBytesAccum = 0;
-    ScnArraySorted_empty(&obj->rngs);
-}
-
-void ScnBufferChanges_mergeWithOther(STScnBufferChanges* obj, const STScnBufferChanges* const other){
-    if(!obj->all){
-        if(other->all){
-            //all
-            ScnBufferChanges_reset(obj);
-            obj->all = ScnTRUE;
-        } else {
-            //merge ranges
-            const STScnRangeU* rng = other->rngs.arr;
-            if(obj->rngs.use == 0){
-                //memcpy
-                if(other->rngs.use > 0){
-                    ScnArraySorted_prepareForGrowth(obj->ctx, &obj->rngs, other->rngs.use, STScnRangeU);
-                    if(other->rngs.use <= obj->rngs.sz){
-                        ScnMemcpy(obj->rngs.arr, other->rngs.arr, sizeof(obj->rngs.arr[0]) * other->rngs.use);
-                        obj->rngs.use = other->rngs.use;
-                    }
-                }
-                obj->rngsBytesAccum = other->rngsBytesAccum;
-                SCN_ASSERT(obj->rngs.use == other->rngs.use)
-                SCN_ASSERT(ScnBufferChanges_validate(obj))
-            } else {
-                //one by one
-                const STScnRangeU* rngAfterEnd = rng + other->rngs.use;
-                while(rng < rngAfterEnd){
-                    if(!ScnBufferChanges_mergeRng(obj, rng)){
-                        break;
-                    }
-                    //next
-                    ++rng;
-                }
-            }
-        }
-    }
-}
-
 //STScnBufferSlot
 
 void ScnBufferSlot_init(ScnContextRef ctx, STScnBufferSlot* opq){
     ScnMemory_setZeroSt(*opq);
     ScnContext_set(&opq->ctx, ctx);
-    ScnBufferChanges_init(opq->ctx, &opq->changes);
+    ScnChangesRngs_init(opq->ctx, &opq->changes);
 }
 
 void ScnBufferSlot_destroy(STScnBufferSlot* opq){
-    ScnBufferChanges_destroy(&opq->changes);
+    ScnChangesRngs_destroy(&opq->changes);
     ScnGpuBuffer_releaseAndNull(&opq->gpuBuff);
     ScnContext_releaseAndNull(&opq->ctx);
 }

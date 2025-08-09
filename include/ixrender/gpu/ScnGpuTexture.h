@@ -12,6 +12,7 @@
 #include "ixrender/core/ScnObjRef.h"
 #include "ixrender/type/ScnPoint.h"
 #include "ixrender/type/ScnRect.h"
+#include "ixrender/type/ScnRange.h"
 #include "ixrender/type/ScnBitmap.h"
 #include "ixrender/gpu/ScnGpuSampler.h"
 
@@ -47,8 +48,8 @@ typedef struct STScnGpuTextureCfg {
 
 typedef struct STScnGpuTextureChanges {
     ScnBOOL         all;    //all the content is new
-    STScnRectU16*   rects;  //subimages areas
-    ScnUI32         recsUse;
+    STScnRangeU*    rngs;   //rngs changed (in full-lines)
+    ScnUI32         rngsUse;
 } STScnGpuTextureChanges;
 
 //STScnGpuTextureApiItf

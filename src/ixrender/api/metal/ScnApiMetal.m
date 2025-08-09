@@ -42,6 +42,13 @@ STScnSize2DU        ScnApiMetal_framebuff_view_getSize(void* pObj);
 ScnBOOL             ScnApiMetal_framebuff_view_syncSize(void* pObj, const STScnSize2DU size);
 STScnGpuFramebuffProps ScnApiMetal_framebuff_view_getProps(void* data);
 ScnBOOL             ScnApiMetal_framebuff_view_setProps(void* data, const STScnGpuFramebuffProps* const props);
+//sampler
+void                ScnApiMetal_sampler_free(void* pObj);
+STScnGpuSamplerCfg  ScnApiMetal_sampler_getCfg(void* data);
+//texture
+void                ScnApiMetal_texture_free(void* pObj);
+ScnBOOL             ScnApiMetal_texture_sync(void* data, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData, const STScnGpuTextureChanges* const changes);
+
 
 ScnBOOL ScnApiMetal_getApiItf(STScnApiItf* dst){
     if(dst == NULL) return ScnFALSE;
@@ -271,9 +278,6 @@ void ScnApiMetal_device_free(void* pObj){
 
 // STScnApiMetalSampler
 
-void                ScnApiMetal_sampler_free(void* pObj);
-STScnGpuSamplerCfg  ScnApiMetal_sampler_getCfg(void* data);
-
 ScnGpuSamplerRef ScnApiMetal_device_allocSampler(void* pObj, const STScnGpuSamplerCfg* const cfg){
     ScnGpuSamplerRef r = ScnGpuSamplerRef_Zero;
     STScnApiMetalDevice* dev = (STScnApiMetalDevice*)pObj;
@@ -449,11 +453,12 @@ void ScnApiMetal_buffer_free(void* pObj){
 ScnBOOL ScnApiMetal_buffer_sync(void* pObj, const STScnGpuBufferCfg* const cfg, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes){
     ScnBOOL r = ScnFALSE;
     STScnApiMetalBuffer* obj = (STScnApiMetalBuffer*)pObj;
-    if(obj->buff == nil){
-        printf("ERROR, ScnApiMetal_buffer_sync obj->buff is nil.\n");
-    } else if(ScnMemElastic_isNull(mem)){
-        printf("ERROR, ScnApiMetal_buffer_sync mem is NULL.\n");
-    } else {
+    if(obj->buff == nil || ScnMemElastic_isNull(mem)){
+        //missing params
+        return r;
+    }
+    //sync
+    {
         ScnBOOL buffIsNew = ScnFALSE;
         ScnUI32 buffLen = (ScnUI32)obj->buff.length;
         const ScnUI32 cpuBuffSz = ScnMemElastic_getAddressableSize(mem);
@@ -494,54 +499,53 @@ ScnBOOL ScnApiMetal_buffer_sync(void* pObj, const STScnGpuBufferCfg* const cfg, 
 
 ScnBOOL ScnApiMetal_buffer_syncRanges_(id<MTLBuffer> buff, ScnMemElasticRef mem, const STScnRangeU* const rngs, const ScnUI32 rngsUse){
     ScnBOOL r = ScnTRUE;
-    if(rngsUse <= 0) return ScnTRUE;
-    const STScnRangeU* rng = rngs;
-    const STScnRangeU* rngAfterEnd = rngs + rngsUse;
+    if(rngsUse <= 0){
+        //nothing to sync
+        return r;
+    }
     //
     const ScnUI32 buffLen = (ScnUI32)buff.length;
     ScnBYTE* buffPtr = (ScnBYTE*)buff.contents;
     STScnAbsPtr ptr = STScnAbsPtr_Zero;
     ScnUI32 continuousSz = 0, copySz = 0, bytesCopied = 0;
     //
-    STScnRangeU curRng = { rng->start,  rng->size };
-    ++rng;
-    //
-    while(rng <= rngAfterEnd){
-        if( rng == rngAfterEnd || (curRng.start + curRng.size) != rng->start ){
-            //copy current accumulated range
-            while(curRng.size > 0){
-                ptr = ScnMemElastic_getNextContinuousAddress(mem, curRng.start, &continuousSz);
-                if(ptr.ptr == NULL){
-                    break;
-                }
-                SCN_ASSERT(ptr.idx == curRng.start);
-                SCN_ASSERT((curRng.start + continuousSz) <= buffLen);
-                if((curRng.start + continuousSz) > buffLen){
-                    printf("ERROR, gpu-buffer is smaller than cpu-buffer.\n");
-                    r = ScnFALSE;
-                    break;
-                }
-                //copy
-                copySz = (curRng.size < continuousSz ? curRng.size : continuousSz);
-                ScnMemcpy(&buffPtr[curRng.start], ptr.ptr, copySz);
-                bytesCopied += copySz;
-                //
-                SCN_ASSERT(curRng.size >= copySz)
-                curRng.start += copySz;
-                curRng.size -= copySz;
+#   ifdef SCN_ASSERTS_ACTIVATED
+    ScnUI32 prevRngAfterEnd = 0;
+#   endif
+    const STScnRangeU* rng = rngs;
+    const STScnRangeU* rngAfterEnd = rngs + rngsUse;
+    STScnRangeU curRng;
+    while(rng < rngAfterEnd && r){
+        SCN_ASSERT(prevRngAfterEnd <= rng->start + rng->size) //rngs should be ordered and non-overlapping
+        //copy range data
+        curRng = *rng;
+        while(curRng.size > 0){
+            ptr = ScnMemElastic_getNextContinuousAddress(mem, curRng.start, &continuousSz);
+            if(ptr.ptr == NULL){
+                break;
             }
-            //end cycle
-            if(rng == rngAfterEnd) break;
-            curRng.start = rng->start;
-            curRng.size = 0; //rng will be merged with itself
+            SCN_ASSERT(ptr.idx == curRng.start);
+            SCN_ASSERT((curRng.start + continuousSz) <= buffLen);
+            if((curRng.start + continuousSz) > buffLen){
+                printf("ERROR, gpu-buffer is smaller than cpu-buffer.\n");
+                r = ScnFALSE;
+                break;
+            }
+            //copy
+            copySz = (curRng.size < continuousSz ? curRng.size : continuousSz);
+            ScnMemcpy(&buffPtr[curRng.start], ptr.ptr, copySz);
+            bytesCopied += copySz;
+            //
+            SCN_ASSERT(curRng.size >= copySz)
+            curRng.start += copySz;
+            curRng.size -= copySz;
         }
-        //merge range
-        SCN_ASSERT((curRng.start + curRng.size) == rng->start)
-        curRng.size += rng->size;
+#       ifdef SCN_ASSERTS_ACTIVATED
+        prevRngAfterEnd = rng->start + rng->size;
+#       endif
         //next
         ++rng;
     }
-    SCN_ASSERT((curRng.start + curRng.size) == (rngs[rngsUse - 1].start + rngs[rngsUse - 1].size))
     //printf("%2.f%% %u of %u bytes synced at buffer.\n", (float)bytesCopied * 100.f / (float)buffLen, bytesCopied, buffLen);
     return r;
 }
@@ -647,9 +651,6 @@ typedef struct STScnApiMetalTexture {
     STScnApiItf             itf;
 } STScnApiMetalTexture;
 
-void        ScnApiMetal_texture_free(void* pObj);
-ScnBOOL     ScnApiMetal_texture_sync(void* data, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData, const STScnGpuTextureChanges* const changes);
-
 ScnGpuTextureRef ScnApiMetal_device_allocTexture(void* pObj, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData){
     ScnGpuTextureRef r = ScnObjRef_Zero;
     STScnApiMetalDevice* dev = (STScnApiMetalDevice*)pObj;
@@ -744,24 +745,57 @@ void ScnApiMetal_texture_free(void* pObj){
 ScnBOOL ScnApiMetal_texture_sync(void* pObj, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData, const STScnGpuTextureChanges* const changes){
     ScnBOOL r = ScnFALSE;
     STScnApiMetalTexture* obj = (STScnApiMetalTexture*)pObj;
-    if(obj != NULL && obj->tex != NULL && srcProps != NULL && srcData != NULL && changes != NULL){
-        const ScnUI32 pxTotal = (cfg->width * cfg->height);
-        ScnUI32 pxUpdated = 0;
+    if(!(obj != NULL && obj->tex != NULL && srcProps != NULL && srcData != NULL && changes != NULL)){
+        //missing params or objects
+        return r;
+    }
+    if(!(obj->cfg.width == cfg->width && obj->cfg.height == cfg->height && obj->cfg.color == cfg->color)){
+        //change of size of color is not supported
+        return r;
+    }
+    //sync
+    {
+        ScnUI32 pxUpdated = 0, lnsUpdated = 0;
         if(changes->all){
             //update the texture
             MTLRegion region = { { 0, 0, 0 }, {obj->cfg.width, obj->cfg.height, 1} };
             [obj->tex replaceRegion:region mipmapLevel:0 withBytes:srcData bytesPerRow:srcProps->bytesPerLine];
-            pxUpdated += (obj->cfg.width * obj->cfg.height);
+            pxUpdated   += (obj->cfg.width * obj->cfg.height);
+            lnsUpdated  += obj->cfg.height;
             r = ScnTRUE;
-        } else {
-            //ToDo: implement
-            //update the texture areas
-            MTLRegion region = { { 0, 0, 0 }, {obj->cfg.width, obj->cfg.height, 1} };
-            [obj->tex replaceRegion:region mipmapLevel:0 withBytes:srcData bytesPerRow:srcProps->bytesPerLine];
-            pxUpdated += (obj->cfg.width * obj->cfg.height);
+        } else if(changes->rngsUse == 0){
+            //nothing to sync
+            r = ScnTRUE;
+        } else if(changes->rngs != 0){
+#           ifdef SCN_ASSERTS_ACTIVATED
+            ScnUI32 prevRngAfterEnd = 0;
+#           endif
+            const STScnRangeU* rng = changes->rngs;
+            const STScnRangeU* rngAfterEnd = rng + changes->rngsUse;
+            r = ScnTRUE;
+            while(rng < rngAfterEnd){
+                SCN_ASSERT(prevRngAfterEnd <= rng->start + rng->size) //rngs should be ordered and non-overlapping
+                if(rng->start > obj->cfg.height || (rng->start + rng->size) > obj->cfg.height){
+                    //out of range
+                    r = ScnFALSE;
+                    break;
+                }
+                //update the texture area
+                {
+                    MTLRegion region = { { 0, rng->start, 0 }, {obj->cfg.width, rng->size, 1} };
+                    const void* srcRow = ((ScnBYTE*)srcData) + (rng->start * srcProps->bytesPerLine);
+                    [obj->tex replaceRegion:region mipmapLevel:0 withBytes:srcRow bytesPerRow:srcProps->bytesPerLine];
+                    pxUpdated   += (obj->cfg.width * rng->size);
+                    lnsUpdated  += rng->size;
+                }
+#               ifdef SCN_ASSERTS_ACTIVATED
+                prevRngAfterEnd = rng->start + rng->size;
+#               endif
+                ++rng;
+            }
             r = ScnTRUE;
         }
-        printf("%2.f%% %u of %u bytes synced at texture.\n", (float)pxUpdated * 100.f / (float)pxTotal, pxUpdated, pxTotal);
+        printf("%2.f%% %u of %u lines synced at texture (%.1f Kpixs, %.1f KBs).\n", (float)lnsUpdated * 100.f / (float)obj->cfg.height, lnsUpdated, obj->cfg.height, (ScnFLOAT)pxUpdated / 1024.f, (ScnFLOAT)lnsUpdated * (ScnFLOAT)srcProps->bytesPerLine / 1024.f);
     }
     return r;
 }

@@ -92,19 +92,17 @@ ScnBOOL ScnBitmap_create(ScnBitmapRef ref, const ScnSI32 width, const ScnSI32 he
     return r;
 }
 
-ScnBOOL ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI pDstPos, const STScnRectI pSrcRect, const STScnBitmapProps* const srcProps, const void* srcData){
-    ScnBOOL r = ScnFALSE;
+STScnRectI ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI pDstPos, const STScnRectI pSrcRect, const STScnBitmapProps* const srcProps, const void* srcData){
+    STScnRectI r = { 0, 0, -1, -1 };
     STScnBitmapOpq* opq = (STScnBitmapOpq*)ScnSharedPtr_getOpq(ref.ptr);
     if(!(srcProps != NULL && srcData != NULL && pSrcRect.width >= 0 && pSrcRect.height >= 0)){
         return r;
     } else if((pSrcRect.x + pSrcRect.width) <= 0 || (pSrcRect.y + pSrcRect.height) <= 0){
         //nothing to copy from source
-        r = ScnTRUE;
-        return r;
+        return (STScnRectI){ 0, 0, 0, 0 };
     } else if(pSrcRect.x >= srcProps->size.width || pSrcRect.y >= srcProps->size.height){
         //nothing to copy from source
-        r = ScnTRUE;
-        return r;
+        return (STScnRectI){ 0, 0, 0, 0 };
     }
     //normalize srcRect
     STScnRectI srcRectNorm = pSrcRect;
@@ -116,10 +114,10 @@ ScnBOOL ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI pDstPos,
     ScnMutex_lock(opq->mutex);
     if((pDstPos.x + srcRectNorm.width) <= 0 || (pDstPos.y + srcRectNorm.height) <= 0){
         //nothing top copy to dst
-        r = ScnTRUE;
+        r = (STScnRectI){ 0, 0, 0, 0 };
     } else if(pDstPos.x >= opq->props.size.width || pDstPos.y >= opq->props.size.height){
         //nothing top copy to dst
-        r = ScnTRUE;
+        r = (STScnRectI){ 0, 0, 0, 0 };
     } else {
         STScnPoint2DI dstPosNorm = pDstPos;
         if(dstPosNorm.x < 0){ srcRectNorm.width += dstPosNorm.x; dstPosNorm.x = 0; }
@@ -135,7 +133,7 @@ ScnBOOL ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI pDstPos,
                 //full lines memcpy
                 SCN_ASSERT(pSrcRect.height <= opq->props.size.height);
                 ScnMemcpy(opq->data, srcData, opq->props.bytesPerLine * pSrcRect.height);
-                r = ScnTRUE;
+                r = (STScnRectI){ dstPosNorm.x, dstPosNorm.y, srcRectNorm.width, srcRectNorm.height };
             } else {
                 //copy lines
                 ScnBYTE* dst = &opq->data[(dstPosNorm.y * opq->props.bytesPerLine) + (dstPosNorm.x * (opq->props.bitsPerPx / 8))];
@@ -148,7 +146,7 @@ ScnBOOL ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI pDstPos,
                     dst += opq->props.bytesPerLine;
                     src += srcProps->bytesPerLine;
                 }
-                r = ScnTRUE;
+                r = (STScnRectI){ dstPosNorm.x, dstPosNorm.y, srcRectNorm.width, srcRectNorm.height };
             }
         } else if(srcProps->color == ENScnBitmapColor_RGB8 && opq->props.color == ENScnBitmapColor_RGBA8){
             //per-pixel op
@@ -177,7 +175,7 @@ ScnBOOL ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI pDstPos,
                 SCN_ASSERT(src >= (ScnBYTE*)srcData && src <= &((ScnBYTE*)srcData)[((srcRectNorm.y + srcRectNorm.height) * srcProps->bytesPerLine)])
                 SCN_ASSERT(dst >= (ScnBYTE*)opq->data && dst <= (ScnBYTE*)&opq->data[opq->props.size.height * opq->props.bytesPerLine]);
             }
-            r = ScnTRUE;
+            r = (STScnRectI){ dstPosNorm.x, dstPosNorm.y, srcRectNorm.width, srcRectNorm.height };
         } else {
             SCN_PRINTF_ERROR("ERROR, ScnBitmap_pasteBitmapData unsupported color combination.\n");
         }
