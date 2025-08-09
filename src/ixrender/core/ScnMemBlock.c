@@ -10,13 +10,6 @@
 
 //STScnMemBlockPtr
 
-#define STScnMemBlockPtr_Zero { NULL, 0 }
-
-typedef struct STScnMemBlockPtr {
-    void*       ptr;  //pointer returned by 'ScnMemBlock_malloc'
-    ScnUI32     sz;   //size at 'ScnMemBlock_malloc' call
-} STScnMemBlockPtr;
-
 ScnBOOL ScnCompare_ScnMemBlockPtr(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz){
     SCN_ASSERT(dataSz == sizeof(STScnMemBlockPtr))
     if(dataSz == sizeof(STScnMemBlockPtr)){
@@ -219,7 +212,8 @@ STScnRangeU ScnMemBlock_getUsedAddressesRng(ScnMemBlockRef ref){ //highest alloc
         const STScnMemBlockPtr* ptrFirst = &opq->ptrs.arr[0];
         const STScnMemBlockPtr* ptrLast = &opq->ptrs.arr[opq->ptrs.use - 1];
         r.start = (ScnUI32)((ScnBYTE*)ptrFirst->ptr - opq->chunk.ptr);
-        r.size  = (ScnUI32)((ScnBYTE*)ptrLast->ptr - opq->chunk.ptr) + ptrLast->sz - r.start;
+        r.size  = (ScnUI32)((ScnBYTE*)ptrLast->ptr + ptrLast->sz - opq->chunk.ptr) - r.start;
+        SCN_ASSERT((r.start + r.size) == ((ScnBYTE*)ptrLast->ptr + ptrLast->sz - opq->chunk.ptr))
     }
     ScnMutex_unlock(opq->mutex);
     return r;
@@ -419,7 +413,24 @@ ScnBOOL ScnMemBlock_validateIndexLockepOpq_(STScnMemBlockOpq* opq){
     }
     return r;
 }
-    
+
+//dbg
+
+ScnBOOL ScnMemBlock_pushPtrs(ScnMemBlockRef ref, const ScnUI32 rootIndexToPass, STScnMemPushPtrsItf* itf, void* itfParam){
+    ScnBOOL r = ScnFALSE;
+    STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    if(itf == NULL || itf->pushBlockPtrs == NULL){
+        //missing params
+        return ScnFALSE;
+    }
+    ScnMutex_lock(opq->mutex);
+    {
+        r = (*itf->pushBlockPtrs)(itfParam, rootIndexToPass, opq->chunk.ptr, opq->ptrs.arr, opq->ptrs.use);
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
 ScnBOOL ScnMemBlock_validateIndex(ScnMemBlockRef ref){
     ScnBOOL r = ScnFALSE;
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);

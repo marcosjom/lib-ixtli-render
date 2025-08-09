@@ -112,7 +112,8 @@ STScnVertex2DTexPtr ScnModel2d_addDrawTex(ScnModel2dRef ref, const ENScnRenderSh
     STScnVertex2DTexPtr r = STScnVertex2DTexPtr_Zero;
     STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
     SCN_ASSERT(!ScnTexture_isNull(t0))
-    if(!(shape >= ENScnRenderShape_Compute && shape < ENScnRenderShape_Count && count > 0 && !ScnTexture_isNull(t0))){
+    if(shape <= ENScnRenderShape_Compute || shape >= ENScnRenderShape_Count || count <= 0 || ScnTexture_isNull(t0)){
+        //invalid params
         return r;
     }
     ScnMutex_lock(opq->mutex);

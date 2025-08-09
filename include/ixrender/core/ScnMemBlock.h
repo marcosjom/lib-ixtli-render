@@ -16,6 +16,15 @@
 extern "C" {
 #endif
 
+//STScnMemBlockPtr
+
+#define STScnMemBlockPtr_Zero { NULL, 0 }
+
+typedef struct STScnMemBlockPtr {
+    void*       ptr;  //pointer returned by 'ScnMemBlock_malloc'
+    ScnUI32     sz;   //size at 'ScnMemBlock_malloc' call
+} STScnMemBlockPtr;
+
 //STScnAbsPtr, abstract pointer
 
 #define STScnAbsPtr_Zero { NULL, 0 }
@@ -37,6 +46,14 @@ typedef struct STScnMemBlockCfg {
     ScnBOOL idxZeroIsValid; //idx=0 is an assignable address
 } STScnMemBlockCfg;
 
+//STScnGpuBufferApiItf
+
+#define STScnMemPushPtrsItf_Zero  { NULL }
+
+typedef struct STScnMemPushPtrsItf {
+    ScnBOOL (*pushBlockPtrs)(void* data, const ScnUI32 rootIndex, const void* rootAddress, const STScnMemBlockPtr* const ptrs, const ScnUI32 ptrsSz);
+} STScnMemPushPtrsItf;
+
 //ScnMemBlockRef
 
 #define ScnMemBlockRef_Zero   ScnObjRef_Zero
@@ -56,6 +73,7 @@ ScnUI32     ScnMemBlock_mAvailSz(ScnMemBlockRef ref);
 void        ScnMemBlock_prepareForNewMallocsActions(ScnMemBlockRef ref, const ScnUI32 ammActions);   //increases the index's sz
 void        ScnMemBlock_clear(ScnMemBlockRef ref); //clears the index, all pointers are invalid after this call
 //dbg
+ScnBOOL     ScnMemBlock_pushPtrs(ScnMemBlockRef ref, const ScnUI32 rootIndexToPass, STScnMemPushPtrsItf* itf, void* itfParam);
 ScnBOOL     ScnMemBlock_validateIndex(ScnMemBlockRef ref);
 
 #ifdef __cplusplus

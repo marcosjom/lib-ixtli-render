@@ -30,10 +30,10 @@ typedef struct STScnMemElasticBlock {
 //STScnMemElasticOpq
 
 typedef struct STScnMemElasticOpq {
-    ScnContextRef       ctx;
-    ScnMutexRef         mutex;
-    STScnMemElasticCfg  cfg;
-    STScnMemElasticState state;
+    ScnContextRef           ctx;
+    ScnMutexRef             mutex;
+    STScnMemElasticCfg      cfg;
+    STScnMemElasticState    state;
     ScnArrayStruct(blocks, STScnMemElasticBlock);
 } STScnMemElasticOpq;
 
@@ -176,19 +176,26 @@ STScnRangeU ScnMemElastic_getUsedAddressesRng(ScnMemElasticRef ref){ //highest a
     STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(opq->blocks.use > 0){
-        STScnRangeU rngLft = STScnRangeU_Zero;
-        STScnRangeU rngRght = STScnRangeU_Zero;
-        STScnMemElasticBlock* bLft = opq->blocks.arr;
+        STScnRangeU rngLft          = STScnRangeU_Zero;
+        STScnRangeU rngRght         = STScnRangeU_Zero;
+        STScnMemElasticBlock* bLft  = opq->blocks.arr;
         STScnMemElasticBlock* bAfterEnd = opq->blocks.arr + opq->blocks.use;
+        //find first used ptr
         while(bLft < bAfterEnd && rngLft.size <= 0){
-            rngLft = ScnMemBlock_getUsedAddressesRng(bLft->block);
+            rngLft          = ScnMemBlock_getUsedAddressesRng(bLft->block);
+            rngLft.start    += bLft->iOffset;
             ++bLft;
         }
+        //find last used ptr
         while(bLft < bAfterEnd && rngRght.size <= 0){
             --bAfterEnd;
-            rngRght = ScnMemBlock_getUsedAddressesRng(bAfterEnd->block);
+            rngRght         = ScnMemBlock_getUsedAddressesRng(bAfterEnd->block);
+            rngRght.start   += bAfterEnd->iOffset;
         }
-        if(rngRght.size == 0) rngRght = rngLft;
+        if(rngRght.size == 0){
+            rngRght = rngLft;
+        }
+        //elastic used rng
         if(rngLft.size > 0 && rngRght.size > 0){
             r.start = rngLft.start;
             r.size  = rngRght.start + rngRght.size - r.start;
@@ -350,25 +357,43 @@ void ScnMemElastic_clear(ScnMemElasticRef ref){ //clears the index, all pointers
 
 //dbg
 
-ScnBOOL ScnMemElastic_validateIndexLockedOpq_(STScnMemElasticOpq* opq){
-    ScnBOOL r = ScnTRUE;
+ScnBOOL ScnMemElastic_pushPtrs(ScnMemElasticRef ref, STScnMemPushPtrsItf* itf, void* itfParam){
+    ScnBOOL r = ScnFALSE;
+    STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
     {
         STScnMemElasticBlock* b = opq->blocks.arr;
         const STScnMemElasticBlock* bAfterEnd = b + opq->blocks.use;
-        ScnUI32 idxsTotalSz = 0;
+        r = ScnTRUE;
         while(b < bAfterEnd){
-            if(b->iOffset != idxsTotalSz){
+            if(!ScnMemBlock_pushPtrs(b->block, b->iOffset, itf, itfParam)){
                 r = ScnFALSE;
-            } else if(!ScnMemBlock_validateIndex(b->block)){
-                r = ScnFALSE;
+                break;
             }
-            idxsTotalSz += b->idxsSz;
             ++b;
         }
-        //
-        if(idxsTotalSz != opq->state.idxsTotalSz){
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+ScnBOOL ScnMemElastic_validateIndexLockedOpq_(STScnMemElasticOpq* opq){
+    ScnBOOL r = ScnTRUE;
+    STScnMemElasticBlock* b = opq->blocks.arr;
+    const STScnMemElasticBlock* bAfterEnd = b + opq->blocks.use;
+    ScnUI32 idxsTotalSz = 0;
+    while(b < bAfterEnd){
+        if(b->iOffset != idxsTotalSz){
+            r = ScnFALSE;
+        } else if(!ScnMemBlock_validateIndex(b->block)){
             r = ScnFALSE;
         }
+        idxsTotalSz += b->idxsSz;
+        ++b;
+    }
+    //
+    if(idxsTotalSz != opq->state.idxsTotalSz){
+        r = ScnFALSE;
     }
     return r;
 }

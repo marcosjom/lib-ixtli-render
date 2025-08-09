@@ -49,6 +49,7 @@ ScnBOOL     ScnMemElastic_mfree(ScnMemElasticRef ref, const STScnAbsPtr ptr);
 //
 void        ScnMemElastic_clear(ScnMemElasticRef ref); //clears the index, all pointers are invalid after this call
 //dbg
+ScnBOOL     ScnMemElastic_pushPtrs(ScnMemElasticRef ref, STScnMemPushPtrsItf* itf, void* itfParam);
 ScnBOOL     ScnMemElastic_validateIndex(ScnMemElasticRef ref);
 
 #ifdef __cplusplus

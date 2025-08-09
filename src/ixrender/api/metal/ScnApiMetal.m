@@ -16,6 +16,11 @@
 #import <MetalKit/MetalKit.h>
 #import <TargetConditionals.h>  //for TARGET_OS_* macros
 
+#ifdef SCN_ASSERTS_ACTIVATED
+#include <string.h> //strncmp()
+#endif
+
+
 //STScnGpuDeviceApiItf
 
 ScnGpuDeviceRef     ScnApiMetal_allocDevice(ScnContextRef ctx, const STScnGpuDeviceCfg* cfg);
@@ -450,12 +455,16 @@ void ScnApiMetal_buffer_free(void* pObj){
     ScnContext_releaseAndNull(&ctx);
 }
 
+#ifdef SCN_ASSERTS_ACTIVATED
+ScnBOOL ScnApiMetal_buffer_syncValidate_(STScnApiMetalBuffer* obj, ScnMemElasticRef mem);
+#endif
+
 ScnBOOL ScnApiMetal_buffer_sync(void* pObj, const STScnGpuBufferCfg* const cfg, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes){
     ScnBOOL r = ScnFALSE;
     STScnApiMetalBuffer* obj = (STScnApiMetalBuffer*)pObj;
     if(obj->buff == nil || ScnMemElastic_isNull(mem)){
         //missing params
-        return r;
+        return ScnFALSE;
     }
     //sync
     {
@@ -484,6 +493,8 @@ ScnBOOL ScnApiMetal_buffer_sync(void* pObj, const STScnGpuBufferCfg* const cfg, 
                 printf("ERROR, ScnApiMetal_buffer_sync::ScnApiMetal_buffer_syncRanges_ failed.\n");
             } else {
                 r = ScnTRUE;
+                //validate
+                SCN_ASSERT(ScnApiMetal_buffer_syncValidate_(obj, mem))
             }
         } else {
             //sync ranges only
@@ -491,11 +502,87 @@ ScnBOOL ScnApiMetal_buffer_sync(void* pObj, const STScnGpuBufferCfg* const cfg, 
                 printf("ERROR, ScnApiMetal_buffer_sync::ScnApiMetal_buffer_syncRanges_ failed.\n");
             } else {
                 r = ScnTRUE;
+                //validate
+                SCN_ASSERT(ScnApiMetal_buffer_syncValidate_(obj, mem))
             }
         }
     }
     return r;
 }
+
+#ifdef SCN_ASSERTS_ACTIVATED
+typedef struct ScnApiMetal_buffer_syncValidate_st {
+    STScnApiMetalBuffer*    obj;
+    STScnRangeU             usedAddressesRng;
+    ScnUI32                 leftLimitFnd;
+    ScnUI32                 rghtLimitFnd;
+} ScnApiMetal_buffer_syncValidate_st;
+#endif
+
+#ifdef SCN_ASSERTS_ACTIVATED
+ScnBOOL ScnApiMetal_buffer_syncValidate_pushBlockPtrs_(void* data, const ScnUI32 rootIndex, const void* rootAddress, const STScnMemBlockPtr* const ptrs, const ScnUI32 ptrsSz){
+    ScnBOOL r = ScnFALSE;
+    ScnApiMetal_buffer_syncValidate_st* st = (ScnApiMetal_buffer_syncValidate_st*)data;
+    STScnApiMetalBuffer* obj = st->obj;
+    const STScnRangeU usedAddressesRng = st->usedAddressesRng;
+    if(obj->buff != nil){
+        const ScnUI32 buffLen       = (ScnUI32)obj->buff.length;
+        ScnBYTE* buffPtr            = (ScnBYTE*)obj->buff.contents;
+        const STScnMemBlockPtr* ptr = ptrs;
+        const STScnMemBlockPtr* ptrAfterEnd = ptr + ptrsSz;
+        const ScnUI32 usedAddressesRngAfterEnd = usedAddressesRng.start + usedAddressesRng.size;
+        r = ScnTRUE;
+        while(ptr < ptrAfterEnd){
+            const ScnUI32 ptrIdx = rootIndex + (ScnUI32)((const ScnBYTE*)ptr->ptr - (const ScnBYTE*)rootAddress);
+            const ScnUI32 ptrIdxAfterEnd = ptrIdx + ptr->sz;
+            if(ptrIdx < usedAddressesRng.start || ptrIdxAfterEnd > usedAddressesRngAfterEnd){
+                SCN_ASSERT(ScnFALSE) //pointer out of ScnMemElastic's declared acitve range (program logic error)
+                r = ScnFALSE;
+                break;
+            } else if(ptrIdxAfterEnd > buffLen){
+                SCN_ASSERT(ScnFALSE) //pointer out of buffer's range
+                r = ScnFALSE;
+                break;
+            } else if(ptr->sz > 0 && 0 != strncmp((const char*)&buffPtr[ptrIdx], ptr->ptr, ptr->sz)){
+                SCN_ASSERT(ScnFALSE) //data missmatch
+                r = ScnFALSE;
+                break;
+            }
+            if(ptrIdx <= st->leftLimitFnd){
+                SCN_ASSERT(ptrIdx < st->leftLimitFnd) //ptrs should not repeat themself
+                st->leftLimitFnd = ptrIdx;
+            }
+            if(ptrIdxAfterEnd >= st->rghtLimitFnd){
+                SCN_ASSERT(ptrIdxAfterEnd > st->rghtLimitFnd) //ptrs should not repeat themself
+                st->rghtLimitFnd = ptrIdxAfterEnd;
+            }
+            //next
+            ++ptr;
+        }
+    }
+    return r;
+}
+#endif
+
+#ifdef SCN_ASSERTS_ACTIVATED
+ScnBOOL ScnApiMetal_buffer_syncValidate_(STScnApiMetalBuffer* obj, ScnMemElasticRef mem){
+    ScnBOOL r = ScnTRUE;
+    ScnApiMetal_buffer_syncValidate_st st;
+    STScnMemPushPtrsItf itf;
+    ScnMemory_setZeroSt(itf);
+    ScnMemory_setZeroSt(st);
+    itf.pushBlockPtrs   = ScnApiMetal_buffer_syncValidate_pushBlockPtrs_;
+    st.obj              = obj;
+    st.usedAddressesRng = ScnMemElastic_getUsedAddressesRng(mem);
+    st.leftLimitFnd     = 0xFFFFFFFFu;
+    st.rghtLimitFnd     = 0;
+    {
+        r = ScnMemElastic_pushPtrs(mem, &itf, &st);
+    }
+    SCN_ASSERT(st.leftLimitFnd == st.usedAddressesRng.start && st.rghtLimitFnd == (st.usedAddressesRng.start + st.usedAddressesRng.size)) //program logic error, the used-address-rng notified by the elastic-memory was miscalculated
+    return r;
+}
+#endif
 
 ScnBOOL ScnApiMetal_buffer_syncRanges_(id<MTLBuffer> buff, ScnMemElasticRef mem, const STScnRangeU* const rngs, const ScnUI32 rngsUse){
     ScnBOOL r = ScnTRUE;
