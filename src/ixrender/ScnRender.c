@@ -490,12 +490,6 @@ ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(STScnRenderOpq* opq, cons
                     cfg.coord.amm           = 2;
                     cfg.coord.type          = ENScnGpuDataType_FLOAT32;
                     cfg.coord.offset        = ScnVertex2D_IDX_x;
-                    //indices
-                    if(!ScnBuffer_isNull(idxsBuff)){
-                        cfg.indices.amm     = 1;
-                        cfg.indices.type    = ENScnGpuDataType_UI32;
-                        cfg.indices.offset  = 0;
-                    }
                     break;
             }
             if(r){

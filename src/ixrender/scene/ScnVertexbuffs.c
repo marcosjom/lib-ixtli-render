@@ -98,13 +98,13 @@ ScnVertexbuffRef ScnVertexbuffs_getVertexBuff(ScnVertexbuffsRef ref, const ENScn
     return (type >= 0 && type < ENScnVertexType_Count ? opq->vBuffs[type] : (ScnVertexbuffRef)ScnObjRef_Zero);
 }
 
-#define ScnVertexbuffs_vNAlloc(V_IDX, PT_CAST_TYPE, GET_BUFF_METHOD)  \
+#define ScnVertexbuffs_vNAlloc(V_IDX, PT_CAST_TYPE, GET_BUFF_METHOD, GET_SIZE_PER_RECORD_METHOD)  \
     STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)ScnSharedPtr_getOpq(ref.ptr); \
     ScnMutex_lock(opq->mutex); \
     { \
         ScnVertexbuffRef vb = opq->vBuffs[V_IDX]; \
         if(!ScnVertexbuff_isNull(vb)){ \
-            const ScnUI32 szPerRecord = ScnVertexbuff_getSzPerRecord(vb); \
+            const ScnUI32 szPerRecord = GET_SIZE_PER_RECORD_METHOD(vb); \
             ScnBufferRef b = GET_BUFF_METHOD(vb); \
             if(!ScnBuffer_isNull(b)){ \
                 STScnAbsPtr r2 = ScnBuffer_malloc(b, amm * szPerRecord); \
@@ -115,14 +115,14 @@ ScnVertexbuffRef ScnVertexbuffs_getVertexBuff(ScnVertexbuffsRef ref, const ENScn
     } \
     ScnMutex_unlock(opq->mutex);
 
-#define ScnVertexbuffs_vNInvalidate(V_IDX, GET_BUFF_METHOD) \
+#define ScnVertexbuffs_vNInvalidate(V_IDX, GET_BUFF_METHOD, GET_SIZE_PER_RECORD_METHOD) \
     ScnBOOL r = ScnFALSE; \
     STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)ScnSharedPtr_getOpq(ref.ptr); \
     ScnMutex_lock(opq->mutex); \
     { \
         ScnVertexbuffRef vb = opq->vBuffs[V_IDX]; \
         if(!ScnVertexbuff_isNull(vb)){ \
-            const ScnUI32 szPerRecord = ScnVertexbuff_getSzPerRecord(vb); \
+            const ScnUI32 szPerRecord = GET_SIZE_PER_RECORD_METHOD(vb); \
             ScnBufferRef b = GET_BUFF_METHOD(vb); \
             if(!ScnBuffer_isNull(b)){ \
                 STScnAbsPtr ptr2 = STScnAbsPtr_Zero; \
@@ -135,14 +135,14 @@ ScnVertexbuffRef ScnVertexbuffs_getVertexBuff(ScnVertexbuffsRef ref, const ENScn
     ScnMutex_unlock(opq->mutex); \
     return r;
 
-#define ScnVertexbuffs_vNFree(V_IDX, GET_BUFF_METHOD) \
+#define ScnVertexbuffs_vNFree(V_IDX, GET_BUFF_METHOD, GET_SIZE_PER_RECORD_METHOD) \
     ScnBOOL r = ScnFALSE; \
     STScnVertexbuffsOpq* opq = (STScnVertexbuffsOpq*)ScnSharedPtr_getOpq(ref.ptr); \
     ScnMutex_lock(opq->mutex); \
     { \
         ScnVertexbuffRef vb = opq->vBuffs[V_IDX]; \
         if(!ScnVertexbuff_isNull(vb)){ \
-            const ScnUI32 szPerRecord = ScnVertexbuff_getSzPerRecord(vb); \
+            const ScnUI32 szPerRecord = GET_SIZE_PER_RECORD_METHOD(vb); \
             ScnBufferRef b = GET_BUFF_METHOD(vb); \
             if(!ScnBuffer_isNull(b)){ \
                 STScnAbsPtr ptr2 = STScnAbsPtr_Zero; \
@@ -159,128 +159,128 @@ ScnVertexbuffRef ScnVertexbuffs_getVertexBuff(ScnVertexbuffsRef ref, const ENScn
 
 STScnVertex2DPtr ScnVertexbuffs_v0Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm){
     STScnVertex2DPtr r = STScnVertex2DPtr_Zero;
-    ScnVertexbuffs_vNAlloc(ENScnVertexType_2DColor, STScnVertex2D, ScnVertexbuff_getVertexBuff)
+    ScnVertexbuffs_vNAlloc(ENScnVertexType_2DColor, STScnVertex2D, ScnVertexbuff_getVertexBuff, ScnVertexbuff_getSzPerRecord)
     return r;
 }
 
 ScnBOOL ScnVertexbuffs_v0Invalidate(ScnVertexbuffsRef ref, const STScnVertex2DPtr ptr, const ScnUI32 sz){
-    ScnVertexbuffs_vNInvalidate(ENScnVertexType_2DColor, ScnVertexbuff_getVertexBuff)
+    ScnVertexbuffs_vNInvalidate(ENScnVertexType_2DColor, ScnVertexbuff_getVertexBuff, ScnVertexbuff_getSzPerRecord)
 }
 
 ScnBOOL ScnVertexbuffs_v0Free(ScnVertexbuffsRef ref, const STScnVertex2DPtr ptr){
-    ScnVertexbuffs_vNFree(ENScnVertexType_2DColor, ScnVertexbuff_getVertexBuff);
+    ScnVertexbuffs_vNFree(ENScnVertexType_2DColor, ScnVertexbuff_getVertexBuff, ScnVertexbuff_getSzPerRecord);
 }
 
 //
 
 STScnVertexIdxPtr ScnVertexbuffs_v0IdxsAlloc(ScnVertexbuffsRef ref, const ScnUI32 amm){
     STScnVertexIdxPtr r = STScnVertex2DPtr_Zero;
-    ScnVertexbuffs_vNAlloc(ENScnVertexType_2DColor, STScnVertexIdx, ScnVertexbuff_getIdxsBuff)
+    ScnVertexbuffs_vNAlloc(ENScnVertexType_2DColor, STScnVertexIdx, ScnVertexbuff_getIdxsBuff, ScnVertexbuff_getSzPerIndex)
     return r;
 }
 
 ScnBOOL ScnVertexbuffs_v0IdxsInvalidate(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz){
-    ScnVertexbuffs_vNInvalidate(ENScnVertexType_2DColor, ScnVertexbuff_getIdxsBuff)
+    ScnVertexbuffs_vNInvalidate(ENScnVertexType_2DColor, ScnVertexbuff_getIdxsBuff, ScnVertexbuff_getSzPerIndex)
 }
 
 ScnBOOL ScnVertexbuffs_v0IdxsFree(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr){
-    ScnVertexbuffs_vNFree(ENScnVertexType_2DColor, ScnVertexbuff_getIdxsBuff);
+    ScnVertexbuffs_vNFree(ENScnVertexType_2DColor, ScnVertexbuff_getIdxsBuff, ScnVertexbuff_getSzPerIndex);
 }
 
 //ENScnVertexType_2DTex  //one texture
 
 STScnVertex2DTexPtr ScnVertexbuffs_v1Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm){
     STScnVertex2DTexPtr r = STScnVertex2DPtr_Zero;
-    ScnVertexbuffs_vNAlloc(ENScnVertexType_2DTex, STScnVertex2DTex, ScnVertexbuff_getVertexBuff)
+    ScnVertexbuffs_vNAlloc(ENScnVertexType_2DTex, STScnVertex2DTex, ScnVertexbuff_getVertexBuff, ScnVertexbuff_getSzPerRecord)
     return r;
 }
 
 ScnBOOL ScnVertexbuffs_v1Invalidate(ScnVertexbuffsRef ref, const STScnVertex2DTexPtr ptr, const ScnUI32 sz){
-    ScnVertexbuffs_vNInvalidate(ENScnVertexType_2DTex, ScnVertexbuff_getVertexBuff)
+    ScnVertexbuffs_vNInvalidate(ENScnVertexType_2DTex, ScnVertexbuff_getVertexBuff, ScnVertexbuff_getSzPerRecord)
 }
 
 ScnBOOL ScnVertexbuffs_v1Free(ScnVertexbuffsRef ref, const STScnVertex2DTexPtr ptr){
-    ScnVertexbuffs_vNFree(ENScnVertexType_2DTex, ScnVertexbuff_getVertexBuff);
+    ScnVertexbuffs_vNFree(ENScnVertexType_2DTex, ScnVertexbuff_getVertexBuff, ScnVertexbuff_getSzPerRecord);
 }
 
 //
 
 STScnVertexIdxPtr ScnVertexbuffs_v1IdxsAlloc(ScnVertexbuffsRef ref, const ScnUI32 amm){
     STScnVertexIdxPtr r = STScnVertex2DPtr_Zero;
-    ScnVertexbuffs_vNAlloc(ENScnVertexType_2DTex, STScnVertexIdx, ScnVertexbuff_getIdxsBuff)
+    ScnVertexbuffs_vNAlloc(ENScnVertexType_2DTex, STScnVertexIdx, ScnVertexbuff_getIdxsBuff, ScnVertexbuff_getSzPerIndex)
     return r;
 }
 
 ScnBOOL ScnVertexbuffs_v1IdxsInvalidate(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz){
-    ScnVertexbuffs_vNInvalidate(ENScnVertexType_2DTex, ScnVertexbuff_getIdxsBuff)
+    ScnVertexbuffs_vNInvalidate(ENScnVertexType_2DTex, ScnVertexbuff_getIdxsBuff, ScnVertexbuff_getSzPerIndex)
 }
 
 ScnBOOL ScnVertexbuffs_v1IdxsFree(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr){
-    ScnVertexbuffs_vNFree(ENScnVertexType_2DTex, ScnVertexbuff_getIdxsBuff);
+    ScnVertexbuffs_vNFree(ENScnVertexType_2DTex, ScnVertexbuff_getIdxsBuff, ScnVertexbuff_getSzPerIndex);
 }
 
 //ENScnVertexType_2DTex2 //two textures
 
 STScnVertex2DTex2Ptr ScnVertexbuffs_v2Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm){
     STScnVertex2DTex2Ptr r = STScnVertex2DPtr_Zero;
-    ScnVertexbuffs_vNAlloc(ENScnVertexType_2DTex2, STScnVertex2DTex2, ScnVertexbuff_getVertexBuff)
+    ScnVertexbuffs_vNAlloc(ENScnVertexType_2DTex2, STScnVertex2DTex2, ScnVertexbuff_getVertexBuff, ScnVertexbuff_getSzPerRecord)
     return r;
 }
 
 ScnBOOL ScnVertexbuffs_v2Invalidate(ScnVertexbuffsRef ref, const STScnVertex2DTex2Ptr ptr, const ScnUI32 sz){
-    ScnVertexbuffs_vNInvalidate(ENScnVertexType_2DTex2, ScnVertexbuff_getVertexBuff)
+    ScnVertexbuffs_vNInvalidate(ENScnVertexType_2DTex2, ScnVertexbuff_getVertexBuff, ScnVertexbuff_getSzPerRecord)
 }
 
 ScnBOOL ScnVertexbuffs_v2Free(ScnVertexbuffsRef ref, const STScnVertex2DTex2Ptr ptr){
-    ScnVertexbuffs_vNFree(ENScnVertexType_2DTex2, ScnVertexbuff_getVertexBuff);
+    ScnVertexbuffs_vNFree(ENScnVertexType_2DTex2, ScnVertexbuff_getVertexBuff, ScnVertexbuff_getSzPerRecord);
 }
 
 //
 
 STScnVertexIdxPtr ScnVertexbuffs_v2IdxsAlloc(ScnVertexbuffsRef ref, const ScnUI32 amm){
     STScnVertexIdxPtr r = STScnVertex2DPtr_Zero;
-    ScnVertexbuffs_vNAlloc(ENScnVertexType_2DTex2, STScnVertexIdx, ScnVertexbuff_getIdxsBuff)
+    ScnVertexbuffs_vNAlloc(ENScnVertexType_2DTex2, STScnVertexIdx, ScnVertexbuff_getIdxsBuff, ScnVertexbuff_getSzPerIndex)
     return r;
 }
 
 ScnBOOL ScnVertexbuffs_v2IdxsInvalidate(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz){
-    ScnVertexbuffs_vNInvalidate(ENScnVertexType_2DTex2, ScnVertexbuff_getIdxsBuff)
+    ScnVertexbuffs_vNInvalidate(ENScnVertexType_2DTex2, ScnVertexbuff_getIdxsBuff, ScnVertexbuff_getSzPerIndex)
 }
 
 ScnBOOL ScnVertexbuffs_v2IdxsFree(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr){
-    ScnVertexbuffs_vNFree(ENScnVertexType_2DTex2, ScnVertexbuff_getIdxsBuff);
+    ScnVertexbuffs_vNFree(ENScnVertexType_2DTex2, ScnVertexbuff_getIdxsBuff, ScnVertexbuff_getSzPerIndex);
 }
 
 //ENScnVertexType_2DTex3 //three textures
 
 STScnVertex2DTex3Ptr ScnVertexbuffs_v3Alloc(ScnVertexbuffsRef ref, const ScnUI32 amm){
     STScnVertex2DTex3Ptr r = STScnVertex2DPtr_Zero;
-    ScnVertexbuffs_vNAlloc(ENScnVertexType_2DTex3, STScnVertex2DTex3, ScnVertexbuff_getVertexBuff)
+    ScnVertexbuffs_vNAlloc(ENScnVertexType_2DTex3, STScnVertex2DTex3, ScnVertexbuff_getVertexBuff, ScnVertexbuff_getSzPerRecord)
     return r;
 }
 
 ScnBOOL ScnVertexbuffs_v3Invalidate(ScnVertexbuffsRef ref, const STScnVertex2DTex3Ptr ptr, const ScnUI32 sz){
-    ScnVertexbuffs_vNInvalidate(ENScnVertexType_2DTex3, ScnVertexbuff_getVertexBuff)
+    ScnVertexbuffs_vNInvalidate(ENScnVertexType_2DTex3, ScnVertexbuff_getVertexBuff, ScnVertexbuff_getSzPerRecord)
 }
 
 ScnBOOL ScnVertexbuffs_v3Free(ScnVertexbuffsRef ref, const STScnVertex2DTex3Ptr ptr){
-    ScnVertexbuffs_vNFree(ENScnVertexType_2DTex3, ScnVertexbuff_getVertexBuff);
+    ScnVertexbuffs_vNFree(ENScnVertexType_2DTex3, ScnVertexbuff_getVertexBuff, ScnVertexbuff_getSzPerRecord);
 }
 
 //
 
 STScnVertexIdxPtr ScnVertexbuffs_v3IdxsAlloc(ScnVertexbuffsRef ref, const ScnUI32 amm){
     STScnVertexIdxPtr r = STScnVertex2DPtr_Zero;
-    ScnVertexbuffs_vNAlloc(ENScnVertexType_2DTex3, STScnVertexIdx, ScnVertexbuff_getIdxsBuff)
+    ScnVertexbuffs_vNAlloc(ENScnVertexType_2DTex3, STScnVertexIdx, ScnVertexbuff_getIdxsBuff, ScnVertexbuff_getSzPerIndex)
     return r;
 }
 
 ScnBOOL ScnVertexbuffs_v3IdxsInvalidate(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr, const ScnUI32 sz){
-    ScnVertexbuffs_vNInvalidate(ENScnVertexType_2DTex3, ScnVertexbuff_getIdxsBuff)
+    ScnVertexbuffs_vNInvalidate(ENScnVertexType_2DTex3, ScnVertexbuff_getIdxsBuff, ScnVertexbuff_getSzPerIndex)
 }
 
 ScnBOOL ScnVertexbuffs_v3IdxsFree(ScnVertexbuffsRef ref, const STScnVertexIdxPtr ptr){
-    ScnVertexbuffs_vNFree(ENScnVertexType_2DTex3, ScnVertexbuff_getIdxsBuff);
+    ScnVertexbuffs_vNFree(ENScnVertexType_2DTex3, ScnVertexbuff_getIdxsBuff, ScnVertexbuff_getSzPerIndex);
 }
 
 //gpu-vertexbuffs

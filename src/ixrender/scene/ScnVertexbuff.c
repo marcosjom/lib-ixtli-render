@@ -127,6 +127,11 @@ ScnUI32 ScnVertexbuff_getSzPerRecord(ScnVertexbuffRef ref){
     return opq->cfg.szPerRecord;
 }
 
+ScnUI32 ScnVertexbuff_getSzPerIndex(ScnVertexbuffRef ref){
+    //STScnVertexbuffOpq* opq = (STScnVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    return sizeof(ScnUI32);
+}
+
 ScnBufferRef ScnVertexbuff_getVertexBuff(ScnVertexbuffRef ref){
     STScnVertexbuffOpq* opq = (STScnVertexbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     return opq->buffs.vertex;

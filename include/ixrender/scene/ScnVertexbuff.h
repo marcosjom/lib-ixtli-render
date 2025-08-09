@@ -32,6 +32,7 @@ ScnBOOL         ScnVertexbuff_activate(ScnVertexbuffRef ref);
 ScnBOOL         ScnVertexbuff_deactivate(ScnVertexbuffRef ref);
 
 ScnUI32         ScnVertexbuff_getSzPerRecord(ScnVertexbuffRef ref);
+ScnUI32         ScnVertexbuff_getSzPerIndex(ScnVertexbuffRef ref);
 ScnBufferRef    ScnVertexbuff_getVertexBuff(ScnVertexbuffRef ref);
 ScnBufferRef    ScnVertexbuff_getIdxsBuff(ScnVertexbuffRef ref);
 

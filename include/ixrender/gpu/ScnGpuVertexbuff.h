@@ -29,13 +29,12 @@ typedef struct STScnGpuVertexPartDef {
 
 //STScnGpuVertexbuffCfg
 
-#define STScnGpuVertexbuffCfg_Zero   { 0, STScnGpuVertexPartDef_Zero, STScnGpuVertexPartDef_Zero, STScnGpuVertexPartDef_Zero, { STScnGpuVertexPartDef_Zero, STScnGpuVertexPartDef_Zero, STScnGpuVertexPartDef_Zero } }
+#define STScnGpuVertexbuffCfg_Zero   { 0, STScnGpuVertexPartDef_Zero, STScnGpuVertexPartDef_Zero, { STScnGpuVertexPartDef_Zero, STScnGpuVertexPartDef_Zero, STScnGpuVertexPartDef_Zero } }
 
 #define STScnGpuVertexbuffCfg_2_ENScnVertexType(OBJ)  ((OBJ)->texCoords[ENScnGpuTextureIdx_2].amm > 0 ? ENScnVertexType_2DTex3 : (OBJ)->texCoords[ENScnGpuTextureIdx_1].amm > 0 ? ENScnVertexType_2DTex2 : (OBJ)->texCoords[ENScnGpuTextureIdx_0].amm > 0 ? ENScnVertexType_2DTex : ENScnVertexType_2DColor)
 
 typedef struct STScnGpuVertexbuffCfg {
     ScnUI32                 szPerRecord;    //bytes per record
-    STScnGpuVertexPartDef   indices;
     STScnGpuVertexPartDef   coord;
     STScnGpuVertexPartDef   color;
     STScnGpuVertexPartDef   texCoords[ENScnGpuTextureIdx_Count];
