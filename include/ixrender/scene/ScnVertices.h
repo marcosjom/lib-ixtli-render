@@ -18,6 +18,8 @@ extern "C" {
 
 //ENScnVertexType
 
+#define ENScnVertexType_Count_Zeroes    { 0, 0, 0, 0 }
+
 typedef enum ENScnVertexType {
     ENScnVertexType_2DColor = 0,    //2D, no texture
     ENScnVertexType_2DTex,          //2D, one texture

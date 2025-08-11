@@ -47,21 +47,6 @@ extern "C" {
 
 #define ScnArray_empty(ARRSTPTR)  (ARRSTPTR)->use = 0
 
-#define ScnArray_addValue(CTX_REF, ARRSTPTR, ITM, ARR_TYPE) \
-    { \
-        if((ARRSTPTR)->use >= (ARRSTPTR)->sz){ \
-            ScnSI32 szN = (ARRSTPTR)->use + ((ARRSTPTR)->growth > 0 ? (ARRSTPTR)->growth : 1); \
-            ARR_TYPE* arrN = (ARR_TYPE*)ScnContext_mrealloc(CTX_REF, (ARRSTPTR)->arr, sizeof(ARR_TYPE) * szN, #ARRSTPTR); \
-            if(arrN != NULL){ \
-                (ARRSTPTR)->arr = arrN; \
-                (ARRSTPTR)->sz  = szN; \
-            } \
-        } \
-        if((ARRSTPTR)->use < (ARRSTPTR)->sz){ \
-            (ARRSTPTR)->arr[(ARRSTPTR)->use++] = ITM; \
-        } \
-    }
-
 #define ScnArray_addPtr(CTX_REF, ARRSTPTR, ITM_PTR, ARR_TYPE) \
         (ARR_TYPE*) ScnArray_addPtr_(CTX_REF, (void**)&(ARRSTPTR)->arr, &(ARRSTPTR)->use, &(ARRSTPTR)->sz, (ARRSTPTR)->growth, sizeof((ARRSTPTR)->arr[0]), ITM_PTR, sizeof(*(ITM_PTR)), "ScnArraySorted_addPtr::" #ARRSTPTR)
 

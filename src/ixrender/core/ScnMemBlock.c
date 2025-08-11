@@ -116,6 +116,7 @@ void ScnMemBlock_destroyOpq(void* obj){
         //ScnStruct_stRelease(ScnMemBlockCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
     }
     //
+    SCN_ASSERT(opq->ptrs.use == 0) //user-space memory leaks?
     ScnArraySorted_destroy(opq->ctx, &opq->ptrs);
     ScnArraySorted_destroy(opq->ctx, &opq->gaps);
     ScnMutex_freeAndNullify(&opq->mutex);
@@ -220,7 +221,7 @@ STScnRangeU ScnMemBlock_getUsedAddressesRng(ScnMemBlockRef ref){ //highest alloc
 }
 
 //allocations
-
+    
 STScnAbsPtr ScnMemBlock_malloc(ScnMemBlockRef ref, const ScnUI32 usableSz){
     STScnAbsPtr r = STScnAbsPtr_Zero;
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);

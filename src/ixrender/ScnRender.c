@@ -32,6 +32,7 @@ void    ScnRenderSlot_destroy(STScnRenderSlot* obj);
 typedef struct STScnRenderOpq {
     ScnContextRef       ctx;
     ScnMutexRef         mutex;
+    STScnRenderCfg      cfg;
     //api
     struct {
         STScnApiItf     itf;
@@ -102,18 +103,38 @@ void ScnRender_destroyOpq(void* obj){
     ScnContext_releaseAndNull(&opq->ctx);
 }
 
+//
+
+STScnRenderCfg ScnRender_getDefaultCfg(void){
+    STScnRenderCfg r;
+    ScnMemory_setZeroSt(r);
+    //memory
+    {
+        r.mem.propsScnsPerBlock     = 32;
+        r.mem.propsMdlsPerBlock     = 128;
+        r.mem.verts.idxsPerBlock    = 2048;
+        r.mem.verts.typesPerBlock[ENScnVertexType_2DColor]  = 256;
+        r.mem.verts.typesPerBlock[ENScnVertexType_2DTex]    = 1024;
+        r.mem.verts.typesPerBlock[ENScnVertexType_2DTex2]   = 256;
+        r.mem.verts.typesPerBlock[ENScnVertexType_2DTex3]   = 256;
+    }
+    return r;
+}
+
 //prepare
 
 ScnBufferRef      ScnRender_allocDynamicBuffLockedOpq_(ScnContextRef ctx, ScnGpuDeviceRef gpuDev, const ScnUI32 memBlockAlign, const ScnUI32 offsetsAlignment, const ScnUI32 itmSz, const ScnUI32 itmsPerBlock, const ScnUI32 ammRenderSlots);
-ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(ScnContextRef ctx, ScnGpuDeviceRef gpuDev, const ScnUI32 memBlockAlign, const ScnUI32 ammRenderSlots);
+ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(ScnContextRef ctx, ScnGpuDeviceRef gpuDev, const ScnUI32 memBlockAlign, const ScnUI32 ammRenderSlots, const STScnRenderVertsCfg* cfg);
 
-ScnBOOL ScnRender_prepare(ScnRenderRef ref, const STScnApiItf* itf, void* itfParam){
+ScnBOOL ScnRender_prepare(ScnRenderRef ref, const STScnApiItf* itf, void* itfParam, const STScnRenderCfg* optCfg){
     ScnBOOL r = ScnFALSE;
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(itf != NULL){
-        opq->api.itf = *itf;
+        opq->api.itf    = *itf;
         opq->api.itfParam = itfParam;
+        opq->cfg        = (optCfg == NULL ? ScnRender_getDefaultCfg() : *optCfg);
+        //ToDo: validate cfg values here, or allow it to produce error later?
         r = ScnTRUE;
     }
     ScnMutex_unlock(opq->mutex);
@@ -150,7 +171,7 @@ ScnBOOL ScnRender_openDevice(ScnRenderRef ref, const STScnGpuDeviceCfg* cfg, con
                 }
                 //initial buffers
                 if(slotsUse == ammRenderSlots){
-                    ScnVertexbuffsRef vbuffs = ScnRender_allocVertexbuffsLockedOpq_(opq->ctx, gpuDev, devDesc.memBlockAlign, ammRenderSlots);
+                    ScnVertexbuffsRef vbuffs = ScnRender_allocVertexbuffsLockedOpq_(opq->ctx, gpuDev, devDesc.memBlockAlign, ammRenderSlots, &opq->cfg);
                     if(ScnVertexbuffs_isNull(vbuffs)){
                         printf("ERROR, ScnRender_allocVertexbuffsLockedOpq_(vbuffs) failed.\n");
                     } else {
@@ -283,13 +304,22 @@ STScnRenderSlot* ScnRender_getAvailRenderSlotLockedOpq_(STScnRenderOpq* opq){
     STScnRenderSlot* s = opq->slots.arr;
     const STScnRenderSlot* sAfterEnd = s + opq->slots.use;
     while(s < sAfterEnd){
-        ENScnGpuRenderJobState state;
+        const ENScnGpuRenderJobState state = (ScnGpuRenderJob_isNull(s->gpuJob) ? ENScnGpuRenderJobState_Unknown : ScnGpuRenderJob_getState(s->gpuJob));
         if(
            ScnGpuRenderJob_isNull(s->gpuJob)
-           || ENScnGpuRenderJobState_Completed == (state = ScnGpuRenderJob_getState(s->gpuJob))
-           || ENScnGpuRenderJobState_Error == state
+           || state == ENScnGpuRenderJobState_Completed
+           || state == ENScnGpuRenderJobState_Error
            )
         {
+#           ifdef SCN_ASSERTS_ACTIVATED
+            if(ScnGpuRenderJob_isNull(s->gpuJob)){
+                SCN_PRINTF_INFO("ScnRender::first job in slot.\n");
+            } else if(state == ENScnGpuRenderJobState_Completed){
+                //SCN_PRINTF_INFO("ScnRender::previous job explicitely completed.\n");
+            } if(ENScnGpuRenderJobState_Error == state){
+                SCN_PRINTF_WARNING("ScnRender::previous job ended with error.\n");
+            }
+#           endif
             return s;
         }
         //
@@ -304,17 +334,17 @@ ScnRenderJobRef ScnRender_allocRenderJob(ScnRenderRef ref){
     ScnMutex_lock(opq->mutex);
     if(!ScnGpuDevice_isNull(opq->gpuDev) && opq->slots.arr != NULL){
         //Find an available render slot
-        STScnRenderSlot* sAvail = ScnRender_getAvailRenderSlotLockedOpq_(opq);
-        if(sAvail != NULL){
-            if(!sAvail->cmds.isPrepared && !ScnRenderCmds_prepare(&sAvail->cmds, &opq->gpuDevDesc)){
+        STScnRenderSlot* slot = ScnRender_getAvailRenderSlotLockedOpq_(opq);
+        if(slot != NULL){
+            if(!slot->cmds.isPrepared && !ScnRenderCmds_prepare(&slot->cmds, &opq->gpuDevDesc, opq->cfg.mem.propsScnsPerBlock, opq->cfg.mem.propsMdlsPerBlock)){
                 printf("ERROR, ScnRender_allocRenderJob::ScnRenderCmds_prepare failed.\n");
             } else {
                 ScnGpuRenderJobRef gpuJob = ScnGpuRenderJobRef_Zero;
-                ScnRenderCmds_reset(&sAvail->cmds);
+                ScnRenderCmds_reset(&slot->cmds);
                 {
                     //Create a RenderJob re-using previously cmds-buffer and nullifying its previous GpuJob.
                     ScnRenderJobRef job = ScnRenderJob_alloc(opq->ctx);
-                    if(!ScnRenderJob_isNull(job) && ScnRenderJob_swapCmds(job, &sAvail->cmds, &gpuJob)){
+                    if(!ScnRenderJob_isNull(job) && ScnRenderJob_swapCmds(job, &slot->cmds, &gpuJob)){
                         ScnRenderJob_set(&r, job);
                     }
                     ScnRenderJob_releaseAndNull(&job);
@@ -337,58 +367,57 @@ ScnBOOL ScnRender_enqueue(ScnRenderRef ref, ScnRenderJobRef job){
     ScnMutex_lock(opq->mutex);
     if(!ScnGpuDevice_isNull(opq->gpuDev) && opq->slots.arr != NULL){
         //Find an available render slot
-        STScnRenderSlot* sAvail = ScnRender_getAvailRenderSlotLockedOpq_(opq);
-        if(sAvail != NULL){
+        STScnRenderSlot* slot = ScnRender_getAvailRenderSlotLockedOpq_(opq);
+        if(slot != NULL){
             ScnGpuRenderJobRef gpuJob = ScnGpuDevice_allocRenderJob(opq->gpuDev);
             if(ScnGpuRenderJob_isNull(gpuJob)){
                 printf("ERROR, ScnRender_enqueue::ScnGpuDevice_allocRenderJob failed.\n");
             } else {
-                ScnGpuRenderJobRef gpuJobPrev = gpuJob;
-                ScnGpuRenderJob_retain(gpuJobPrev);
-                if(!ScnRenderJob_swapCmds(job, &sAvail->cmds, &gpuJobPrev)){
+                ScnGpuRenderJobRef gpuJobPrev = ScnGpuRenderJobRef_Zero;
+                ScnGpuRenderJob_set(&gpuJobPrev, gpuJob);
+                if(!ScnRenderJob_swapCmds(job, &slot->cmds, &gpuJobPrev)){
                     printf("ERROR, ScnRender_enqueue::ScnRenderJob_swapCmds failed.\n");
-                    ScnGpuRenderJob_release(&gpuJobPrev);
-                } else if(!sAvail->cmds.isPrepared || ScnMemElastic_isNull(sAvail->cmds.mPropsScns) || ScnMemElastic_isNull(sAvail->cmds.mPropsMdls)){
+                } else if(!slot->cmds.isPrepared || ScnMemElastic_isNull(slot->cmds.mPropsScns) || ScnMemElastic_isNull(slot->cmds.mPropsMdls)){
                     printf("ERROR, ScnRender_enqueue::cmds were not previosuly prepared.\n");
                 } else {
                     r = ScnTRUE;
                     //printf("ScnRenderJob_end::%u objs, %u cmds.\n", opq->cmds.objs.use, opq->cmds.cmds.use);
                     //sync buffers
-                    if(r && ScnMemElastic_hasPtrs(sAvail->cmds.mPropsScns)){
-                        if(ScnGpuBuffer_isNull(sAvail->bPropsScns)){
+                    if(r && ScnMemElastic_hasPtrs(slot->cmds.mPropsScns)){
+                        if(ScnGpuBuffer_isNull(slot->bPropsScns)){
                             //create new buffer
-                            sAvail->bPropsScns = ScnGpuDevice_allocBuffer(opq->gpuDev, sAvail->cmds.mPropsScns);
-                            if(ScnGpuBuffer_isNull(sAvail->bPropsScns)){
+                            slot->bPropsScns = ScnGpuDevice_allocBuffer(opq->gpuDev, slot->cmds.mPropsScns);
+                            if(ScnGpuBuffer_isNull(slot->bPropsScns)){
                                 printf("ERROR, ScnRender_enqueue::ScnGpuBuffer_sync(bPropsScns) failed.\n");
                                 r = ScnFALSE;
                             }
                         } else {
                             //sync existing buffer
                             const STScnGpuBufferChanges chngs = STScnGpuBufferChanges_All;
-                            if(!ScnGpuBuffer_sync(sAvail->bPropsScns, sAvail->cmds.mPropsScns, &chngs)){
+                            if(!ScnGpuBuffer_sync(slot->bPropsScns, slot->cmds.mPropsScns, &chngs)){
                                 printf("ERROR, ScnRender_enqueue::ScnGpuBuffer_sync(bPropsScns) failed.\n");
                             }
                         }
                     }
-                    if(r && ScnMemElastic_hasPtrs(sAvail->cmds.mPropsMdls)){
-                        if(ScnGpuBuffer_isNull(sAvail->bPropsMdls)){
+                    if(r && ScnMemElastic_hasPtrs(slot->cmds.mPropsMdls)){
+                        if(ScnGpuBuffer_isNull(slot->bPropsMdls)){
                             //create new buffer
-                            sAvail->bPropsMdls = ScnGpuDevice_allocBuffer(opq->gpuDev, sAvail->cmds.mPropsMdls);
-                            if(ScnGpuBuffer_isNull(sAvail->bPropsMdls)){
+                            slot->bPropsMdls = ScnGpuDevice_allocBuffer(opq->gpuDev, slot->cmds.mPropsMdls);
+                            if(ScnGpuBuffer_isNull(slot->bPropsMdls)){
                                 printf("ERROR, ScnRender_enqueue::ScnGpuBuffer_sync(bPropsMdls) failed.\n");
                                 r = ScnFALSE;
                             }
                         } else {
                             //sync existing buffer
                             const STScnGpuBufferChanges chngs = STScnGpuBufferChanges_All;
-                            if(!ScnGpuBuffer_sync(sAvail->bPropsMdls, sAvail->cmds.mPropsMdls, &chngs)){
+                            if(!ScnGpuBuffer_sync(slot->bPropsMdls, slot->cmds.mPropsMdls, &chngs)){
                                 printf("ERROR, ScnRender_enqueue::ScnGpuBuffer_sync(bPropsMdls) failed.\n");
                             }
                         }
                     }
                     //sync used objects' gpu-data
                     if(r){
-                        ScnArraySorted_foreach(&sAvail->cmds.objs, STScnRenderJobObj, o,
+                        ScnArraySorted_foreach(&slot->cmds.objs, STScnRenderJobObj, o,
                             switch(o->type){
                                 case ENScnRenderJobObjType_Unknown: break;
                                 case ENScnRenderJobObjType_Buff:
@@ -426,11 +455,11 @@ ScnBOOL ScnRender_enqueue(ScnRenderRef ref, ScnRenderJobRef job){
                         );
                     }
                     //send render commands to gpu
-                    if(r && sAvail->cmds.cmds.use > 0){
-                        if(!ScnGpuRenderJob_buildBegin(gpuJob, sAvail->bPropsScns, sAvail->bPropsMdls)){
+                    if(r && slot->cmds.cmds.use > 0){
+                        if(!ScnGpuRenderJob_buildBegin(gpuJob, slot->bPropsScns, slot->bPropsMdls)){
                             printf("ERROR, ScnRender_enqueue::ScnGpuRenderJob_buildBegin failed.\n");
                             r = ScnFALSE;
-                        } else if(!ScnGpuRenderJob_buildAddCmds(gpuJob, sAvail->cmds.cmds.arr, sAvail->cmds.cmds.use)){
+                        } else if(!ScnGpuRenderJob_buildAddCmds(gpuJob, slot->cmds.cmds.arr, slot->cmds.cmds.use)){
                             printf("ERROR, ScnRender_enqueue::ScnGpuRenderJob_buildAddCmds failed.\n");
                             r = ScnFALSE;
                         } else if(!ScnGpuRenderJob_buildEndAndEnqueue(gpuJob)){
@@ -440,7 +469,7 @@ ScnBOOL ScnRender_enqueue(ScnRenderRef ref, ScnRenderJobRef job){
                     }
                     //move used-objects to their next render slot
                     if(r){
-                        ScnArraySorted_foreach(&sAvail->cmds.objs, STScnRenderJobObj, o,
+                        ScnArraySorted_foreach(&slot->cmds.objs, STScnRenderJobObj, o,
                             switch(o->type){
                                 case ENScnRenderJobObjType_Unknown: break;
                                 case ENScnRenderJobObjType_Buff:
@@ -477,6 +506,10 @@ ScnBOOL ScnRender_enqueue(ScnRenderRef ref, ScnRenderJobRef job){
                             }
                         );
                     }
+                    //set job in slot
+                    if(r){
+                        ScnGpuRenderJob_set(&slot->gpuJob, gpuJob);
+                    }
                 }
                 ScnGpuRenderJob_releaseAndNull(&gpuJobPrev);
             }
@@ -499,7 +532,7 @@ ScnVertexbuffsRef ScnRender_allocVertexbuffs(ScnRenderRef ref){
     STScnRenderOpq* opq = (STScnRenderOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
     if(opq->slots.use > 0){
-        r = ScnRender_allocVertexbuffsLockedOpq_(opq->ctx, opq->gpuDev, opq->gpuDevDesc.memBlockAlign, opq->slots.use);
+        r = ScnRender_allocVertexbuffsLockedOpq_(opq->ctx, opq->gpuDev, opq->gpuDevDesc.memBlockAlign, opq->slots.use, &opq->cfg);
     }
     ScnMutex_unlock(opq->mutex);
     return r;
@@ -538,9 +571,12 @@ ScnBufferRef ScnRender_allocDynamicBuffLockedOpq_(ScnContextRef ctx, ScnGpuDevic
     return r;
 }
 
-ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(ScnContextRef ctx, ScnGpuDeviceRef gpuDev, const ScnUI32 memBlockAlign, const ScnUI32 ammRenderSlots){
+ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(ScnContextRef ctx, ScnGpuDeviceRef gpuDev, const ScnUI32 memBlockAlign, const ScnUI32 ammRenderSlots, const STScnRenderVertsCfg* cfg){
     ScnVertexbuffsRef rr = ScnObjRef_Zero;
     ScnBOOL r = ScnTRUE;
+    if(cfg == NULL){
+        return rr;
+    }
     ScnBufferRef vBuffs[ENScnVertexType_Count];
     ScnBufferRef iBuffs[ENScnVertexType_Count];
     ScnVertexbuffRef vbs[ENScnVertexType_Count];
@@ -549,14 +585,17 @@ ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(ScnContextRef ctx, ScnGpu
     ScnMemory_setZeroSt(vbs);
     //initial bufffers
     if(r){
-        ScnSI32 i; for(i = 0; i < ENScnVertexType_Count; i++){
-            ScnUI32 itmSz = 0, ammPerBock = 0;
+        ScnSI32 i; for(i = 0; i < ENScnVertexType_Count && r; i++){
+            ScnUI32 itmSz = 0, ammPerBock = cfg->typesPerBlock[i];
             switch(i){
-                case ENScnVertexType_2DColor:   ammPerBock = 256;  itmSz = sizeof(STScnVertex2D); break;
-                case ENScnVertexType_2DTex:     ammPerBock = 1024; itmSz = sizeof(STScnVertex2DTex); break;
-                case ENScnVertexType_2DTex2:    ammPerBock = 256;  itmSz = sizeof(STScnVertex2DTex2); break;
-                case ENScnVertexType_2DTex3:    ammPerBock = 256;  itmSz = sizeof(STScnVertex2DTex3); break;
+                case ENScnVertexType_2DColor:   itmSz = sizeof(STScnVertex2D); break;
+                case ENScnVertexType_2DTex:     itmSz = sizeof(STScnVertex2DTex); break;
+                case ENScnVertexType_2DTex2:    itmSz = sizeof(STScnVertex2DTex2); break;
+                case ENScnVertexType_2DTex3:    itmSz = sizeof(STScnVertex2DTex3); break;
                 default: SCN_ASSERT(ScnFALSE); r = ScnFALSE; break; //missing implementation
+            }
+            if(ammPerBock <= 0 || itmSz <= 0 || cfg->idxsPerBlock <= 0){
+                r = ScnFALSE;
             }
             //vertex buffer
             if(r){
@@ -570,7 +609,7 @@ ScnVertexbuffsRef ScnRender_allocVertexbuffsLockedOpq_(ScnContextRef ctx, ScnGpu
             //indices buffer
             if(r){
                 itmSz = sizeof(STScnVertexIdx);
-                ammPerBock = 2048;
+                ammPerBock = cfg->idxsPerBlock;
                 iBuffs[i] = ScnRender_allocDynamicBuffLockedOpq_(ctx, gpuDev, memBlockAlign, itmSz, itmSz, ammPerBock, ammRenderSlots);
                 if(ScnBuffer_isNull(iBuffs[i])){
                     //error
@@ -701,6 +740,7 @@ void ScnRenderSlot_init(ScnContextRef ctx, STScnRenderSlot* obj){
 }
 
 void ScnRenderSlot_destroy(STScnRenderSlot* obj){
+    ScnRenderCmds_reset(&obj->cmds); //for cleaner finalization (tracking user-space's memory leaks)
     ScnRenderCmds_destroy(&obj->cmds);
     ScnGpuRenderJob_releaseAndNull(&obj->gpuJob);
     ScnGpuBuffer_releaseAndNull(&obj->bPropsScns);

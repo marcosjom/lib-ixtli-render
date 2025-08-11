@@ -402,9 +402,9 @@ ScnGpuBufferRef ScnApiMetal_device_allocBuffer(void* pObj, ScnMemElasticRef mem)
         if(cpuBuffSz <= 0){
             printf("ERROR, allocating zero-sz gpu buffer is not allowed.\n");
         } else {
-            id<MTLBuffer> buff = [dev->dev newBufferWithLength:cpuBuffSz options:MTLResourceStorageModeShared];
+            id<MTLBuffer> buff = [dev->dev newBufferWithLength:cpuBuffSz options:MTLResourceStorageModeShared | MTLResourceCPUCacheModeWriteCombined];
             if(buff != nil){
-                const STScnRangeU rngAll = ScnMemElastic_getUsedAddressesRng(mem);
+                const STScnRangeU rngAll = ScnMemElastic_getUsedAddressesRngAligned(mem);
                 if(!ScnApiMetal_buffer_syncRanges_(buff, mem, &rngAll, 1)){
                     printf("ERROR, ScnApiMetal_buffer_syncRanges_ failed.\n");
                 } else {
@@ -481,7 +481,7 @@ ScnBOOL ScnApiMetal_buffer_sync(void* pObj, ScnMemElasticRef mem, const STScnGpu
         //resize (if necesary)
         if(cpuBuffSz != buffLen){
             //recreate buffer
-            id<MTLBuffer> buff = [obj->dev newBufferWithLength:cpuBuffSz options:MTLResourceStorageModeShared];
+            id<MTLBuffer> buff = [obj->dev newBufferWithLength:cpuBuffSz options:MTLResourceStorageModeShared | MTLResourceCPUCacheModeWriteCombined];
             if(buff != nil){
                 printf("ScnApiMetal_buffer_sync::gpu-buff resized from %u to %u bytes.\n", buffLen, cpuBuffSz);
                 buffLen = cpuBuffSz;
@@ -495,7 +495,7 @@ ScnBOOL ScnApiMetal_buffer_sync(void* pObj, ScnMemElasticRef mem, const STScnGpu
             printf("ERROR, ScnApiMetal_buffer_sync::gpuBuff is smaller than cpu-buff.\n");
         } else if(buffIsNew || changes->all){
             //sync all
-            const STScnRangeU rngAll = ScnMemElastic_getUsedAddressesRng(mem);
+            const STScnRangeU rngAll = ScnMemElastic_getUsedAddressesRngAligned(mem);
             if(!ScnApiMetal_buffer_syncRanges_(obj->buff, mem, &rngAll, 1)){
                 printf("ERROR, ScnApiMetal_buffer_sync::ScnApiMetal_buffer_syncRanges_ failed.\n");
             } else {
@@ -1224,7 +1224,7 @@ void ScnApiMetal_renderJob_free(void* data){
         if(obj->cmdsBuff != nil){
 #           ifdef SCN_ASSERTS_ACTIVATED
             const MTLCommandBufferStatus status = [obj->cmdsBuff status];
-            SCN_ASSERT(status != MTLCommandBufferStatusNotEnqueued && status != MTLCommandBufferStatusCompleted && status != MTLCommandBufferStatusError)
+            SCN_ASSERT(status == MTLCommandBufferStatusNotEnqueued || status == MTLCommandBufferStatusCompleted || status == MTLCommandBufferStatusError) //should not be active
 #           endif
             [obj->cmdsBuff release];
             obj->cmdsBuff = nil;
@@ -1266,28 +1266,32 @@ ENScnGpuRenderJobState ScnApiMetal_renderJob_getState(void* data){
 ScnBOOL ScnApiMetal_renderJob_buildBegin(void* data, ScnGpuBufferRef pFbPropsBuff, ScnGpuBufferRef pMdlsPropsBuff){
     ScnBOOL r = ScnFALSE;
     STScnApiMetalRenderJob* obj = (STScnApiMetalRenderJob*)data;
-    STScnApiMetalRenderJobState* state = &obj->state;
     //
     STScnApiMetalBuffer* bPropsScns = NULL;
     STScnApiMetalBuffer* bPropsMdls = NULL;
     //
     if(obj->dev == NULL || obj->dev->dev == nil || obj->dev->cmdQueue == nil){
+        printf("ERROR, ScnApiMetal_renderJob_buildBegin::dev-or-cmdQueue is NULL.\n");
         return ScnFALSE;
     }
     if(ScnGpuBuffer_isNull(pFbPropsBuff) || ScnGpuBuffer_isNull(pMdlsPropsBuff)){
+        printf("ERROR, ScnApiMetal_renderJob_buildBegin::pFbPropsBuff-or-pMdlsPropsBuff is NULL.\n");
         return ScnFALSE;
     }
     bPropsScns = (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(pFbPropsBuff);
     bPropsMdls = (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(pMdlsPropsBuff);
     if(bPropsScns == NULL || bPropsScns->buff == nil){
+        printf("ERROR, ScnApiMetal_renderJob_buildBegin::bPropsScns is NULL.\n");
         return ScnFALSE;
     } else if(bPropsMdls == NULL || bPropsMdls->buff == nil){
+        printf("ERROR, ScnApiMetal_renderJob_buildBegin::bPropsMdls is NULL.\n");
         return ScnFALSE;
     }
     if(obj->cmdsBuff != nil){
         const MTLCommandBufferStatus status = [obj->cmdsBuff status];
         if(status != MTLCommandBufferStatusNotEnqueued && status != MTLCommandBufferStatusCompleted && status != MTLCommandBufferStatusError){
             //job currentyl in progress
+            printf("ERROR, ScnApiMetal_renderJob_buildBegin::[obj->cmdsBuff status] is active.\n");
             return ScnFALSE;
         }
     }
@@ -1463,6 +1467,11 @@ ScnBOOL ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderC
                                     state->fb->cur.verts.type  = vertexType;
                                     state->fb->cur.verts.buff  = buff;
                                     state->fb->cur.verts.idxs  = idxs;
+                                    //MTLRenderStageVertex   = (1UL << 0),
+                                    //MTLRenderStageFragment = (1UL << 1),
+                                    //if(c->setVertexBuff.isFirstUse){
+                                    //    [state->rndrEnc useResource:buff->buff usage:MTLResourceUsageRead stages:MTLRenderStageVertex];
+                                    //}
                                     [state->rndrEnc setRenderPipelineState:state->fb->rndrShaders.states[state->fb->cur.verts.type]];
                                     [state->rndrEnc setVertexBuffer:buff->buff offset:0 atIndex:2];
                                     //printf("setVertexBuffer(idx2, 0 offset).\n");
@@ -1492,6 +1501,9 @@ ScnBOOL ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderC
                                 printf("ERROR, ENScnRenderCmd_SetVertexBuff::smplr->smplr is NULL.\n");
                                 r = ScnFALSE;
                             } else {
+                                //if(c->setTexture.isFirstUse){
+                                //    [state->rndrEnc useResource:tex->tex usage:MTLResourceUsageRead stages:MTLRenderStageFragment];
+                                //}
                                 [state->rndrEnc setFragmentTexture:tex->tex atIndex:c->setTexture.index];
                                 [state->rndrEnc setFragmentSamplerState:smplr->smplr atIndex:c->setTexture.index];
                             }

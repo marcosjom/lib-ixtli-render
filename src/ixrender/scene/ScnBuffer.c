@@ -266,7 +266,7 @@ ScnBOOL ScnBuffer_prepareCurrentRenderSlot(ScnBufferRef ref, ScnBOOL* dstHasPtrs
             }
         } else {
             STScnGpuBufferChanges changes = STScnGpuBufferChanges_Zero;
-            changes.all = slot->changes.all; //ToDo: disable this
+            changes.all = slot->changes.all;
             if(!changes.all){
                 changes.rngs    = slot->changes.rngs.arr;
                 changes.rngsUse = slot->changes.rngs.use;

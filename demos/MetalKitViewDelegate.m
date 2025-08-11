@@ -74,10 +74,14 @@ NS_ASSUME_NONNULL_BEGIN
         if(!ScnApiMetal_getApiItf(&itf)){
             printf("ERROR, ScnApiMetal_getApiItf failed.\n");
         } else {
+            STScnRenderCfg cfg = ScnRender_getDefaultCfg();
+            {
+                //customize cfg here
+            }
             render = ScnRender_alloc(ctx);
             if(ScnRender_isNull(render)){
                 printf("ERROR, ScnRender_alloc failed.\n");
-            } else if(!ScnRender_prepare(render, &itf, NULL)){
+            } else if(!ScnRender_prepare(render, &itf, NULL, &cfg)){
                 printf("ERROR, ScnRender_prepare failed.\n");
             } else if(!ScnRender_openDevice(render, NULL, IXTLI_RENDER_DEMO_RENDER_SLOTS_AMMOUNT)){
                 printf("ERROR, ScnRender_openDevice failed.\n");

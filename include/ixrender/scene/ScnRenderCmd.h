@@ -80,11 +80,13 @@ typedef struct STScnRenderCmd {
         //ENScnRenderCmd_SetVertexBuff
         struct {
             ScnVertexbuffRef ref;
+            ScnBOOL         isFirstUse; //is first time the ScnVertexbuffRef appears in this cmds queue
         } setVertexBuff;
         //ENScnRenderCmd_SetTexture
         struct {
             ScnTextureRef   ref;
             ScnUI32         index;   //slot-index
+            ScnBOOL         isFirstUse; //is first time the ScnVertexbuffRef appears in this cmds queue
         } setTexture;
         //ENScnRenderCmd_MaskModePush
         //  nothing

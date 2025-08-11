@@ -32,6 +32,33 @@
 extern "C" {
 #endif
 
+//STScnRenderVertsCfg
+
+#define STScnRenderVertsCfg_Zero       { 0, ENScnVertexType_Count_Zeroes }
+
+typedef struct STScnRenderVertsCfg {
+    ScnUI32     idxsPerBlock;       //2048
+    ScnUI32     typesPerBlock[ENScnVertexType_Count]; // { 256, 1024, 256, 256 }
+} STScnRenderVertsCfg;
+
+//STScnRenderMemCfg
+
+#define STScnRenderMemCfg_Zero       { 0, 0, STScnRenderVertsCfg_Zero }
+
+typedef struct STScnRenderMemCfg {
+    ScnUI32     propsScnsPerBlock;  //32
+    ScnUI32     propsMdlsPerBlock;  //128
+    STScnRenderVertsCfg verts;
+} STScnRenderMemCfg;
+
+//STScnRenderCfg
+
+#define STScnRenderCfg_Zero       { STScnRenderMemCfg_Zero }
+
+typedef struct STScnRenderCfg {
+    STScnRenderMemCfg   mem;
+} STScnRenderCfg;
+
 //ScnRenderApiItf
 
 typedef struct STScnApiItf {
@@ -50,8 +77,11 @@ typedef struct STScnApiItf {
 
 SCN_REF_STRUCT_METHODS_DEC(ScnRender)
 
+//cfg
+STScnRenderCfg      ScnRender_getDefaultCfg(void);
+
 //init
-ScnBOOL             ScnRender_prepare(ScnRenderRef ref, const STScnApiItf* itf, void* itfParam);
+ScnBOOL             ScnRender_prepare(ScnRenderRef ref, const STScnApiItf* itf, void* itfParam, const STScnRenderCfg* optCfg);
 ScnBOOL             ScnRender_openDevice(ScnRenderRef ref, const STScnGpuDeviceCfg* cfg, const ScnUI32 ammRenderSlots);
 ScnBOOL             ScnRender_hasOpenDevice(ScnRenderRef ref);
 void*               ScnRender_getApiDevice(ScnRenderRef ref);
