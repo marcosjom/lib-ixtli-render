@@ -42,6 +42,7 @@ ScnBOOL     ScnMemElastic_prepare(ScnMemElasticRef ref, const STScnMemElasticCfg
 ScnBOOL     ScnMemElastic_hasPtrs(ScnMemElasticRef ref); //allocations made?
 ScnUI32     ScnMemElastic_getAddressableSize(ScnMemElasticRef ref); //includes the address zero
 STScnRangeU ScnMemElastic_getUsedAddressesRng(ScnMemElasticRef ref); //range that covers all allocated addresses index
+STScnRangeU ScnMemElastic_getUsedAddressesRngAligned(ScnMemElasticRef ref); //range that covers all allocated addresses index
 STScnAbsPtr ScnMemElastic_getNextContinuousAddress(ScnMemElasticRef ref, const ScnUI32 iAddress, ScnUI32* dstContinuousSz);
 //allocations
 STScnAbsPtr ScnMemElastic_malloc(ScnMemElasticRef ref, const ScnUI32 usableSz, ScnUI32* optDstBlocksTotalSz);

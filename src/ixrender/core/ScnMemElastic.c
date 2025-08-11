@@ -80,52 +80,64 @@ void ScnMemElastic_destroyOpq(void* obj){
 
 //
 
+ScnUI64 ScnMemElastic_gcd_(const ScnUI64 a, const ScnUI64 b) {
+    if (b == 0) return a;
+    return ScnMemElastic_gcd_(b, a % b);
+}
+
+ScnUI32 ScnMemElastic_lcm_(const ScnUI32 a, const ScnUI32 b) {
+    return (ScnUI32)((ScnUI64)a / ScnMemElastic_gcd_(a, b)) * b;
+}
+
 ScnBOOL ScnMemElastic_prepare(ScnMemElasticRef ref, const STScnMemElasticCfg* cfg, ScnUI32* optDstBlocksTotalSz){
     ScnBOOL r = ScnFALSE;
     STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
     //
     ScnMutex_lock(opq->mutex);
     if(cfg != NULL && opq->blocks.use == 0){
-        STScnMemBlockCfg bCfg = STScnMemBlockCfg_Zero;
-        bCfg.sizeAlign   = (cfg->sizeAlign > 0 ? cfg->sizeAlign : 4);   //whole memory block size alignment
-        bCfg.idxsAlign   = (cfg->idxsAlign > 0 ? cfg->idxsAlign : 4);   //individual pointers alignment
-        bCfg.size = (cfg->sizePerBlock + bCfg.idxsAlign - 1) / bCfg.idxsAlign * bCfg.idxsAlign;
-        bCfg.idxZeroIsValid = (opq->blocks.use == 0 ? cfg->idxZeroIsValid : ScnTRUE);
-        //copy cfg
-        {
-            opq->cfg = *cfg;
-            //ScnStruct_stRelease(ScnMemElasticCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
-            //ScnStruct_stClone(ScnMemElasticCfg_getSharedStructMap(), cfg, sizeof(*cfg), &opq->cfg, sizeof(opq->cfg));
-            opq->cfg.sizeAlign = bCfg.sizeAlign;
-            opq->cfg.idxsAlign = bCfg.idxsAlign;
-            opq->cfg.sizePerBlock = bCfg.size;
-        }
-        //intial state
-        {
-            r = ScnTRUE;
-            opq->state.idxsTotalSz = 0;
-            //allocate initial blocks
-            if(bCfg.size > 0){
-                ScnUI32 usableSzInit = (((cfg->sizeInitial + bCfg.idxsAlign - 1) / bCfg.idxsAlign * bCfg.idxsAlign) + bCfg.size - 1) / bCfg.size * bCfg.size;
-                while(usableSzInit > 0){
-                    STScnAbsPtr ptrAfterEnd = STScnAbsPtr_Zero;
-                    STScnMemElasticBlock b = STScnMemElasticBlock_Zero;
-                    b.iOffset   = opq->state.idxsTotalSz;
-                    b.idxsSz    = bCfg.size;
-                    b.block     = ScnMemBlock_alloc(opq->ctx);
-                    if(!ScnMemBlock_prepare(b.block, &bCfg, &ptrAfterEnd)){
-                        ScnMemBlock_release(&b.block);
-                        r = ScnFALSE;
-                        break;
-                    } else {
-                        b.idxsSz = ptrAfterEnd.idx;
-                        opq->state.idxsTotalSz += ptrAfterEnd.idx;
-                        ScnArray_addValue(opq->ctx, &opq->blocks, b, STScnMemElasticBlock);
-                    }
-                    usableSzInit -= bCfg.size;
+        const ScnUI32 sizeAlign = (cfg->sizeAlign > 0 ? cfg->sizeAlign : 4);   //whole memory block size alignment
+        const ScnUI32 idxsAlign = (cfg->idxsAlign > 0 ? cfg->idxsAlign : 4);   //individual pointers alignment
+        const ScnUI32 szPerBlck = ScnMemElastic_lcm_(((cfg->sizePerBlock + idxsAlign - 1) / idxsAlign * idxsAlign), sizeAlign);
+        ScnUI32 curUsableSz = 0;
+        r = ScnTRUE;
+        //add blocks until usableSz is populated
+        while(curUsableSz < cfg->sizeInitial){
+            ScnMemBlockRef block = ScnMemBlock_alloc(opq->ctx);
+            STScnAbsPtr ptrAfterEnd = STScnAbsPtr_Zero;
+            STScnMemBlockCfg bCfg = STScnMemBlockCfg_Zero;
+            bCfg.size       = szPerBlck;
+            bCfg.sizeAlign  = sizeAlign;
+            bCfg.idxsAlign  = idxsAlign;
+            bCfg.idxZeroIsValid = (opq->blocks.use == 0 ? cfg->idxZeroIsValid : ScnTRUE);
+            if(ScnMemBlock_isNull(block) || !ScnMemBlock_prepare(block, &bCfg, &ptrAfterEnd)){
+                ScnMemBlock_releaseAndNull(&block);
+                r = ScnFALSE;
+                break;
+            } else {
+                STScnMemElasticBlock b = STScnMemElasticBlock_Zero;
+                b.iOffset   = opq->state.idxsTotalSz;
+                b.idxsSz    = ptrAfterEnd.idx;
+                b.block     = block;
+                if(NULL == ScnArray_addPtr(opq->ctx, &opq->blocks, &b, STScnMemElasticBlock)){
+                    ScnMemBlock_releaseAndNull(&block);
+                    r = ScnFALSE;
+                    break;
+                } else {
+                    SCN_ASSERT(ptrAfterEnd.idx >= bCfg.idxsAlign) //at least one record
+                    SCN_ASSERT((ptrAfterEnd.idx % bCfg.sizeAlign) == 0) //size aligned
+                    curUsableSz += ptrAfterEnd.idx - (bCfg.idxZeroIsValid ? 0 : bCfg.idxsAlign);
+                    opq->state.idxsTotalSz += ptrAfterEnd.idx;
+                    SCN_PRINTF_INFO("ScnMemElastic_prepare, added STScnMemElasticBlock(+%u bytes, %u total).\n", ptrAfterEnd.idx, opq->state.idxsTotalSz);
                 }
-                opq->cfg.sizeInitial = usableSzInit;
             }
+        }
+        //set
+        if(r){
+            opq->cfg                = *cfg;
+            opq->cfg.sizeAlign      = sizeAlign;
+            opq->cfg.idxsAlign      = idxsAlign;
+            opq->cfg.sizePerBlock   = szPerBlck;
+            opq->cfg.sizeInitial    = curUsableSz;
         }
         if(optDstBlocksTotalSz != NULL){
             *optDstBlocksTotalSz = opq->state.idxsTotalSz;
@@ -171,10 +183,8 @@ ScnUI32 ScnMemElastic_getAddressableSize(ScnMemElasticRef ref){ //includes the a
     return r;
 }
 
-STScnRangeU ScnMemElastic_getUsedAddressesRng(ScnMemElasticRef ref){ //highest allocated address index
+STScnRangeU ScnMemElastic_getUsedAddressesRngLockedOpq_(STScnMemElasticOpq* opq){
     STScnRangeU r = STScnRangeU_Zero;
-    STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    ScnMutex_lock(opq->mutex);
     if(opq->blocks.use > 0){
         STScnRangeU rngLft          = STScnRangeU_Zero;
         STScnRangeU rngRght         = STScnRangeU_Zero;
@@ -199,6 +209,33 @@ STScnRangeU ScnMemElastic_getUsedAddressesRng(ScnMemElasticRef ref){ //highest a
         if(rngLft.size > 0 && rngRght.size > 0){
             r.start = rngLft.start;
             r.size  = rngRght.start + rngRght.size - r.start;
+        }
+    }
+    return r;
+}
+                                              
+
+STScnRangeU ScnMemElastic_getUsedAddressesRng(ScnMemElasticRef ref){ //highest allocated address index
+    STScnRangeU r = STScnRangeU_Zero;
+    STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    {
+        r = ScnMemElastic_getUsedAddressesRngLockedOpq_(opq);
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+STScnRangeU ScnMemElastic_getUsedAddressesRngAligned(ScnMemElasticRef ref){ //range that covers all allocated addresses index
+    STScnRangeU r = STScnRangeU_Zero;
+    STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    {
+        STScnRangeU rr = ScnMemElastic_getUsedAddressesRngLockedOpq_(opq);
+        if(rr.size > 0){
+            r.start   = rr.start / opq->cfg.sizeAlign * opq->cfg.sizeAlign;
+            r.size    = ((rr.start + rr.size + opq->cfg.sizeAlign - 1) / opq->cfg.sizeAlign * opq->cfg.sizeAlign) - r.start;
+            SCN_ASSERT(r.start <= rr.start && (rr.start + rr.size) <= (r.start + r.size))
         }
     }
     ScnMutex_unlock(opq->mutex);
@@ -268,37 +305,35 @@ STScnAbsPtr ScnMemElastic_malloc(ScnMemElasticRef ref, const ScnUI32 usableSz, S
         }
         //create new block
         if(b >= bAfterEnd){
-            ScnUI32 idxSz = ((usableSz > opq->cfg.sizePerBlock ? usableSz : opq->cfg.sizePerBlock) + opq->cfg.idxsAlign - 1) / opq->cfg.idxsAlign * opq->cfg.idxsAlign;
-            //apply size limitation
-            if(opq->cfg.sizeMax > 0 && opq->state.idxsTotalSz >= opq->cfg.sizeMax){
-                //already reached limit
+            ScnMemBlockRef block = ScnMemBlock_alloc(opq->ctx);
+            STScnAbsPtr ptrAfterEnd = STScnAbsPtr_Zero;
+            STScnMemBlockCfg bCfg = STScnMemBlockCfg_Zero;
+            bCfg.idxZeroIsValid = (opq->blocks.use == 0 ? opq->cfg.idxZeroIsValid : ScnTRUE);
+            bCfg.sizeAlign  = opq->cfg.sizeAlign;
+            bCfg.idxsAlign  = opq->cfg.idxsAlign;
+            bCfg.size       = ScnMemElastic_lcm_(((usableSz + (bCfg.idxZeroIsValid ? 0 : bCfg.idxsAlign) + bCfg.idxsAlign - 1) / bCfg.idxsAlign * bCfg.idxsAlign), bCfg.sizeAlign);
+            if(ScnMemBlock_isNull(block) || !ScnMemBlock_prepare(block, &bCfg, &ptrAfterEnd)){
+                ScnMemBlock_releaseAndNull(&block);
             } else {
-                //allocate new block
                 STScnMemElasticBlock b = STScnMemElasticBlock_Zero;
-                b.idxsSz    = (opq->cfg.sizeMax == 0 || (opq->state.idxsTotalSz + idxSz) <= opq->cfg.sizeMax ? idxSz : opq->cfg.sizeMax - opq->state.idxsTotalSz );
                 b.iOffset   = opq->state.idxsTotalSz;
-                b.block     = ScnMemBlock_alloc(opq->ctx);
-                {
-                    STScnMemBlockCfg bCfg = STScnMemBlockCfg_Zero;
-                    bCfg.sizeAlign   = opq->cfg.sizeAlign;   //whole memory block size alignment
-                    bCfg.idxsAlign   = opq->cfg.idxsAlign;   //individual pointers alignment
-                    bCfg.size = b.idxsSz;
-                    bCfg.idxZeroIsValid = (opq->blocks.use == 0 ? opq->cfg.idxZeroIsValid : ScnTRUE);
-                    STScnAbsPtr ptrAfterEnd = STScnAbsPtr_Zero;
-                    if(!ScnMemBlock_prepare(b.block, &bCfg, &ptrAfterEnd)){
-                        ScnMemBlock_release(&b.block);
+                b.idxsSz    = ptrAfterEnd.idx;
+                b.block     = block;
+                if(NULL == ScnArray_addPtr(opq->ctx, &opq->blocks, &b, STScnMemElasticBlock)){
+                    ScnMemBlock_releaseAndNull(&block);
+                } else {
+                    SCN_ASSERT(ptrAfterEnd.idx >= bCfg.idxsAlign) //at least one record
+                    SCN_ASSERT((ptrAfterEnd.idx % bCfg.sizeAlign) == 0) //size aligned
+                    opq->state.idxsTotalSz += ptrAfterEnd.idx;
+                    SCN_PRINTF_INFO("ScnMemElastic_malloc, added STScnMemElasticBlock(+%u bytes, %u total).\n", ptrAfterEnd.idx, opq->state.idxsTotalSz);
+                    //
+                    r = ScnMemBlock_malloc(b.block, usableSz);
+                    if(r.ptr == NULL){
+                        SCN_ASSERT(ScnFALSE) //program-logic error
                     } else {
-                        r = ScnMemBlock_malloc(b.block, usableSz);
-                        if(r.ptr == NULL){
-                            SCN_ASSERT(ScnFALSE) //program-logic error
-                            ScnMemBlock_release(&b.block);
-                        } else {
-                            //convert block-index to blocks-index
-                            r.idx += b.iOffset;
-                            b.idxsSz = ptrAfterEnd.idx;
-                            opq->state.idxsTotalSz += ptrAfterEnd.idx;
-                            ScnArray_addValue(opq->ctx, &opq->blocks, b, STScnMemElasticBlock);
-                        }
+                        SCN_ASSERT((ptrAfterEnd.idx % bCfg.sizeAlign) == 0)
+                        //convert block-index to blocks-index
+                        r.idx += b.iOffset;
                     }
                 }
             }
