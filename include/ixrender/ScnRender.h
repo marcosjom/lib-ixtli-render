@@ -26,6 +26,7 @@
 #include "ixrender/scene/ScnRenderCmd.h"
 #include "ixrender/scene/ScnNode2d.h"
 #include "ixrender/scene/ScnModel2d.h"
+#include "ixrender/scene/ScnRenderJob.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,11 +51,11 @@ typedef struct STScnApiItf {
 SCN_REF_STRUCT_METHODS_DEC(ScnRender)
 
 //init
-ScnBOOL     ScnRender_prepare(ScnRenderRef ref, const STScnApiItf* itf, void* itfParam);
-ScnBOOL     ScnRender_openDevice(ScnRenderRef ref, const STScnGpuDeviceCfg* cfg, const ScnUI32 ammRenderSlots);
-ScnBOOL     ScnRender_hasOpenDevice(ScnRenderRef ref);
-void*       ScnRender_getApiDevice(ScnRenderRef ref);
-STScnGpuDeviceDesc ScnRender_getDeviceDesc(ScnRenderRef ref);
+ScnBOOL             ScnRender_prepare(ScnRenderRef ref, const STScnApiItf* itf, void* itfParam);
+ScnBOOL             ScnRender_openDevice(ScnRenderRef ref, const STScnGpuDeviceCfg* cfg, const ScnUI32 ammRenderSlots);
+ScnBOOL             ScnRender_hasOpenDevice(ScnRenderRef ref);
+void*               ScnRender_getApiDevice(ScnRenderRef ref);
+STScnGpuDeviceDesc  ScnRender_getDeviceDesc(ScnRenderRef ref);
 
 //model
 
@@ -72,47 +73,16 @@ ScnTextureRef       ScnRender_allocTexture(ScnRenderRef ref, const ENScnResource
 
 ScnGpuSamplerRef    ScnRender_allocSampler(ScnRenderRef ref, const STScnGpuSamplerCfg* const cfg);
 
-//job
+//renderJob
 
-ScnBOOL     ScnRender_jobStart(ScnRenderRef ref);
-ScnBOOL     ScnRender_jobEnd(ScnRenderRef ref); //does the magic
-
-//job framebuffers
-
-ScnBOOL     ScnRender_jobFramebuffPush(ScnRenderRef ref, ScnFramebuffRef fbuff);
-ScnBOOL     ScnRender_jobFramebuffPop(ScnRenderRef ref);
-
-ScnBOOL     ScnRender_jobFramebuffPropsPush(ScnRenderRef ref, const STScnGpuFramebuffProps props);
-ScnBOOL     ScnRender_jobFramebuffPropsOrthoPush(ScnRenderRef ref, const STScnAABBox3d ortho);
-ScnBOOL     ScnRender_jobFramebuffPropsPop(ScnRenderRef ref);
-
-//job nodes (scene's tree)
-
-ScnBOOL     ScnRender_jobNode2dPush(ScnRenderRef ref, ScnNode2dRef node);
-ScnBOOL     ScnRender_jobNode2dPropsPush(ScnRenderRef ref, const STScnNode2dProps nodeProps);
-ScnBOOL     ScnRender_jobNode2dPop(ScnRenderRef ref);
-
-//job models
-
-ScnBOOL     ScnRender_jobModel2dAddWithNode(ScnRenderRef ref, ScnModel2dRef model, ScnNode2dRef node);                      //equivalent to    jobNode2dPush() + jobModelAdd() + jobNodePropsPop()
-ScnBOOL     ScnRender_jobModel2dAddWithNodeProps(ScnRenderRef ref, ScnModel2dRef model, const STScnNode2dProps nodeProps);  //equivalent to jobNodePropsPush() + jobModelAdd() + jobNodePropsPop()
-ScnBOOL     ScnRender_jobModel2dAdd(ScnRenderRef ref, ScnModel2dRef model);
-
-//job cmds
-/*
-void        ScnRender_cmdMaskModePush(ScnRenderRef ref);
-void        ScnRender_cmdMaskModePop(ScnRenderRef ref);
-void        ScnRender_cmdSetTexture(ScnRenderRef ref, const ScnUI32 index, ScnTextureRef tex);
-void        ScnRender_cmdDawVerts(ScnRenderRef ref, const ENScnRenderShape mode, const ScnUI32 iFirst, const ScnUI32 count);
-void        ScnRender_cmdDawIndexes(ScnRenderRef ref, const ENScnRenderShape mode, const ScnUI32 iFirst, const ScnUI32 count);
-*/
+ScnRenderJobRef     ScnRender_allocRenderJob(ScnRenderRef ref); //if render slot is available
+ScnBOOL             ScnRender_enqueue(ScnRenderRef ref, ScnRenderJobRef job);
 
 //custom actions (for custom shaders)
 
 ScnVertexbuffsRef   ScnRender_getDefaultVertexbuffs(ScnRenderRef ref);
 ScnVertexbuffsRef   ScnRender_allocVertexbuffs(ScnRenderRef ref);
 ScnBufferRef        ScnRender_allocBuffer(ScnRenderRef ref, const STScnGpuBufferCfg* const cfg);
-ScnBOOL             ScnRender_jobSetTexture(ScnRenderRef ref, const ENScnGpuTextureIdx idx, ScnTextureRef tex);
 
 #ifdef __cplusplus
 } //extern "C"

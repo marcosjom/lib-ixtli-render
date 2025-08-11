@@ -28,7 +28,8 @@ typedef struct STScnGpuBufferCfg {
 
 //STScnGpuBufferChanges
 
-#define STScnGpuBufferChanges_Zero { ScnFALSE, NULL, 0 }
+#define STScnGpuBufferChanges_Zero  { ScnFALSE, NULL, 0 }
+#define STScnGpuBufferChanges_All   { ScnTRUE, NULL, 0 }
 
 typedef struct STScnGpuBufferChanges {
     ScnBOOL         all;    //the whoe buffer requires synchronization
@@ -40,7 +41,7 @@ typedef struct STScnGpuBufferChanges {
 
 typedef struct STScnGpuBufferApiItf {
     void    (*free)(void* data);
-    ScnBOOL (*sync)(void* data, const STScnGpuBufferCfg* const cfg, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes);
+    ScnBOOL (*sync)(void* data, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes);
 } STScnGpuBufferApiItf;
 
 //ScnGpuBufferRef
@@ -54,7 +55,7 @@ SCN_REF_STRUCT_METHODS_DEC(ScnGpuBuffer)
 ScnBOOL ScnGpuBuffer_prepare(ScnGpuBufferRef ref, const STScnGpuBufferApiItf* itf, void* itfParam);
 void*   ScnGpuBuffer_getApiItfParam(ScnGpuBufferRef ref);
 
-ScnBOOL ScnGpuBuffer_sync(ScnGpuBufferRef ref, const STScnGpuBufferCfg* const cfg, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes);
+ScnBOOL ScnGpuBuffer_sync(ScnGpuBufferRef ref, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes);
 
 #ifdef __cplusplus
 } //extern "C"

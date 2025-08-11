@@ -32,10 +32,10 @@ ScnGpuVertexbuffRef ScnApiMetal_device_allocVertexBuff(void* obj, const STScnGpu
 ScnGpuFramebuffRef  ScnApiMetal_device_allocFramebuffFromOSView(void* obj, void* mtkView);
 ScnGpuTextureRef    ScnApiMetal_device_allocTexture(void* obj, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData);
 ScnGpuSamplerRef    ScnApiMetal_device_allocSampler(void* obj, const STScnGpuSamplerCfg* const cfg);
-ScnBOOL             ScnApiMetal_device_render(void* obj, ScnGpuBufferRef fbPropsBuff, ScnGpuBufferRef mdlsPropsBuff, const STScnRenderCmd* const cmds, const ScnUI32 cmdsSz);
+ScnGpuRenderJobRef  ScnApiMetal_device_allocRenderJob(void* obj);
 //buffer
 void                ScnApiMetal_buffer_free(void* data);
-ScnBOOL             ScnApiMetal_buffer_sync(void* data, const STScnGpuBufferCfg* const cfg, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes);
+ScnBOOL             ScnApiMetal_buffer_sync(void* data, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes);
 //vertexbuff
 void                ScnApiMetal_vertexbuff_free(void* data);
 ScnBOOL             ScnApiMetal_vertexbuff_sync(void* data, const STScnGpuVertexbuffCfg* const cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
@@ -53,7 +53,12 @@ STScnGpuSamplerCfg  ScnApiMetal_sampler_getCfg(void* data);
 //texture
 void                ScnApiMetal_texture_free(void* pObj);
 ScnBOOL             ScnApiMetal_texture_sync(void* data, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData, const STScnGpuTextureChanges* const changes);
-
+//render job
+void                ScnApiMetal_renderJob_free(void* data);
+ENScnGpuRenderJobState ScnApiMetal_renderJob_getState(void* data);
+ScnBOOL             ScnApiMetal_renderJob_buildBegin(void* data, ScnGpuBufferRef bPropsScns, ScnGpuBufferRef bPropsMdls);
+ScnBOOL             ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderCmd* const cmds, const ScnUI32 cmdsSz);
+ScnBOOL             ScnApiMetal_renderJob_buildEndAndEnqueue(void* data);
 
 ScnBOOL ScnApiMetal_getApiItf(STScnApiItf* dst){
     if(dst == NULL) return ScnFALSE;
@@ -70,7 +75,7 @@ ScnBOOL ScnApiMetal_getApiItf(STScnApiItf* dst){
     dst->dev.allocFramebuffFromOSView = ScnApiMetal_device_allocFramebuffFromOSView;
     dst->dev.allocTexture   = ScnApiMetal_device_allocTexture;
     dst->dev.allocSampler   = ScnApiMetal_device_allocSampler;
-    dst->dev.render         = ScnApiMetal_device_render;
+    dst->dev.allocRenderJob = ScnApiMetal_device_allocRenderJob;
     //buffer
     dst->buff.free          = ScnApiMetal_buffer_free;
     dst->buff.sync          = ScnApiMetal_buffer_sync;
@@ -380,7 +385,9 @@ void* ScnApiMetal_device_getApiDevice(void* pObj){
 STScnGpuDeviceDesc ScnApiMetal_device_getDesc(void* obj){
     STScnGpuDeviceDesc r = STScnGpuDeviceDesc_Zero;
     {
-        r.isTexFmtInfoRequired = ScnTRUE;   //fragment shader requires the textures format info to produce correct color output
+        r.isTexFmtInfoRequired  = ScnTRUE;  //fragment shader requires the textures format info to produce correct color output
+        r.offsetsAlign          = 32;       //buffers offsets aligment
+        r.memBlockAlign         = 256;      //buffer memory copy alignment
     }
     return r;
 }
@@ -459,7 +466,7 @@ void ScnApiMetal_buffer_free(void* pObj){
 ScnBOOL ScnApiMetal_buffer_syncValidate_(STScnApiMetalBuffer* obj, ScnMemElasticRef mem);
 #endif
 
-ScnBOOL ScnApiMetal_buffer_sync(void* pObj, const STScnGpuBufferCfg* const cfg, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes){
+ScnBOOL ScnApiMetal_buffer_sync(void* pObj, ScnMemElasticRef mem, const STScnGpuBufferChanges* changes){
     ScnBOOL r = ScnFALSE;
     STScnApiMetalBuffer* obj = (STScnApiMetalBuffer*)pObj;
     if(obj->buff == nil || ScnMemElastic_isNull(mem)){
@@ -908,7 +915,7 @@ typedef struct STScnApiMetalFramebuffView {
     STScnSize2DU            size;
     STScnGpuFramebuffProps  props;
     STScnApiItf             itf;
-    STScnApiMetalRenderStates renderStates; //shaders
+    STScnApiMetalRenderStates rndrShaders; //shaders
     //cur (state while sending commands)
     struct {
         //verts
@@ -926,20 +933,20 @@ ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void*
     MTKView* mtkView = (MTKView*)pMtkView;
     if(dev != NULL && dev->dev != NULL && mtkView != nil){
         STScnApiMetalFramebuffView* obj = NULL;
-        STScnApiMetalRenderStates renderStates;
-        STScnApiMetalRenderStates_init(&renderStates);
-        if(!STScnApiMetalRenderStates_load(&renderStates, dev, mtkView.colorPixelFormat)){
+        STScnApiMetalRenderStates rndrShaders;
+        STScnApiMetalRenderStates_init(&rndrShaders);
+        if(!STScnApiMetalRenderStates_load(&rndrShaders, dev, mtkView.colorPixelFormat)){
             printf("STScnApiMetalRenderStates_load failed.\n");
         } else if(NULL == (obj = (STScnApiMetalFramebuffView*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalFramebuffView), "STScnApiMetalFramebuffView"))){
             printf("ScnContext_malloc(STScnApiMetalFramebuffView) failed.\n");
-            STScnApiMetalRenderStates_destroy(&renderStates);
+            STScnApiMetalRenderStates_destroy(&rndrShaders);
         } else {
             CGSize viewSz = mtkView.drawableSize;
             ScnMemory_setZeroSt(*obj);
             ScnContext_set(&obj->ctx, dev->ctx);
             obj->itf            = dev->itf;
             obj->mtkView        = mtkView; [obj->mtkView retain];
-            obj->renderStates   = renderStates;
+            obj->rndrShaders   = rndrShaders;
             {
                 //size
                 obj->size.width             = viewSz.width;
@@ -986,339 +993,6 @@ ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void*
     return r;
 }
 
-ScnBOOL ScnApiMetal_device_render(void* pObj, ScnGpuBufferRef pFbPropsBuff, ScnGpuBufferRef pMdlsPropsBuff, const STScnRenderCmd* const cmds, const ScnUI32 cmdsSz){
-    ScnBOOL r = ScnTRUE;
-    STScnApiMetalDevice* dev = (STScnApiMetalDevice*)pObj;
-    if(dev != NULL && dev->dev != nil && dev->cmdQueue != nil && !ScnGpuBuffer_isNull(pFbPropsBuff) && !ScnGpuBuffer_isNull(pMdlsPropsBuff)){
-        STScnApiMetalBuffer* fbPropsBuff = (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(pFbPropsBuff);
-        STScnApiMetalBuffer* mdlsPropsBuff = (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(pMdlsPropsBuff);
-        if(fbPropsBuff == NULL || fbPropsBuff->buff == nil){
-            //
-        } else if(mdlsPropsBuff == NULL || mdlsPropsBuff->buff == nil){
-            //
-        } else {
-            STScnApiMetalFramebuffView* fb = NULL;
-            MTLRenderPassDescriptor* renderPassDescriptor = nil;
-            id<MTLCommandBuffer> commandBuffer = nil;
-            id<MTLRenderCommandEncoder> rndrEnc = nil;
-            const STScnRenderCmd* c = cmds;
-            const STScnRenderCmd* cAfterEnd = cmds + cmdsSz;
-            while(r && c < cAfterEnd){
-                switch (c->cmdId) {
-                    case ENScnRenderCmd_None:
-                        //nop
-                        break;
-                        //framebuffers
-                    case ENScnRenderCmd_ActivateFramebuff:
-                        if(!ScnFramebuff_isNull(c->activateFramebuff.ref)){
-                            ScnGpuFramebuffRef gpuFb = ScnFramebuff_getCurrentRenderSlot(c->activateFramebuff.ref);
-                            if(ScnGpuFramebuff_isNull(gpuFb)){
-                                printf("ERROR, ENScnRenderCmd_ActivateFramebuff::ScnGpuFramebuff_isNull.\n");
-                                r = ScnFALSE;
-                            } else {
-                                fb = (STScnApiMetalFramebuffView*)ScnGpuFramebuff_getApiItfParam(gpuFb);
-                                if(fb == NULL || fb->mtkView == nil || fb->renderStates.states[fb->cur.verts.type] == nil){
-                                    printf("ERROR, ENScnRenderCmd_ActivateFramebuff::fb == NULL || fb->mtkView == nil || fb->renderState == nil.\n");
-                                    r = ScnFALSE;
-                                    break;
-                                }
-                                //ToDo: define how to reset state
-                                //ScnMemory_setZeroSt(fb->cur);
-                                //
-                                renderPassDescriptor = fb->mtkView.currentRenderPassDescriptor;
-                                //printf("currentRenderPassDescriptor.\n");
-                                commandBuffer = [dev->cmdQueue commandBuffer];
-                                //printf("commandBuffer.\n");
-                                if(renderPassDescriptor == nil || commandBuffer == nil){
-                                    printf("ERROR, ENScnRenderCmd_ActivateFramebuff::renderPassDescriptor == nil || commandBuffer == nil.\n");
-                                    r = ScnFALSE;
-                                } else {
-                                    commandBuffer.label = @"Ixtli-cmd-buff";
-                                    rndrEnc = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-                                    if(rndrEnc == nil){
-                                        printf("ERROR, ENScnRenderCmd_ActivateFramebuff::renderCommandEncoderWithDescriptor failed.\n");
-                                        r = ScnFALSE;
-                                    } else {
-                                        //printf("renderCommandEncoderWithDescriptor.\n");
-                                        rndrEnc.label = @"ixtli-render-cmd-enc";
-                                        //
-                                        [rndrEnc setRenderPipelineState:fb->renderStates.states[fb->cur.verts.type]];
-                                        //printf("setRenderPipelineState.\n");
-                                        //apply viewport
-                                        {
-                                            MTLViewport viewPort;
-                                            viewPort.originX = (double)c->activateFramebuff.viewport.x;
-                                            viewPort.originY = (double)c->activateFramebuff.viewport.y;
-                                            viewPort.width = (double)c->activateFramebuff.viewport.width;
-                                            viewPort.height = (double)c->activateFramebuff.viewport.height;
-                                            viewPort.znear = 0.0;
-                                            viewPort.zfar = 1.0;
-                                            [rndrEnc setViewport:viewPort];
-                                            //printf("setViewport(%u, %u)-(+%u, +%u).\n", fb->viewport.x, fb->viewport.y, fb->viewport.width, fb->viewport.height);
-                                        }
-                                        //fb props
-                                        [rndrEnc setVertexBuffer:fbPropsBuff->buff offset:c->activateFramebuff.offset atIndex:0];
-                                        //printf("setVertexBuffer(idx0, %u offset).\n", c->activateFramebuff.offset);
-                                        //mdl props
-                                        [rndrEnc setVertexBuffer:mdlsPropsBuff->buff offset:0 atIndex:1];
-                                        //printf("setVertexBuffer(idx1, 0 offset).\n");
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    case ENScnRenderCmd_SetFramebuffProps:
-                        if(rndrEnc != nil){
-                            //apply viewport
-                            {
-                                MTLViewport viewPort;
-                                viewPort.originX = (double)c->setFramebuffProps.viewport.x;
-                                viewPort.originY = (double)c->setFramebuffProps.viewport.y;
-                                viewPort.width = (double)c->setFramebuffProps.viewport.width;
-                                viewPort.height = (double)c->setFramebuffProps.viewport.height;
-                                viewPort.znear = 0.0;
-                                viewPort.zfar = 1.0;
-                                [rndrEnc setViewport:viewPort];
-                                //printf("setViewport(%u, %u)-(+%u, +%u).\n", fb->viewport.x, fb->viewport.y, fb->viewport.width, fb->viewport.height);
-                            }
-                            //fb props
-                            [rndrEnc setVertexBufferOffset:c->setFramebuffProps.offset
-                                                   atIndex:0];
-                        }
-                        break;
-                        //models
-                    case ENScnRenderCmd_SetTransformOffset: //sets the positions of the 'STScnGpuModelProps2d' to be applied for the drawing cmds
-                        if(rndrEnc == nil){
-                            printf("ERROR, ENScnRenderCmd_SetTransformOffset::rndrEnc is nil.\n");
-                            r = ScnFALSE;
-                        } else {
-                            [rndrEnc setVertexBufferOffset:c->setTransformOffset.offset atIndex:1];
-                            //printf("setVertexBufferOffset(idx1, %u offset).\n", c->setTransformOffset.offset);
-                        }
-                        break;
-                    case ENScnRenderCmd_SetVertexBuff:  //activates the vertex buffer
-                        if(ScnVertexbuff_isNull(c->setVertexBuff.ref)){
-                            printf("ERROR, ENScnRenderCmd_SetVertexBuff::ScnVertexbuff_isNull.\n");
-                            [rndrEnc setVertexBuffer:nil offset:0 atIndex:2];
-                            //printf("setVertexBuffer(idx2, nil).\n");
-                        } else {
-                            ScnGpuVertexbuffRef vbuffRef = ScnVertexbuff_getCurrentRenderSlot(c->setVertexBuff.ref);
-                            if(ScnGpuVertexbuff_isNull(vbuffRef)){
-                                printf("ERROR, ENScnRenderCmd_SetVertexBuff::ScnGpuVertexbuff_isNull.\n");
-                                r = ScnFALSE;
-                            } else {
-                                STScnApiMetalVertexBuff* vbuff = (STScnApiMetalVertexBuff*)ScnGpuVertexBuff_getApiItfParam(vbuffRef);
-                                if(vbuff == NULL || ScnGpuBuffer_isNull(vbuff->vBuff)){
-                                    printf("ERROR, ENScnRenderCmd_SetVertexBuff::ScnGpuBuffer_isNull.\n");
-                                    r = ScnFALSE;
-                                } else {
-                                    STScnApiMetalBuffer* buff = (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(vbuff->vBuff);
-                                    STScnApiMetalBuffer* idxs = ScnGpuBuffer_isNull(vbuff->idxBuff) ? NULL : (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(vbuff->idxBuff);
-                                    if(buff == NULL){
-                                        printf("ERROR, ENScnRenderCmd_SetVertexBuff::buff == NULL.\n");
-                                        r = ScnFALSE;
-                                    } else {
-                                        const ENScnVertexType vertexType = STScnGpuVertexbuffCfg_2_ENScnVertexType(&vbuff->cfg);
-                                        if(fb->renderStates.states[fb->cur.verts.type] == nil){
-                                            printf("ERROR, ENScnRenderCmd_SetVertexBuff::fb->renderStates.states[fb->curVertexType] == nil.\n");
-                                            r = ScnFALSE;
-                                        } else {
-                                            fb->cur.verts.type  = vertexType;
-                                            fb->cur.verts.buff  = buff;
-                                            fb->cur.verts.idxs  = idxs;
-                                            [rndrEnc setRenderPipelineState:fb->renderStates.states[fb->cur.verts.type]];
-                                            [rndrEnc setVertexBuffer:buff->buff offset:0 atIndex:2];
-                                            //printf("setVertexBuffer(idx2, 0 offset).\n");
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                   case ENScnRenderCmd_SetTexture:     //activates the texture in a specific slot-index
-                        if(ScnTexture_isNull(c->setTexture.ref)){
-                            [rndrEnc setFragmentTexture:nil atIndex:c->setTexture.index];
-                            [rndrEnc setFragmentSamplerState:nil atIndex:c->setTexture.index];
-                        } else {
-                            ScnGpuTextureRef texRef = ScnTexture_getCurrentRenderSlot(c->setTexture.ref);
-                            if(ScnGpuTexture_isNull(texRef)){
-                                printf("ERROR, ENScnRenderCmd_SetVertexBuff::ScnGpuTexture_isNull.\n");
-                                r = ScnFALSE;
-                            } else {
-                                STScnApiMetalTexture* tex = (STScnApiMetalTexture*)ScnGpuTexture_getApiItfParam(texRef);
-                                if(tex == NULL || tex->tex == nil || ScnGpuSampler_isNull(tex->sampler)){
-                                    printf("ERROR, ENScnRenderCmd_SetVertexBuff::tex->tex is NULL.\n");
-                                    r = ScnFALSE;
-                                } else {
-                                    STScnApiMetalSampler* smplr = (STScnApiMetalSampler*)ScnGpuSampler_getApiItfParam(tex->sampler);
-                                    if(smplr->smplr == nil){
-                                        printf("ERROR, ENScnRenderCmd_SetVertexBuff::smplr->smplr is NULL.\n");
-                                        r = ScnFALSE;
-                                    } else {
-                                        [rndrEnc setFragmentTexture:tex->tex atIndex:c->setTexture.index];
-                                        [rndrEnc setFragmentSamplerState:smplr->smplr atIndex:c->setTexture.index];
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                        //modes
-                        //case ENScnRenderCmd_MaskModePush:   //pushes drawing-mask mode, where only the alpha value is affected
-                        //    break;
-                        //case ENScnRenderCmd_MaskModePop:    //pop
-                        //    break;
-                        //drawing
-                    case ENScnRenderCmd_DrawVerts:      //draws something using the vertices
-                        switch (c->drawVerts.shape) {
-                            case ENScnRenderShape_Compute:
-                                //nop
-                                break;
-                                //
-                            case ENScnRenderShape_Texture:     //same as 'ENScnRenderShape_TriangStrip' with possible bitblit-optimization if matrix has no rotation.
-                                if(rndrEnc == NULL){
-                                    //rintf("ERROR, ENScnRenderShape_Texture::rndrEnc == NULL.\n");
-                                    r = ScnFALSE;
-                                } else {
-                                    [rndrEnc drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
-                                    //printf("drawPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
-                                }
-                                break;
-                            case ENScnRenderShape_TriangStrip: //triangles-strip, most common shape
-                                if(rndrEnc == NULL){
-                                    printf("ERROR, ENScnRenderShape_TriangStrip::rndrEnc == NULL.\n");
-                                    r = ScnFALSE;
-                                } else {
-                                    [rndrEnc drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
-                                    //printf("drawPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
-                                }
-                                break;
-                            //case ENScnRenderShape_TriangFan:   //triangles-fan
-                            //    break;
-                                //
-                            case ENScnRenderShape_LineStrip:   //lines-strip
-                                if(rndrEnc == NULL){
-                                    printf("ERROR, ENScnRenderShape_LineStrip::rndrEnc == NULL.\n");
-                                    r = ScnFALSE;
-                                } else {
-                                    [rndrEnc drawPrimitives:MTLPrimitiveTypeLineStrip vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
-                                    //printf("drawPrimitives(MTLPrimitiveTypeLineStrip: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
-                                }
-                                break;
-                            //case ENScnRenderShape_LineLoop:    //lines-loop
-                            //    break;
-                            case ENScnRenderShape_Lines:       //lines
-                                if(rndrEnc == NULL){
-                                    printf("ERROR, ENScnRenderShape_Lines::rndrEnc == NULL.\n");
-                                    r = ScnFALSE;
-                                } else {
-                                    [rndrEnc drawPrimitives:MTLPrimitiveTypeLine vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
-                                    //printf("drawPrimitives(MTLPrimitiveTypeLine: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
-                                }
-                                break;
-                            case ENScnRenderShape_Points:      //points
-                                if(rndrEnc == NULL){
-                                    printf("ERROR, ENScnRenderShape_Points::rndrEnc == NULL.\n");
-                                    r = ScnFALSE;
-                                } else {
-                                    [rndrEnc drawPrimitives:MTLPrimitiveTypePoint vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
-                                    //printf("drawPrimitives(MTLPrimitiveTypePoint: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
-                                }
-                                break;
-                            default:
-                                SCN_ASSERT(ScnFALSE); //missing implementation
-                                break;
-                        }
-                        break;
-                    case ENScnRenderCmd_DrawIndexes:    //draws something using the vertices indexes
-                        if(fb == NULL || fb->cur.verts.idxs == NULL || fb->cur.verts.idxs->buff == nil){
-                            printf("ERROR, ENScnRenderCmd_DrawIndexes without active framebuffer or index-buffer.\n");
-                            r = ScnFALSE;
-                            break;
-                        }
-                        switch (c->drawIndexes.shape) {
-                            case ENScnRenderShape_Compute:
-                                //nop
-                                break;
-                                //
-                            case ENScnRenderShape_Texture:     //same as 'ENScnRenderShape_TriangStrip' with possible bitblit-optimization if matrix has no rotation.
-                                if(rndrEnc == NULL){
-                                    //rintf("ERROR, ENScnRenderShape_Texture::rndrEnc == NULL.\n");
-                                    r = ScnFALSE;
-                                } else {
-                                    [rndrEnc drawIndexedPrimitives:MTLPrimitiveTypeTriangleStrip indexCount:c->drawIndexes.count indexType:MTLIndexTypeUInt32 indexBuffer:fb->cur.verts.idxs->buff indexBufferOffset:c->drawIndexes.iFirst * 4];
-                                    //printf("drawIndexedPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
-                                }
-                                break;
-                            case ENScnRenderShape_TriangStrip: //triangles-strip, most common shape
-                                if(rndrEnc == NULL){
-                                    printf("ERROR, ENScnRenderShape_TriangStrip::rndrEnc == NULL.\n");
-                                    r = ScnFALSE;
-                                } else {
-                                    [rndrEnc drawIndexedPrimitives:MTLPrimitiveTypeTriangleStrip indexCount:c->drawIndexes.count indexType:MTLIndexTypeUInt32 indexBuffer:fb->cur.verts.idxs->buff indexBufferOffset:c->drawIndexes.iFirst * 4];
-                                    //printf("drawIndexedPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
-                                }
-                                break;
-                            //case ENScnRenderShape_TriangFan:   //triangles-fan
-                            //    break;
-                                //
-                            case ENScnRenderShape_LineStrip:   //lines-strip
-                                if(rndrEnc == NULL){
-                                    printf("ERROR, ENScnRenderShape_LineStrip::rndrEnc == NULL.\n");
-                                    r = ScnFALSE;
-                                } else {
-                                    [rndrEnc drawIndexedPrimitives:MTLPrimitiveTypeLineStrip indexCount:c->drawIndexes.count indexType:MTLIndexTypeUInt32 indexBuffer:fb->cur.verts.idxs->buff indexBufferOffset:c->drawIndexes.iFirst * 4];
-                                    //printf("drawIndexedPrimitives(MTLPrimitiveTypeLineStrip: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
-                                }
-                                break;
-                            //case ENScnRenderShape_LineLoop:    //lines-loop
-                            //    break;
-                            case ENScnRenderShape_Lines:       //lines
-                                if(rndrEnc == NULL){
-                                    printf("ERROR, ENScnRenderShape_Lines::rndrEnc == NULL.\n");
-                                    r = ScnFALSE;
-                                } else {
-                                    [rndrEnc drawIndexedPrimitives:MTLPrimitiveTypeLine indexCount:c->drawIndexes.count indexType:MTLIndexTypeUInt32 indexBuffer:fb->cur.verts.idxs->buff indexBufferOffset:c->drawIndexes.iFirst * 4];
-                                    //printf("drawIndexedPrimitives(MTLPrimitiveTypeLine: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
-                                }
-                                break;
-                            case ENScnRenderShape_Points:      //points
-                                if(rndrEnc == NULL){
-                                    printf("ERROR, ENScnRenderShape_Points::rndrEnc == NULL.\n");
-                                    r = ScnFALSE;
-                                } else {
-                                    [rndrEnc drawIndexedPrimitives:MTLPrimitiveTypePoint indexCount:c->drawIndexes.count indexType:MTLIndexTypeUInt32 indexBuffer:fb->cur.verts.idxs->buff indexBufferOffset:c->drawIndexes.iFirst * 4];
-                                    //printf("drawIndexedPrimitives(MTLPrimitiveTypePoint: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
-                                }
-                                break;
-                            default:
-                                SCN_ASSERT(ScnFALSE); //missing implementation
-                                break;
-                        }
-                        break;
-                    default:
-                        SCN_ASSERT(ScnFALSE) //missing implementation
-                        break;
-                }
-                ++c;
-            }
-            //finalize
-            if(rndrEnc != nil){
-                [rndrEnc endEncoding];
-                //printf("endEncoding.\n");
-            }
-            if(commandBuffer != nil){
-                if(fb != NULL && fb->mtkView != NULL){
-                    [commandBuffer presentDrawable:fb->mtkView.currentDrawable];
-                    //printf("presentDrawable.\n");
-                }
-                [commandBuffer commit];
-                //printf("commit.\n");
-            }
-        }
-    }
-    return r;
-}
-
 //frameBuffer (view)
 
 void ScnApiMetal_framebuff_view_free(void* pObj){
@@ -1326,7 +1000,7 @@ void ScnApiMetal_framebuff_view_free(void* pObj){
     ScnContextRef ctx = obj->ctx;
     {
         //
-        STScnApiMetalRenderStates_destroy(&obj->renderStates);
+        STScnApiMetalRenderStates_destroy(&obj->rndrShaders);
         //
         if(obj->mtkView != nil){
             [obj->mtkView release];
@@ -1462,4 +1136,550 @@ ScnBOOL STScnApiMetalRenderStates_load(STScnApiMetalRenderStates* obj, STScnApiM
         if(fragmtFunc != nil){ [fragmtFunc release]; fragmtFunc = nil; }
     }
     return r;
+}
+
+// STScnApiMetalRenderJobState
+
+typedef struct STScnApiMetalRenderJobState {
+    STScnApiMetalFramebuffView* fb;
+    MTLRenderPassDescriptor*    rndrDesc; //per active framebuff
+    id<MTLRenderCommandEncoder> rndrEnc; //per active framebuff
+} STScnApiMetalRenderJobState;
+
+void ScnApiMetalRenderJobState_init(STScnApiMetalRenderJobState* obj);
+void ScnApiMetalRenderJobState_destroy(STScnApiMetalRenderJobState* obj);
+//
+void ScnApiMetalRenderJobState_reset(STScnApiMetalRenderJobState* obj);
+
+// STScnApiMetalRenderJob
+
+typedef struct STScnApiMetalRenderJob {
+    ScnContextRef           ctx;
+    STScnApiMetalDevice*    dev;
+    //bPropsScns
+    struct {
+        ScnGpuBufferRef     ref;
+        STScnApiMetalBuffer* obj;
+    } bPropsScns;
+    //bPropsMdls
+    struct {
+        ScnGpuBufferRef     ref;
+        STScnApiMetalBuffer* obj;
+    } bPropsMdls;
+    //
+    id<MTLCommandBuffer>    cmdsBuff;
+    //
+    STScnApiMetalRenderJobState state;
+} STScnApiMetalRenderJob;
+
+ScnGpuRenderJobRef ScnApiMetal_device_allocRenderJob(void* pObj){
+    ScnGpuRenderJobRef r = ScnGpuRenderJobRef_Zero;
+    STScnApiMetalDevice* dev = (STScnApiMetalDevice*)pObj;
+    if(dev != NULL && dev->dev != NULL && dev->cmdQueue != nil){
+        STScnApiMetalRenderJob* obj = (STScnApiMetalRenderJob*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalRenderJob), "STScnApiMetalRenderJob");
+        if(obj == NULL){
+            printf("ScnContext_malloc(STScnApiMetalRenderJob) failed.\n");
+        } else {
+            ScnMemory_setZeroSt(*obj);
+            ScnContext_set(&obj->ctx, dev->ctx);
+            ScnApiMetalRenderJobState_init(&obj->state);
+            obj->dev        = dev;  //retain?
+            //
+            ScnGpuRenderJobRef d = ScnGpuRenderJob_alloc(dev->ctx);
+            if(!ScnGpuRenderJob_isNull(d)){
+                //
+                STScnGpuRenderJobApiItf itf;
+                ScnMemory_setZeroSt(itf);
+                itf.free        = ScnApiMetal_renderJob_free;
+                itf.getState    = ScnApiMetal_renderJob_getState;
+                itf.buildBegin  = ScnApiMetal_renderJob_buildBegin;
+                itf.buildAddCmds = ScnApiMetal_renderJob_buildAddCmds;
+                itf.buildEndAndEnqueue = ScnApiMetal_renderJob_buildEndAndEnqueue;
+                //
+                if(!ScnGpuRenderJob_prepare(d, &itf, obj)){
+                    printf("ScnApiMetal_device_allocRenderJob::ScnGpuRenderJob_prepare failed.\n");
+                } else {
+                    ScnGpuRenderJob_set(&r, d);
+                    obj = NULL; //consume
+                }
+                ScnGpuRenderJob_releaseAndNull(&d);
+            }
+        }
+        //release (if not consumed)
+        if(obj != NULL){
+            ScnApiMetal_renderJob_free(obj);
+            obj = NULL;
+        }
+    }
+    return r;
+}
+
+
+//render job
+
+void ScnApiMetal_renderJob_free(void* data){
+    STScnApiMetalRenderJob* obj = (STScnApiMetalRenderJob*)data;
+    ScnContextRef ctx = obj->ctx;
+    {
+        if(obj->cmdsBuff != nil){
+#           ifdef SCN_ASSERTS_ACTIVATED
+            const MTLCommandBufferStatus status = [obj->cmdsBuff status];
+            SCN_ASSERT(status != MTLCommandBufferStatusNotEnqueued && status != MTLCommandBufferStatusCompleted && status != MTLCommandBufferStatusError)
+#           endif
+            [obj->cmdsBuff release];
+            obj->cmdsBuff = nil;
+        }
+        //bPropsScns
+        {
+            ScnGpuBuffer_releaseAndNull(&obj->bPropsScns.ref);
+            obj->bPropsScns.obj = NULL;
+        }
+        //bPropsMdls
+        {
+            ScnGpuBuffer_releaseAndNull(&obj->bPropsMdls.ref);
+            obj->bPropsMdls.obj = NULL;
+        }
+        ScnApiMetalRenderJobState_destroy(&obj->state);
+        ScnContext_null(&obj->ctx);
+    }
+    ScnContext_mfree(ctx, obj);
+    ScnContext_releaseAndNull(&ctx);
+}
+
+ENScnGpuRenderJobState ScnApiMetal_renderJob_getState(void* data){
+    ENScnGpuRenderJobState r = ENScnGpuRenderJobState_Unknown;
+    STScnApiMetalRenderJob* obj = (STScnApiMetalRenderJob*)data;
+    if(obj->cmdsBuff != nil){
+        switch ([obj->cmdsBuff status]) {
+            case MTLCommandBufferStatusNotEnqueued: ; break;
+            case MTLCommandBufferStatusEnqueued: r = ENScnGpuRenderJobState_Enqueued; break;
+            case MTLCommandBufferStatusCommitted: r = ENScnGpuRenderJobState_Enqueued; break;
+            case MTLCommandBufferStatusScheduled: r = ENScnGpuRenderJobState_Enqueued; break;
+            case MTLCommandBufferStatusCompleted: r = ENScnGpuRenderJobState_Completed; break;
+            case MTLCommandBufferStatusError: r = ENScnGpuRenderJobState_Error; break;
+            default: break;
+        }
+    }
+    return r;
+}
+
+ScnBOOL ScnApiMetal_renderJob_buildBegin(void* data, ScnGpuBufferRef pFbPropsBuff, ScnGpuBufferRef pMdlsPropsBuff){
+    ScnBOOL r = ScnFALSE;
+    STScnApiMetalRenderJob* obj = (STScnApiMetalRenderJob*)data;
+    STScnApiMetalRenderJobState* state = &obj->state;
+    //
+    STScnApiMetalBuffer* bPropsScns = NULL;
+    STScnApiMetalBuffer* bPropsMdls = NULL;
+    //
+    if(obj->dev == NULL || obj->dev->dev == nil || obj->dev->cmdQueue == nil){
+        return ScnFALSE;
+    }
+    if(ScnGpuBuffer_isNull(pFbPropsBuff) || ScnGpuBuffer_isNull(pMdlsPropsBuff)){
+        return ScnFALSE;
+    }
+    bPropsScns = (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(pFbPropsBuff);
+    bPropsMdls = (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(pMdlsPropsBuff);
+    if(bPropsScns == NULL || bPropsScns->buff == nil){
+        return ScnFALSE;
+    } else if(bPropsMdls == NULL || bPropsMdls->buff == nil){
+        return ScnFALSE;
+    }
+    if(obj->cmdsBuff != nil){
+        const MTLCommandBufferStatus status = [obj->cmdsBuff status];
+        if(status != MTLCommandBufferStatusNotEnqueued && status != MTLCommandBufferStatusCompleted && status != MTLCommandBufferStatusError){
+            //job currentyl in progress
+            return ScnFALSE;
+        }
+    }
+    //begin
+    {
+        if(obj->cmdsBuff != nil){
+            [obj->cmdsBuff release];
+            obj->cmdsBuff = nil;
+        }
+        obj->cmdsBuff = [obj->dev->cmdQueue commandBuffer];
+        if(obj->cmdsBuff != nil){
+            obj->cmdsBuff.label = @"Ixtli-cmd-buff";
+            [obj->cmdsBuff retain];
+            {
+                ScnGpuBuffer_set(&obj->bPropsScns.ref, pFbPropsBuff);
+                obj->bPropsScns.obj = bPropsScns;
+            }
+            {
+                ScnGpuBuffer_set(&obj->bPropsMdls.ref, pMdlsPropsBuff);
+                obj->bPropsMdls.obj = bPropsMdls;
+            }
+            ScnApiMetalRenderJobState_reset(&obj->state);
+            //
+            r = ScnTRUE;
+        }
+    }
+    //
+    return r;
+    
+}
+
+ScnBOOL ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderCmd* const cmds, const ScnUI32 cmdsSz){
+    ScnBOOL r = ScnFALSE;
+    //
+    STScnApiMetalRenderJob* obj = (STScnApiMetalRenderJob*)data;
+    //
+    if(obj->cmdsBuff == nil){
+        return ScnFALSE;
+    } else if(obj->bPropsScns.obj == NULL || obj->bPropsScns.obj->buff == nil){
+        return ScnFALSE;
+    } else if(obj->bPropsMdls.obj == NULL || obj->bPropsMdls.obj->buff == nil){
+        return ScnFALSE;
+    }
+    //
+    STScnApiMetalRenderJobState* state = &obj->state;
+    const STScnRenderCmd* c = cmds;
+    const STScnRenderCmd* cAfterEnd = cmds + cmdsSz;
+    //
+    r = ScnTRUE;
+    //
+    while(r && c < cAfterEnd){
+        switch (c->cmdId) {
+            case ENScnRenderCmd_None:
+                //nop
+                break;
+                //framebuffers
+            case ENScnRenderCmd_ActivateFramebuff:
+                if(!ScnFramebuff_isNull(c->activateFramebuff.ref)){
+                    ScnGpuFramebuffRef gpuFb = ScnFramebuff_getCurrentRenderSlot(c->activateFramebuff.ref);
+                    if(ScnGpuFramebuff_isNull(gpuFb)){
+                        printf("ERROR, ENScnRenderCmd_ActivateFramebuff::ScnGpuFramebuff_isNull.\n");
+                        r = ScnFALSE;
+                    } else {
+                        state->fb = (STScnApiMetalFramebuffView*)ScnGpuFramebuff_getApiItfParam(gpuFb);
+                        if(state->fb == NULL || state->fb->mtkView == nil || state->fb->rndrShaders.states[state->fb->cur.verts.type] == nil){
+                            printf("ERROR, ENScnRenderCmd_ActivateFramebuff::fb == NULL || fb->mtkView == nil || fb->renderState == nil.\n");
+                            r = ScnFALSE;
+                            break;
+                        }
+                        //ToDo: define how to reset state
+                        //ScnMemory_setZeroSt(fb->cur);
+                        //
+                        MTLRenderPassDescriptor* rndrDesc = state->fb->mtkView.currentRenderPassDescriptor;
+                        //printf("commandBuffer.\n");
+                        SCN_ASSERT(obj->cmdsBuff != nil)
+                        if(rndrDesc == nil){
+                            printf("ERROR, ENScnRenderCmd_ActivateFramebuff::renderPassDescriptor == nil || commandBuffer == nil.\n");
+                            r = ScnFALSE;
+                        } else {
+                            id <MTLRenderCommandEncoder> rndrEnc = [obj->cmdsBuff renderCommandEncoderWithDescriptor:rndrDesc];
+                            if(rndrEnc == nil){
+                                printf("ERROR, ENScnRenderCmd_ActivateFramebuff::renderCommandEncoderWithDescriptor failed.\n");
+                                r = ScnFALSE;
+                            } else {
+                                //printf("renderCommandEncoderWithDescriptor.\n");
+                                if(state->rndrDesc != nil){ [state->rndrDesc release]; state->rndrDesc = nil; }
+                                if(state->rndrEnc != nil){ [state->rndrEnc release]; state->rndrEnc = nil; }
+                                //
+                                state->rndrDesc = rndrDesc; [rndrDesc retain];
+                                state->rndrEnc = rndrEnc; [rndrEnc retain];
+                                state->rndrEnc.label = @"ixtli-render-cmd-enc";
+                                //
+                                [state->rndrEnc setRenderPipelineState:state->fb->rndrShaders.states[state->fb->cur.verts.type]];
+                                //printf("setRenderPipelineState.\n");
+                                //apply viewport
+                                {
+                                    MTLViewport viewPort;
+                                    viewPort.originX = (double)c->activateFramebuff.viewport.x;
+                                    viewPort.originY = (double)c->activateFramebuff.viewport.y;
+                                    viewPort.width = (double)c->activateFramebuff.viewport.width;
+                                    viewPort.height = (double)c->activateFramebuff.viewport.height;
+                                    viewPort.znear = 0.0;
+                                    viewPort.zfar = 1.0;
+                                    [state->rndrEnc setViewport:viewPort];
+                                    //printf("setViewport(%u, %u)-(+%u, +%u).\n", fb->viewport.x, fb->viewport.y, fb->viewport.width, fb->viewport.height);
+                                }
+                                //fb props
+                                [state->rndrEnc setVertexBuffer:obj->bPropsScns.obj->buff offset:c->activateFramebuff.offset atIndex:0];
+                                //printf("setVertexBuffer(idx0, %u offset).\n", c->activateFramebuff.offset);
+                                //mdl props
+                                [state->rndrEnc setVertexBuffer:obj->bPropsMdls.obj->buff offset:0 atIndex:1];
+                                //printf("setVertexBuffer(idx1, 0 offset).\n");
+                            }
+                        }
+                    }
+                }
+                break;
+            case ENScnRenderCmd_SetFramebuffProps:
+                if(state->rndrEnc != nil){
+                    //apply viewport
+                    {
+                        MTLViewport viewPort;
+                        viewPort.originX = (double)c->setFramebuffProps.viewport.x;
+                        viewPort.originY = (double)c->setFramebuffProps.viewport.y;
+                        viewPort.width = (double)c->setFramebuffProps.viewport.width;
+                        viewPort.height = (double)c->setFramebuffProps.viewport.height;
+                        viewPort.znear = 0.0;
+                        viewPort.zfar = 1.0;
+                        [state->rndrEnc setViewport:viewPort];
+                        //printf("setViewport(%u, %u)-(+%u, +%u).\n", fb->viewport.x, fb->viewport.y, fb->viewport.width, fb->viewport.height);
+                    }
+                    //fb props
+                    [state->rndrEnc setVertexBufferOffset:c->setFramebuffProps.offset atIndex:0];
+                }
+                break;
+                //models
+            case ENScnRenderCmd_SetTransformOffset: //sets the positions of the 'STScnGpuModelProps2d' to be applied for the drawing cmds
+                if(state->rndrEnc == nil){
+                    printf("ERROR, ENScnRenderCmd_SetTransformOffset::rndrEnc is nil.\n");
+                    r = ScnFALSE;
+                } else {
+                    [state->rndrEnc setVertexBufferOffset:c->setTransformOffset.offset atIndex:1];
+                    //printf("setVertexBufferOffset(idx1, %u offset).\n", c->setTransformOffset.offset);
+                }
+                break;
+            case ENScnRenderCmd_SetVertexBuff:  //activates the vertex buffer
+                if(ScnVertexbuff_isNull(c->setVertexBuff.ref)){
+                    printf("ERROR, ENScnRenderCmd_SetVertexBuff::ScnVertexbuff_isNull.\n");
+                    [state->rndrEnc setVertexBuffer:nil offset:0 atIndex:2];
+                    //printf("setVertexBuffer(idx2, nil).\n");
+                } else {
+                    ScnGpuVertexbuffRef vbuffRef = ScnVertexbuff_getCurrentRenderSlot(c->setVertexBuff.ref);
+                    if(ScnGpuVertexbuff_isNull(vbuffRef)){
+                        printf("ERROR, ENScnRenderCmd_SetVertexBuff::ScnGpuVertexbuff_isNull.\n");
+                        r = ScnFALSE;
+                    } else {
+                        STScnApiMetalVertexBuff* vbuff = (STScnApiMetalVertexBuff*)ScnGpuVertexBuff_getApiItfParam(vbuffRef);
+                        if(vbuff == NULL || ScnGpuBuffer_isNull(vbuff->vBuff)){
+                            printf("ERROR, ENScnRenderCmd_SetVertexBuff::ScnGpuBuffer_isNull.\n");
+                            r = ScnFALSE;
+                        } else {
+                            STScnApiMetalBuffer* buff = (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(vbuff->vBuff);
+                            STScnApiMetalBuffer* idxs = ScnGpuBuffer_isNull(vbuff->idxBuff) ? NULL : (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(vbuff->idxBuff);
+                            if(buff == NULL){
+                                printf("ERROR, ENScnRenderCmd_SetVertexBuff::buff == NULL.\n");
+                                r = ScnFALSE;
+                            } else {
+                                const ENScnVertexType vertexType = STScnGpuVertexbuffCfg_2_ENScnVertexType(&vbuff->cfg);
+                                if(state->fb->rndrShaders.states[state->fb->cur.verts.type] == nil){
+                                    printf("ERROR, ENScnRenderCmd_SetVertexBuff::fb->rndrShaders.states[fb->curVertexType] == nil.\n");
+                                    r = ScnFALSE;
+                                } else {
+                                    state->fb->cur.verts.type  = vertexType;
+                                    state->fb->cur.verts.buff  = buff;
+                                    state->fb->cur.verts.idxs  = idxs;
+                                    [state->rndrEnc setRenderPipelineState:state->fb->rndrShaders.states[state->fb->cur.verts.type]];
+                                    [state->rndrEnc setVertexBuffer:buff->buff offset:0 atIndex:2];
+                                    //printf("setVertexBuffer(idx2, 0 offset).\n");
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+           case ENScnRenderCmd_SetTexture:     //activates the texture in a specific slot-index
+                if(ScnTexture_isNull(c->setTexture.ref)){
+                    [state->rndrEnc setFragmentTexture:nil atIndex:c->setTexture.index];
+                    [state->rndrEnc setFragmentSamplerState:nil atIndex:c->setTexture.index];
+                } else {
+                    ScnGpuTextureRef texRef = ScnTexture_getCurrentRenderSlot(c->setTexture.ref);
+                    if(ScnGpuTexture_isNull(texRef)){
+                        printf("ERROR, ENScnRenderCmd_SetVertexBuff::ScnGpuTexture_isNull.\n");
+                        r = ScnFALSE;
+                    } else {
+                        STScnApiMetalTexture* tex = (STScnApiMetalTexture*)ScnGpuTexture_getApiItfParam(texRef);
+                        if(tex == NULL || tex->tex == nil || ScnGpuSampler_isNull(tex->sampler)){
+                            printf("ERROR, ENScnRenderCmd_SetVertexBuff::tex->tex is NULL.\n");
+                            r = ScnFALSE;
+                        } else {
+                            STScnApiMetalSampler* smplr = (STScnApiMetalSampler*)ScnGpuSampler_getApiItfParam(tex->sampler);
+                            if(smplr->smplr == nil){
+                                printf("ERROR, ENScnRenderCmd_SetVertexBuff::smplr->smplr is NULL.\n");
+                                r = ScnFALSE;
+                            } else {
+                                [state->rndrEnc setFragmentTexture:tex->tex atIndex:c->setTexture.index];
+                                [state->rndrEnc setFragmentSamplerState:smplr->smplr atIndex:c->setTexture.index];
+                            }
+                        }
+                    }
+                }
+                break;
+                //modes
+                //case ENScnRenderCmd_MaskModePush:   //pushes drawing-mask mode, where only the alpha value is affected
+                //    break;
+                //case ENScnRenderCmd_MaskModePop:    //pop
+                //    break;
+                //drawing
+            case ENScnRenderCmd_DrawVerts:      //draws something using the vertices
+                switch (c->drawVerts.shape) {
+                    case ENScnRenderShape_Compute:
+                        //nop
+                        break;
+                        //
+                    case ENScnRenderShape_Texture:     //same as 'ENScnRenderShape_TriangStrip' with possible bitblit-optimization if matrix has no rotation.
+                        if(state->rndrEnc == NULL){
+                            //rintf("ERROR, ENScnRenderShape_Texture::rndrEnc == NULL.\n");
+                            r = ScnFALSE;
+                        } else {
+                            [state->rndrEnc drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
+                            //printf("drawPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
+                        }
+                        break;
+                    case ENScnRenderShape_TriangStrip: //triangles-strip, most common shape
+                        if(state->rndrEnc == NULL){
+                            printf("ERROR, ENScnRenderShape_TriangStrip::rndrEnc == NULL.\n");
+                            r = ScnFALSE;
+                        } else {
+                            [state->rndrEnc drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
+                            //printf("drawPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
+                        }
+                        break;
+                    //case ENScnRenderShape_TriangFan:   //triangles-fan
+                    //    break;
+                        //
+                    case ENScnRenderShape_LineStrip:   //lines-strip
+                        if(state->rndrEnc == NULL){
+                            printf("ERROR, ENScnRenderShape_LineStrip::rndrEnc == NULL.\n");
+                            r = ScnFALSE;
+                        } else {
+                            [state->rndrEnc drawPrimitives:MTLPrimitiveTypeLineStrip vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
+                            //printf("drawPrimitives(MTLPrimitiveTypeLineStrip: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
+                        }
+                        break;
+                    //case ENScnRenderShape_LineLoop:    //lines-loop
+                    //    break;
+                    case ENScnRenderShape_Lines:       //lines
+                        if(state->rndrEnc == NULL){
+                            printf("ERROR, ENScnRenderShape_Lines::rndrEnc == NULL.\n");
+                            r = ScnFALSE;
+                        } else {
+                            [state->rndrEnc drawPrimitives:MTLPrimitiveTypeLine vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
+                            //printf("drawPrimitives(MTLPrimitiveTypeLine: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
+                        }
+                        break;
+                    case ENScnRenderShape_Points:      //points
+                        if(state->rndrEnc == NULL){
+                            printf("ERROR, ENScnRenderShape_Points::rndrEnc == NULL.\n");
+                            r = ScnFALSE;
+                        } else {
+                            [state->rndrEnc drawPrimitives:MTLPrimitiveTypePoint vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
+                            //printf("drawPrimitives(MTLPrimitiveTypePoint: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
+                        }
+                        break;
+                    default:
+                        SCN_ASSERT(ScnFALSE); //missing implementation
+                        break;
+                }
+                break;
+            case ENScnRenderCmd_DrawIndexes:    //draws something using the vertices indexes
+                if(state->fb == NULL || state->fb->cur.verts.idxs == NULL || state->fb->cur.verts.idxs->buff == nil){
+                    printf("ERROR, ENScnRenderCmd_DrawIndexes without active framebuffer or index-buffer.\n");
+                    r = ScnFALSE;
+                    break;
+                }
+                switch (c->drawIndexes.shape) {
+                    case ENScnRenderShape_Compute:
+                        //nop
+                        break;
+                        //
+                    case ENScnRenderShape_Texture:     //same as 'ENScnRenderShape_TriangStrip' with possible bitblit-optimization if matrix has no rotation.
+                        if(state->rndrEnc == NULL){
+                            //rintf("ERROR, ENScnRenderShape_Texture::rndrEnc == NULL.\n");
+                            r = ScnFALSE;
+                        } else {
+                            [state->rndrEnc drawIndexedPrimitives:MTLPrimitiveTypeTriangleStrip indexCount:c->drawIndexes.count indexType:MTLIndexTypeUInt32 indexBuffer:state->fb->cur.verts.idxs->buff indexBufferOffset:c->drawIndexes.iFirst * 4];
+                            //printf("drawIndexedPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
+                        }
+                        break;
+                    case ENScnRenderShape_TriangStrip: //triangles-strip, most common shape
+                        if(state->rndrEnc == NULL){
+                            printf("ERROR, ENScnRenderShape_TriangStrip::rndrEnc == NULL.\n");
+                            r = ScnFALSE;
+                        } else {
+                            [state->rndrEnc drawIndexedPrimitives:MTLPrimitiveTypeTriangleStrip indexCount:c->drawIndexes.count indexType:MTLIndexTypeUInt32 indexBuffer:state->fb->cur.verts.idxs->buff indexBufferOffset:c->drawIndexes.iFirst * 4];
+                            //printf("drawIndexedPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
+                        }
+                        break;
+                    //case ENScnRenderShape_TriangFan:   //triangles-fan
+                    //    break;
+                        //
+                    case ENScnRenderShape_LineStrip:   //lines-strip
+                        if(state->rndrEnc == NULL){
+                            printf("ERROR, ENScnRenderShape_LineStrip::rndrEnc == NULL.\n");
+                            r = ScnFALSE;
+                        } else {
+                            [state->rndrEnc drawIndexedPrimitives:MTLPrimitiveTypeLineStrip indexCount:c->drawIndexes.count indexType:MTLIndexTypeUInt32 indexBuffer:state->fb->cur.verts.idxs->buff indexBufferOffset:c->drawIndexes.iFirst * 4];
+                            //printf("drawIndexedPrimitives(MTLPrimitiveTypeLineStrip: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
+                        }
+                        break;
+                    //case ENScnRenderShape_LineLoop:    //lines-loop
+                    //    break;
+                    case ENScnRenderShape_Lines:       //lines
+                        if(state->rndrEnc == NULL){
+                            printf("ERROR, ENScnRenderShape_Lines::rndrEnc == NULL.\n");
+                            r = ScnFALSE;
+                        } else {
+                            [state->rndrEnc drawIndexedPrimitives:MTLPrimitiveTypeLine indexCount:c->drawIndexes.count indexType:MTLIndexTypeUInt32 indexBuffer:state->fb->cur.verts.idxs->buff indexBufferOffset:c->drawIndexes.iFirst * 4];
+                            //printf("drawIndexedPrimitives(MTLPrimitiveTypeLine: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
+                        }
+                        break;
+                    case ENScnRenderShape_Points:      //points
+                        if(state->rndrEnc == NULL){
+                            printf("ERROR, ENScnRenderShape_Points::rndrEnc == NULL.\n");
+                            r = ScnFALSE;
+                        } else {
+                            [state->rndrEnc drawIndexedPrimitives:MTLPrimitiveTypePoint indexCount:c->drawIndexes.count indexType:MTLIndexTypeUInt32 indexBuffer:state->fb->cur.verts.idxs->buff indexBufferOffset:c->drawIndexes.iFirst * 4];
+                            //printf("drawIndexedPrimitives(MTLPrimitiveTypePoint: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
+                        }
+                        break;
+                    default:
+                        SCN_ASSERT(ScnFALSE); //missing implementation
+                        break;
+                }
+                break;
+            default:
+                SCN_ASSERT(ScnFALSE) //missing implementation
+                break;
+        }
+        ++c;
+    }
+    return r;
+}
+
+ScnBOOL ScnApiMetal_renderJob_buildEndAndEnqueue(void* data){
+    ScnBOOL r = ScnFALSE;
+    STScnApiMetalRenderJob* obj = (STScnApiMetalRenderJob*)data;
+    STScnApiMetalRenderJobState* state = &obj->state;
+    if(state->rndrEnc == nil || obj->cmdsBuff == nil || state->fb == NULL){
+        return ScnFALSE;
+    }
+    //
+    r = ScnTRUE;
+    //finalize
+    if(state->rndrEnc != nil){
+        [state->rndrEnc endEncoding];
+        //printf("endEncoding.\n");
+    }
+    if(obj->cmdsBuff != nil){
+        if(state->fb != NULL && state->fb->mtkView != NULL){
+            [obj->cmdsBuff presentDrawable:state->fb->mtkView.currentDrawable];
+            //printf("presentDrawable.\n");
+        }
+        [obj->cmdsBuff commit];
+        //printf("commit.\n");
+    }
+    return r;
+}
+
+
+// STScnApiMetalRenderJobState
+
+void ScnApiMetalRenderJobState_init(STScnApiMetalRenderJobState* obj){
+    ScnMemory_setZeroSt(*obj);
+}
+
+void ScnApiMetalRenderJobState_destroy(STScnApiMetalRenderJobState* obj){
+    if(obj->rndrDesc != nil){ [obj->rndrDesc release]; obj->rndrDesc = nil; }
+    if(obj->rndrEnc != nil){ [obj->rndrEnc release]; obj->rndrEnc = nil; }
+}
+
+void ScnApiMetalRenderJobState_reset(STScnApiMetalRenderJobState* obj){
+    if(obj->rndrDesc != nil){ [obj->rndrDesc release]; obj->rndrDesc = nil; }
+    if(obj->rndrEnc != nil){ [obj->rndrEnc release]; obj->rndrEnc = nil; }
+    ScnMemory_setZeroSt(*obj);
 }

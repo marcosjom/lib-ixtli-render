@@ -275,7 +275,7 @@ ScnBOOL ScnBuffer_prepareCurrentRenderSlot(ScnBufferRef ref, ScnBOOL* dstHasPtrs
                 //no changes to update
                 r = ScnTRUE;
             } else {
-                r = ScnGpuBuffer_sync(slot->gpuBuff, &opq->cfg, opq->mem, &changes);
+                r = ScnGpuBuffer_sync(slot->gpuBuff, opq->mem, &changes);
             }
         }
         //reset current slot changes

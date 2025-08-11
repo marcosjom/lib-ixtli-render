@@ -96,8 +96,8 @@ ScnGpuSamplerRef ScnGpuDevice_allocSampler(ScnGpuDeviceRef ref, const STScnGpuSa
     return (opq->api.itf.allocSampler != NULL ? (*opq->api.itf.allocSampler)(opq->api.itfParam, cfg) : (ScnGpuSamplerRef)ScnGpuSamplerRef_Zero);
 }
 
-ScnBOOL ScnGpuDevice_render(ScnGpuDeviceRef ref, ScnGpuBufferRef fbPropsBuff, ScnGpuBufferRef mdlsPropsBuff, const struct STScnRenderCmd* const cmds, const ScnUI32 cmdsSz){
+ScnGpuRenderJobRef ScnGpuDevice_allocRenderJob(ScnGpuDeviceRef ref){
     STScnGpuDeviceOpq* opq = (STScnGpuDeviceOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    return (opq->api.itf.render != NULL ? (*opq->api.itf.render)(opq->api.itfParam, fbPropsBuff, mdlsPropsBuff, cmds, cmdsSz) : ScnFALSE);
+    return (opq->api.itf.allocRenderJob != NULL ? (*opq->api.itf.allocRenderJob)(opq->api.itfParam) : (ScnGpuRenderJobRef)ScnGpuRenderJobRef_Zero);
 }
 

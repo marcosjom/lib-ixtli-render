@@ -14,12 +14,12 @@
 #include "ixrender/gpu/ScnGpuBuffer.h"
 #include "ixrender/gpu/ScnGpuVertexbuff.h"
 #include "ixrender/gpu/ScnGpuFramebuff.h"
+#include "ixrender/gpu/ScnGpuRenderJob.h"
+#include "ixrender/gpu/ScnGpuDeviceDesc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-struct STScnRenderCmd; //external
 
 //ENScnGpuDevicePower
 
@@ -84,14 +84,6 @@ typedef struct STScnGpuDeviceCfg {
     ENScnGpuDeviceCompute       compute;
 } STScnGpuDeviceCfg;
 
-//STScnGpuDeviceCfg
-
-#define STScnGpuDeviceDesc_Zero   { ScnFALSE }
-
-typedef struct STScnGpuDeviceDesc {
-    ScnBOOL     isTexFmtInfoRequired;   //the device requires texture format info, if TRUE 'STScnGpuModelProps2d.texs' will be populated
-} STScnGpuDeviceDesc;
-
 //ScnGpuDeviceRef
 
 #define ScnGpuDeviceRef_Zero   ScnObjRef_Zero
@@ -109,7 +101,7 @@ typedef struct STScnGpuDeviceApiItf {
     ScnGpuFramebuffRef  (*allocFramebuffFromOSView)(void* obj, void* mtkView);
     ScnGpuTextureRef    (*allocTexture)(void* obj, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData);
     ScnGpuSamplerRef    (*allocSampler)(void* obj, const STScnGpuSamplerCfg* const cfg);
-    ScnBOOL             (*render)(void* obj, ScnGpuBufferRef fbPropsBuff, ScnGpuBufferRef mdlsPropsBuff, const struct STScnRenderCmd* const cmds, const ScnUI32 cmdsSz);
+    ScnGpuRenderJobRef  (*allocRenderJob)(void* obj);
 } STScnGpuDeviceApiItf;
 
 //
@@ -122,7 +114,7 @@ ScnGpuVertexbuffRef ScnGpuDevice_allocVertexBuff(ScnGpuDeviceRef ref, const STSc
 ScnGpuFramebuffRef  ScnGpuDevice_allocFramebuffFromOSView(ScnGpuDeviceRef ref, void* mtkView);
 ScnGpuTextureRef    ScnGpuDevice_allocTexture(ScnGpuDeviceRef ref, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData);
 ScnGpuSamplerRef    ScnGpuDevice_allocSampler(ScnGpuDeviceRef ref, const STScnGpuSamplerCfg* const cfg);
-ScnBOOL             ScnGpuDevice_render(ScnGpuDeviceRef ref, ScnGpuBufferRef fbPropsBuff, ScnGpuBufferRef mdlsPropsBuff, const struct STScnRenderCmd* const cmds, const ScnUI32 cmdsSz);
+ScnGpuRenderJobRef  ScnGpuDevice_allocRenderJob(ScnGpuDeviceRef ref);
 
 #ifdef __cplusplus
 } //extern "C"

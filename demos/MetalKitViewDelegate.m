@@ -252,22 +252,24 @@ NS_ASSUME_NONNULL_BEGIN
     //render
     SCN_ASSERT(ScnRender_isNull(render) || view.device == (__bridge id<MTLDevice>)ScnRender_getApiDevice(render))
     if(!ScnRender_isNull(render) && ScnRender_hasOpenDevice(render) && !ScnFramebuff_isNull(framebuff)){
-        if(!ScnRender_jobStart(render)){
-            printf("ScnRender_jobStart failed.\n");
+        ScnRenderJobRef job = ScnRender_allocRenderJob(render);
+        if(ScnRenderJob_isNull(job)){
+            printf("ScnRender_allocRenderJob failed (are all render-slots busy?).\n");
         } else {
-            if(!ScnRender_jobFramebuffPush(render, framebuff)){
+            if(!ScnRenderJob_framebuffPush(job, framebuff)){
                 printf("ScnRender_jobFramebuffPush failed.\n");
             } else {
-                if(!ScnModel2d_isNull(model) && !ScnNode2d_isNull(node) && !ScnRender_jobModel2dAddWithNode(render, model, node)){
+                if(!ScnModel2d_isNull(model) && !ScnNode2d_isNull(node) && !ScnRenderJob_model2dAddWithNode(job, model, node)){
                     printf("ScnRender_jobModel2dAddWithNode failed.\n");
                 }
-                if(!ScnRender_jobFramebuffPop(render)){
+                if(!ScnRenderJob_framebuffPop(job)){
                     printf("ScnRender_jobFramebuffPop failed.\n");
                 }
             }
-            if(!ScnRender_jobEnd(render)){
-                printf("ScnRender_jobEnd failed.\n");
-            }
+            //enqueue job
+            ScnRender_enqueue(render, job);
+            //
+            ScnRenderJob_releaseAndNull(&job);
         }
     }
     //

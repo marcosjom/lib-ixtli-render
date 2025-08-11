@@ -15,7 +15,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "2CD60FA92E34FBCC007BAF4D"
+               BlueprintIdentifier = "2C0C0EBF2E4A0CF90059A78F"
                BuildableName = "libixtli-render-mac.a"
                BlueprintName = "ixtli-render-mac"
                ReferencedContainer = "container:ixtli-render.xcodeproj">
@@ -50,7 +50,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "2CD60FA92E34FBCC007BAF4D"
+            BlueprintIdentifier = "2C0C0EBF2E4A0CF90059A78F"
             BuildableName = "libixtli-render-mac.a"
             BlueprintName = "ixtli-render-mac"
             ReferencedContainer = "container:ixtli-render.xcodeproj">

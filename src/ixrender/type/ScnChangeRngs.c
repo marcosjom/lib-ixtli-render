@@ -14,11 +14,12 @@ ScnBOOL ScnChangesRngs_mergeRng(STScnChangesRngs* obj, const STScnRangeU* rng){
     const ScnSI32 iNxtRng = ScnArraySorted_indexForNew(&obj->rngs, rng); SCN_ASSERT(iNxtRng >= 0)
     STScnRangeU* mrged = NULL;
 #   ifdef SCN_ASSERTS_ACTIVATED
-    const STScnRangeU rngParam = *rng;
+    STScnRangeU rngParam = *rng;
     ScnBOOL newRngAdded = ScnFALSE;
     ScnBOOL newRngExpandedPrevRng = ScnFALSE;
     ScnBOOL newRngExpandedNextRng = ScnFALSE;
     ScnUI32 newRngMergedAfterCount = 0;
+    rngParam.size = rngParam.size; //just to silcence 'unused var' warning
 #   endif
     //eval against prev range
     if(iNxtRng > 0){
