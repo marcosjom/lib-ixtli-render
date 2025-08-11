@@ -40,26 +40,35 @@ void ScnRenderCmds_destroy(STScnRenderCmds* obj){
     {
         ScnArray_destroy(obj->ctx, &obj->cmds);
     }
-    
     //
+    if(!ScnMemElastic_isNull(obj->mPropsScns) && ScnMemElastic_hasPtrs(obj->mPropsScns)){
+        SCN_PRINTF_WARNING("ScnRenderCmds_destroy::mPropsScns has data (STScnRenderCmds should be reused in normal operation).\n");
+        ScnMemElastic_clear(obj->mPropsScns);
+    }
+    if(!ScnMemElastic_isNull(obj->mPropsMdls) && ScnMemElastic_hasPtrs(obj->mPropsMdls)){
+        SCN_PRINTF_WARNING("ScnRenderCmds_destroy::mPropsMdls has data (STScnRenderCmds should be reused in normal operation).\n");
+        ScnMemElastic_clear(obj->mPropsMdls);
+    }
     ScnMemElastic_releaseAndNull(&obj->mPropsScns); //buffer with viewport properties
     ScnMemElastic_releaseAndNull(&obj->mPropsMdls); //buffer with viewport properties
     //
     ScnContext_releaseAndNull(&obj->ctx);
 }
 
-ScnBOOL ScnRenderCmds_prepare(STScnRenderCmds* obj, const STScnGpuDeviceDesc* gpuDevDesc){
+ScnBOOL ScnRenderCmds_prepare(STScnRenderCmds* obj, const STScnGpuDeviceDesc* gpuDevDesc, const ScnUI32 propsScnsPerBlock, const ScnUI32 propsMdlsPerBlock){
     ScnBOOL r = ScnFALSE;
-    if(gpuDevDesc == NULL || gpuDevDesc->offsetsAlign <= 0 || gpuDevDesc->memBlockAlign <= 0){
+    if(gpuDevDesc == NULL || gpuDevDesc->offsetsAlign <= 0 || gpuDevDesc->memBlockAlign <= 0 || propsScnsPerBlock <= 0 || propsMdlsPerBlock <= 0){
         return ScnFALSE;
     }
-    STScnMemElasticCfg mPropsScnsCfg = STScnMemElasticCfg_Zero;
-    STScnMemElasticCfg mPropsMdlsCfg = STScnMemElasticCfg_Zero;
-    ScnMemElasticRef mPropsScns = ScnMemElastic_alloc(obj->ctx);
-    ScnMemElasticRef mPropsMdls = ScnMemElastic_alloc(obj->ctx);
-    {
+    //
+    r = ScnTRUE;
+    const ScnBOOL gpuDescChanged = (obj->gpuDevDesc.offsetsAlign != gpuDevDesc->offsetsAlign || obj->gpuDevDesc.offsetsAlign != gpuDevDesc->offsetsAlign ? ScnTRUE : ScnFALSE);
+    //
+    if(r && (ScnMemElastic_isNull(obj->mPropsScns) || gpuDescChanged)){
+        STScnMemElasticCfg mPropsScnsCfg = STScnMemElasticCfg_Zero;
+        ScnMemElasticRef mPropsScns = ScnMemElastic_alloc(obj->ctx);
         STScnMemElasticCfg* cfg     = &mPropsScnsCfg;
-        const ScnUI32 itmsPerBlock  = 32;
+        const ScnUI32 itmsPerBlock  = propsScnsPerBlock;
         const ScnUI32 itmSz         = sizeof(STScnGpuFramebuffProps);
         cfg->idxZeroIsValid         = ScnTRUE;
         cfg->idxsAlign              = (itmSz + gpuDevDesc->offsetsAlign - 1) / gpuDevDesc->offsetsAlign * gpuDevDesc->offsetsAlign;
@@ -74,10 +83,19 @@ ScnBOOL ScnRenderCmds_prepare(STScnRenderCmds* obj, const STScnGpuDeviceDesc* gp
                 cfg->sizePerBlock   *= (cfg->idxsAlign - idxExtra);
             }
         }
+        if(ScnMemElastic_isNull(mPropsScns) || !ScnMemElastic_prepare(mPropsScns, &mPropsScnsCfg, NULL)){
+            printf("ERROR, ScnRenderCmds_prepare::ScnMemElastic_prepare(mPropsScns) failed.\n");
+            r = ScnFALSE;
+        } else {
+            ScnMemElastic_set(&obj->mPropsScns, mPropsScns);
+        }
+        ScnMemElastic_releaseAndNull(&mPropsScns);
     }
-    {
+    if(r && (ScnMemElastic_isNull(obj->mPropsMdls) || gpuDescChanged)){
+        STScnMemElasticCfg mPropsMdlsCfg = STScnMemElasticCfg_Zero;
+        ScnMemElasticRef mPropsMdls = ScnMemElastic_alloc(obj->ctx);
         STScnMemElasticCfg* cfg     = &mPropsMdlsCfg;
-        const ScnUI32 itmsPerBlock  = 128;
+        const ScnUI32 itmsPerBlock  = propsMdlsPerBlock;
         const ScnUI32 itmSz         = sizeof(STScnGpuModelProps2d);
         cfg->idxZeroIsValid         = ScnTRUE;
         cfg->idxsAlign              = (itmSz + gpuDevDesc->offsetsAlign - 1) / gpuDevDesc->offsetsAlign * gpuDevDesc->offsetsAlign;
@@ -92,20 +110,20 @@ ScnBOOL ScnRenderCmds_prepare(STScnRenderCmds* obj, const STScnGpuDeviceDesc* gp
                 cfg->sizePerBlock   *= (cfg->idxsAlign - idxExtra);
             }
         }
+        if(ScnMemElastic_isNull(mPropsMdls) || !ScnMemElastic_prepare(mPropsMdls, &mPropsMdlsCfg, NULL)){
+            printf("ERROR, ScnRenderCmds_prepare::ScnMemElastic_prepare(mPropsMdls) failed.\n");
+            r = ScnFALSE;
+        } else {
+            ScnMemElastic_set(&obj->mPropsMdls, mPropsMdls);
+        }
+        ScnMemElastic_releaseAndNull(&mPropsMdls);
     }
-    //
-    if(!ScnMemElastic_isNull(mPropsScns) && !ScnMemElastic_prepare(mPropsScns, &mPropsScnsCfg, NULL)){
-        printf("ERROR, ScnRenderCmds_prepare::ScnMemElastic_prepare(mPropsScns) failed.\n");
-    } else if(!ScnMemElastic_isNull(mPropsMdls) && !ScnMemElastic_prepare(mPropsMdls, &mPropsMdlsCfg, NULL)){
-        printf("ERROR, ScnRenderCmds_prepare::ScnMemElastic_prepare(mPropsMdls) failed.\n");
-    } else {
-        obj->gpuDevDesc = *gpuDevDesc;
-        ScnMemElastic_set(&obj->mPropsScns, mPropsScns);
-        ScnMemElastic_set(&obj->mPropsMdls, mPropsMdls);
+    if(r){
+        if(gpuDescChanged){
+            obj->gpuDevDesc = *gpuDevDesc;
+        }
         r = obj->isPrepared = ScnTRUE;
     }
-    ScnMemElastic_releaseAndNull(&mPropsScns);
-    ScnMemElastic_releaseAndNull(&mPropsMdls);
     return r;
 }
 
@@ -127,8 +145,12 @@ void ScnRenderCmds_reset(STScnRenderCmds* obj){
     }
     //buffs
     {
-        ScnMemElastic_clear(obj->mPropsScns);
-        ScnMemElastic_clear(obj->mPropsMdls);
+        if(!ScnMemElastic_isNull(obj->mPropsScns)){
+            ScnMemElastic_clear(obj->mPropsScns);
+        }
+        if(!ScnMemElastic_isNull(obj->mPropsMdls)){
+            ScnMemElastic_clear(obj->mPropsMdls);
+        }
     }
 }
 
@@ -136,9 +158,9 @@ ScnBOOL ScnRenderCmds_add(STScnRenderCmds* obj, const STScnRenderCmd* const cmd)
     return ScnArray_addPtr(obj->ctx, &obj->cmds, cmd, STScnRenderCmd) != NULL ? ScnTRUE : ScnFALSE;
 }
 
-ScnBOOL ScnRenderCmds_addUsedObj(STScnRenderCmds* obj, const ENScnRenderJobObjType type, ScnObjRef* objRef){
+ScnBOOL ScnRenderCmds_addUsedObj(STScnRenderCmds* obj, const ENScnRenderJobObjType type, ScnObjRef* objRef, ScnBOOL* optDstIsFirstUse){
     SCN_ASSERT(!ScnObjRef_isNull(*objRef)) //program logic error (validate becfore reaching this point)
-    ScnBOOL r = ScnFALSE;
+    ScnBOOL r = ScnFALSE, isFirstUse = ScnFALSE;
     STScnRenderJobObj usedObj;
     usedObj.type    = type;
     usedObj.objRef  = *objRef;
@@ -156,8 +178,10 @@ ScnBOOL ScnRenderCmds_addUsedObj(STScnRenderCmds* obj, const ENScnRenderJobObjTy
             ScnRenderJobObj_destroy(&usedObj);
         } else {
             r = ScnTRUE;
+            isFirstUse = ScnTRUE;
         }
     }
+    if(optDstIsFirstUse != NULL) *optDstIsFirstUse = isFirstUse;
     return r;
 }
 

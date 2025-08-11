@@ -127,11 +127,11 @@ typedef struct STScnRenderCmds {
 void    ScnRenderCmds_init(ScnContextRef ctx, STScnRenderCmds* obj);
 void    ScnRenderCmds_destroy(STScnRenderCmds* obj);
 //
-ScnBOOL ScnRenderCmds_prepare(STScnRenderCmds* obj, const STScnGpuDeviceDesc* gpuDevDesc);
+ScnBOOL ScnRenderCmds_prepare(STScnRenderCmds* obj, const STScnGpuDeviceDesc* gpuDevDesc, const ScnUI32 propsScnsPerBlock, const ScnUI32 propsMdlsPerBlock);
 //
 void    ScnRenderCmds_reset(STScnRenderCmds* obj);
 ScnBOOL ScnRenderCmds_add(STScnRenderCmds* obj, const STScnRenderCmd* const cmd);
-ScnBOOL ScnRenderCmds_addUsedObj(STScnRenderCmds* obj, const ENScnRenderJobObjType type, ScnObjRef* objRef);
+ScnBOOL ScnRenderCmds_addUsedObj(STScnRenderCmds* obj, const ENScnRenderJobObjType type, ScnObjRef* objRef, ScnBOOL* optDstIsFirstUse);
 
 #ifdef __cplusplus
 } //extern "C"
