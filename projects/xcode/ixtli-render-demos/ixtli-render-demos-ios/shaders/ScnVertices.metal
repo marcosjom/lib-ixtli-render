@@ -13,7 +13,7 @@
 
 #include <metal_stdlib>
 #include <metal_logging>
-//#include <simd/simd.h>
+
 using namespace metal;
 
 // STScnVertex2D
@@ -109,6 +109,9 @@ fragment float4 ixtliFragmentShaderTex(
 {
     float4 colorSample = tex0.sample(smplr0, in.tex0Coord);
     switch(in.tex0Fmt){
+        case ENScnBitmapColor_ALPHA8:
+            colorSample.r = colorSample.g = colorSample.b = 255u;
+            break;
         case ENScnBitmapColor_GRAY8:
             //Convert this Red format in Metal to Gray+Alpha
             colorSample.a = 255u;
@@ -184,6 +187,9 @@ fragment float4 ixtliFragmentShaderTex2(
 {
     float4 colorSample = tex0.sample(smplr0, in.tex0Coord);
     switch(in.tex0Fmt){
+        case ENScnBitmapColor_ALPHA8:
+            colorSample.r = colorSample.g = colorSample.b = 255u;
+            break;
         case ENScnBitmapColor_GRAY8:
             //Convert this Red format in Metal to Gray+Alpha
             colorSample.a = 255u;
@@ -199,6 +205,9 @@ fragment float4 ixtliFragmentShaderTex2(
     }
     float4 colorSample1 = tex1.sample(smplr1, in.tex0Coord);
     switch(in.tex1Fmt){
+        case ENScnBitmapColor_ALPHA8:
+            colorSample1.r = colorSample1.g = colorSample1.b = 255u;
+            break;
         case ENScnBitmapColor_GRAY8:
             //Convert this Red format in Metal to Gray+Alpha
             colorSample1.a = 255u;
@@ -279,6 +288,9 @@ fragment float4 ixtliFragmentShaderTex3(
 {
     float4 colorSample = tex0.sample(smplr0, in.tex0Coord);
     switch(in.tex0Fmt){
+        case ENScnBitmapColor_ALPHA8:
+            colorSample.r = colorSample.g = colorSample.b = 255u;
+            break;
         case ENScnBitmapColor_GRAY8:
             //Convert this Red format in Metal to Gray+Alpha
             colorSample.a = 255u;
@@ -294,6 +306,9 @@ fragment float4 ixtliFragmentShaderTex3(
     }
     float4 colorSample1 = tex1.sample(smplr1, in.tex0Coord);
     switch(in.tex1Fmt){
+        case ENScnBitmapColor_ALPHA8:
+            colorSample1.r = colorSample1.g = colorSample1.b = 255u;
+            break;
         case ENScnBitmapColor_GRAY8:
             //Convert this Red format in Metal to Gray+Alpha
             colorSample1.a = 255u;
@@ -309,6 +324,9 @@ fragment float4 ixtliFragmentShaderTex3(
     }
     float4 colorSample2 = tex2.sample(smplr2, in.tex0Coord);
     switch(in.tex2Fmt){
+        case ENScnBitmapColor_ALPHA8:
+            colorSample2.r = colorSample2.g = colorSample2.b = 255u;
+            break;
         case ENScnBitmapColor_GRAY8:
             //Convert this Red format in Metal to Gray+Alpha
             colorSample2.a = 255u;
