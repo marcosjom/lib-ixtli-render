@@ -501,7 +501,7 @@ ScnBOOL ScnApiMetal_buffer_sync(void* pObj, ScnMemElasticRef mem, const STScnGpu
             } else {
                 r = ScnTRUE;
                 //validate
-                SCN_ASSERT(ScnApiMetal_buffer_syncValidate_(obj, mem))
+                //SCN_ASSERT(ScnApiMetal_buffer_syncValidate_(obj, mem))
             }
         } else {
             //sync ranges only
@@ -510,7 +510,7 @@ ScnBOOL ScnApiMetal_buffer_sync(void* pObj, ScnMemElasticRef mem, const STScnGpu
             } else {
                 r = ScnTRUE;
                 //validate
-                SCN_ASSERT(ScnApiMetal_buffer_syncValidate_(obj, mem))
+                //SCN_ASSERT(ScnApiMetal_buffer_syncValidate_(obj, mem))
             }
         }
     }

@@ -22,6 +22,13 @@
 extern "C" {
 #endif
 
+typedef enum ScnRenderJobPushMode_ {
+    ScnRenderJobPushMode_Multiply = 0,  //Default, multiplies the input with the parent's state (inputs are relative properties)
+    ScnRenderJobPushMode_Set,           //Ignores the parent's state and sets the input (inputs are global properties)
+    //
+    ScnRenderJobPushMode_Count
+} ScnRenderJobPushMode;
+
 //ScnRenderJobRef
 
 #define ScnRenderJobRef_Zero   ScnObjRef_Zero
@@ -48,14 +55,19 @@ ScnBOOL     ScnRenderJob_framebuffPropsPop(ScnRenderJobRef ref);
 // nodes (scene's tree)
 
 ScnBOOL     ScnRenderJob_node2dPush(ScnRenderJobRef ref, ScnNode2dRef node);
+ScnBOOL     ScnRenderJob_node2dPushWithMode(ScnRenderJobRef ref, ScnNode2dRef node, const ScnRenderJobPushMode mode);
 ScnBOOL     ScnRenderJob_node2dPropsPush(ScnRenderJobRef ref, const STScnNode2dProps nodeProps);
+ScnBOOL     ScnRenderJob_node2dPropsPushWithMode(ScnRenderJobRef ref, const STScnNode2dProps nodeProps, const ScnRenderJobPushMode mode);
 ScnBOOL     ScnRenderJob_node2dPop(ScnRenderJobRef ref);
 
 // models
 
-ScnBOOL     ScnRenderJob_model2dAddWithNode(ScnRenderJobRef ref, ScnModel2dRef model, ScnNode2dRef node);                      //equivalent to    jobNode2dPush() + jobModelAdd() + jobNodePropsPop()
-ScnBOOL     ScnRenderJob_model2dAddWithNodeProps(ScnRenderJobRef ref, ScnModel2dRef model, const STScnNode2dProps nodeProps);  //equivalent to jobNodePropsPush() + jobModelAdd() + jobNodePropsPop()
 ScnBOOL     ScnRenderJob_model2dAdd(ScnRenderJobRef ref, ScnModel2dRef model);
+ScnBOOL     ScnRenderJob_model2dAddWithNode(ScnRenderJobRef ref, ScnModel2dRef model, ScnNode2dRef node);                      //equivalent to    jobNode2dPush() + jobModelAdd() + jobNodePropsPop()
+ScnBOOL     ScnRenderJob_model2dAddWithNodeAndMode(ScnRenderJobRef ref, ScnModel2dRef model, ScnNode2dRef node, const ScnRenderJobPushMode mode);
+ScnBOOL     ScnRenderJob_model2dAddWithNodeProps(ScnRenderJobRef ref, ScnModel2dRef model, const STScnNode2dProps nodeProps);  //equivalent to jobNodePropsPush() + jobModelAdd() + jobNodePropsPop()
+ScnBOOL     ScnRenderJob_model2dAddWithNodePropsAndMode(ScnRenderJobRef ref, ScnModel2dRef model, const STScnNode2dProps nodeProps, const ScnRenderJobPushMode mode);
+
 
 // cmds
 /*
