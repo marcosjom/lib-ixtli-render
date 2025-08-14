@@ -116,53 +116,53 @@ ScnGpuDeviceRef ScnApiMetal_allocDevice(ScnContextRef ctx, const STScnGpuDeviceC
         {
             NSArray<id<MTLDevice>> *devs = MTLCopyAllDevices();
             if(devs == nil){
-                printf("Metal, error, could not retrieve devices.\n");
+                SCN_PRINTF_ERROR("Metal, could not retrieve devices.\n");
             } else {
                 ScnBOOL devIsExplicitMatch = ScnFALSE;
-                printf("Metal, %d devices found:\n", (int)devs.count);
+                SCN_PRINTF_INFO("Metal, %d devices found:\n", (int)devs.count);
                 int i; for(i = 0; i < devs.count; i++){
                     id<MTLDevice> d = devs[i];
-                    printf("    ---------\n");
-                    printf("    Dev#%d/%d: '%s'\n", (i + 1), (int)devs.count, [d.name UTF8String]);
+                    SCN_PRINTF_INFO("    ---------\n");
+                    SCN_PRINTF_INFO("    Dev#%d/%d: '%s'\n", (i + 1), (int)devs.count, [d.name UTF8String]);
                     //Identification
                     if(@available(iOS 18, macOS 14.0, *)){
-                    printf("         Arch: '%s'\n", [d.architecture.name UTF8String]);
+                        SCN_PRINTF_INFO("         Arch: '%s'\n", [d.architecture.name UTF8String]);
                     }
-                    printf("          Loc: '%s' (num: %d)\n", d.location == MTLDeviceLocationBuiltIn ? "BuiltIn" : d.location == MTLDeviceLocationSlot ? "Slot" : d.location == MTLDeviceLocationExternal ? "External" : d.location == MTLDeviceLocationUnspecified ? "Unspecified" :"Unknown", (int)d.locationNumber);
-                    printf("       LowPwr: %s\n", d.isLowPower ? "yes" : "no");
-                    printf("    Removable: %s\n", d.isRemovable ? "yes" : "no");
-                    printf("     Headless: %s\n", d.isHeadless ? "yes" : "no");
-                    printf("         Peer: grpId(%llu) idx(%d) count(%d)\n", (ScnUI64)d.peerGroupID, d.peerIndex, d.peerCount);
+                    SCN_PRINTF_INFO("          Loc: '%s' (num: %d)\n", d.location == MTLDeviceLocationBuiltIn ? "BuiltIn" : d.location == MTLDeviceLocationSlot ? "Slot" : d.location == MTLDeviceLocationExternal ? "External" : d.location == MTLDeviceLocationUnspecified ? "Unspecified" :"Unknown", (int)d.locationNumber);
+                    SCN_PRINTF_INFO("       LowPwr: %s\n", d.isLowPower ? "yes" : "no");
+                    SCN_PRINTF_INFO("    Removable: %s\n", d.isRemovable ? "yes" : "no");
+                    SCN_PRINTF_INFO("     Headless: %s\n", d.isHeadless ? "yes" : "no");
+                    SCN_PRINTF_INFO("         Peer: grpId(%llu) idx(%d) count(%d)\n", (ScnUI64)d.peerGroupID, d.peerIndex, d.peerCount);
                     //GPU's Device Memory
-                    printf("     CurAlloc: %.2f %s\n", (double)d.currentAllocatedSize / (d.currentAllocatedSize >= (1024 * 1024 * 1024) ? (double)(1024 * 1024 * 1024) : d.currentAllocatedSize >= (1024 * 1024) ? (double)(1024 * 1024) : d.currentAllocatedSize >= (1024) ? (double)(1024) : 1.0), (d.currentAllocatedSize >= (1024 * 1024 * 1024) ? "GBs" : d.currentAllocatedSize >= (1024 * 1024) ? "MBs" : d.currentAllocatedSize >= (1024) ? "KBs" : "bytes"));
-                    printf("     MaxAlloc: %.2f %s (recommended)\n", (double)d.recommendedMaxWorkingSetSize / (d.recommendedMaxWorkingSetSize >= (1024 * 1024 * 1024) ? (double)(1024 * 1024 * 1024) : d.recommendedMaxWorkingSetSize >= (1024 * 1024) ? (double)(1024 * 1024) : d.recommendedMaxWorkingSetSize >= (1024) ? (double)(1024) : 1.0), (d.recommendedMaxWorkingSetSize >= (1024 * 1024 * 1024) ? "GBs" : d.recommendedMaxWorkingSetSize >= (1024 * 1024) ? "MBs" : d.recommendedMaxWorkingSetSize >= (1024) ? "KBs" : "bytes"));
-                    printf("      MaxRate: %.2f %s/s\n", (double)d.maxTransferRate / (d.maxTransferRate >= (1024 * 1024 * 1024) ? (double)(1024 * 1024 * 1024) : d.maxTransferRate >= (1024 * 1024) ? (double)(1024 * 1024) : d.maxTransferRate >= (1024) ? (double)(1024) : 1.0), (d.maxTransferRate >= (1024 * 1024 * 1024) ? "GBs" : d.maxTransferRate >= (1024 * 1024) ? "MBs" : d.maxTransferRate >= (1024) ? "KBs" : "bytes"));
-                    printf("   UnifiedMem: %s\n", d.hasUnifiedMemory ? "yes" : "no");
+                    SCN_PRINTF_INFO("     CurAlloc: %.2f %s\n", (double)d.currentAllocatedSize / (d.currentAllocatedSize >= (1024 * 1024 * 1024) ? (double)(1024 * 1024 * 1024) : d.currentAllocatedSize >= (1024 * 1024) ? (double)(1024 * 1024) : d.currentAllocatedSize >= (1024) ? (double)(1024) : 1.0), (d.currentAllocatedSize >= (1024 * 1024 * 1024) ? "GBs" : d.currentAllocatedSize >= (1024 * 1024) ? "MBs" : d.currentAllocatedSize >= (1024) ? "KBs" : "bytes"));
+                    SCN_PRINTF_INFO("     MaxAlloc: %.2f %s (recommended)\n", (double)d.recommendedMaxWorkingSetSize / (d.recommendedMaxWorkingSetSize >= (1024 * 1024 * 1024) ? (double)(1024 * 1024 * 1024) : d.recommendedMaxWorkingSetSize >= (1024 * 1024) ? (double)(1024 * 1024) : d.recommendedMaxWorkingSetSize >= (1024) ? (double)(1024) : 1.0), (d.recommendedMaxWorkingSetSize >= (1024 * 1024 * 1024) ? "GBs" : d.recommendedMaxWorkingSetSize >= (1024 * 1024) ? "MBs" : d.recommendedMaxWorkingSetSize >= (1024) ? "KBs" : "bytes"));
+                    SCN_PRINTF_INFO("      MaxRate: %.2f %s/s\n", (double)d.maxTransferRate / (d.maxTransferRate >= (1024 * 1024 * 1024) ? (double)(1024 * 1024 * 1024) : d.maxTransferRate >= (1024 * 1024) ? (double)(1024 * 1024) : d.maxTransferRate >= (1024) ? (double)(1024) : 1.0), (d.maxTransferRate >= (1024 * 1024 * 1024) ? "GBs" : d.maxTransferRate >= (1024 * 1024) ? "MBs" : d.maxTransferRate >= (1024) ? "KBs" : "bytes"));
+                    SCN_PRINTF_INFO("   UnifiedMem: %s\n", d.hasUnifiedMemory ? "yes" : "no");
                     //Compute Support
-                    printf(" ThreadGrpMem: %.2f %s\n", (double)d.maxThreadgroupMemoryLength / (d.maxThreadgroupMemoryLength >= (1024 * 1024 * 1024) ? (double)(1024 * 1024 * 1024) : d.maxThreadgroupMemoryLength >= (1024 * 1024) ? (double)(1024 * 1024) : d.maxThreadgroupMemoryLength >= (1024) ? (double)(1024) : 1.0), (d.maxThreadgroupMemoryLength >= (1024 * 1024 * 1024) ? "GBs" : d.maxThreadgroupMemoryLength >= (1024 * 1024) ? "MBs" : d.maxThreadgroupMemoryLength >= (1024) ? "KBs" : "bytes"));
-                    printf("  ThrdsPerGrp: (%d, %d, %d)\n", (int)d.maxThreadsPerThreadgroup.width, (int)d.maxThreadsPerThreadgroup.height, (int)d.maxThreadsPerThreadgroup.depth);
+                    SCN_PRINTF_INFO(" ThreadGrpMem: %.2f %s\n", (double)d.maxThreadgroupMemoryLength / (d.maxThreadgroupMemoryLength >= (1024 * 1024 * 1024) ? (double)(1024 * 1024 * 1024) : d.maxThreadgroupMemoryLength >= (1024 * 1024) ? (double)(1024 * 1024) : d.maxThreadgroupMemoryLength >= (1024) ? (double)(1024) : 1.0), (d.maxThreadgroupMemoryLength >= (1024 * 1024 * 1024) ? "GBs" : d.maxThreadgroupMemoryLength >= (1024 * 1024) ? "MBs" : d.maxThreadgroupMemoryLength >= (1024) ? "KBs" : "bytes"));
+                    SCN_PRINTF_INFO("  ThrdsPerGrp: (%d, %d, %d)\n", (int)d.maxThreadsPerThreadgroup.width, (int)d.maxThreadsPerThreadgroup.height, (int)d.maxThreadsPerThreadgroup.depth);
                     //Functions Pointer Support
-                    printf("     FuncPtrs: %s (compute kernel functions)\n", d.supportsFunctionPointers ? "yes" : "no");
+                    SCN_PRINTF_INFO("     FuncPtrs: %s (compute kernel functions)\n", d.supportsFunctionPointers ? "yes" : "no");
                     if(@available(iOS 18, macOS 12.0, *)){
-                    printf("    FPtrsRndr: %s\n", d.supportsFunctionPointersFromRender ? "yes" : "no");
+                        SCN_PRINTF_INFO("    FPtrsRndr: %s\n", d.supportsFunctionPointersFromRender ? "yes" : "no");
                     }
                     //Texture and sampler support
-                    printf("   32bFltFilt: %s\n", d.supports32BitFloatFiltering ? "yes" : "no");
-                    printf("   BCTextComp: %s\n", d.supportsBCTextureCompression ? "yes" : "no");
-                    printf("    Depth24-8: %s\n", d.isDepth24Stencil8PixelFormatSupported ? "yes" : "no");
-                    printf("  TexLODQuery: %s\n", d.supportsQueryTextureLOD ? "yes" : "no");
-                    printf("        RWTex: %s\n", d.readWriteTextureSupport ? "yes" : "no");
+                    SCN_PRINTF_INFO("   32bFltFilt: %s\n", d.supports32BitFloatFiltering ? "yes" : "no");
+                    SCN_PRINTF_INFO("   BCTextComp: %s\n", d.supportsBCTextureCompression ? "yes" : "no");
+                    SCN_PRINTF_INFO("    Depth24-8: %s\n", d.isDepth24Stencil8PixelFormatSupported ? "yes" : "no");
+                    SCN_PRINTF_INFO("  TexLODQuery: %s\n", d.supportsQueryTextureLOD ? "yes" : "no");
+                    SCN_PRINTF_INFO("        RWTex: %s\n", d.readWriteTextureSupport ? "yes" : "no");
                     //Render support
-                    printf("   RayTracing: %s\n", d.supportsRaytracing ? "yes" : "no");
+                    SCN_PRINTF_INFO("   RayTracing: %s\n", d.supportsRaytracing ? "yes" : "no");
                     if(@available(iOS 18, macOS 12.0, *)){
-                    printf("  RayTracRndr: %s\n", d.supportsRaytracingFromRender ? "yes" : "no");
+                        SCN_PRINTF_INFO("  RayTracRndr: %s\n", d.supportsRaytracingFromRender ? "yes" : "no");
                     }
-                    printf("  PrimMotBlur: %s\n", d.supportsPrimitiveMotionBlur ? "yes" : "no");
-                    printf("      32bMSAA: %s\n", d.supports32BitMSAA ? "yes" : "no");
-                    printf("  PullModeInt: %s\n", d.supportsPullModelInterpolation ? "yes" : "no");
-                    printf("ShadBaryCoord: %s\n", d.supportsShaderBarycentricCoordinates ? "yes" : "no");
-                    printf("  ProgSmplPos: %s\n", d.areProgrammableSamplePositionsSupported ? "yes" : "no");
-                    printf("  RstrOrdGrps: %s\n", d.areRasterOrderGroupsSupported ? "yes" : "no");
+                    SCN_PRINTF_INFO("  PrimMotBlur: %s\n", d.supportsPrimitiveMotionBlur ? "yes" : "no");
+                    SCN_PRINTF_INFO("      32bMSAA: %s\n", d.supports32BitMSAA ? "yes" : "no");
+                    SCN_PRINTF_INFO("  PullModeInt: %s\n", d.supportsPullModelInterpolation ? "yes" : "no");
+                    SCN_PRINTF_INFO("ShadBaryCoord: %s\n", d.supportsShaderBarycentricCoordinates ? "yes" : "no");
+                    SCN_PRINTF_INFO("  ProgSmplPos: %s\n", d.areProgrammableSamplePositionsSupported ? "yes" : "no");
+                    SCN_PRINTF_INFO("  RstrOrdGrps: %s\n", d.areRasterOrderGroupsSupported ? "yes" : "no");
                     //
                     const ScnSI32 cfgExplictOptsCount =
                     (
@@ -194,7 +194,7 @@ ScnGpuDeviceRef ScnApiMetal_allocDevice(ScnContextRef ctx, const STScnGpuDeviceC
                     }
                 }
                 if(devs.count > 0){
-                    printf("    ---------\n");
+                    SCN_PRINTF_INFO("    ---------\n");
                 }
             }
             if(devs != nil){
@@ -208,18 +208,18 @@ ScnGpuDeviceRef ScnApiMetal_allocDevice(ScnContextRef ctx, const STScnGpuDeviceC
             dev = MTLCreateSystemDefaultDevice();
         }
         if(dev == nil){
-            printf("Metal, error, could select a device.\n");
+            SCN_PRINTF_ERROR("Metal, could select a device.\n");
         } else {
-            printf("Selected device: '%s'\n", [dev.name UTF8String]);
+            SCN_PRINTF_INFO("Selected device: '%s'\n", [dev.name UTF8String]);
             id<MTLLibrary> defLib = [dev newDefaultLibrary];
             if (defLib == nil){
-                printf("Metal, error, newDefaultLibrary failed.\n");
+                SCN_PRINTF_ERROR("Metal, newDefaultLibrary failed.\n");
             } else if(nil == (cmdQueue = [dev newCommandQueue])){
-                printf("Metal, error, newCommandQueue failed.\n");
+                SCN_PRINTF_ERROR("Metal, newCommandQueue failed.\n");
             } else {
-                STScnApiMetalDevice* obj = (STScnApiMetalDevice*)ScnContext_malloc(ctx, sizeof(STScnApiMetalDevice), "STScnApiMetalDevice");
+                STScnApiMetalDevice* obj = (STScnApiMetalDevice*)ScnContext_malloc(ctx, sizeof(STScnApiMetalDevice), SCN_DBG_STR("STScnApiMetalDevice"));
                 if(obj == NULL){
-                    printf("ScnContext_malloc(STScnApiMetalDevice) failed.\n");
+                    SCN_PRINTF_ERROR("ScnContext_malloc(STScnApiMetalDevice) failed.\n");
                 } else {
                     //init STScnApiMetalDevice
                     ScnMemory_setZeroSt(*obj);
@@ -229,12 +229,12 @@ ScnGpuDeviceRef ScnApiMetal_allocDevice(ScnContextRef ctx, const STScnGpuDeviceC
                     obj->cmdQueue = cmdQueue; [cmdQueue retain];
                     //
                     if(!ScnApiMetal_getApiItf(&obj->itf)){
-                        printf("ScnApiMetal_allocDevice::ScnApiMetal_getApiItf failed.\n");
+                        SCN_PRINTF_ERROR("ScnApiMetal_allocDevice::ScnApiMetal_getApiItf failed.\n");
                     } else {
                         ScnGpuDeviceRef d = ScnGpuDevice_alloc(ctx);
                         if(!ScnGpuDevice_isNull(d)){
                             if(!ScnGpuDevice_prepare(d, &obj->itf.dev, obj)){
-                                printf("ScnApiMetal_allocDevice::ScnGpuDevice_prepare failed.\n");
+                                SCN_PRINTF_ERROR("ScnApiMetal_allocDevice::ScnGpuDevice_prepare failed.\n");
                             } else {
                                 ScnGpuDevice_set(&r, d);
                                 obj = NULL; //consume
@@ -294,7 +294,7 @@ ScnGpuSamplerRef ScnApiMetal_device_allocSampler(void* pObj, const STScnGpuSampl
     if(dev != NULL && dev->dev != nil && cfg != NULL){
         MTLSamplerDescriptor* desc = [MTLSamplerDescriptor new];
         if(desc == nil){
-            printf("[MTLSamplerDescriptor new] failed.\n");
+            SCN_PRINTF_ERROR("[MTLSamplerDescriptor new] failed.\n");
         } else {
             const MTLSamplerAddressMode addressMode = (cfg->address == ENScnGpusamplerAddress_Clamp ? MTLSamplerAddressModeClampToEdge : MTLSamplerAddressModeRepeat);
             desc.minFilter = (cfg->magFilter == ENScnGpuSamplerFilter_Linear ? MTLSamplerMinMagFilterLinear : MTLSamplerMinMagFilterNearest);
@@ -302,11 +302,11 @@ ScnGpuSamplerRef ScnApiMetal_device_allocSampler(void* pObj, const STScnGpuSampl
             desc.sAddressMode = desc.tAddressMode = desc.rAddressMode = addressMode;
             id<MTLSamplerState> sampler = [dev->dev newSamplerStateWithDescriptor:desc];
             if(sampler == nil){
-                printf("[dev newSamplerStateWithDescriptor] failed.\n");
+                SCN_PRINTF_ERROR("[dev newSamplerStateWithDescriptor] failed.\n");
             } else {
-                STScnApiMetalSampler* obj = (STScnApiMetalSampler*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalSampler), "STScnApiMetalSampler");
+                STScnApiMetalSampler* obj = (STScnApiMetalSampler*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalSampler), SCN_DBG_STR("STScnApiMetalSampler"));
                 if(obj == NULL){
-                    printf("ScnContext_malloc(STScnApiMetalSampler) failed.\n");
+                    SCN_PRINTF_ERROR("ScnContext_malloc(STScnApiMetalSampler) failed.\n");
                 } else {
                     ScnMemory_setZeroSt(*obj);
                     ScnContext_set(&obj->ctx, dev->ctx);
@@ -320,7 +320,7 @@ ScnGpuSamplerRef ScnApiMetal_device_allocSampler(void* pObj, const STScnGpuSampl
                         itf.free    = ScnApiMetal_sampler_free;
                         itf.getCfg  = ScnApiMetal_sampler_getCfg;
                         if(!ScnGpuSampler_prepare(s, &itf, obj)){
-                            printf("ScnApiMetal_device_allocSampler::ScnGpuSampler_prepare failed.\n");
+                            SCN_PRINTF_ERROR("ScnApiMetal_device_allocSampler::ScnGpuSampler_prepare failed.\n");
                         } else {
                             ScnGpuSampler_set(&r, s);
                             obj = NULL; //consume
@@ -400,18 +400,18 @@ ScnGpuBufferRef ScnApiMetal_device_allocBuffer(void* pObj, ScnMemElasticRef mem)
     if(dev != NULL && dev->dev != NULL && !ScnMemElastic_isNull(mem)){
         const ScnUI32 cpuBuffSz = ScnMemElastic_getAddressableSize(mem);
         if(cpuBuffSz <= 0){
-            printf("ERROR, allocating zero-sz gpu buffer is not allowed.\n");
+            SCN_PRINTF_ERROR("allocating zero-sz gpu buffer is not allowed.\n");
         } else {
             id<MTLBuffer> buff = [dev->dev newBufferWithLength:cpuBuffSz options:MTLResourceStorageModeShared | MTLResourceCPUCacheModeWriteCombined];
             if(buff != nil){
                 const STScnRangeU rngAll = ScnMemElastic_getUsedAddressesRngAligned(mem);
                 if(!ScnApiMetal_buffer_syncRanges_(buff, mem, &rngAll, 1)){
-                    printf("ERROR, ScnApiMetal_buffer_syncRanges_ failed.\n");
+                    SCN_PRINTF_ERROR("ScnApiMetal_buffer_syncRanges_ failed.\n");
                 } else {
                     //synced
-                    STScnApiMetalBuffer* obj = (STScnApiMetalBuffer*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalBuffer), "STScnApiMetalBuffer");
+                    STScnApiMetalBuffer* obj = (STScnApiMetalBuffer*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalBuffer), SCN_DBG_STR("STScnApiMetalBuffer"));
                     if(obj == NULL){
-                        printf("ScnContext_malloc(STScnApiMetalBuffer) failed.\n");
+                        SCN_PRINTF_ERROR("ScnContext_malloc(STScnApiMetalBuffer) failed.\n");
                     } else {
                         ScnMemory_setZeroSt(*obj);
                         ScnContext_set(&obj->ctx, dev->ctx);
@@ -422,7 +422,7 @@ ScnGpuBufferRef ScnApiMetal_device_allocBuffer(void* pObj, ScnMemElasticRef mem)
                         ScnGpuBufferRef d = ScnGpuBuffer_alloc(dev->ctx);
                         if(!ScnGpuBuffer_isNull(d)){
                             if(!ScnGpuBuffer_prepare(d, &obj->itf.buff, obj)){
-                                printf("ScnApiMetal_allocDevice::ScnGpuBuffer_prepare failed.\n");
+                                SCN_PRINTF_ERROR("ScnApiMetal_allocDevice::ScnGpuBuffer_prepare failed.\n");
                             } else {
                                 ScnGpuBuffer_set(&r, d);
                                 obj = NULL; //consume
@@ -483,7 +483,7 @@ ScnBOOL ScnApiMetal_buffer_sync(void* pObj, ScnMemElasticRef mem, const STScnGpu
             //recreate buffer
             id<MTLBuffer> buff = [obj->dev newBufferWithLength:cpuBuffSz options:MTLResourceStorageModeShared | MTLResourceCPUCacheModeWriteCombined];
             if(buff != nil){
-                printf("ScnApiMetal_buffer_sync::gpu-buff resized from %u to %u bytes.\n", buffLen, cpuBuffSz);
+                SCN_PRINTF_VERB("ScnApiMetal_buffer_sync::gpu-buff resized from %u to %u bytes.\n", buffLen, cpuBuffSz);
                 buffLen = cpuBuffSz;
                 [obj->buff release];
                 obj->buff = buff;
@@ -492,12 +492,12 @@ ScnBOOL ScnApiMetal_buffer_sync(void* pObj, ScnMemElasticRef mem, const STScnGpu
         }
         //sync
         if(buffLen < cpuBuffSz){
-            printf("ERROR, ScnApiMetal_buffer_sync::gpuBuff is smaller than cpu-buff.\n");
+            SCN_PRINTF_ERROR("ScnApiMetal_buffer_sync::gpuBuff is smaller than cpu-buff.\n");
         } else if(buffIsNew || changes->all){
             //sync all
             const STScnRangeU rngAll = ScnMemElastic_getUsedAddressesRngAligned(mem);
             if(!ScnApiMetal_buffer_syncRanges_(obj->buff, mem, &rngAll, 1)){
-                printf("ERROR, ScnApiMetal_buffer_sync::ScnApiMetal_buffer_syncRanges_ failed.\n");
+                SCN_PRINTF_ERROR("ScnApiMetal_buffer_sync::ScnApiMetal_buffer_syncRanges_ failed.\n");
             } else {
                 r = ScnTRUE;
                 //validate
@@ -506,7 +506,7 @@ ScnBOOL ScnApiMetal_buffer_sync(void* pObj, ScnMemElasticRef mem, const STScnGpu
         } else {
             //sync ranges only
             if(!ScnApiMetal_buffer_syncRanges_(obj->buff, mem, changes->rngs, changes->rngsUse)){
-                printf("ERROR, ScnApiMetal_buffer_sync::ScnApiMetal_buffer_syncRanges_ failed.\n");
+                SCN_PRINTF_ERROR("ScnApiMetal_buffer_sync::ScnApiMetal_buffer_syncRanges_ failed.\n");
             } else {
                 r = ScnTRUE;
                 //validate
@@ -621,7 +621,7 @@ ScnBOOL ScnApiMetal_buffer_syncRanges_(id<MTLBuffer> buff, ScnMemElasticRef mem,
             SCN_ASSERT(ptr.idx == curRng.start);
             SCN_ASSERT((curRng.start + continuousSz) <= buffLen);
             if((curRng.start + continuousSz) > buffLen){
-                printf("ERROR, gpu-buffer is smaller than cpu-buffer.\n");
+                SCN_PRINTF_ERROR("gpu-buffer is smaller than cpu-buffer.\n");
                 r = ScnFALSE;
                 break;
             }
@@ -640,7 +640,7 @@ ScnBOOL ScnApiMetal_buffer_syncRanges_(id<MTLBuffer> buff, ScnMemElasticRef mem,
         //next
         ++rng;
     }
-    //printf("%2.f%% %u of %u bytes synced at buffer.\n", (float)bytesCopied * 100.f / (float)buffLen, bytesCopied, buffLen);
+    SCN_PRINTF_VERB("%2.f%% %u of %u bytes synced at buffer.\n", (float)bytesCopied * 100.f / (float)buffLen, bytesCopied, buffLen);
     return r;
 }
 
@@ -659,9 +659,9 @@ ScnGpuVertexbuffRef ScnApiMetal_device_allocVertexBuff(void* pObj, const STScnGp
     STScnApiMetalDevice* dev = (STScnApiMetalDevice*)pObj;
     if(dev != NULL && dev->dev != NULL && cfg != NULL && !ScnGpuBuffer_isNull(vBuff)){ //idxBuff is optional
         //synced
-        STScnApiMetalVertexBuff* obj = (STScnApiMetalVertexBuff*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalVertexBuff), "STScnApiMetalVertexBuff");
+        STScnApiMetalVertexBuff* obj = (STScnApiMetalVertexBuff*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalVertexBuff), SCN_DBG_STR("STScnApiMetalVertexBuff"));
         if(obj == NULL){
-            printf("ScnContext_malloc(STScnApiMetalVertexBuff) failed.\n");
+            SCN_PRINTF_ERROR("ScnContext_malloc(STScnApiMetalVertexBuff) failed.\n");
         } else {
             ScnMemory_setZeroSt(*obj);
             ScnContext_set(&obj->ctx, dev->ctx);
@@ -673,7 +673,7 @@ ScnGpuVertexbuffRef ScnApiMetal_device_allocVertexBuff(void* pObj, const STScnGp
             ScnGpuVertexbuffRef d = ScnGpuVertexbuff_alloc(dev->ctx);
             if(!ScnGpuVertexbuff_isNull(d)){
                 if(!ScnGpuVertexbuff_prepare(d, &obj->itf.vertexBuff, obj)){
-                    printf("ScnApiMetal_device_allocVertexBuff::ScnGpuVertexbuff_prepare failed.\n");
+                    SCN_PRINTF_ERROR("ScnApiMetal_device_allocVertexBuff::ScnGpuVertexbuff_prepare failed.\n");
                 } else {
                     ScnGpuVertexbuff_set(&r, d);
                     obj = NULL; //consume
@@ -758,9 +758,9 @@ ScnGpuTextureRef ScnApiMetal_device_allocTexture(void* pObj, const STScnGpuTextu
             default: break;
         }
         if(fmt == MTLPixelFormatInvalid){
-            printf("ERROR, unsupported texture color format(%d).\n", cfg->color);
+            SCN_PRINTF_ERROR("unsupported texture color format(%d).\n", cfg->color);
         } else if(cfg->width <= 0 && cfg->height <= 0){
-            printf("ERROR, invalid texture size(%d, %d).\n", cfg->width, cfg->height);
+            SCN_PRINTF_ERROR("invalid texture size(%d, %d).\n", cfg->width, cfg->height);
         } else {
             STScnApiMetalTexture* obj = NULL;
             MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
@@ -772,11 +772,11 @@ ScnGpuTextureRef ScnApiMetal_device_allocTexture(void* pObj, const STScnGpuTextu
             //
             tex = [dev->dev newTextureWithDescriptor:texDesc];
             if(tex == nil){
-                printf("ERROR, newTextureWithDescriptor failed.\n");
+                SCN_PRINTF_ERROR("newTextureWithDescriptor failed.\n");
             } else if(srcProps != NULL && (srcProps->size.width != cfg->width || srcProps->size.height != cfg->height || srcProps->color != cfg->color || srcProps->bytesPerLine <= 0 || srcData == NULL)){
-                printf("ERROR, texture and source props missmatch.\n");
-            } else if(NULL == (obj = (STScnApiMetalTexture*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalTexture), "STScnApiMetalTexture"))){
-                printf("ScnContext_malloc(STScnApiMetalTexture) failed.\n");
+                SCN_PRINTF_ERROR("texture and source props missmatch.\n");
+            } else if(NULL == (obj = (STScnApiMetalTexture*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalTexture), SCN_DBG_STR("STScnApiMetalTexture")))){
+                SCN_PRINTF_ERROR("ScnContext_malloc(STScnApiMetalTexture) failed.\n");
             } else {
                 ScnMemory_setZeroSt(*obj);
                 ScnContext_set(&obj->ctx, dev->ctx);
@@ -785,7 +785,7 @@ ScnGpuTextureRef ScnApiMetal_device_allocTexture(void* pObj, const STScnGpuTextu
                 obj->cfg            = *cfg;
                 obj->sampler        = ScnApiMetal_device_allocSampler(dev, &cfg->sampler);
                 if(ScnGpuSampler_isNull(obj->sampler)){
-                    printf("ScnApiMetal_device_allocTexture::ScnApiMetal_device_allocSampler failed.\n");
+                    SCN_PRINTF_ERROR("ScnApiMetal_device_allocTexture::ScnApiMetal_device_allocSampler failed.\n");
                 } else {
                     ScnGpuTextureRef d = ScnGpuTexture_alloc(dev->ctx);
                     if(!ScnGpuTexture_isNull(d)){
@@ -794,7 +794,7 @@ ScnGpuTextureRef ScnApiMetal_device_allocTexture(void* pObj, const STScnGpuTextu
                         itf.free        = ScnApiMetal_texture_free;
                         itf.sync        = ScnApiMetal_texture_sync;
                         if(!ScnGpuTexture_prepare(d, &itf, obj)){
-                            printf("ScnApiMetal_device_allocTexture::ScnGpuTexture_prepare failed.\n");
+                            SCN_PRINTF_ERROR("ScnApiMetal_device_allocTexture::ScnGpuTexture_prepare failed.\n");
                         } else {
                             //apply data
                             if(srcProps != NULL && srcData != NULL){
@@ -889,7 +889,7 @@ ScnBOOL ScnApiMetal_texture_sync(void* pObj, const STScnGpuTextureCfg* const cfg
             }
             r = ScnTRUE;
         }
-        printf("%2.f%% %u of %u lines synced at texture (%.1f Kpixs, %.1f KBs).\n", (float)lnsUpdated * 100.f / (float)obj->cfg.height, lnsUpdated, obj->cfg.height, (ScnFLOAT)pxUpdated / 1024.f, (ScnFLOAT)lnsUpdated * (ScnFLOAT)srcProps->bytesPerLine / 1024.f);
+        SCN_PRINTF_VERB("%2.f%% %u of %u lines synced at texture (%.1f Kpixs, %.1f KBs).\n", (float)lnsUpdated * 100.f / (float)obj->cfg.height, lnsUpdated, obj->cfg.height, (ScnFLOAT)pxUpdated / 1024.f, (ScnFLOAT)lnsUpdated * (ScnFLOAT)srcProps->bytesPerLine / 1024.f);
     }
     return r;
 }
@@ -936,9 +936,9 @@ ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void*
         STScnApiMetalRenderStates rndrShaders;
         STScnApiMetalRenderStates_init(&rndrShaders);
         if(!STScnApiMetalRenderStates_load(&rndrShaders, dev, mtkView.colorPixelFormat)){
-            printf("STScnApiMetalRenderStates_load failed.\n");
-        } else if(NULL == (obj = (STScnApiMetalFramebuffView*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalFramebuffView), "STScnApiMetalFramebuffView"))){
-            printf("ScnContext_malloc(STScnApiMetalFramebuffView) failed.\n");
+            SCN_PRINTF_ERROR("STScnApiMetalRenderStates_load failed.\n");
+        } else if(NULL == (obj = (STScnApiMetalFramebuffView*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalFramebuffView), SCN_DBG_STR("STScnApiMetalFramebuffView")))){
+            SCN_PRINTF_ERROR("ScnContext_malloc(STScnApiMetalFramebuffView) failed.\n");
             STScnApiMetalRenderStates_destroy(&rndrShaders);
         } else {
             CGSize viewSz = mtkView.drawableSize;
@@ -973,7 +973,7 @@ ScnGpuFramebuffRef ScnApiMetal_device_allocFramebuffFromOSView(void* pObj, void*
                 itf.getProps    = ScnApiMetal_framebuff_view_getProps;
                 itf.setProps    = ScnApiMetal_framebuff_view_setProps;
                 if(!ScnGpuFramebuff_prepare(d, &itf, obj)){
-                    printf("ScnApiMetal_device_allocFramebuffFromOSView::ScnGpuFramebuff_prepare failed.\n");
+                    SCN_PRINTF_ERROR("ScnApiMetal_device_allocFramebuffFromOSView::ScnGpuFramebuff_prepare failed.\n");
                 } else {
                     //configure view
                     mtkView.device = dev->dev;
@@ -1085,12 +1085,12 @@ ScnBOOL STScnApiMetalRenderStates_load(STScnApiMetalRenderStates* obj, STScnApiM
                 default: break;
             }
             if(vertexFuncName == NULL){
-                printf("STScnApiMetalRenderStates_load unimplemented function name.\n");
+                SCN_PRINTF_ERROR("STScnApiMetalRenderStates_load unimplemented function name.\n");
                 r = ScnFALSE;
                 break;
             }
             if(fragmtFuncName == NULL){
-                printf("STScnApiMetalRenderStates_load unimplemented function name.\n");
+                SCN_PRINTF_ERROR("STScnApiMetalRenderStates_load unimplemented function name.\n");
                 r = ScnFALSE;
                 break;
             }
@@ -1100,13 +1100,13 @@ ScnBOOL STScnApiMetalRenderStates_load(STScnApiMetalRenderStates* obj, STScnApiM
             //
             vertexFunc = [dev->lib newFunctionWithName:[NSString stringWithUTF8String:vertexFuncName]];
             if(vertexFunc == nil){
-                printf("STScnApiMetalRenderStates_load newFunctionWithName('%s') failed.\n", vertexFuncName);
+                SCN_PRINTF_ERROR("STScnApiMetalRenderStates_load newFunctionWithName('%s') failed.\n", vertexFuncName);
                 r = ScnFALSE;
                 break;
             }
             fragmtFunc = [dev->lib newFunctionWithName:[NSString stringWithUTF8String:fragmtFuncName]];
             if(fragmtFunc == nil){
-                printf("STScnApiMetalRenderStates_load newFunctionWithName('%s') failed.\n", fragmtFuncName);
+                SCN_PRINTF_ERROR("STScnApiMetalRenderStates_load newFunctionWithName('%s') failed.\n", fragmtFuncName);
                 r = ScnFALSE;
                 break;
             }
@@ -1126,7 +1126,7 @@ ScnBOOL STScnApiMetalRenderStates_load(STScnApiMetalRenderStates* obj, STScnApiM
                 rndrPipeDesc.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
                 rndrPipeDesc.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
                 if(nil == (obj->states[i] = [dev->dev newRenderPipelineStateWithDescriptor:rndrPipeDesc error:&error])){
-                    printf("STScnApiMetalRenderStates_load::newRenderPipelineStateWithDescriptor failed: '%s'.\n", (error == nil ? "nil" : [[error description] UTF8String]));
+                    SCN_PRINTF_ERROR("STScnApiMetalRenderStates_load::newRenderPipelineStateWithDescriptor failed: '%s'.\n", (error == nil ? "nil" : [[error description] UTF8String]));
                     r = ScnFALSE;
                     break;
                 }
@@ -1176,9 +1176,9 @@ ScnGpuRenderJobRef ScnApiMetal_device_allocRenderJob(void* pObj){
     ScnGpuRenderJobRef r = ScnGpuRenderJobRef_Zero;
     STScnApiMetalDevice* dev = (STScnApiMetalDevice*)pObj;
     if(dev != NULL && dev->dev != NULL && dev->cmdQueue != nil){
-        STScnApiMetalRenderJob* obj = (STScnApiMetalRenderJob*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalRenderJob), "STScnApiMetalRenderJob");
+        STScnApiMetalRenderJob* obj = (STScnApiMetalRenderJob*)ScnContext_malloc(dev->ctx, sizeof(STScnApiMetalRenderJob), SCN_DBG_STR("STScnApiMetalRenderJob"));
         if(obj == NULL){
-            printf("ScnContext_malloc(STScnApiMetalRenderJob) failed.\n");
+            SCN_PRINTF_ERROR("ScnContext_malloc(STScnApiMetalRenderJob) failed.\n");
         } else {
             ScnMemory_setZeroSt(*obj);
             ScnContext_set(&obj->ctx, dev->ctx);
@@ -1197,7 +1197,7 @@ ScnGpuRenderJobRef ScnApiMetal_device_allocRenderJob(void* pObj){
                 itf.buildEndAndEnqueue = ScnApiMetal_renderJob_buildEndAndEnqueue;
                 //
                 if(!ScnGpuRenderJob_prepare(d, &itf, obj)){
-                    printf("ScnApiMetal_device_allocRenderJob::ScnGpuRenderJob_prepare failed.\n");
+                    SCN_PRINTF_ERROR("ScnApiMetal_device_allocRenderJob::ScnGpuRenderJob_prepare failed.\n");
                 } else {
                     ScnGpuRenderJob_set(&r, d);
                     obj = NULL; //consume
@@ -1263,7 +1263,7 @@ ENScnGpuRenderJobState ScnApiMetal_renderJob_getState(void* data){
     return r;
 }
 
-ScnBOOL ScnApiMetal_renderJob_buildBegin(void* data, ScnGpuBufferRef pFbPropsBuff, ScnGpuBufferRef pMdlsPropsBuff){
+ScnBOOL ScnApiMetal_renderJob_buildBegin(void* data, ScnGpuBufferRef pBuffPropsScns, ScnGpuBufferRef pBuffPropsMdls){
     ScnBOOL r = ScnFALSE;
     STScnApiMetalRenderJob* obj = (STScnApiMetalRenderJob*)data;
     //
@@ -1271,27 +1271,27 @@ ScnBOOL ScnApiMetal_renderJob_buildBegin(void* data, ScnGpuBufferRef pFbPropsBuf
     STScnApiMetalBuffer* bPropsMdls = NULL;
     //
     if(obj->dev == NULL || obj->dev->dev == nil || obj->dev->cmdQueue == nil){
-        printf("ERROR, ScnApiMetal_renderJob_buildBegin::dev-or-cmdQueue is NULL.\n");
+        SCN_PRINTF_ERROR("ScnApiMetal_renderJob_buildBegin::dev-or-cmdQueue is NULL.\n");
         return ScnFALSE;
     }
-    if(ScnGpuBuffer_isNull(pFbPropsBuff) || ScnGpuBuffer_isNull(pMdlsPropsBuff)){
-        printf("ERROR, ScnApiMetal_renderJob_buildBegin::pFbPropsBuff-or-pMdlsPropsBuff is NULL.\n");
+    if(ScnGpuBuffer_isNull(pBuffPropsScns) || ScnGpuBuffer_isNull(pBuffPropsMdls)){
+        //SCN_PRINTF_ERROR("ScnApiMetal_renderJob_buildBegin::pBuffPropsScns-or-pBuffPropsMdls is NULL.\n");
         return ScnFALSE;
     }
-    bPropsScns = (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(pFbPropsBuff);
-    bPropsMdls = (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(pMdlsPropsBuff);
+    bPropsScns = (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(pBuffPropsScns);
+    bPropsMdls = (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(pBuffPropsMdls);
     if(bPropsScns == NULL || bPropsScns->buff == nil){
-        printf("ERROR, ScnApiMetal_renderJob_buildBegin::bPropsScns is NULL.\n");
+        SCN_PRINTF_ERROR("ScnApiMetal_renderJob_buildBegin::bPropsScns is NULL.\n");
         return ScnFALSE;
     } else if(bPropsMdls == NULL || bPropsMdls->buff == nil){
-        printf("ERROR, ScnApiMetal_renderJob_buildBegin::bPropsMdls is NULL.\n");
+        SCN_PRINTF_ERROR("ScnApiMetal_renderJob_buildBegin::bPropsMdls is NULL.\n");
         return ScnFALSE;
     }
     if(obj->cmdsBuff != nil){
         const MTLCommandBufferStatus status = [obj->cmdsBuff status];
         if(status != MTLCommandBufferStatusNotEnqueued && status != MTLCommandBufferStatusCompleted && status != MTLCommandBufferStatusError){
             //job currentyl in progress
-            printf("ERROR, ScnApiMetal_renderJob_buildBegin::[obj->cmdsBuff status] is active.\n");
+            SCN_PRINTF_ERROR("ScnApiMetal_renderJob_buildBegin::[obj->cmdsBuff status] is active.\n");
             return ScnFALSE;
         }
     }
@@ -1306,11 +1306,11 @@ ScnBOOL ScnApiMetal_renderJob_buildBegin(void* data, ScnGpuBufferRef pFbPropsBuf
             obj->cmdsBuff.label = @"Ixtli-cmd-buff";
             [obj->cmdsBuff retain];
             {
-                ScnGpuBuffer_set(&obj->bPropsScns.ref, pFbPropsBuff);
+                ScnGpuBuffer_set(&obj->bPropsScns.ref, pBuffPropsScns);
                 obj->bPropsScns.obj = bPropsScns;
             }
             {
-                ScnGpuBuffer_set(&obj->bPropsMdls.ref, pMdlsPropsBuff);
+                ScnGpuBuffer_set(&obj->bPropsMdls.ref, pBuffPropsMdls);
                 obj->bPropsMdls.obj = bPropsMdls;
             }
             ScnApiMetalRenderJobState_reset(&obj->state);
@@ -1352,12 +1352,12 @@ ScnBOOL ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderC
                 if(!ScnFramebuff_isNull(c->activateFramebuff.ref)){
                     ScnGpuFramebuffRef gpuFb = ScnFramebuff_getCurrentRenderSlot(c->activateFramebuff.ref);
                     if(ScnGpuFramebuff_isNull(gpuFb)){
-                        printf("ERROR, ENScnRenderCmd_ActivateFramebuff::ScnGpuFramebuff_isNull.\n");
+                        SCN_PRINTF_ERROR("ENScnRenderCmd_ActivateFramebuff::ScnGpuFramebuff_isNull.\n");
                         r = ScnFALSE;
                     } else {
                         state->fb = (STScnApiMetalFramebuffView*)ScnGpuFramebuff_getApiItfParam(gpuFb);
                         if(state->fb == NULL || state->fb->mtkView == nil || state->fb->rndrShaders.states[state->fb->cur.verts.type] == nil){
-                            printf("ERROR, ENScnRenderCmd_ActivateFramebuff::fb == NULL || fb->mtkView == nil || fb->renderState == nil.\n");
+                            SCN_PRINTF_ERROR("ENScnRenderCmd_ActivateFramebuff::fb == NULL || fb->mtkView == nil || fb->renderState == nil.\n");
                             r = ScnFALSE;
                             break;
                         }
@@ -1365,18 +1365,16 @@ ScnBOOL ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderC
                         //ScnMemory_setZeroSt(fb->cur);
                         //
                         MTLRenderPassDescriptor* rndrDesc = state->fb->mtkView.currentRenderPassDescriptor;
-                        //printf("commandBuffer.\n");
                         SCN_ASSERT(obj->cmdsBuff != nil)
                         if(rndrDesc == nil){
-                            printf("ERROR, ENScnRenderCmd_ActivateFramebuff::renderPassDescriptor == nil || commandBuffer == nil.\n");
+                            SCN_PRINTF_ERROR("ENScnRenderCmd_ActivateFramebuff::renderPassDescriptor == nil || commandBuffer == nil.\n");
                             r = ScnFALSE;
                         } else {
                             id <MTLRenderCommandEncoder> rndrEnc = [obj->cmdsBuff renderCommandEncoderWithDescriptor:rndrDesc];
                             if(rndrEnc == nil){
-                                printf("ERROR, ENScnRenderCmd_ActivateFramebuff::renderCommandEncoderWithDescriptor failed.\n");
+                                SCN_PRINTF_ERROR("ENScnRenderCmd_ActivateFramebuff::renderCommandEncoderWithDescriptor failed.\n");
                                 r = ScnFALSE;
                             } else {
-                                //printf("renderCommandEncoderWithDescriptor.\n");
                                 if(state->rndrDesc != nil){ [state->rndrDesc release]; state->rndrDesc = nil; }
                                 if(state->rndrEnc != nil){ [state->rndrEnc release]; state->rndrEnc = nil; }
                                 //
@@ -1385,7 +1383,6 @@ ScnBOOL ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderC
                                 state->rndrEnc.label = @"ixtli-render-cmd-enc";
                                 //
                                 [state->rndrEnc setRenderPipelineState:state->fb->rndrShaders.states[state->fb->cur.verts.type]];
-                                //printf("setRenderPipelineState.\n");
                                 //apply viewport
                                 {
                                     MTLViewport viewPort;
@@ -1396,14 +1393,14 @@ ScnBOOL ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderC
                                     viewPort.znear = 0.0;
                                     viewPort.zfar = 1.0;
                                     [state->rndrEnc setViewport:viewPort];
-                                    //printf("setViewport(%u, %u)-(+%u, +%u).\n", fb->viewport.x, fb->viewport.y, fb->viewport.width, fb->viewport.height);
+                                    SCN_PRINTF_VERB("setViewport(%u, %u)-(+%u, +%u).\n", fb->viewport.x, fb->viewport.y, fb->viewport.width, fb->viewport.height);
                                 }
                                 //fb props
                                 [state->rndrEnc setVertexBuffer:obj->bPropsScns.obj->buff offset:c->activateFramebuff.offset atIndex:0];
-                                //printf("setVertexBuffer(idx0, %u offset).\n", c->activateFramebuff.offset);
+                                SCN_PRINTF_VERB("setVertexBuffer(idx0, %u offset).\n", c->activateFramebuff.offset);
                                 //mdl props
                                 [state->rndrEnc setVertexBuffer:obj->bPropsMdls.obj->buff offset:0 atIndex:1];
-                                //printf("setVertexBuffer(idx1, 0 offset).\n");
+                                SCN_PRINTF_VERB("setVertexBuffer(idx1, 0 offset).\n");
                             }
                         }
                     }
@@ -1421,7 +1418,7 @@ ScnBOOL ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderC
                         viewPort.znear = 0.0;
                         viewPort.zfar = 1.0;
                         [state->rndrEnc setViewport:viewPort];
-                        //printf("setViewport(%u, %u)-(+%u, +%u).\n", fb->viewport.x, fb->viewport.y, fb->viewport.width, fb->viewport.height);
+                        SCN_PRINTF_VERB("setViewport(%u, %u)-(+%u, +%u).\n", fb->viewport.x, fb->viewport.y, fb->viewport.width, fb->viewport.height);
                     }
                     //fb props
                     [state->rndrEnc setVertexBufferOffset:c->setFramebuffProps.offset atIndex:0];
@@ -1430,38 +1427,37 @@ ScnBOOL ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderC
                 //models
             case ENScnRenderCmd_SetTransformOffset: //sets the positions of the 'STScnGpuModelProps2d' to be applied for the drawing cmds
                 if(state->rndrEnc == nil){
-                    printf("ERROR, ENScnRenderCmd_SetTransformOffset::rndrEnc is nil.\n");
+                    SCN_PRINTF_ERROR("ENScnRenderCmd_SetTransformOffset::rndrEnc is nil.\n");
                     r = ScnFALSE;
                 } else {
                     [state->rndrEnc setVertexBufferOffset:c->setTransformOffset.offset atIndex:1];
-                    //printf("setVertexBufferOffset(idx1, %u offset).\n", c->setTransformOffset.offset);
+                    SCN_PRINTF_VERB("setVertexBufferOffset(idx1, %u offset).\n", c->setTransformOffset.offset);
                 }
                 break;
             case ENScnRenderCmd_SetVertexBuff:  //activates the vertex buffer
                 if(ScnVertexbuff_isNull(c->setVertexBuff.ref)){
-                    printf("ERROR, ENScnRenderCmd_SetVertexBuff::ScnVertexbuff_isNull.\n");
+                    SCN_PRINTF_ERROR("ENScnRenderCmd_SetVertexBuff::ScnVertexbuff_isNull.\n");
                     [state->rndrEnc setVertexBuffer:nil offset:0 atIndex:2];
-                    //printf("setVertexBuffer(idx2, nil).\n");
                 } else {
                     ScnGpuVertexbuffRef vbuffRef = ScnVertexbuff_getCurrentRenderSlot(c->setVertexBuff.ref);
                     if(ScnGpuVertexbuff_isNull(vbuffRef)){
-                        printf("ERROR, ENScnRenderCmd_SetVertexBuff::ScnGpuVertexbuff_isNull.\n");
+                        SCN_PRINTF_ERROR("ENScnRenderCmd_SetVertexBuff::ScnGpuVertexbuff_isNull.\n");
                         r = ScnFALSE;
                     } else {
                         STScnApiMetalVertexBuff* vbuff = (STScnApiMetalVertexBuff*)ScnGpuVertexBuff_getApiItfParam(vbuffRef);
                         if(vbuff == NULL || ScnGpuBuffer_isNull(vbuff->vBuff)){
-                            printf("ERROR, ENScnRenderCmd_SetVertexBuff::ScnGpuBuffer_isNull.\n");
+                            SCN_PRINTF_ERROR("ENScnRenderCmd_SetVertexBuff::ScnGpuBuffer_isNull.\n");
                             r = ScnFALSE;
                         } else {
                             STScnApiMetalBuffer* buff = (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(vbuff->vBuff);
                             STScnApiMetalBuffer* idxs = ScnGpuBuffer_isNull(vbuff->idxBuff) ? NULL : (STScnApiMetalBuffer*)ScnGpuBuffer_getApiItfParam(vbuff->idxBuff);
                             if(buff == NULL){
-                                printf("ERROR, ENScnRenderCmd_SetVertexBuff::buff == NULL.\n");
+                                SCN_PRINTF_ERROR("ENScnRenderCmd_SetVertexBuff::buff == NULL.\n");
                                 r = ScnFALSE;
                             } else {
                                 const ENScnVertexType vertexType = STScnGpuVertexbuffCfg_2_ENScnVertexType(&vbuff->cfg);
                                 if(state->fb->rndrShaders.states[state->fb->cur.verts.type] == nil){
-                                    printf("ERROR, ENScnRenderCmd_SetVertexBuff::fb->rndrShaders.states[fb->curVertexType] == nil.\n");
+                                    SCN_PRINTF_ERROR("ENScnRenderCmd_SetVertexBuff::fb->rndrShaders.states[fb->curVertexType] == nil.\n");
                                     r = ScnFALSE;
                                 } else {
                                     state->fb->cur.verts.type  = vertexType;
@@ -1474,7 +1470,7 @@ ScnBOOL ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderC
                                     //}
                                     [state->rndrEnc setRenderPipelineState:state->fb->rndrShaders.states[state->fb->cur.verts.type]];
                                     [state->rndrEnc setVertexBuffer:buff->buff offset:0 atIndex:2];
-                                    //printf("setVertexBuffer(idx2, 0 offset).\n");
+                                    SCN_PRINTF_VERB("setVertexBuffer(idx2, 0 offset).\n");
                                 }
                             }
                         }
@@ -1488,17 +1484,17 @@ ScnBOOL ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderC
                 } else {
                     ScnGpuTextureRef texRef = ScnTexture_getCurrentRenderSlot(c->setTexture.ref);
                     if(ScnGpuTexture_isNull(texRef)){
-                        printf("ERROR, ENScnRenderCmd_SetVertexBuff::ScnGpuTexture_isNull.\n");
+                        SCN_PRINTF_ERROR("ENScnRenderCmd_SetVertexBuff::ScnGpuTexture_isNull.\n");
                         r = ScnFALSE;
                     } else {
                         STScnApiMetalTexture* tex = (STScnApiMetalTexture*)ScnGpuTexture_getApiItfParam(texRef);
                         if(tex == NULL || tex->tex == nil || ScnGpuSampler_isNull(tex->sampler)){
-                            printf("ERROR, ENScnRenderCmd_SetVertexBuff::tex->tex is NULL.\n");
+                            SCN_PRINTF_ERROR("ENScnRenderCmd_SetVertexBuff::tex->tex is NULL.\n");
                             r = ScnFALSE;
                         } else {
                             STScnApiMetalSampler* smplr = (STScnApiMetalSampler*)ScnGpuSampler_getApiItfParam(tex->sampler);
                             if(smplr->smplr == nil){
-                                printf("ERROR, ENScnRenderCmd_SetVertexBuff::smplr->smplr is NULL.\n");
+                                SCN_PRINTF_ERROR("ENScnRenderCmd_SetVertexBuff::smplr->smplr is NULL.\n");
                                 r = ScnFALSE;
                             } else {
                                 //if(c->setTexture.isFirstUse){
@@ -1529,16 +1525,16 @@ ScnBOOL ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderC
                             r = ScnFALSE;
                         } else {
                             [state->rndrEnc drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
-                            //printf("drawPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
+                            SCN_PRINTF_VERB("drawPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
                         }
                         break;
                     case ENScnRenderShape_TriangStrip: //triangles-strip, most common shape
                         if(state->rndrEnc == NULL){
-                            printf("ERROR, ENScnRenderShape_TriangStrip::rndrEnc == NULL.\n");
+                            SCN_PRINTF_ERROR("ENScnRenderShape_TriangStrip::rndrEnc == NULL.\n");
                             r = ScnFALSE;
                         } else {
                             [state->rndrEnc drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
-                            //printf("drawPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
+                            SCN_PRINTF_VERB("drawPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
                         }
                         break;
                     //case ENScnRenderShape_TriangFan:   //triangles-fan
@@ -1546,31 +1542,31 @@ ScnBOOL ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderC
                         //
                     case ENScnRenderShape_LineStrip:   //lines-strip
                         if(state->rndrEnc == NULL){
-                            printf("ERROR, ENScnRenderShape_LineStrip::rndrEnc == NULL.\n");
+                            SCN_PRINTF_ERROR("ENScnRenderShape_LineStrip::rndrEnc == NULL.\n");
                             r = ScnFALSE;
                         } else {
                             [state->rndrEnc drawPrimitives:MTLPrimitiveTypeLineStrip vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
-                            //printf("drawPrimitives(MTLPrimitiveTypeLineStrip: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
+                            SCN_PRINTF_VERB("drawPrimitives(MTLPrimitiveTypeLineStrip: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
                         }
                         break;
                     //case ENScnRenderShape_LineLoop:    //lines-loop
                     //    break;
                     case ENScnRenderShape_Lines:       //lines
                         if(state->rndrEnc == NULL){
-                            printf("ERROR, ENScnRenderShape_Lines::rndrEnc == NULL.\n");
+                            SCN_PRINTF_ERROR("ENScnRenderShape_Lines::rndrEnc == NULL.\n");
                             r = ScnFALSE;
                         } else {
                             [state->rndrEnc drawPrimitives:MTLPrimitiveTypeLine vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
-                            //printf("drawPrimitives(MTLPrimitiveTypeLine: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
+                            SCN_PRINTF_VERB("drawPrimitives(MTLPrimitiveTypeLine: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
                         }
                         break;
                     case ENScnRenderShape_Points:      //points
                         if(state->rndrEnc == NULL){
-                            printf("ERROR, ENScnRenderShape_Points::rndrEnc == NULL.\n");
+                            SCN_PRINTF_ERROR("ENScnRenderShape_Points::rndrEnc == NULL.\n");
                             r = ScnFALSE;
                         } else {
                             [state->rndrEnc drawPrimitives:MTLPrimitiveTypePoint vertexStart:c->drawVerts.iFirst vertexCount:c->drawVerts.count];
-                            //printf("drawPrimitives(MTLPrimitiveTypePoint: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
+                            SCN_PRINTF_VERB("drawPrimitives(MTLPrimitiveTypePoint: %u, +%u).\n", c->drawVerts.iFirst, c->drawVerts.count);
                         }
                         break;
                     default:
@@ -1580,7 +1576,7 @@ ScnBOOL ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderC
                 break;
             case ENScnRenderCmd_DrawIndexes:    //draws something using the vertices indexes
                 if(state->fb == NULL || state->fb->cur.verts.idxs == NULL || state->fb->cur.verts.idxs->buff == nil){
-                    printf("ERROR, ENScnRenderCmd_DrawIndexes without active framebuffer or index-buffer.\n");
+                    SCN_PRINTF_ERROR("ENScnRenderCmd_DrawIndexes without active framebuffer or index-buffer.\n");
                     r = ScnFALSE;
                     break;
                 }
@@ -1591,20 +1587,20 @@ ScnBOOL ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderC
                         //
                     case ENScnRenderShape_Texture:     //same as 'ENScnRenderShape_TriangStrip' with possible bitblit-optimization if matrix has no rotation.
                         if(state->rndrEnc == NULL){
-                            //rintf("ERROR, ENScnRenderShape_Texture::rndrEnc == NULL.\n");
+                            SCN_PRINTF_ERROR("ENScnRenderShape_Texture::rndrEnc == NULL.\n");
                             r = ScnFALSE;
                         } else {
                             [state->rndrEnc drawIndexedPrimitives:MTLPrimitiveTypeTriangleStrip indexCount:c->drawIndexes.count indexType:MTLIndexTypeUInt32 indexBuffer:state->fb->cur.verts.idxs->buff indexBufferOffset:c->drawIndexes.iFirst * 4];
-                            //printf("drawIndexedPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
+                            SCN_PRINTF_VERB("drawIndexedPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
                         }
                         break;
                     case ENScnRenderShape_TriangStrip: //triangles-strip, most common shape
                         if(state->rndrEnc == NULL){
-                            printf("ERROR, ENScnRenderShape_TriangStrip::rndrEnc == NULL.\n");
+                            SCN_PRINTF_ERROR("ENScnRenderShape_TriangStrip::rndrEnc == NULL.\n");
                             r = ScnFALSE;
                         } else {
                             [state->rndrEnc drawIndexedPrimitives:MTLPrimitiveTypeTriangleStrip indexCount:c->drawIndexes.count indexType:MTLIndexTypeUInt32 indexBuffer:state->fb->cur.verts.idxs->buff indexBufferOffset:c->drawIndexes.iFirst * 4];
-                            //printf("drawIndexedPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
+                            SCN_PRINTF_VERB("drawIndexedPrimitives(MTLPrimitiveTypeTriangleStrip: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
                         }
                         break;
                     //case ENScnRenderShape_TriangFan:   //triangles-fan
@@ -1612,31 +1608,31 @@ ScnBOOL ScnApiMetal_renderJob_buildAddCmds(void* data, const struct STScnRenderC
                         //
                     case ENScnRenderShape_LineStrip:   //lines-strip
                         if(state->rndrEnc == NULL){
-                            printf("ERROR, ENScnRenderShape_LineStrip::rndrEnc == NULL.\n");
+                            SCN_PRINTF_ERROR("ENScnRenderShape_LineStrip::rndrEnc == NULL.\n");
                             r = ScnFALSE;
                         } else {
                             [state->rndrEnc drawIndexedPrimitives:MTLPrimitiveTypeLineStrip indexCount:c->drawIndexes.count indexType:MTLIndexTypeUInt32 indexBuffer:state->fb->cur.verts.idxs->buff indexBufferOffset:c->drawIndexes.iFirst * 4];
-                            //printf("drawIndexedPrimitives(MTLPrimitiveTypeLineStrip: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
+                            SCN_PRINTF_VERB("drawIndexedPrimitives(MTLPrimitiveTypeLineStrip: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
                         }
                         break;
                     //case ENScnRenderShape_LineLoop:    //lines-loop
                     //    break;
                     case ENScnRenderShape_Lines:       //lines
                         if(state->rndrEnc == NULL){
-                            printf("ERROR, ENScnRenderShape_Lines::rndrEnc == NULL.\n");
+                            SCN_PRINTF_ERROR("ENScnRenderShape_Lines::rndrEnc == NULL.\n");
                             r = ScnFALSE;
                         } else {
                             [state->rndrEnc drawIndexedPrimitives:MTLPrimitiveTypeLine indexCount:c->drawIndexes.count indexType:MTLIndexTypeUInt32 indexBuffer:state->fb->cur.verts.idxs->buff indexBufferOffset:c->drawIndexes.iFirst * 4];
-                            //printf("drawIndexedPrimitives(MTLPrimitiveTypeLine: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
+                            SCN_PRINTF_VERB("drawIndexedPrimitives(MTLPrimitiveTypeLine: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
                         }
                         break;
                     case ENScnRenderShape_Points:      //points
                         if(state->rndrEnc == NULL){
-                            printf("ERROR, ENScnRenderShape_Points::rndrEnc == NULL.\n");
+                            SCN_PRINTF_ERROR("ENScnRenderShape_Points::rndrEnc == NULL.\n");
                             r = ScnFALSE;
                         } else {
                             [state->rndrEnc drawIndexedPrimitives:MTLPrimitiveTypePoint indexCount:c->drawIndexes.count indexType:MTLIndexTypeUInt32 indexBuffer:state->fb->cur.verts.idxs->buff indexBufferOffset:c->drawIndexes.iFirst * 4];
-                            //printf("drawIndexedPrimitives(MTLPrimitiveTypePoint: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
+                            SCN_PRINTF_VERB("drawIndexedPrimitives(MTLPrimitiveTypePoint: %u, +%u).\n", c->drawIndexes.iFirst, c->drawIndexes.count);
                         }
                         break;
                     default:
@@ -1665,15 +1661,15 @@ ScnBOOL ScnApiMetal_renderJob_buildEndAndEnqueue(void* data){
     //finalize
     if(state->rndrEnc != nil){
         [state->rndrEnc endEncoding];
-        //printf("endEncoding.\n");
+        SCN_PRINTF_VERB("endEncoding.\n");
     }
     if(obj->cmdsBuff != nil){
         if(state->fb != NULL && state->fb->mtkView != NULL){
             [obj->cmdsBuff presentDrawable:state->fb->mtkView.currentDrawable];
-            //printf("presentDrawable.\n");
+            SCN_PRINTF_VERB("presentDrawable.\n");
         }
         [obj->cmdsBuff commit];
-        //printf("commit.\n");
+        SCN_PRINTF_VERB("commit.\n");
     }
     return r;
 }

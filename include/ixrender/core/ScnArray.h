@@ -48,7 +48,7 @@ extern "C" {
 #define ScnArray_empty(ARRSTPTR)  (ARRSTPTR)->use = 0
 
 #define ScnArray_addPtr(CTX_REF, ARRSTPTR, ITM_PTR, ARR_TYPE) \
-        (ARR_TYPE*) ScnArray_addPtr_(CTX_REF, (void**)&(ARRSTPTR)->arr, &(ARRSTPTR)->use, &(ARRSTPTR)->sz, (ARRSTPTR)->growth, sizeof((ARRSTPTR)->arr[0]), ITM_PTR, sizeof(*(ITM_PTR)), "ScnArraySorted_addPtr::" #ARRSTPTR)
+        (ARR_TYPE*) ScnArray_addPtr_(CTX_REF, (void**)&(ARRSTPTR)->arr, &(ARRSTPTR)->use, &(ARRSTPTR)->sz, (ARRSTPTR)->growth, sizeof((ARRSTPTR)->arr[0]), ITM_PTR, sizeof(*(ITM_PTR)), SCN_DBG_STR("ScnArraySorted_addPtr::" #ARRSTPTR))
 
 void*   ScnArray_addPtr_(ScnContextRef ctx, void** pArr, ScnSI32* use, ScnSI32* sz, const ScnSI32 growth, const ScnSI32 arrItmSz, const void* itmPtr, const ScnSI32 itmSz, const char* dbgHint);
 

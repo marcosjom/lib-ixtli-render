@@ -141,7 +141,7 @@ ScnBOOL ScnMemBlock_prepare(ScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STS
         chunkN.rngStart     = (cfg->idxZeroIsValid ? 0 : idxsAlign);
         chunkN.rngAfterEnd  = (cfg->size + idxsAlign - 1) / idxsAlign * idxsAlign;
         chunkN.ptrSz        = (chunkN.rngAfterEnd + sizeAlign - 1) / sizeAlign * sizeAlign;
-        chunkN.ptr          = (ScnBYTE*)ScnContext_malloc(opq->ctx, chunkN.ptrSz, "ScnMemBlock_prepare::chunkN.ptr");
+        chunkN.ptr          = (ScnBYTE*)ScnContext_malloc(opq->ctx, chunkN.ptrSz, SCN_DBG_STR("ScnMemBlock_prepare::chunkN.ptr"));
         if(chunkN.ptr != NULL){
             //copy chunk
             {

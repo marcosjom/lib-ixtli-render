@@ -76,7 +76,7 @@ ScnBOOL ScnFramebuff_bindToOSView(ScnFramebuffRef ref, void* mtkView){
     if(!ScnGpuDevice_isNull(opq->gpuDev) && opq->binding.type == ENScnGpuFramebuffDstType_None){
         ScnGpuFramebuffRef gpuFb = ScnGpuDevice_allocFramebuffFromOSView(opq->gpuDev, mtkView);
         if(ScnGpuFramebuff_isNull(gpuFb)){
-            printf("ERROR, ScnFramebuff_bindToOSView::ScnGpuDevice_allocFramebuffFromOSView failed.\n");
+            SCN_PRINTF_ERROR("ScnFramebuff_bindToOSView::ScnGpuDevice_allocFramebuffFromOSView failed.\n");
         } else {
             opq->binding.type = ENScnGpuFramebuffDstType_OSView;
             ScnGpuFramebuff_set(&opq->gpuFramebuff, gpuFb);

@@ -98,7 +98,7 @@ STScnVertex2DPtr ScnModel2d_addDraw(ScnModel2dRef ref, const ENScnRenderShape sh
             cmd.verts.count = count;
             ScnArrayEmbed_addPtr(itm, opq->ctx, &opq->cmds, &cmd, STScnModel2dCmd);
             if(itm == NULL){
-                printf("ERROR, ScnModel2d_addDraw::ScnArrayEmbed_addPtr failed.\n");
+                SCN_PRINTF_ERROR("ScnModel2d_addDraw::ScnArrayEmbed_addPtr failed.\n");
                 ScnModel2dCmd_destroy(&cmd);
                 r = (STScnVertex2DPtr)STScnVertex2DPtr_Zero;
             }
@@ -131,7 +131,7 @@ STScnVertex2DTexPtr ScnModel2d_addDrawTex(ScnModel2dRef ref, const ENScnRenderSh
             cmd.verts.count = count;
             ScnArrayEmbed_addPtr(itm, opq->ctx, &opq->cmds, &cmd, STScnModel2dCmd);
             if(itm == NULL){
-                printf("ERROR, ScnModel2d_addDrawTex::ScnArrayEmbed_addPtr failed.\n");
+                SCN_PRINTF_ERROR("ScnModel2d_addDrawTex::ScnArrayEmbed_addPtr failed.\n");
                 ScnModel2dCmd_destroy(&cmd);
                 r = (STScnVertex2DTexPtr)STScnVertex2DTexPtr_Zero;
             }
@@ -165,7 +165,7 @@ STScnVertex2DTex2Ptr ScnModel2d_addDrawTex2(ScnModel2dRef ref, const ENScnRender
             cmd.verts.count = count;
             ScnArrayEmbed_addPtr(itm, opq->ctx, &opq->cmds, &cmd, STScnModel2dCmd);
             if(itm == NULL){
-                printf("ERROR, ScnModel2d_addDrawTex2::ScnArrayEmbed_addPtr failed.\n");
+                SCN_PRINTF_ERROR("ScnModel2d_addDrawTex2::ScnArrayEmbed_addPtr failed.\n");
                 ScnModel2dCmd_destroy(&cmd);
                 r = (STScnVertex2DTex2Ptr)STScnVertex2DTex2Ptr_Zero;
             }
@@ -201,7 +201,7 @@ STScnVertex2DTex3Ptr ScnModel2d_addDrawTex3(ScnModel2dRef ref, const ENScnRender
             cmd.verts.count = count;
             ScnArrayEmbed_addPtr(itm, opq->ctx, &opq->cmds, &cmd, STScnModel2dCmd);
             if(itm == NULL){
-                printf("ERROR, ScnModel2d_addDrawTex3::ScnArrayEmbed_addPtr failed.\n");
+                SCN_PRINTF_ERROR("ScnModel2d_addDrawTex3::ScnArrayEmbed_addPtr failed.\n");
                 ScnModel2dCmd_destroy(&cmd);
                 r = (STScnVertex2DTex3Ptr)STScnVertex2DTex3Ptr_Zero;
             }
@@ -381,7 +381,7 @@ STScnVertexIdxPtr ScnModel2d_addDrawIndexed(ScnModel2dRef ref, const ENScnRender
                 cmd.idxs.count  = countIdxs;
                 ScnArrayEmbed_addPtr(itm, opq->ctx, &opq->cmds, &cmd, STScnModel2dCmd);
                 if(itm == NULL){
-                    printf("ERROR, ScnModel2d_addDrawIndexed::ScnArrayEmbed_addPtr failed.\n");
+                    SCN_PRINTF_ERROR("ScnModel2d_addDrawIndexed::ScnArrayEmbed_addPtr failed.\n");
                     ScnModel2dCmd_destroy(&cmd);
                     r = (STScnVertexIdxPtr)STScnVertexIdxPtr_Zero;
                     v = (STScnVertex2DPtr)STScnVertex2DPtr_Zero;
@@ -425,7 +425,7 @@ STScnVertexIdxPtr ScnModel2d_addDrawIndexedTex(ScnModel2dRef ref, const ENScnRen
                 cmd.idxs.count  = countIdxs;
                 ScnArrayEmbed_addPtr(itm, opq->ctx, &opq->cmds, &cmd, STScnModel2dCmd);
                 if(itm == NULL){
-                    printf("ERROR, ScnModel2d_addDrawIndexedTex::ScnArrayEmbed_addPtr failed.\n");
+                    SCN_PRINTF_ERROR("ScnModel2d_addDrawIndexedTex::ScnArrayEmbed_addPtr failed.\n");
                     ScnModel2dCmd_destroy(&cmd);
                     r = (STScnVertexIdxPtr)STScnVertexIdxPtr_Zero;
                     v = (STScnVertex2DTexPtr)STScnVertex2DTexPtr_Zero;
@@ -471,7 +471,7 @@ STScnVertexIdxPtr ScnModel2d_addDrawIndexedTex2(ScnModel2dRef ref, const ENScnRe
                 cmd.idxs.count  = countIdxs;
                 ScnArrayEmbed_addPtr(itm, opq->ctx, &opq->cmds, &cmd, STScnModel2dCmd);
                 if(itm == NULL){
-                    printf("ERROR, ScnModel2d_addDrawIndexedTex2::ScnArrayEmbed_addPtr failed.\n");
+                    SCN_PRINTF_ERROR("ScnModel2d_addDrawIndexedTex2::ScnArrayEmbed_addPtr failed.\n");
                     ScnModel2dCmd_destroy(&cmd);
                     r = (STScnVertexIdxPtr)STScnVertexIdxPtr_Zero;
                     v = (STScnVertex2DTex2Ptr)STScnVertex2DTex2Ptr_Zero;
@@ -519,7 +519,7 @@ STScnVertexIdxPtr ScnModel2d_addDrawIndexedTex3(ScnModel2dRef ref, const ENScnRe
                 cmd.idxs.count  = countIdxs;
                 ScnArrayEmbed_addPtr(itm, opq->ctx, &opq->cmds, &cmd, STScnModel2dCmd);
                 if(itm == NULL){
-                    printf("ERROR, ScnModel2d_addDrawIndexedTex3::ScnArrayEmbed_addPtr failed.\n");
+                    SCN_PRINTF_ERROR("ScnModel2d_addDrawIndexedTex3::ScnArrayEmbed_addPtr failed.\n");
                     ScnModel2dCmd_destroy(&cmd);
                     r = (STScnVertexIdxPtr)STScnVertexIdxPtr_Zero;
                     v = (STScnVertex2DTex3Ptr)STScnVertex2DTex3Ptr_Zero;

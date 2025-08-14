@@ -84,7 +84,7 @@ ScnBOOL ScnRenderCmds_prepare(STScnRenderCmds* obj, const STScnGpuDeviceDesc* gp
             }
         }
         if(ScnMemElastic_isNull(mPropsScns) || !ScnMemElastic_prepare(mPropsScns, &mPropsScnsCfg, NULL)){
-            printf("ERROR, ScnRenderCmds_prepare::ScnMemElastic_prepare(mPropsScns) failed.\n");
+            SCN_PRINTF_ERROR("ScnRenderCmds_prepare::ScnMemElastic_prepare(mPropsScns) failed.\n");
             r = ScnFALSE;
         } else {
             ScnMemElastic_set(&obj->mPropsScns, mPropsScns);
@@ -111,7 +111,7 @@ ScnBOOL ScnRenderCmds_prepare(STScnRenderCmds* obj, const STScnGpuDeviceDesc* gp
             }
         }
         if(ScnMemElastic_isNull(mPropsMdls) || !ScnMemElastic_prepare(mPropsMdls, &mPropsMdlsCfg, NULL)){
-            printf("ERROR, ScnRenderCmds_prepare::ScnMemElastic_prepare(mPropsMdls) failed.\n");
+            SCN_PRINTF_ERROR("ScnRenderCmds_prepare::ScnMemElastic_prepare(mPropsMdls) failed.\n");
             r = ScnFALSE;
         } else {
             ScnMemElastic_set(&obj->mPropsMdls, mPropsMdls);
@@ -174,7 +174,7 @@ ScnBOOL ScnRenderCmds_addUsedObj(STScnRenderCmds* obj, const ENScnRenderJobObjTy
         usedObj.type = type;
         ScnObjRef_set(&usedObj.objRef, *objRef);
         if(NULL == ScnArraySorted_addPtr(obj->ctx, &obj->objs, &usedObj, STScnRenderJobObj)){
-            printf("ERROR, ScnRenderCmds_addUsedObj::ScnArraySorted_addPtr(usedObj) failed.\n");
+            SCN_PRINTF_ERROR("ScnRenderCmds_addUsedObj::ScnArraySorted_addPtr(usedObj) failed.\n");
             ScnRenderJobObj_destroy(&usedObj);
         } else {
             r = ScnTRUE;

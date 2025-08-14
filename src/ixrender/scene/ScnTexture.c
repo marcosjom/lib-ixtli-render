@@ -101,7 +101,7 @@ ScnBOOL ScnTexture_prepare(ScnTextureRef ref, ScnGpuDeviceRef gpuDev, const ENSc
         } else if(optSrcProps != NULL && optSrcData != NULL && -1 == ScnBitmap_pasteBitmapData(bmp, (STScnPoint2DI){ 0, 0 }, (STScnRectI){ 0, 0, optSrcProps->size.width, optSrcProps->size.height }, optSrcProps, optSrcData).width){
             //error
         } else {
-            STScnTextureSlot* slots = ScnContext_malloc(opq->ctx, sizeof(STScnTextureSlot) * ammRenderSlots, "ScnTexture_prepare::slots");
+            STScnTextureSlot* slots = ScnContext_malloc(opq->ctx, sizeof(STScnTextureSlot) * ammRenderSlots, SCN_DBG_STR("ScnTexture_prepare::slots"));
             if(slots != NULL){
                 //slots (render)
                 {

@@ -67,12 +67,12 @@ NS_ASSUME_NONNULL_BEGIN
     }
     ctx = ScnContext_alloc(&ctxItf);
     if(ScnContext_isNull(ctx)){
-        printf("ERROR, ScnContext_alloc failed.\n");
+        SCN_PRINTF_ERROR("ScnContext_alloc failed.\n");
     } else {
         // Do any additional setup after loading the view.
         STScnApiItf itf;
         if(!ScnApiMetal_getApiItf(&itf)){
-            printf("ERROR, ScnApiMetal_getApiItf failed.\n");
+            SCN_PRINTF_ERROR("ScnApiMetal_getApiItf failed.\n");
         } else {
             STScnRenderCfg cfg = ScnRender_getDefaultCfg();
             {
@@ -80,28 +80,28 @@ NS_ASSUME_NONNULL_BEGIN
             }
             render = ScnRender_alloc(ctx);
             if(ScnRender_isNull(render)){
-                printf("ERROR, ScnRender_alloc failed.\n");
+                SCN_PRINTF_ERROR("ScnRender_alloc failed.\n");
             } else if(!ScnRender_prepare(render, &itf, NULL, &cfg)){
-                printf("ERROR, ScnRender_prepare failed.\n");
+                SCN_PRINTF_ERROR("ScnRender_prepare failed.\n");
             } else if(!ScnRender_openDevice(render, NULL, IXTLI_RENDER_DEMO_RENDER_SLOTS_AMMOUNT)){
-                printf("ERROR, ScnRender_openDevice failed.\n");
+                SCN_PRINTF_ERROR("ScnRender_openDevice failed.\n");
             } else {
                 printf("Render initialized.\n");
                 framebuff = ScnRender_allocFramebuff(render);
                 if(ScnFramebuff_isNull(framebuff)){
-                    printf("ERROR, ScnRender_allocFramebuff failed.\n");
+                    SCN_PRINTF_ERROR("ScnRender_allocFramebuff failed.\n");
                 } else if(!ScnFramebuff_bindToOSView(framebuff, (__bridge void*)metalKitView)){
-                    printf("ERROR, ScnFramebuff_bindToOSView failed.\n");
+                    SCN_PRINTF_ERROR("ScnFramebuff_bindToOSView failed.\n");
                 } else {
                     //load texture
                     const char* texPath = [[NSString stringWithFormat:@"%@/cat256.png", [[NSBundle mainBundle] resourcePath]] UTF8String];
                     if(!ScnPngLoader_loadFromPath(ctx, texPath, &bmp.props, (void**)&bmp.data.ptr, &bmp.data.use)){
-                        printf("ERROR, ScnPngLoader_loadFromPath failed for: '%s'.\n", texPath);
+                        SCN_PRINTF_ERROR("ScnPngLoader_loadFromPath failed for: '%s'.\n", texPath);
                     } else
                     /*const char* texPath = "runtime-drawing";
                     bmp.props       = ScnBitmapProps_build(256, 256, ENScnBitmapColor_RGBA8);
                     bmp.data.use    = bmp.props.bytesPerLine * bmp.props.size.height;
-                    bmp.data.ptr    = (ScnBYTE*)ScnContext_malloc(ctx, bmp.data.use, "bmp.data.ptr ");
+                    bmp.data.ptr    = (ScnBYTE*)ScnContext_malloc(ctx, bmp.data.use, SCN_DBG_STR("bmp.data.ptr "));
                     {
                         ScnUI32* p32 = (ScnUI32*)bmp.data.ptr;
                         const ScnUI32* p32AfterEnd = p32 + (bmp.data.use / 4);
@@ -118,12 +118,12 @@ NS_ASSUME_NONNULL_BEGIN
                         texCfg.color = bmp.props.color;
                         tex = ScnRender_allocTexture(render, ENScnResourceMode_Static, &texCfg, &bmp.props, bmp.data.ptr);
                         if(ScnTexture_isNull(tex)){
-                            printf("ERROR, ScnRender_allocTexture failed for: '%s'.\n", texPath);
+                            SCN_PRINTF_ERROR("ScnRender_allocTexture failed for: '%s'.\n", texPath);
                         } else {
                             node = ScnNode2d_alloc(ctx);
                             model = ScnRender_allocModel(render);
                             if(ScnNode2d_isNull(node) || ScnModel2d_isNull(model)){
-                                printf("ERROR, ScnNode2d_alloc or ScnRender_allocModel failed.\n");
+                                SCN_PRINTF_ERROR("ScnNode2d_alloc or ScnRender_allocModel failed.\n");
                             } else {
                                 vertsSz = 3;
                                 verts   = ScnModel2d_addDrawTex(model, ENScnRenderShape_TriangStrip, vertsSz, tex);
@@ -258,7 +258,7 @@ NS_ASSUME_NONNULL_BEGIN
     if(!ScnRender_isNull(render) && ScnRender_hasOpenDevice(render) && !ScnFramebuff_isNull(framebuff)){
         ScnRenderJobRef job = ScnRender_allocRenderJob(render);
         if(ScnRenderJob_isNull(job)){
-            printf("ScnRender_allocRenderJob failed (are all render-slots busy?).\n");
+            //printf("ScnRender_allocRenderJob failed (are all render-slots busy?).\n");
         } else {
             if(!ScnRenderJob_framebuffPush(job, framebuff)){
                 printf("ScnRender_jobFramebuffPush failed.\n");

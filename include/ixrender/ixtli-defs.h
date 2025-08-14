@@ -8,12 +8,15 @@
 #ifndef ixtli_defs_h
 #define ixtli_defs_h
 
-#define SCN_DEBUG
+//#define SCN_DEBUG
 //#define SCN_SILENT_MODE
-#define SCN_VERBOSE_MODE
+//#define SCN_VERBOSE_MODE
 
 #ifdef SCN_DEBUG
 #   define SCN_ASSERTS_ACTIVATED
+#   define SCN_DBG_STR(STR)     STR
+#else
+#   define SCN_DBG_STR(STR)     NULL    //all strings will be pased as NULL
 #endif
 
 #if defined(__METAL__) || defined(__METAL_MACOS__) || defined(__METAL_IOS__)
@@ -47,34 +50,42 @@
 #endif
 
 #if defined(SCN_SILENT_MODE)
+#   define SCN_PRINTF_VERB(STR_FMT, ...)        ((void)0)
 #   define SCN_PRINTF_INFO(STR_FMT, ...)        ((void)0)
 #   define SCN_PRINTF_ERROR(STR_FMT, ...)       ((void)0)
 #   define SCN_PRINTF_WARNING(STR_FMT, ...)     ((void)0)
 #else
 #   if defined(SNC_COMPILING_SHADER)
+#       define SCN_PRINTF_VERB(STR_FMT, ...)    ((void)0)
 #       define SCN_PRINTF_INFO(STR_FMT, ...)    ((void)0)
 #       define SCN_PRINTF_ERROR(STR_FMT, ...)   ((void)0)
 #       define SCN_PRINTF_WARNING(STR_FMT, ...) ((void)0)
 #   elif defined(__ANDROID__)
 #        ifndef SCN_VERBOSE_MODE
+#        define SCN_PRINTF_VERB(STR_FMT, ...)   ((void)0)
 #        define SCN_PRINTF_INFO(STR_FMT, ...)   ((void)0)
 #        else
+#        define SCN_PRINTF_VERB(STR_FMT, ...)   __android_log_print(ANDROID_LOG_INFO, "Render", STR_FMT, ##__VA_ARGS__)
 #        define SCN_PRINTF_INFO(STR_FMT, ...)   __android_log_print(ANDROID_LOG_INFO, "Render", STR_FMT, ##__VA_ARGS__)
 #        endif
 #        define SCN_PRINTF_ERROR(STR_FMT, ...)  __android_log_print(ANDROID_LOG_ERROR, "Render", "ERROR, "STR_FMT, ##__VA_ARGS__)
 #        define SCN_PRINTF_WARNING(STR_FMT, ...) __android_log_print(ANDROID_LOG_WARN, "Render", "WARNING, "STR_FMT, ##__VA_ARGS__)
 #   elif defined(__QNX__) //BB10
 #        ifndef SCN_VERBOSE_MODE
+#        define SCN_PRINTF_VERB(STR_FMT, ...)   ((void)0)
 #        define SCN_PRINTF_INFO(STR_FMT, ...)   ((void)0)
 #        else
+#        define SCN_PRINTF_VERB(STR_FMT, ...)   fprintf(stdout, "Render, " STR_FMT, ##__VA_ARGS__); fflush(stdout)
 #        define SCN_PRINTF_INFO(STR_FMT, ...)   fprintf(stdout, "Render, " STR_FMT, ##__VA_ARGS__); fflush(stdout)
 #        endif
 #        define SCN_PRINTF_ERROR(STR_FMT, ...)  fprintf(stderr, "Render ERROR, " STR_FMT, ##__VA_ARGS__); fflush(stderr)
 #        define SCN_PRINTF_WARNING(STR_FMT, ...) fprintf(stdout, "Render WARNING, " STR_FMT, ##__VA_ARGS__); fflush(stdout)
 #   else
 #        ifndef SCN_VERBOSE_MODE
+#        define SCN_PRINTF_VERB(STR_FMT, ...)   ((void)0)
 #        define SCN_PRINTF_INFO(STR_FMT, ...)   ((void)0)
 #        else
+#        define SCN_PRINTF_VERB(STR_FMT, ...)   printf("Render, " STR_FMT, ##__VA_ARGS__)
 #        define SCN_PRINTF_INFO(STR_FMT, ...)   printf("Render, " STR_FMT, ##__VA_ARGS__)
 #        endif
 #       define SCN_PRINTF_ERROR(STR_FMT, ...)   printf("Render ERROR, " STR_FMT, ##__VA_ARGS__)

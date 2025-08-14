@@ -58,7 +58,7 @@ typedef struct STScnMutexOpq {
 
 ScnMutexRef ScnMutexItf_default_alloc(struct STScnContextItf* ctx){
     ScnMutexRef r = ScnMutexRef_Zero;
-    STScnMutexOpq* obj = (STScnMutexOpq*)(*ctx->mem.malloc)(sizeof(STScnMutexOpq), "ScnMutexItf_default_alloc");
+    STScnMutexOpq* obj = (STScnMutexOpq*)(*ctx->mem.malloc)(sizeof(STScnMutexOpq), SCN_DBG_STR("ScnMutexItf_default_alloc"));
     if(obj != NULL){
         Scn_MUTEX_INIT(&obj->mutex);
         obj->ctx = *ctx;

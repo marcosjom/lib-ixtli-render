@@ -76,7 +76,7 @@ ScnBOOL ScnBitmap_create(ScnBitmapRef ref, const ScnSI32 width, const ScnSI32 he
         if(props.bitsPerPx > 0){
             const ScnUI32 szN = (props.bytesPerLine * props.size.height); SCN_ASSERT(szN > 0)
             if(szN != opq->dataSz){
-                ScnBYTE* dataN = ScnContext_mrealloc(opq->ctx, opq->data, szN, "ScnBitmap_createBuffer::data");
+                ScnBYTE* dataN = ScnContext_mrealloc(opq->ctx, opq->data, szN, SCN_DBG_STR("ScnBitmap_createBuffer::data"));
                 if(dataN != NULL){
                     opq->data   = dataN;
                     opq->dataSz = szN;

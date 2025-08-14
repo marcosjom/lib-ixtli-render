@@ -93,7 +93,7 @@ ScnBOOL ScnVertexbuff_prepare(ScnVertexbuffRef ref, ScnGpuDeviceRef gpuDev, cons
        && ScnBuffer_getRenderSlotsCount(vertexBuff) == ammRenderSlots
        )
     {
-        STScnVertexbuffSlot* slots = ScnContext_malloc(opq->ctx, sizeof(STScnVertexbuffSlot) * ammRenderSlots, "ScnBuffer_prepare::slots");
+        STScnVertexbuffSlot* slots = ScnContext_malloc(opq->ctx, sizeof(STScnVertexbuffSlot) * ammRenderSlots, SCN_DBG_STR("ScnBuffer_prepare::slots"));
         if(slots != NULL){
             //slots (render)
             {
@@ -165,13 +165,13 @@ ScnBOOL ScnVertexbuff_prepareCurrentRenderSlot(ScnVertexbuffRef ref){
         //buffs
         {
             if(r && !ScnBuffer_isNull(opq->buffs.vertex) && !ScnBuffer_prepareCurrentRenderSlot(opq->buffs.vertex, &vbuffHasPtrs)){
-                printf("ERROR ScnVertexbuff_prepareCurrentRenderSlot::ScnBuffer_prepareNextRenderSlot(vertex) failed.\n");
+                SCN_PRINTF_ERROR("ScnVertexbuff_prepareCurrentRenderSlot::ScnBuffer_prepareNextRenderSlot(vertex) failed.\n");
                 r = ScnFALSE;
             } else if(vbuffHasPtrs){
                 vbuff = ScnBuffer_getCurrentRenderSlot(opq->buffs.vertex);
             }
             if(r && !ScnBuffer_isNull(opq->buffs.idxs) && !ScnBuffer_prepareCurrentRenderSlot(opq->buffs.idxs, &iBuffHasPtrs)){
-                printf("ERROR ScnVertexbuff_prepareCurrentRenderSlot::ScnBuffer_prepareNextRenderSlot(idxs) failed.\n");
+                SCN_PRINTF_ERROR("ScnVertexbuff_prepareCurrentRenderSlot::ScnBuffer_prepareNextRenderSlot(idxs) failed.\n");
                 r = ScnFALSE;
             } else if(iBuffHasPtrs){
                 iBuff = ScnBuffer_getCurrentRenderSlot(opq->buffs.idxs);
@@ -179,10 +179,10 @@ ScnBOOL ScnVertexbuff_prepareCurrentRenderSlot(ScnVertexbuffRef ref){
         }
         //sync gpu-buffer
         if(r && ScnGpuBuffer_isNull(vbuff) && vbuffHasPtrs){
-            printf("ERROR ScnVertexbuff_prepareCurrentRenderSlot::vbuff is NULL.\n");
+            SCN_PRINTF_ERROR("ScnVertexbuff_prepareCurrentRenderSlot::vbuff is NULL.\n");
             r = ScnFALSE;
         } else if(r && ScnGpuBuffer_isNull(iBuff) && iBuffHasPtrs){
-            printf("ERROR ScnVertexbuff_prepareCurrentRenderSlot::iBuff is NULL.\n");
+            SCN_PRINTF_ERROR("ScnVertexbuff_prepareCurrentRenderSlot::iBuff is NULL.\n");
             r = ScnFALSE;
         } else if(!vbuffHasPtrs && !iBuffHasPtrs){
             //nothing to sync

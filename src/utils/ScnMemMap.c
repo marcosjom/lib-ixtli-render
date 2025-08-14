@@ -23,7 +23,7 @@
 #   define SCN_PRINTF_ERROR(STR_FMT, ...)  fprintf(stderr, "Scn ERROR, " STR_FMT, ##__VA_ARGS__); fflush(stderr)
 #   define SCN_PRINTF_WARNING(STR_FMT, ...) fprintf(stdout, "Scn WARNING, " STR_FMT, ##__VA_ARGS__); fflush(stdout)
 #else
-#   define SCN_PRINTF_INFO(STR_FMT, ...)   printf("Scn, " STR_FMT, ##__VA_ARGS__)
+#   define SCN_PRINTF_INFO(STR_FMT, ...)    printf("Scn, " STR_FMT, ##__VA_ARGS__)
 #   define SCN_PRINTF_ERROR(STR_FMT, ...)   printf("Scn ERROR, " STR_FMT, ##__VA_ARGS__)
 #   define SCN_PRINTF_WARNING(STR_FMT, ...) printf("Scn WARNING, " STR_FMT, ##__VA_ARGS__)
 #endif

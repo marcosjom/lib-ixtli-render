@@ -296,7 +296,7 @@ ScnBOOL ScnVertexbuffs_prepareCurrentRenderSlot(ScnVertexbuffsRef ref){
         while(b < bAfterEnd){
             if(!ScnVertexbuff_isNull(*b)){
                 if(!ScnVertexbuff_prepareCurrentRenderSlot(*b)){
-                    printf("ERROR, ScnVertexbuffs_prepareCurrentRenderSlot::ScnVertexbuff_prepareCurrentRenderSlot failed.\n");
+                    SCN_PRINTF_ERROR("ScnVertexbuffs_prepareCurrentRenderSlot::ScnVertexbuff_prepareCurrentRenderSlot failed.\n");
                     r = ScnFALSE;
                     break;
                 }
@@ -319,7 +319,7 @@ ScnBOOL ScnVertexbuffs_moveToNextRenderSlot(ScnVertexbuffsRef ref){
         while(b < bAfterEnd){
             if(!ScnVertexbuff_isNull(*b)){
                 if(!ScnVertexbuff_moveToNextRenderSlot(*b)){
-                    printf("ERROR, ScnVertexbuffs_prepareCurrentRenderSlot::ScnVertexbuff_moveToNextRenderSlot failed.\n");
+                    SCN_PRINTF_ERROR("ScnVertexbuffs_prepareCurrentRenderSlot::ScnVertexbuff_moveToNextRenderSlot failed.\n");
                     r = ScnFALSE;
                     break;
                 }

@@ -19,9 +19,9 @@ void ScnContext_destroyOpq_(void* opq);
 ScnContextRef ScnContext_alloc(STScnContextItf* ctx){
     ScnContextRef r = ScnContextRef_Zero;
     if(ctx != NULL){
-        STScnContextOpq* opq = (STScnContextOpq*)(ctx->mem.malloc)(sizeof(STScnContextOpq), "ScnContext_alloc::opq");
-        STScnContextItf* itf = (STScnContextItf*)(ctx->mem.malloc)(sizeof(STScnContextItf), "ScnContext_alloc::itf");
-        STScnSharedPtr* ptr  = ScnSharedPtr_alloc(ctx, ScnContext_destroyOpq_, opq, "ScnContext_alloc");
+        STScnContextOpq* opq = (STScnContextOpq*)(ctx->mem.malloc)(sizeof(STScnContextOpq), SCN_DBG_STR("ScnContext_alloc::opq"));
+        STScnContextItf* itf = (STScnContextItf*)(ctx->mem.malloc)(sizeof(STScnContextItf), SCN_DBG_STR("ScnContext_alloc::itf"));
+        STScnSharedPtr* ptr  = ScnSharedPtr_alloc(ctx, ScnContext_destroyOpq_, opq, SCN_DBG_STR("ScnContext_alloc"));
         if(opq != NULL && itf != NULL && ptr != NULL){
             ScnMemory_setZeroSt(*opq);
             ScnMemcpy(itf, ctx, sizeof(*itf));

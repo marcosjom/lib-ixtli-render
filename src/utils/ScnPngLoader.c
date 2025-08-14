@@ -16,7 +16,6 @@
 int ScnPngLoader_rw_fn(spng_ctx *ctx, void *user, void *dst_src, size_t length){
     int* file = (int*)user;
     size_t rr = read(*file, dst_src, length);
-    printf("ScnPngLoader_rw_fn %ld of %ld bnytes.\n", rr, length);
     return (rr == length ? SPNG_OK : SPNG_IO_ERROR);
 }
 
@@ -30,17 +29,17 @@ ScnBOOL ScnPngLoader_loadFromPath(ScnContextRef ctx, const char* path, STScnBitm
         int fmode = O_RDONLY;
         int file = open(path, fmode, 0666);
         if(file < 0){
-            printf("ERROR, ScnPngLoader_loadFromPath::fopen('%s') failed.\n", path);
+            SCN_PRINTF_ERROR("ScnPngLoader_loadFromPath::fopen('%s') failed.\n", path);
         } else {
             int rr = 0;
             struct spng_ihdr ihdr;
             spng_ctx* sctx = spng_ctx_new(0);
             if(0 != (rr = spng_set_png_stream(sctx, ScnPngLoader_rw_fn, &file))){
-                printf("ERROR, spng_set_png_stream failed(%d).\n", rr);
+                SCN_PRINTF_ERROR("spng_set_png_stream failed(%d).\n", rr);
             } else if(0 != (rr = spng_decode_chunks(sctx))){
-                printf("ERROR, spng_decode_chunks failed(%d).\n", rr);
+                SCN_PRINTF_ERROR("spng_decode_chunks failed(%d).\n", rr);
             } else if(0 != (rr = spng_get_ihdr(sctx, &ihdr))){
-                printf("ERROR, spng_get_ihdr failed(%d).\n", rr);
+                SCN_PRINTF_ERROR("spng_get_ihdr failed(%d).\n", rr);
             } else {
                 // Especificaciones PNG
                 // TIPO_COLOR   BITS_PROFUNDIDAD   DESCRIPCION
@@ -76,7 +75,7 @@ ScnBOOL ScnPngLoader_loadFromPath(ScnContextRef ctx, const char* path, STScnBitm
                             //Waiting for 'PTE' and 'tRNS' to detemrine bmpProps.
                             struct spng_plte plte; struct spng_trns trns;
                             if(0 != spng_get_plte(sctx, &plte)){
-                                printf("ERROR, spng_get_plte failed.\n");
+                                SCN_PRINTF_ERROR("spng_get_plte failed.\n");
                             } else {
                                 fmt     = (0 == spng_get_trns(sctx, &trns) ? SPNG_FMT_RGBA8 : SPNG_FMT_RGB8);
                                 color   = (fmt == SPNG_FMT_RGBA8 ? ENScnBitmapColor_RGBA8 : ENScnBitmapColor_RGB8);
@@ -111,16 +110,16 @@ ScnBOOL ScnPngLoader_loadFromPath(ScnContextRef ctx, const char* path, STScnBitm
                 if(fmt == SPNG_FMT_RAW){
                     //undefined color
                 } else if(0 != (rr = spng_decoded_image_size(sctx, fmt, &bmpSz))){
-                    printf("ERROR, spng_decoded_image_size failed(%d).\n", rr);
+                    SCN_PRINTF_ERROR("spng_decoded_image_size failed(%d).\n", rr);
                 } else if(bmpSz != (props.bytesPerLine * props.size.height)){
-                    printf("ERROR, spng_decoded_image_size missmatch(%d v %d).\n", (ScnUI32)bmpSz, (props.bytesPerLine * props.size.height));
-                } else if(NULL == (dataN = ScnContext_malloc(ctx, props.bytesPerLine * props.size.height, "ScnPngLoader_loadFromPath::data"))){
-                    printf("ERROR, ScnContext_malloc failed.\n");
+                    SCN_PRINTF_ERROR("spng_decoded_image_size missmatch(%d v %d).\n", (ScnUI32)bmpSz, (props.bytesPerLine * props.size.height));
+                } else if(NULL == (dataN = ScnContext_malloc(ctx, props.bytesPerLine * props.size.height, SCN_DBG_STR("ScnPngLoader_loadFromPath::data")))){
+                    SCN_PRINTF_ERROR("ScnContext_malloc failed.\n");
                 } else {
                     data = dataN;
                     dataSz = props.bytesPerLine * props.size.height;
                     if(0 != (rr = spng_decode_image(sctx, data, dataSz, fmt, 0))){
-                        printf("ERROR, spng_decode_image failed(%d).\n", rr);
+                        SCN_PRINTF_ERROR("spng_decode_image failed(%d).\n", rr);
                     } else {
                         r = ScnTRUE;
                     }

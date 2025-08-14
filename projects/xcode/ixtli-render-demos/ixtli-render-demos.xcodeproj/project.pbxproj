@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2C5CD0D82E36BC55007BBDA6 /* libixtli-render-mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C5CCF982E3535FC007BBDA6 /* libixtli-render-mac.a */; };
-		2C9C88162E3CC31C008005C8 /* libixtlu-render-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C9C88152E3CC31C008005C8 /* libixtlu-render-ios.a */; };
+		2C82A8D82E4E011500EC8C38 /* libixtli-render-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C82A8D72E4E011500EC8C38 /* libixtli-render-ios.a */; };
 		2CB10D712E40C3630056266A /* MetalKitViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D6F2E40C3630056266A /* MetalKitViewDelegate.m */; };
 		2CB10D722E40C3630056266A /* MetalKitViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D6F2E40C3630056266A /* MetalKitViewDelegate.m */; };
 		2CB10D7A2E40C3870056266A /* ScnMemMap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D762E40C3870056266A /* ScnMemMap.c */; };
@@ -28,6 +28,7 @@
 		2C5CCF962E3535C8007BBDA6 /* libixtli-render-osx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libixtli-render-osx.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C5CCF982E3535FC007BBDA6 /* libixtli-render-mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libixtli-render-mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C5CD0C52E36B74F007BBDA6 /* ixtli-render-demos-mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ixtli-render-demos-mac.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C82A8D72E4E011500EC8C38 /* libixtli-render-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libixtli-render-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C9C87CB2E3CBCB8008005C8 /* ixtli-render-demos-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ixtli-render-demos-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C9C88152E3CC31C008005C8 /* libixtlu-render-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libixtlu-render-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CB10D6E2E40C3630056266A /* MetalKitViewDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MetalKitViewDelegate.h; path = ../../../demos/MetalKitViewDelegate.h; sourceTree = SOURCE_ROOT; };
@@ -81,7 +82,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2C9C88162E3CC31C008005C8 /* libixtlu-render-ios.a in Frameworks */,
+				2C82A8D82E4E011500EC8C38 /* libixtli-render-ios.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,6 +92,7 @@
 		2C5CCF932E3535B5007BBDA6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2C82A8D72E4E011500EC8C38 /* libixtli-render-ios.a */,
 				2C9C88152E3CC31C008005C8 /* libixtlu-render-ios.a */,
 				2C5CCF982E3535FC007BBDA6 /* libixtli-render-mac.a */,
 				2C5CCF962E3535C8007BBDA6 /* libixtli-render-osx.a */,
