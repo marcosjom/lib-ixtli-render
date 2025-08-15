@@ -70,7 +70,7 @@ ScnBOOL ScnRenderCmds_prepare(STScnRenderCmds* obj, const STScnGpuDeviceDesc* gp
         STScnMemElasticCfg* cfg     = &mPropsScnsCfg;
         const ScnUI32 itmsPerBlock  = propsScnsPerBlock;
         const ScnUI32 itmSz         = sizeof(STScnGpuFramebuffProps);
-        cfg->idxZeroIsValid         = ScnTRUE;
+        cfg->isIdxZeroValid         = ScnTRUE;
         cfg->idxsAlign              = (itmSz + gpuDevDesc->offsetsAlign - 1) / gpuDevDesc->offsetsAlign * gpuDevDesc->offsetsAlign;
         cfg->sizeAlign              = gpuDevDesc->memBlockAlign;
         cfg->sizeInitial            = 0;
@@ -83,7 +83,7 @@ ScnBOOL ScnRenderCmds_prepare(STScnRenderCmds* obj, const STScnGpuDeviceDesc* gp
                 cfg->sizePerBlock   *= (cfg->idxsAlign - idxExtra);
             }
         }
-        if(ScnMemElastic_isNull(mPropsScns) || !ScnMemElastic_prepare(mPropsScns, &mPropsScnsCfg, NULL)){
+        if(ScnMemElastic_isNull(mPropsScns) || !ScnMemElastic_prepare(mPropsScns, &mPropsScnsCfg, NULL, NULL, NULL)){
             SCN_PRINTF_ERROR("ScnRenderCmds_prepare::ScnMemElastic_prepare(mPropsScns) failed.\n");
             r = ScnFALSE;
         } else {
@@ -97,7 +97,7 @@ ScnBOOL ScnRenderCmds_prepare(STScnRenderCmds* obj, const STScnGpuDeviceDesc* gp
         STScnMemElasticCfg* cfg     = &mPropsMdlsCfg;
         const ScnUI32 itmsPerBlock  = propsMdlsPerBlock;
         const ScnUI32 itmSz         = sizeof(STScnGpuModelProps2d);
-        cfg->idxZeroIsValid         = ScnTRUE;
+        cfg->isIdxZeroValid         = ScnTRUE;
         cfg->idxsAlign              = (itmSz + gpuDevDesc->offsetsAlign - 1) / gpuDevDesc->offsetsAlign * gpuDevDesc->offsetsAlign;
         cfg->sizeAlign              = gpuDevDesc->memBlockAlign;
         cfg->sizeInitial            = 0;
@@ -110,7 +110,7 @@ ScnBOOL ScnRenderCmds_prepare(STScnRenderCmds* obj, const STScnGpuDeviceDesc* gp
                 cfg->sizePerBlock   *= (cfg->idxsAlign - idxExtra);
             }
         }
-        if(ScnMemElastic_isNull(mPropsMdls) || !ScnMemElastic_prepare(mPropsMdls, &mPropsMdlsCfg, NULL)){
+        if(ScnMemElastic_isNull(mPropsMdls) || !ScnMemElastic_prepare(mPropsMdls, &mPropsMdlsCfg, NULL, NULL, NULL)){
             SCN_PRINTF_ERROR("ScnRenderCmds_prepare::ScnMemElastic_prepare(mPropsMdls) failed.\n");
             r = ScnFALSE;
         } else {

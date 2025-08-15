@@ -33,6 +33,8 @@ typedef struct STScnMemElasticOpq {
     ScnContextRef           ctx;
     ScnMutexRef             mutex;
     STScnMemElasticCfg      cfg;
+    STScnMemBlockAllocItf   itf;
+    void*                   itfParam;
     STScnMemElasticState    state;
     ScnArrayStruct(blocks, STScnMemElasticBlock);
 } STScnMemElasticOpq;
@@ -89,7 +91,7 @@ ScnUI32 ScnMemElastic_lcm_(const ScnUI32 a, const ScnUI32 b) {
     return (ScnUI32)((ScnUI64)a / ScnMemElastic_gcd_(a, b)) * b;
 }
 
-ScnBOOL ScnMemElastic_prepare(ScnMemElasticRef ref, const STScnMemElasticCfg* cfg, ScnUI32* optDstBlocksTotalSz){
+ScnBOOL ScnMemElastic_prepare(ScnMemElasticRef ref, const STScnMemElasticCfg* cfg, STScnMemBlockAllocItf* itf, void* itfParam, ScnUI32* optDstBlocksTotalSz){
     ScnBOOL r = ScnFALSE;
     STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
     //
@@ -108,8 +110,8 @@ ScnBOOL ScnMemElastic_prepare(ScnMemElasticRef ref, const STScnMemElasticCfg* cf
             bCfg.size       = szPerBlck;
             bCfg.sizeAlign  = sizeAlign;
             bCfg.idxsAlign  = idxsAlign;
-            bCfg.idxZeroIsValid = (opq->blocks.use == 0 ? cfg->idxZeroIsValid : ScnTRUE);
-            if(ScnMemBlock_isNull(block) || !ScnMemBlock_prepare(block, &bCfg, &ptrAfterEnd)){
+            bCfg.isIdxZeroValid = (opq->blocks.use == 0 ? cfg->isIdxZeroValid : ScnTRUE);
+            if(ScnMemBlock_isNull(block) || !ScnMemBlock_prepare(block, &bCfg, itf, itfParam, &ptrAfterEnd)){
                 ScnMemBlock_releaseAndNull(&block);
                 r = ScnFALSE;
                 break;
@@ -125,7 +127,7 @@ ScnBOOL ScnMemElastic_prepare(ScnMemElasticRef ref, const STScnMemElasticCfg* cf
                 } else {
                     SCN_ASSERT(ptrAfterEnd.idx >= bCfg.idxsAlign) //at least one record
                     SCN_ASSERT((ptrAfterEnd.idx % bCfg.sizeAlign) == 0) //size aligned
-                    curUsableSz += ptrAfterEnd.idx - (bCfg.idxZeroIsValid ? 0 : bCfg.idxsAlign);
+                    curUsableSz += ptrAfterEnd.idx - (bCfg.isIdxZeroValid ? 0 : bCfg.idxsAlign);
                     opq->state.idxsTotalSz += ptrAfterEnd.idx;
                     SCN_PRINTF_INFO("ScnMemElastic_prepare, added STScnMemElasticBlock(+%u bytes, %u total).\n", ptrAfterEnd.idx, opq->state.idxsTotalSz);
                 }
@@ -138,6 +140,13 @@ ScnBOOL ScnMemElastic_prepare(ScnMemElasticRef ref, const STScnMemElasticCfg* cf
             opq->cfg.idxsAlign      = idxsAlign;
             opq->cfg.sizePerBlock   = szPerBlck;
             opq->cfg.sizeInitial    = curUsableSz;
+            if(itf == NULL){
+                ScnMemory_setZeroSt(opq->itf);
+                opq->itfParam       = NULL;
+            } else {
+                opq->itf            = *itf;
+                opq->itfParam       = itfParam;
+            }
         }
         if(optDstBlocksTotalSz != NULL){
             *optDstBlocksTotalSz = opq->state.idxsTotalSz;
@@ -308,11 +317,11 @@ STScnAbsPtr ScnMemElastic_malloc(ScnMemElasticRef ref, const ScnUI32 usableSz, S
             ScnMemBlockRef block = ScnMemBlock_alloc(opq->ctx);
             STScnAbsPtr ptrAfterEnd = STScnAbsPtr_Zero;
             STScnMemBlockCfg bCfg = STScnMemBlockCfg_Zero;
-            bCfg.idxZeroIsValid = (opq->blocks.use == 0 ? opq->cfg.idxZeroIsValid : ScnTRUE);
+            bCfg.isIdxZeroValid = (opq->blocks.use == 0 ? opq->cfg.isIdxZeroValid : ScnTRUE);
             bCfg.sizeAlign  = opq->cfg.sizeAlign;
             bCfg.idxsAlign  = opq->cfg.idxsAlign;
-            bCfg.size       = ScnMemElastic_lcm_(((usableSz + (bCfg.idxZeroIsValid ? 0 : bCfg.idxsAlign) + bCfg.idxsAlign - 1) / bCfg.idxsAlign * bCfg.idxsAlign), bCfg.sizeAlign);
-            if(ScnMemBlock_isNull(block) || !ScnMemBlock_prepare(block, &bCfg, &ptrAfterEnd)){
+            bCfg.size       = ScnMemElastic_lcm_(((usableSz + (bCfg.isIdxZeroValid ? 0 : bCfg.idxsAlign) + bCfg.idxsAlign - 1) / bCfg.idxsAlign * bCfg.idxsAlign), bCfg.sizeAlign);
+            if(ScnMemBlock_isNull(block) || !ScnMemBlock_prepare(block, &bCfg, (opq->itf.malloc != NULL ? &opq->itf : NULL), opq->itfParam, &ptrAfterEnd)){
                 ScnMemBlock_releaseAndNull(&block);
             } else {
                 STScnMemElasticBlock b = STScnMemElasticBlock_Zero;

@@ -27,7 +27,7 @@ typedef struct STScnMemElasticCfg {
     ScnUI32 sizeMax;        //max allowed size in bytes (0 is infinite)
     ScnUI32 sizeAlign;      //whole memory block size alignment
     ScnUI32 idxsAlign;      //individual pointers alignment
-    ScnBOOL idxZeroIsValid; //idx=0 is an assignable address
+    ScnBOOL isIdxZeroValid; //idx=0 is an assignable address
 } STScnMemElasticCfg;
 
 //ScnMemElasticRef
@@ -38,7 +38,7 @@ SCN_REF_STRUCT_METHODS_DEC(ScnMemElastic)
 
 //
 
-ScnBOOL     ScnMemElastic_prepare(ScnMemElasticRef ref, const STScnMemElasticCfg* cfg, ScnUI32* optDstBlocksTotalSz);
+ScnBOOL     ScnMemElastic_prepare(ScnMemElasticRef ref, const STScnMemElasticCfg* cfg, STScnMemBlockAllocItf* itf, void* itfParam, ScnUI32* optDstBlocksTotalSz);
 ScnBOOL     ScnMemElastic_hasPtrs(ScnMemElasticRef ref); //allocations made?
 ScnUI32     ScnMemElastic_getAddressableSize(ScnMemElasticRef ref); //includes the address zero
 STScnRangeU ScnMemElastic_getUsedAddressesRng(ScnMemElasticRef ref); //range that covers all allocated addresses index

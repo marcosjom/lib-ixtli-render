@@ -95,7 +95,7 @@ ScnBOOL ScnBuffer_prepare(ScnBufferRef ref, ScnGpuDeviceRef gpuDev, const ScnUI3
     if(cfg != NULL && ammRenderSlots > 0 && ScnMemElastic_isNull(opq->mem) && opq->slots.arr == NULL && !ScnGpuDevice_isNull(gpuDev)){
         ScnUI32 totalSz = 0;
         ScnMemElasticRef mem = ScnMemElastic_alloc(opq->ctx);
-        if(ScnMemElastic_prepare(mem, &cfg->mem, &totalSz)){
+        if(ScnMemElastic_prepare(mem, &cfg->mem, NULL, NULL, &totalSz)){
             STScnBufferSlot* slots = ScnContext_malloc(opq->ctx, sizeof(STScnBufferSlot) * ammRenderSlots, SCN_DBG_STR("ScnBuffer_prepare::slots"));
             if(slots != NULL){
                 //slots (render)

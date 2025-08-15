@@ -27,12 +27,12 @@ typedef struct STScnMemBlockPtr {
 
 //STScnAbsPtr, abstract pointer
 
-#define STScnAbsPtr_Zero { NULL, 0 }
+#define STScnAbsPtr_Zero { NULL, 0, NULL }
 
 typedef struct STScnAbsPtr {
     void*       ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
     ScnUI32     idx;    //abstract address
-    //Note: possible 4-bytes padding here.
+    void*       itfParam; //object to wich the memory block belongs (the ScnMemBlock itself if no custom itf was provided)
 } STScnAbsPtr;
 
 //STScnMemBlockCfg
@@ -43,10 +43,10 @@ typedef struct STScnMemBlockCfg {
     ScnUI32 size;           //ammount of bytes allocable (including the idx-0)
     ScnUI32 sizeAlign;      //whole memory block size alignment
     ScnUI32 idxsAlign;      //individual pointers alignment
-    ScnBOOL idxZeroIsValid; //idx=0 is an assignable address
+    ScnBOOL isIdxZeroValid; //idx=0 is an assignable address, if not, the first assignable address is 'idxsAlign * 1'.
 } STScnMemBlockCfg;
 
-//STScnGpuBufferApiItf
+//STScnMemPushPtrsItf
 
 #define STScnMemPushPtrsItf_Zero  { NULL }
 
@@ -54,13 +54,22 @@ typedef struct STScnMemPushPtrsItf {
     ScnBOOL (*pushBlockPtrs)(void* data, const ScnUI32 rootIndex, const void* rootAddress, const STScnMemBlockPtr* const ptrs, const ScnUI32 ptrsSz);
 } STScnMemPushPtrsItf;
 
+//STScnMemBlockItf
+
+#define STScnMemBlockAllocItf_Zero  { NULL, NULL }
+
+typedef struct STScnMemBlockAllocItf {
+    void*   (*malloc)(const ScnUI32 size, const char* dbgHintStr, void* itfParam);
+    void    (*free)(void* ptr, void* itfParam);
+} STScnMemBlockAllocItf;
+
 //ScnMemBlockRef
 
 #define ScnMemBlockRef_Zero   ScnObjRef_Zero
 
 SCN_REF_STRUCT_METHODS_DEC(ScnMemBlock)
 
-ScnBOOL     ScnMemBlock_prepare(ScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STScnAbsPtr* dstPtrAfterEnd);
+ScnBOOL     ScnMemBlock_prepare(ScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STScnMemBlockAllocItf* itf, void* itfParam, STScnAbsPtr* dstPtrAfterEnd);
 ScnBOOL     ScnMemBlock_hasPtrs(ScnMemBlockRef ref); //allocations made?
 ScnUI32     ScnMemBlock_getAddressableSize(ScnMemBlockRef ref); //includes the address zero
 STScnAbsPtr ScnMemBlock_getStarAddress(ScnMemBlockRef ref); //includes the address zero

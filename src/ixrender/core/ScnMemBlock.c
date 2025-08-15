@@ -59,14 +59,22 @@ typedef struct STScnMemBlockState {
     ScnUI32     szSmallestMallocFailed; //for 'ScnMemBlock_malloc' early return
 } STScnMemBlockState;
 
+
+//default STScnMemBlockAllocItf methods
+
+void*   ScnMemBlock_def_malloc(const ScnUI32 size, const char* dbgHintStr, void* itfParam);
+void    ScnMemBlock_def_free(void* ptr, void* itfParam);
+
 //STScnMemBlockOpq
 
 typedef struct STScnMemBlockOpq {
-    ScnContextRef       ctx;
-    ScnMutexRef         mutex;
-    STScnMemBlockChunk  chunk;
-    STScnMemBlockCfg    cfg;
-    STScnMemBlockState  state;
+    ScnContextRef           ctx;
+    ScnMutexRef             mutex;
+    STScnMemBlockChunk      chunk;
+    STScnMemBlockCfg        cfg;
+    STScnMemBlockAllocItf   itf;
+    void*                   itfParam;
+    STScnMemBlockState      state;
     ScnArraySortedStruct(ptrs, STScnMemBlockPtr); //returned by 'ScnMemBlock_malloc'
     ScnArraySortedStruct(gaps, STScnMemBlockGap);
 } STScnMemBlockOpq;
@@ -92,7 +100,9 @@ void ScnMemBlock_destroyOpq(void* obj){
     //
     {
         if(opq->chunk.ptr != NULL){
-            ScnContext_mfree(opq->ctx, opq->chunk.ptr);
+            if(opq->itf.free != NULL){
+                (*opq->itf.free)(opq->chunk.ptr, opq->itfParam);
+            }
             opq->chunk.ptr    = NULL;
         }
         ScnMemory_setZeroSt(opq->chunk);
@@ -115,24 +125,43 @@ ScnBOOL ScnMemBlock_validateIndexLockepOpq_(STScnMemBlockOpq* opq);
 
 //
 
-ScnBOOL ScnMemBlock_prepare(ScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STScnAbsPtr* dstPtrAfterEnd){
+ScnBOOL ScnMemBlock_prepare(ScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STScnMemBlockAllocItf* pItf, void* pItfParam, STScnAbsPtr* dstPtrAfterEnd){
     ScnBOOL r = ScnFALSE;
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    STScnMemBlockAllocItf itf = STScnMemBlockAllocItf_Zero;
+    void* itfParam      = NULL;
+    if(pItf != NULL){
+        //use provided allocator
+        itf             = *pItf;
+        itfParam        = pItfParam;
+    } else {
+        //use default allocator (this object's ScnContext)
+        itf.malloc      = ScnMemBlock_def_malloc;
+        itf.free        = ScnMemBlock_def_free;
+        itfParam        = opq;
+    }
+    if(itf.malloc == NULL || itf.free == NULL){
+        //missing parameters
+        return r;
+    }
     //
     ScnMutex_lock(opq->mutex);
     if(cfg != NULL && opq->chunk.ptr == NULL){
+        
         const ScnUI32 idxsAlign = (cfg->idxsAlign > 0 ? cfg->idxsAlign : 4);   //individual pointers alignment
         const ScnUI32 sizeAlign = (cfg->sizeAlign > 0 ? cfg->sizeAlign : idxsAlign > 0 ? idxsAlign : 4);   //whole memory block size alignment
         STScnMemBlockChunk chunkN = STScnMemBlockChunk_Zero;
-        chunkN.rngStart     = (cfg->idxZeroIsValid ? 0 : idxsAlign);
+        chunkN.rngStart     = (cfg->isIdxZeroValid ? 0 : idxsAlign);
         chunkN.rngAfterEnd  = (cfg->size + idxsAlign - 1) / idxsAlign * idxsAlign;
         chunkN.ptrSz        = (chunkN.rngAfterEnd + sizeAlign - 1) / sizeAlign * sizeAlign;
-        chunkN.ptr          = (ScnBYTE*)ScnContext_malloc(opq->ctx, chunkN.ptrSz, SCN_DBG_STR("ScnMemBlock_prepare::chunkN.ptr"));
+        chunkN.ptr          = (*itf.malloc)(chunkN.ptrSz, SCN_DBG_STR("ScnMemBlock_prepare::chunkN.ptr"), itfParam);
         if(chunkN.ptr != NULL){
             //copy chunk
             {
                 if(opq->chunk.ptr != NULL){
-                    ScnContext_mfree(opq->ctx, opq->chunk.ptr);
+                    if(opq->itf.free != NULL){
+                        (*opq->itf.free)(opq->chunk.ptr, opq->itfParam);
+                    }
                     opq->chunk.ptr = NULL;
                 }
                 opq->chunk = chunkN;
@@ -140,6 +169,8 @@ ScnBOOL ScnMemBlock_prepare(ScnMemBlockRef ref, const STScnMemBlockCfg* cfg, STS
             //copy cfg
             {
                 opq->cfg            = *cfg;
+                opq->itf            = itf;
+                opq->itfParam       = itfParam;
                 //ScnStruct_stRelease(ScnMemBlockCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
                 //ScnStruct_stClone(ScnMemBlockCfg_getSharedStructMap(), cfg, sizeof(*cfg), &opq->cfg, sizeof(opq->cfg));
                 opq->cfg.sizeAlign  = sizeAlign;
@@ -188,7 +219,7 @@ ScnUI32 ScnMemBlock_getAddressableSize(ScnMemBlockRef ref){
 
 STScnAbsPtr ScnMemBlock_getStarAddress(ScnMemBlockRef ref){ //includes the address zero
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    return (STScnAbsPtr){ opq->chunk.ptr, 0 };
+    return (STScnAbsPtr){ opq->chunk.ptr, 0, opq->itfParam };
 }
 
 STScnRangeU ScnMemBlock_getUsedAddressesRng(ScnMemBlockRef ref){ //highest allocated address index
@@ -216,6 +247,7 @@ STScnAbsPtr ScnMemBlock_malloc(ScnMemBlockRef ref, const ScnUI32 usableSz){
         const ScnUI32 sz = (usableSz + opq->cfg.idxsAlign - 1) / opq->cfg.idxsAlign * opq->cfg.idxsAlign;
         if(sz <= opq->state.szAvail && (opq->state.szSmallestMallocFailed == 0 || sz < opq->state.szSmallestMallocFailed)){
             //search for a gap
+            ScnBOOL ptrFnd = ScnFALSE;
             STScnMemBlockGap* gStart = opq->gaps.arr;
             STScnMemBlockGap* g = gStart;
             const STScnMemBlockGap* gAfterEnd = g + opq->gaps.use;
@@ -239,13 +271,15 @@ STScnAbsPtr ScnMemBlock_malloc(ScnMemBlockRef ref, const ScnUI32 usableSz){
                     opq->state.szAvail -= sz;
                     r.idx   = (ScnUI32)((ScnBYTE*)ptr.ptr - opq->chunk.ptr);
                     r.ptr   = ptr.ptr;
+                    r.itfParam = opq->itfParam;
+                    ptrFnd  = ScnTRUE;
                     break;
                 }
                 //next
                 g++;
             }
             //keep track of last failed 'ScnMemBlock_malloc'
-            if(r.ptr == NULL && opq->state.szSmallestMallocFailed > sz){
+            if(!ptrFnd && opq->state.szSmallestMallocFailed > sz){
                 opq->state.szSmallestMallocFailed = sz;
             }
 #           ifdef SCN_ASSERTS_ACTIVATED
@@ -428,3 +462,14 @@ ScnBOOL ScnMemBlock_validateIndex(ScnMemBlockRef ref){
     ScnMutex_unlock(opq->mutex);
     return r;
 }
+
+//default STScnMemBlockAllocItf methods
+
+void* ScnMemBlock_def_malloc(const ScnUI32 size, const char* dbgHintStr, void* itfParam){
+    return ScnContext_malloc(((STScnMemBlockOpq*)itfParam)->ctx, size, dbgHintStr);
+}
+
+void ScnMemBlock_def_free(void* ptr, void* itfParam){
+    ScnContext_mfree(((STScnMemBlockOpq*)itfParam)->ctx, ptr);
+}
+
