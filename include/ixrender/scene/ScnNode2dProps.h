@@ -28,10 +28,13 @@ typedef struct STScnNode2dProps {
 } STScnNode2dProps;
 
 SC_INLN STScnGpuModelProps2d ScnNode2dProps_toGpuTransform(const STScnNode2dProps* const obj){
-    return (STScnGpuModelProps2d){
-        obj->c8
-        , ScnMatrix2D_fromTransforms((const STScnPoint2D){ obj->tform.tx, obj->tform.ty }, DEG_2_RAD(obj->tform.deg), (const STScnSize2D){ obj->tform.sx, obj->tform.sy })
-    };
+    return SCN_ST(STScnGpuModelProps2d,
+        {
+            obj->c8
+            , ScnMatrix2D_fromTransforms(SCN_ST(STScnPoint2D, { obj->tform.tx, obj->tform.ty }), DEG_2_RAD(obj->tform.deg), SCN_ST(STScnSize2D, { obj->tform.sx, obj->tform.sy }))
+            , STScnGpuModelProps2d_Extra_Zero
+        }
+    );
 }
 
 #ifdef __cplusplus

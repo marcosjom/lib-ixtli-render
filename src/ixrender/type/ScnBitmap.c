@@ -100,7 +100,7 @@ STScnRectI ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI pDstP
     } else if((pSrcRect.x + pSrcRect.width) <= 0 || (pSrcRect.y + pSrcRect.height) <= 0){
         //nothing to copy from source
         return (STScnRectI){ 0, 0, 0, 0 };
-    } else if(pSrcRect.x >= srcProps->size.width || pSrcRect.y >= srcProps->size.height){
+    } else if(pSrcRect.x >= (ScnSI32)srcProps->size.width || pSrcRect.y >= (ScnSI32)srcProps->size.height){
         //nothing to copy from source
         return (STScnRectI){ 0, 0, 0, 0 };
     }
@@ -108,28 +108,28 @@ STScnRectI ScnBitmap_pasteBitmapData(ScnBitmapRef ref, const STScnPoint2DI pDstP
     STScnRectI srcRectNorm = pSrcRect;
     if(srcRectNorm.x < 0){ srcRectNorm.width += srcRectNorm.x; srcRectNorm.x = 0; }
     if(srcRectNorm.y < 0){ srcRectNorm.height += srcRectNorm.y; srcRectNorm.y = 0; }
-    if((srcRectNorm.x + srcRectNorm.width) > srcProps->size.width) { srcRectNorm.width = srcProps->size.width - srcRectNorm.x; }
-    if((srcRectNorm.y + srcRectNorm.height) > srcProps->size.height) { srcRectNorm.height = srcProps->size.height - srcRectNorm.y; }
+    if((srcRectNorm.x + srcRectNorm.width) > (ScnSI32)srcProps->size.width) { srcRectNorm.width = (ScnSI32)srcProps->size.width - srcRectNorm.x; }
+    if((srcRectNorm.y + srcRectNorm.height) > (ScnSI32)srcProps->size.height) { srcRectNorm.height = (ScnSI32)srcProps->size.height - srcRectNorm.y; }
     //
     ScnMutex_lock(opq->mutex);
     if((pDstPos.x + srcRectNorm.width) <= 0 || (pDstPos.y + srcRectNorm.height) <= 0){
         //nothing top copy to dst
         r = (STScnRectI){ 0, 0, 0, 0 };
-    } else if(pDstPos.x >= opq->props.size.width || pDstPos.y >= opq->props.size.height){
+    } else if(pDstPos.x >= (ScnSI32)opq->props.size.width || pDstPos.y >= (ScnSI32)opq->props.size.height){
         //nothing top copy to dst
         r = (STScnRectI){ 0, 0, 0, 0 };
     } else {
         STScnPoint2DI dstPosNorm = pDstPos;
         if(dstPosNorm.x < 0){ srcRectNorm.width += dstPosNorm.x; dstPosNorm.x = 0; }
         if(dstPosNorm.y < 0){ srcRectNorm.height += dstPosNorm.y; dstPosNorm.y = 0; }
-        if((dstPosNorm.x + srcRectNorm.width) > opq->props.size.width) { srcRectNorm.width = opq->props.size.width - dstPosNorm.x; }
-        if((dstPosNorm.y + srcRectNorm.height) > opq->props.size.height) { srcRectNorm.height = opq->props.size.height - dstPosNorm.y; }
+        if((dstPosNorm.x + srcRectNorm.width) > (ScnSI32)opq->props.size.width) { srcRectNorm.width = (ScnSI32)opq->props.size.width - dstPosNorm.x; }
+        if((dstPosNorm.y + srcRectNorm.height) > (ScnSI32)opq->props.size.height) { srcRectNorm.height = (ScnSI32)opq->props.size.height - dstPosNorm.y; }
         SCN_ASSERT(dstPosNorm.x >= 0 && dstPosNorm.y >= 0 && dstPosNorm.x < opq->props.size.width && dstPosNorm.y < opq->props.size.height)
         SCN_ASSERT(srcRectNorm.width > 0 && srcRectNorm.height > 0)
         SCN_ASSERT(srcRectNorm.x >= 0 && srcRectNorm.y >= 0 && (srcRectNorm.x + srcRectNorm.width) <= srcProps->size.width && (srcRectNorm.y + srcRectNorm.height) <= srcProps->size.height)
         if(opq->props.color == srcProps->color){
             //copy
-            if(dstPosNorm.x == 0 && srcRectNorm.width == opq->props.size.width && opq->props.bytesPerLine == srcProps->bytesPerLine){
+            if(dstPosNorm.x == 0 && srcRectNorm.width == (ScnSI32)opq->props.size.width && opq->props.bytesPerLine == srcProps->bytesPerLine){
                 //full lines memcpy
                 SCN_ASSERT(pSrcRect.height <= opq->props.size.height);
                 ScnMemcpy(opq->data, srcData, opq->props.bytesPerLine * pSrcRect.height);

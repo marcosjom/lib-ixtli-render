@@ -14,15 +14,11 @@
 extern "C" {
 #endif
 
-typedef enum ENScnCompareMode {
-    ENScnCompareMode_Equal = 0,
-    ENScnCompareMode_Lower,
-    ENScnCompareMode_LowerOrEqual,
-    ENScnCompareMode_Greater,
-    ENScnCompareMode_GreaterOrEqual
-} ENScnCompareMode;
-
-typedef ScnBOOL (*ScnCompareFunc)(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz);
+//Signature of methods used to compare two structs or variables. Used for ordered arrays.
+//Returns:  - zero if 'data1 == data2'
+//          - a positive value if 'data1 > data2'
+//          - a negative value otherwise ('data1 < data2' or invalid input)
+typedef ScnSI32 (*ScnCompareFunc)(const void* data1, const void* data2, const ScnUI32 dataSz);
 
 #ifdef __cplusplus
 } //extern "C"

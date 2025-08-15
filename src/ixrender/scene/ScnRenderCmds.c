@@ -231,20 +231,13 @@ void ScnRenderJobObj_destroy(STScnRenderJobObj* obj){
     }
 }
 
-ScnBOOL ScnCompare_ScnRenderJobObj(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz){
+ScnSI32 ScnCompare_ScnRenderJobObj(const void* data1, const void* data2, const ScnUI32 dataSz){
     SCN_ASSERT(dataSz == sizeof(STScnRenderJobObj))
     if(dataSz == sizeof(STScnRenderJobObj)){
         const STScnRenderJobObj* d1 = (STScnRenderJobObj*)data1;
         const STScnRenderJobObj* d2 = (STScnRenderJobObj*)data2;
-        switch (mode) {
-            case ENScnCompareMode_Equal: return d1->objRef.ptr == d2->objRef.ptr;
-            case ENScnCompareMode_Lower: return d1->objRef.ptr < d2->objRef.ptr;
-            case ENScnCompareMode_LowerOrEqual: return d1->objRef.ptr <= d2->objRef.ptr;
-            case ENScnCompareMode_Greater: return d1->objRef.ptr > d2->objRef.ptr;
-            case ENScnCompareMode_GreaterOrEqual: return d1->objRef.ptr >= d2->objRef.ptr;
-            default: SCN_ASSERT(ScnFALSE) break;
-        }
+        return (d1->objRef.ptr < d2->objRef.ptr ? -1 : d1->objRef.ptr > d2->objRef.ptr ? 1 : 0);
     }
-    return ScnFALSE;
+    return -2;
 }
 

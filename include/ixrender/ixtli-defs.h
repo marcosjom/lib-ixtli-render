@@ -97,6 +97,13 @@
 
 //Helpers
 
+//struct inline-declaration
+#if defined(__cplusplus)
+#    define SCN_ST(TYPE, ...)    TYPE   __VA_ARGS__  //C++ style:  STType  { 0, 1, 2 }
+#else
+#    define SCN_ST(TYPE, ...)    (TYPE) __VA_ARGS__  //C style:   (STType) { 0, 1, 2 }
+#endif
+
 #define ScnMemory_setZeroSt(ST)     ScnMemset(&(ST), 0, sizeof(ST))
 
 #define SCN_ITF_SET_MISSING_METHOD_TO_NOP(ITF, ITF_NAME, M_NAME) \

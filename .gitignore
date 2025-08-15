@@ -5,4 +5,22 @@ xcuserdata
 
 bin
 tmp
+.vs
+
 /projects/xcode/ixtli-render-demos/ixtli-render-demos.xcodeproj/project.xcworkspace
+*.user
+/projects/visual-studio/ixtli-render-lib/x64
+/projects/visual-studio/x64
+
+
+$(SolutionDir)..\..\bin\win\$(Configuration)\$(Platform)\
+$(SolutionDir)..\..\tmp\win\$(Configuration)\$(Platform)\$(ProjectName)\
+
+
+
+D3D12_FILTER_MIN_MAG_MIP_POINT
+D3D12_FILTER_MIN_MAG_MIP_LINEAR
+
+D3D12_FILTER_MIN_POINT_MAG_MIP_LINEAR
+D3D12_FILTER_MIN_LINEAR_MAG_MIP_POINT
+demos/Thumbs.db

@@ -29,13 +29,13 @@ typedef enum ENScnBitmapColor {
     ENScnBitmapColor_Count
 } ENScnBitmapColor;
 
-#define STScnBitmapProps_Zero   { ENScnBitmapColor_undef, STScnSize2DI_Zero, 0, 0 }
+#define STScnBitmapProps_Zero   { ENScnBitmapColor_undef, STScnSize2DU16_Zero, 0, 0 }
 
 typedef struct STScnBitmapProps {
     ENScnBitmapColor    color;
-    STScnSize2DI        size;
-    ScnSI32             bitsPerPx;
-    ScnSI32             bytesPerLine;
+    STScnSize2DU16      size;
+    ScnUI16             bitsPerPx;
+    ScnUI16             bytesPerLine;
 } STScnBitmapProps;
 
 STScnBitmapProps ScnBitmapProps_build(const ScnSI32 width, const ScnSI32 height, const ENScnBitmapColor color);

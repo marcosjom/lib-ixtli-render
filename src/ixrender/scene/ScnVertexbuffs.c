@@ -52,7 +52,7 @@ ScnBOOL ScnVertexbuffs_prepare(ScnVertexbuffsRef ref, const ScnVertexbuffRef* vB
         r = ScnTRUE;
         //validate
         {
-            ScnSI32 i; for(i = 0; r && i < vBuffsSz && i < ENScnVertexType_Count; i++){
+            ScnUI32 i; for(i = 0; r && i < vBuffsSz && i < ENScnVertexType_Count; i++){
                 if(!ScnVertexbuff_isNull(vBuffs[i])){
                     const ScnUI32 szPerRecord = ScnVertexbuff_getSzPerRecord(vBuffs[i]);
                     ScnUI32 szPerRecordReq = 0;
@@ -83,7 +83,7 @@ ScnBOOL ScnVertexbuffs_prepare(ScnVertexbuffsRef ref, const ScnVertexbuffRef* vB
             }
             //set
             {
-                ScnSI32 i; for(i = 0; i < vBuffsSz && i < ENScnVertexType_Count; i++){
+                ScnUI32 i; for(i = 0; i < vBuffsSz && i < ENScnVertexType_Count; i++){
                     ScnVertexbuff_set(&opq->vBuffs[i], vBuffs[i]);
                 }
             }

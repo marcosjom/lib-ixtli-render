@@ -16,14 +16,14 @@ extern "C" {
 
 #define ScnColor_areEqual(ONE, OTHER)    ((ONE).r == (OTHER).r && (ONE).g == (OTHER).g && (ONE).b == (OTHER).b && (ONE).a == (OTHER).a)
 
-#define STScnColor_Zero  { 0.f, 0.f, 0.f, 0.f }
+#define STScnColor_Zero  { { { 0.f, 0.f, 0.f, 0.f } } }
 
 typedef struct STScnColor {
     union {
+        ScnFLOAT c[4];
         struct {
             ScnFLOAT r, g, b, a;
         };
-        ScnFLOAT c[4];
     };
 } STScnColor;
 
@@ -52,16 +52,16 @@ typedef struct STScnColor {
 #define ScnColor8_getB(V32)          (((V32) / SCN_COLOR8_B_BIT_FIRST) % (SCN_COLOR8_B_MSK_MAX + 1u))
 #define ScnColor8_getA(V32)          (((V32) / SCN_COLOR8_A_BIT_FIRST) % (SCN_COLOR8_A_MSK_MAX + 1u))
 
-#define STScnColor8_Zero  { 0, 0, 0, 0 }
-#define STScnColor8_255   { 255, 255, 255, 255 }
+#define STScnColor8_Zero  { { { 0, 0, 0, 0 } } }
+#define STScnColor8_255   { { { 255, 255, 255, 255 } } }
 
 typedef struct STScnColor8 {
     union {
+        ScnUI8 c[4];
+        ScnUI32 v32;
         struct {
             ScnUI8 r, g, b, a;
         };
-        ScnUI8 c[4];
-        ScnUI32 v32;
     };
 } STScnColor8;
 

@@ -27,7 +27,7 @@ typedef struct STScnRange {
 } STScnRange;
 
 #ifndef SNC_COMPILING_SHADER
-ScnBOOL ScnCompare_STScnRange(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz);
+ScnSI32 ScnCompare_STScnRange(const void* data1, const void* data2, const ScnUI32 dataSz);
 #endif
 
 //STScnRangeI
@@ -40,7 +40,7 @@ typedef struct STScnRangeI {
 } STScnRangeI;
 
 #ifndef SNC_COMPILING_SHADER
-ScnBOOL ScnCompare_STScnRangeI(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz);
+ScnSI32 ScnCompare_STScnRangeI(const void* data1, const void* data2, const ScnUI32 dataSz);
 #endif
 
 //STScnRangeU
@@ -53,7 +53,7 @@ typedef struct STScnRangeU {
 } STScnRangeU;
 
 #ifndef SNC_COMPILING_SHADER
-ScnBOOL ScnCompare_STScnRangeU(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz);
+ScnSI32 ScnCompare_STScnRangeU(const void* data1, const void* data2, const ScnUI32 dataSz);
 #endif
 
 // STScnAABBox3d

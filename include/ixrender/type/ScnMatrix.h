@@ -16,11 +16,13 @@
 extern "C" {
 #endif
 
-#define STScnMatrix2D_Zero        { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f }
-#define STScnMatrix2D_Identity    { 1.f, 0.f, 0.f, 0.f, 1.f, 0.f }
+#define STScnMatrix2D_Zero        { { { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f } } }
+#define STScnMatrix2D_Identity    { { { 1.f, 0.f, 0.f, 0.f, 1.f, 0.f } } }
 
 typedef struct STScnMatrix2D {
     union {
+        ScnFLOAT e[6];     //for a 3x3 matrix, the last 3 elemments are allways asummed to be [0, 0, 1].
+        ScnFLOAT r[3][2];  //for a 3x3 matrix, the last 3 elemments are allways asummed to be [0, 0, 1].
         struct {
             //row 0
             ScnFLOAT e00;
@@ -50,8 +52,6 @@ typedef struct STScnMatrix2D {
             //0.0f
             //1.0f
         };
-        ScnFLOAT r[3][2];  //for a 3x3 matrix, the last 3 elemments are allways asummed to be [0, 0, 1].
-        ScnFLOAT e[6];     //for a 3x3 matrix, the last 3 elemments are allways asummed to be [0, 0, 1].
     };
 } STScnMatrix2D;
 
@@ -102,16 +102,20 @@ SC_INLN void ScnMatrix2D_rotateDeg(STScnMatrix2D* obj, const ScnFLOAT deg){
 
 #ifndef SNC_COMPILING_SHADER
 SC_INLN STScnMatrix2D ScnMatrix2D_multiply(const STScnMatrix2D* obj, const STScnMatrix2D* other){
-    return (STScnMatrix2D){
-        //row 0
-        (obj->e00 * other->e00) + (obj->e01 * other->e10) /*allways zero: + (obj->e02 * other->e20)*/
-        , (obj->e00 * other->e01) + (obj->e01 * other->e11) /*allways zero: + (obj->e02 * other->e21)*/
-        , (obj->e00 * other->e02) + (obj->e01 * other->e12) + (obj->e02 /*siempre 1: * other->e22*/)
-        //row 1
-        , (obj->e10 * other->e00) + (obj->e11 * other->e10) /*allways cero: + (obj->e12 * other->e20)*/
-        , (obj->e10 * other->e01) + (obj->e11 * other->e11) /*allways cero: + (obj->e12 * other->e21)*/
-        , (obj->e10 * other->e02) + (obj->e11 * other->e12) + (obj->e12 /*allways 1: * other->e22*/)
-    };
+    return SCN_ST(STScnMatrix2D, {
+        { //union
+            { //array
+                //row 0
+                (obj->e00 * other->e00) + (obj->e01 * other->e10) /*allways zero: + (obj->e02 * other->e20)*/
+                , (obj->e00 * other->e01) + (obj->e01 * other->e11) /*allways zero: + (obj->e02 * other->e21)*/
+                , (obj->e00 * other->e02) + (obj->e01 * other->e12) + (obj->e02 /*siempre 1: * other->e22*/)
+                //row 1
+                , (obj->e10 * other->e00) + (obj->e11 * other->e10) /*allways cero: + (obj->e12 * other->e20)*/
+                , (obj->e10 * other->e01) + (obj->e11 * other->e11) /*allways cero: + (obj->e12 * other->e21)*/
+                , (obj->e10 * other->e02) + (obj->e11 * other->e12) + (obj->e12 /*allways 1: * other->e22*/)
+            }
+        }
+    });
 }
 #endif
 
@@ -128,22 +132,27 @@ SC_INLN STScnMatrix2D ScnMatrix2D_inverse(const STScnMatrix2D* obj){
     const ScnFLOAT vDet = ((obj->e00 * obj->e11) - (obj->e01 * obj->e10));
     //NBASSERT(vDet != 0.0f && vDet != -0.0f) NBASSERT(vDet == vDet)
     if (vDet != 0.0f && vDet != -0.0f && vDet == vDet) {
-        return (STScnMatrix2D){
-            //row 0
-            ((obj->e11 /** obj->e22*/) /*- (obj->e21 * obj->e12) always zero*/) / vDet
-            , (/*(obj->e02 * obj->e21) always zero*/0.0f - (/*obj->e22 **/ obj->e01)) / vDet
-            , ((obj->e01 * obj->e12) - (obj->e11 * obj->e02)) / vDet
-            //row 1
-            , (/*(obj->e12 * obj->e20) always zero*/0.0f - (/*obj->e22 **/ obj->e10)) / vDet
-            , ((obj->e00 /** obj->e22*/) /*- (obj->e20 * obj->e02) always zero*/) / vDet
-            , ((obj->e02 * obj->e10) - (obj->e12 * obj->e00)) / vDet
-            //row 2
-            //, ((obj->e10 * obj->e21) - (obj->e20 * obj->e11)) / vDet;
-            //, ((obj->e01 * obj->e20) - (obj->e21 * obj->e00)) / vDet;
-            //, ((obj->e00 * obj->e11) - (obj->e10 * obj->e01)) / vDet;
-        };
+        return SCN_ST(STScnMatrix2D, 
+            {
+                { //union
+                    { //array
+                        //row 0
+                        ((obj->e11 /** obj->e22*/) /*- (obj->e21 * obj->e12) always zero*/) / vDet
+                        , (/*(obj->e02 * obj->e21) always zero*/0.0f - (/*obj->e22 **/ obj->e01)) / vDet
+                        , ((obj->e01 * obj->e12) - (obj->e11 * obj->e02)) / vDet
+                        //row 1
+                        , (/*(obj->e12 * obj->e20) always zero*/0.0f - (/*obj->e22 **/ obj->e10)) / vDet
+                        , ((obj->e00 /** obj->e22*/) /*- (obj->e20 * obj->e02) always zero*/) / vDet
+                        , ((obj->e02 * obj->e10) - (obj->e12 * obj->e00)) / vDet
+                        //row 2
+                        //, ((obj->e10 * obj->e21) - (obj->e20 * obj->e11)) / vDet;
+                        //, ((obj->e01 * obj->e20) - (obj->e21 * obj->e00)) / vDet;
+                        //, ((obj->e00 * obj->e11) - (obj->e10 * obj->e01)) / vDet;
+                    }
+                }
+            });
     }
-    return (STScnMatrix2D)STScnMatrix2D_Zero;
+    return SCN_ST(STScnMatrix2D, STScnMatrix2D_Zero);
 }
 #endif
 
@@ -151,10 +160,16 @@ SC_INLN STScnMatrix2D ScnMatrix2D_inverse(const STScnMatrix2D* obj){
 SC_INLN STScnMatrix2D ScnMatrix2D_fromTransforms(const STScnPoint2D traslation, const ScnFLOAT radRot, const STScnSize2D scale){
     const ScnFLOAT vSin = ScnSinf(radRot);
     const ScnFLOAT vCos = ScnCosf(radRot);
-    return (STScnMatrix2D) {
-        vCos * scale.width, -vSin * scale.height, traslation.x
-        , vSin * scale.width, vCos * scale.height, traslation.y
-    };
+    return SCN_ST(STScnMatrix2D,
+        {
+            { //union
+                {
+                    vCos * scale.width, -vSin * scale.height, traslation.x
+                    , vSin * scale.width, vCos * scale.height, traslation.y
+                }
+            }
+        }
+    );
 }
 #endif
 
@@ -162,10 +177,12 @@ SC_INLN STScnMatrix2D ScnMatrix2D_fromTransforms(const STScnPoint2D traslation, 
 
 #ifndef SNC_COMPILING_SHADER
 SC_INLN STScnPoint2D ScnMatrix2D_applyToPoint(const STScnMatrix2D* obj, const STScnPoint2D p){
-    return (STScnPoint2D) {
-        (obj->e00 * p.x) + (obj->e01 * p.y) + obj->e02
-        , (obj->e10 * p.x) + (obj->e11 * p.y) + obj->e12
-    };
+    return SCN_ST(STScnPoint2D,
+        {
+            (obj->e00 * p.x) + (obj->e01 * p.y) + obj->e02
+            , (obj->e10 * p.x) + (obj->e11 * p.y) + obj->e12
+        }
+    );
 }
 #endif
 

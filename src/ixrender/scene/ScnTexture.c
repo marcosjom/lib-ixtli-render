@@ -319,22 +319,3 @@ void ScnTextureSlot_destroy(STScnTextureSlot* opq){
     ScnGpuTexture_releaseAndNull(&opq->gpuTex);
     ScnContext_releaseAndNull(&opq->ctx);
 }
-
-//STScnRectU16
-
-ScnBOOL ScnCompare_STScnRectU16(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz){
-    SCN_ASSERT(dataSz == sizeof(STScnRectU16))
-    if(dataSz == sizeof(STScnRectU16)){
-        const STScnRectU16* d1 = (STScnRectU16*)data1;
-        const STScnRectU16* d2 = (STScnRectU16*)data2;
-        switch (mode) {
-            case ENScnCompareMode_Equal: return d1->y == d2->y && d1->x == d2->x;
-            case ENScnCompareMode_Lower: return d1->y < d2->y || (d1->y == d2->y && d1->x < d2->x);
-            case ENScnCompareMode_LowerOrEqual: return d1->y < d2->y || (d1->y == d2->y && d1->x <= d2->x);
-            case ENScnCompareMode_Greater: return d1->y > d2->y || (d1->y == d2->y && d1->x > d2->x);
-            case ENScnCompareMode_GreaterOrEqual: return d1->y > d2->y || (d1->y == d2->y && d1->x >= d2->x);
-            default: SCN_ASSERT(ScnFALSE) break;
-        }
-    }
-    return ScnFALSE;
-}

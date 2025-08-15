@@ -50,6 +50,15 @@ typedef struct STScnSize2DI16 {
     ScnSI16    height;
 } STScnSize2DI16;
 
+// STScnSize2DU16
+
+#define STScnSize2DU16_Zero { 0u, 0u }
+
+typedef struct STScnSize2DU16 {
+    ScnUI16    width;
+    ScnUI16    height;
+} STScnSize2DU16;
+
 #ifdef __cplusplus
 } //extern "C"
 #endif

@@ -19,13 +19,13 @@ ScnSI32 ScnArraySorted_indexForNew_(const void* pArr, const ScnSI32 use, const S
     ScnSI32 posStart    = 0;
     ScnSI32 posEnd      = use - 1;
     do {
-        if((*cmpFunc)(ENScnCompareMode_LowerOrEqual, &arr[posEnd * itmSz], itmPtr, itmSz)){
+        if((*cmpFunc)(&arr[posEnd * itmSz], itmPtr, itmSz) <= 0){ //lower-or-equal
             return posEnd + 1;
-        } else if((*cmpFunc)(ENScnCompareMode_GreaterOrEqual, &arr[posStart * itmSz], itmPtr, itmSz)){
+        } else if((*cmpFunc)(&arr[posStart * itmSz], itmPtr, itmSz) >= 0){ //greather-or-equal
             return posStart;
         } else {
             const ScnUI32 posMidd = (posStart + posEnd) / 2;
-            if((*cmpFunc)(ENScnCompareMode_LowerOrEqual, &arr[posMidd * itmSz], itmPtr, itmSz)){
+            if((*cmpFunc)(&arr[posMidd * itmSz], itmPtr, itmSz) <= 0){ //lower-or-equal
                 posStart = posMidd + 1;
             } else {
                 posEnd    = posMidd;
@@ -53,10 +53,10 @@ ScnSI32 ScnArraySorted_indexOf_(const void* pArr, const ScnSI32 use, const ScnSI
     while(posStart <= posEnd){
         posMidd         = posStart + ((posEnd - posStart) / 2);
         dataMidd        = &arr[posMidd * itmSz];
-        if((*cmpFunc)(ENScnCompareMode_Equal, dataMidd, itmPtr, itmSz)){
+        if((*cmpFunc)(dataMidd, itmPtr, itmSz) == 0){ //equals
             return posMidd;
         } else {
-            if((*cmpFunc)(ENScnCompareMode_Lower, itmPtr, dataMidd, itmSz)){
+            if((*cmpFunc)(itmPtr, dataMidd, itmSz) < 0){ //lower
                 posEnd  = posMidd - 1;
             } else {
                 posStart = posMidd + 1;

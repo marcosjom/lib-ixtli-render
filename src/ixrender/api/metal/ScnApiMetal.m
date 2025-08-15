@@ -120,7 +120,7 @@ ScnGpuDeviceRef ScnApiMetal_allocDevice(ScnContextRef ctx, const STScnGpuDeviceC
             } else {
                 ScnBOOL devIsExplicitMatch = ScnFALSE;
                 SCN_PRINTF_INFO("Metal, %d devices found:\n", (int)devs.count);
-                int i; for(i = 0; i < devs.count; i++){
+                ScnUI32 i; for(i = 0; i < devs.count; i++){
                     id<MTLDevice> d = devs[i];
                     SCN_PRINTF_INFO("    ---------\n");
                     SCN_PRINTF_INFO("    Dev#%d/%d: '%s'\n", (i + 1), (int)devs.count, [d.name UTF8String]);
@@ -250,10 +250,10 @@ ScnGpuDeviceRef ScnApiMetal_allocDevice(ScnContextRef ctx, const STScnGpuDeviceC
                 }
             }
             //release (if not consumed)
-            /*if(defLib != nil){
+            if(defLib != nil){
                 [defLib release];
                 defLib = nil;
-            }*/
+            }
         }
         //release (if not consumed)
         if(cmdQueue != nil){
@@ -272,6 +272,10 @@ void ScnApiMetal_device_free(void* pObj){
     STScnApiMetalDevice* obj = (STScnApiMetalDevice*)pObj;
     ScnContextRef ctx = obj->ctx;
     {
+        if(obj->cmdQueue != nil){
+            [obj->cmdQueue release];
+            obj->cmdQueue = nil;
+        }
         if(obj->lib != nil){
             [obj->lib release];
             obj->lib = nil;
@@ -1074,7 +1078,7 @@ ScnBOOL STScnApiMetalRenderStates_load(STScnApiMetalRenderStates* obj, STScnApiM
     {
         id<MTLFunction> vertexFunc = nil;
         id<MTLFunction> fragmtFunc = nil;
-        ScnSI32 i; for(i = 0; i < (sizeof(obj->states) / sizeof(obj->states[0])); ++i){
+        ScnUI32 i; for(i = 0; i < (sizeof(obj->states) / sizeof(obj->states[0])); ++i){
             const char* vertexFuncName = NULL;
             const char* fragmtFuncName = NULL;
             switch (i) {

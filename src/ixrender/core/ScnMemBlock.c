@@ -10,21 +10,14 @@
 
 //STScnMemBlockPtr
 
-ScnBOOL ScnCompare_ScnMemBlockPtr(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz){
+ScnSI32 ScnCompare_ScnMemBlockPtr(const void* data1, const void* data2, const ScnUI32 dataSz){
     SCN_ASSERT(dataSz == sizeof(STScnMemBlockPtr))
     if(dataSz == sizeof(STScnMemBlockPtr)){
         const STScnMemBlockPtr* d1 = (STScnMemBlockPtr*)data1;
         const STScnMemBlockPtr* d2 = (STScnMemBlockPtr*)data2;
-        switch (mode) {
-            case ENScnCompareMode_Equal: return d1->ptr == d2->ptr;
-            case ENScnCompareMode_Lower: return d1->ptr < d2->ptr;
-            case ENScnCompareMode_LowerOrEqual: return d1->ptr <= d2->ptr;
-            case ENScnCompareMode_Greater: return d1->ptr > d2->ptr;
-            case ENScnCompareMode_GreaterOrEqual: return d1->ptr >= d2->ptr;
-            default: SCN_ASSERT(ScnFALSE) break;
-        }
+        return (d1->ptr < d2->ptr ? -1 : d1->ptr > d2->ptr ? 1 : 0);
     }
-    return ScnFALSE;
+    return -2;
 }
 
 //STScnMemBlockGap
@@ -36,21 +29,14 @@ typedef struct STScnMemBlockGap {
     ScnUI32     sz;      //size of gap in bytes
 } STScnMemBlockGap;
 
-ScnBOOL ScnCompare_ScnMemBlockGap(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz){
+ScnSI32 ScnCompare_ScnMemBlockGap(const void* data1, const void* data2, const ScnUI32 dataSz){
     SCN_ASSERT(dataSz == sizeof(STScnMemBlockGap))
     if(dataSz == sizeof(STScnMemBlockGap)){
         const STScnMemBlockGap* d1 = (STScnMemBlockGap*)data1;
         const STScnMemBlockGap* d2 = (STScnMemBlockGap*)data2;
-        switch (mode) {
-            case ENScnCompareMode_Equal: return d1->iStart == d2->iStart;
-            case ENScnCompareMode_Lower: return d1->iStart < d2->iStart;
-            case ENScnCompareMode_LowerOrEqual: return d1->iStart <= d2->iStart;
-            case ENScnCompareMode_Greater: return d1->iStart > d2->iStart;
-            case ENScnCompareMode_GreaterOrEqual: return d1->iStart >= d2->iStart;
-            default: SCN_ASSERT(ScnFALSE) break;
-        }
+        return (d1->iStart < d2->iStart ? -1 : d1->iStart > d2->iStart ? 1 : 0);
     }
-    return ScnFALSE;
+    return -2;
 }
 
 //STScnMemBlockChunk

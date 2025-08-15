@@ -105,7 +105,7 @@ typedef struct STScnRenderJobObj {
 void ScnRenderJobObj_init(STScnRenderJobObj* obj);
 void ScnRenderJobObj_destroy(STScnRenderJobObj* obj);
 //
-ScnBOOL ScnCompare_ScnRenderJobObj(const ENScnCompareMode mode, const void* data1, const void* data2, const ScnUI32 dataSz);
+ScnSI32 ScnCompare_ScnRenderJobObj(const void* data1, const void* data2, const ScnUI32 dataSz);
 
 
 //STScnRenderCmds
@@ -118,7 +118,7 @@ typedef struct STScnRenderCmds {
     ScnMemElasticRef    mPropsScns;     //buffer with scenes properties (viewport, ortho-box)
     ScnMemElasticRef    mPropsMdls;     //buffer with models properties (color, matrices)
     //
-    ScnUI32             stackUse;       //effective use of the stack-array (the array is reused between renders)
+    ScnSI32             stackUse;       //effective use of the stack-array (the array is reused between renders)
     ScnArrayStruct(     stack, STScnRenderFbuffState);   //stack of framebuffers
     ScnArrayStruct(     cmds, STScnRenderCmd);           //cmds sequence
     ScnArraySortedStruct(objs, STScnRenderJobObj);      //unique references of objects using for thias job
