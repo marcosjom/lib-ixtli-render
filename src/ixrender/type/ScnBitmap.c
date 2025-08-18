@@ -19,8 +19,8 @@ typedef struct STScnBitmapOpq {
 
 //
 
-ScnSI32 ScnBitmap_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnBitmapOpq);
+ScnUI32 ScnBitmap_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnBitmapOpq);
 }
 
 void ScnBitmap_initZeroedOpq(ScnContextRef ctx, void* obj) {

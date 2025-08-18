@@ -15,8 +15,8 @@ typedef struct STScnVertexbuffsOpq {
     ScnVertexbuffRef  vBuffs[ENScnVertexType_Count];
 } STScnVertexbuffsOpq;
 
-ScnSI32 ScnVertexbuffs_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnVertexbuffsOpq);
+ScnUI32 ScnVertexbuffs_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnVertexbuffsOpq);
 }
 
 void ScnVertexbuffs_initZeroedOpq(ScnContextRef ctx, void* obj) {

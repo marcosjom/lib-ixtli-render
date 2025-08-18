@@ -81,8 +81,8 @@ typedef struct STScnMemBlockOpq {
 
 //
 
-ScnSI32 ScnMemBlock_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnMemBlockOpq);
+ScnUI32 ScnMemBlock_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnMemBlockOpq);
 }
 
 void ScnMemBlock_initZeroedOpq(ScnContextRef ctx, void* obj) {

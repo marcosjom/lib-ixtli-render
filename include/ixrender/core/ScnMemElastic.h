@@ -47,6 +47,7 @@ STScnAbsPtr ScnMemElastic_getNextContinuousAddress(ScnMemElasticRef ref, const S
 //allocations
 STScnAbsPtr ScnMemElastic_malloc(ScnMemElasticRef ref, const ScnUI32 usableSz, ScnUI32* optDstBlocksTotalSz);
 ScnBOOL     ScnMemElastic_mfree(ScnMemElasticRef ref, const STScnAbsPtr ptr);
+STScnAbsPtr ScnMemElastic_mPtrToBlockPtr(ScnMemElasticRef ref, const STScnAbsPtr ptr); //converts a previously returned pointer fropm elastic address to it's block address.
 //
 void        ScnMemElastic_clear(ScnMemElasticRef ref); //clears the index, all pointers are invalid after this call
 //dbg

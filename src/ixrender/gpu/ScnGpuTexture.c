@@ -19,8 +19,8 @@ typedef struct STScnGpuTextureOpq {
     } api;
 } STScnGpuTextureOpq;
 
-ScnSI32 ScnGpuTexture_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnGpuTextureOpq);
+ScnUI32 ScnGpuTexture_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnGpuTextureOpq);
 }
 
 void ScnGpuTexture_initZeroedOpq(ScnContextRef ctx, void* obj) {

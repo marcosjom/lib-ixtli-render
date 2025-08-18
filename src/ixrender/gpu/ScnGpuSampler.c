@@ -17,8 +17,8 @@ typedef struct STScnGpuSamplerOpq {
     } api;
 } STScnGpuSamplerOpq;
 
-ScnSI32 ScnGpuSampler_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnGpuSamplerOpq);
+ScnUI32 ScnGpuSampler_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnGpuSamplerOpq);
 }
 
 void ScnGpuSampler_initZeroedOpq(ScnContextRef ctx, void* obj) {

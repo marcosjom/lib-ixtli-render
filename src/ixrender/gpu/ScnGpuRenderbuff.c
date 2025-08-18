@@ -24,8 +24,8 @@ typedef struct STScnGpuRenderbuffOpq {
 
 //
 
-ScnSI32 ScnGpuRenderbuff_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnGpuRenderbuffOpq);
+ScnUI32 ScnGpuRenderbuff_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnGpuRenderbuffOpq);
 }
 
 void ScnGpuRenderbuff_initZeroedOpq(ScnContextRef ctx, void* obj) {

@@ -22,8 +22,8 @@ typedef struct STScnFramebuffOpq {
     } binding;
 } STScnFramebuffOpq;
 
-ScnSI32 ScnFramebuff_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnFramebuffOpq);
+ScnUI32 ScnFramebuff_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnFramebuffOpq);
 }
 
 void ScnFramebuff_initZeroedOpq(ScnContextRef ctx, void* obj) {

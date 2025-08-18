@@ -17,8 +17,8 @@ typedef struct STScnGpuFramebuffOpq {
     } api;
 } STScnGpuFramebuffOpq;
 
-ScnSI32 ScnGpuFramebuff_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnGpuFramebuffOpq);
+ScnUI32 ScnGpuFramebuff_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnGpuFramebuffOpq);
 }
 
 void ScnGpuFramebuff_initZeroedOpq(ScnContextRef ctx, void* obj) {

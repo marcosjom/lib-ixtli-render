@@ -47,8 +47,8 @@ typedef struct STScnTextureOpq {
     } slots;
 } STScnTextureOpq;
 
-ScnSI32 ScnTexture_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnTextureOpq);
+ScnUI32 ScnTexture_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnTextureOpq);
 }
 
 void ScnTexture_initZeroedOpq(ScnContextRef ctx, void* obj) {

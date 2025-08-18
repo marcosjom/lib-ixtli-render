@@ -39,8 +39,8 @@ typedef struct STScnVertexbuffOpq {
     } slots;
 } STScnVertexbuffOpq;
 
-ScnSI32 ScnVertexbuff_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnVertexbuffOpq);
+ScnUI32 ScnVertexbuff_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnVertexbuffOpq);
 }
 
 void ScnVertexbuff_initZeroedOpq(ScnContextRef ctx, void* obj) {

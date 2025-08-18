@@ -18,6 +18,7 @@
 #include "ixrender/gpu/ScnGpuRenderbuff.h"
 #include "ixrender/gpu/ScnGpuFramebuff.h"
 #include "ixrender/gpu/ScnGpuDevice.h"
+#include "ixrender/api/ScnApiItf.h"
 #include "ixrender/scene/ScnResourceMode.h"
 #include "ixrender/scene/ScnTransform2d.h"
 #include "ixrender/scene/ScnBuffer.h"
@@ -58,18 +59,6 @@ typedef struct STScnRenderMemCfg {
 typedef struct STScnRenderCfg {
     STScnRenderMemCfg   mem;
 } STScnRenderCfg;
-
-//ScnRenderApiItf
-
-typedef struct STScnApiItf {
-    ScnGpuDeviceRef             (*allocDevice)(ScnContextRef ctx, const STScnGpuDeviceCfg* cfg);
-    STScnGpuDeviceApiItf        dev;    //device
-    STScnGpuBufferApiItf        buff;   //buffers
-    STScnGpuVertexbuffApiItf    vertexBuff;   //vertexBuff
-    STScnGpuTextureApiItf       tex;    //textures
-    STScnGpuRenderbuffApiItf    rbuff;  //render buffers
-    STScnGpuFramebuffApiItf     fbuff;  //framebuffers
-} STScnApiItf;
 
 //ScnRenderRef
 

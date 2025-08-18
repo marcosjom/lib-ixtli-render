@@ -18,8 +18,8 @@ typedef struct STScnGpuBufferOpq {
     } api;
 } STScnGpuBufferOpq;
 
-ScnSI32 ScnGpuBuffer_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnGpuBufferOpq);
+ScnUI32 ScnGpuBuffer_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnGpuBufferOpq);
 }
 
 void ScnGpuBuffer_initZeroedOpq(ScnContextRef ctx, void* obj) {

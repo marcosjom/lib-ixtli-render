@@ -19,8 +19,8 @@ typedef struct STScnModel2dOpq {
 
 //
 
-ScnSI32 ScnModel2d_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnModel2dOpq);
+ScnUI32 ScnModel2d_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnModel2dOpq);
 }
 
 void ScnModel2d_initZeroedOpq(ScnContextRef ctx, void* obj) {

@@ -18,8 +18,8 @@ typedef struct STScnGpuVertexbuffOpq {
     } api;
 } STScnGpuVertexbuffOpq;
 
-ScnSI32 ScnGpuVertexbuff_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnGpuVertexbuffOpq);
+ScnUI32 ScnGpuVertexbuff_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnGpuVertexbuffOpq);
 }
 
 void ScnGpuVertexbuff_initZeroedOpq(ScnContextRef ctx, void* obj) {

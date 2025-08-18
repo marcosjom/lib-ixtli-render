@@ -51,8 +51,8 @@ typedef struct STScnRenderOpq {
 
 //
 
-ScnSI32 ScnRender_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnRenderOpq);
+ScnUI32 ScnRender_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnRenderOpq);
 }
 
 void ScnRender_initZeroedOpq(ScnContextRef ctx, void* obj) {

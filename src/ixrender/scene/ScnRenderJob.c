@@ -21,8 +21,8 @@ typedef struct STScnRenderJobOpq {
 
 //
 
-ScnSI32 ScnRenderJob_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnRenderJobOpq);
+ScnUI32 ScnRenderJob_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnRenderJobOpq);
 }
 
 void ScnRenderJob_initZeroedOpq(ScnContextRef ctx, void* obj) {

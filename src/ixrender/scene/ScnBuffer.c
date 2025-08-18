@@ -48,8 +48,8 @@ typedef struct STScnBufferOpq {
     } slots;
 } STScnBufferOpq;
 
-ScnSI32 ScnBuffer_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnBufferOpq);
+ScnUI32 ScnBuffer_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnBufferOpq);
 }
 
 void ScnBuffer_initZeroedOpq(ScnContextRef ctx, void* obj) {

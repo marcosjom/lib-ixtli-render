@@ -41,8 +41,8 @@ typedef struct STScnMemElasticOpq {
 
 //
 
-ScnSI32 ScnMemElastic_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnMemElasticOpq);
+ScnUI32 ScnMemElastic_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnMemElasticOpq);
 }
 
 void ScnMemElastic_initZeroedOpq(ScnContextRef ctx, void* obj) {
@@ -375,6 +375,27 @@ ScnBOOL ScnMemElastic_mfree(ScnMemElasticRef ref, const STScnAbsPtr ptr){
             }
             SCN_ASSERT(ptr2.idx >= b->idxsSz)
             ptr2.idx -= b->idxsSz;
+            ++b;
+        }
+    }
+    ScnMutex_unlock(opq->mutex);
+    return r;
+}
+
+STScnAbsPtr ScnMemElastic_mPtrToBlockPtr(ScnMemElasticRef ref, const STScnAbsPtr ptr) { //converts a previously returned pointer fropm elastic address to it's block address.
+    STScnAbsPtr r = ptr;
+    STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
+    ScnMutex_lock(opq->mutex);
+    if (opq->cfg.idxsAlign > 0) {
+        //find the idx-at-block of this abstract-idx-at-blocks
+        STScnMemElasticBlock* b = opq->blocks.arr;
+        const STScnMemElasticBlock* bAfterEnd = b + opq->blocks.use;
+        while (b < bAfterEnd) {
+            if (r.idx < b->idxsSz) {
+                break;
+            }
+            SCN_ASSERT(r.idx >= b->idxsSz)
+            r.idx -= b->idxsSz;
             ++b;
         }
     }

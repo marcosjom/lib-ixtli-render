@@ -17,8 +17,8 @@ typedef struct STScnGpuDeviceOpq {
     } api;
 } STScnGpuDeviceOpq;
 
-ScnSI32 ScnGpuDevice_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnGpuDeviceOpq);
+ScnUI32 ScnGpuDevice_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnGpuDeviceOpq);
 }
 
 void ScnGpuDevice_initZeroedOpq(ScnContextRef ctx, void* obj) {

@@ -18,8 +18,8 @@ typedef struct STScnGpuRenderJobOpq {
     } api;
 } STScnGpuRenderJobOpq;
 
-ScnSI32 ScnGpuRenderJob_getOpqSz(void){
-    return (ScnSI32)sizeof(STScnGpuRenderJobOpq);
+ScnUI32 ScnGpuRenderJob_getOpqSz(void){
+    return (ScnUI32)sizeof(STScnGpuRenderJobOpq);
 }
 
 void ScnGpuRenderJob_initZeroedOpq(ScnContextRef ctx, void* obj) {
