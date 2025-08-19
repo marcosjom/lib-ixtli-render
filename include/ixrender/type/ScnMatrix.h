@@ -16,6 +16,15 @@
 extern "C" {
 #endif
 
+//STScnMatrix2D
+
+/** @struct STScnMatrix2D
+ *  @brief 2d matrix that assumes its last row is allways [0, 0, 1].
+ *  @note It allows accessing its components as an e[6] array, r[3][2] array or individual values.
+ *  @var STScnMatrix2D::e[6]
+ *  Values
+ */
+
 #define STScnMatrix2D_Zero        { { { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f } } }
 #define STScnMatrix2D_Identity    { { { 1.f, 0.f, 0.f, 0.f, 1.f, 0.f } } }
 

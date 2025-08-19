@@ -31,6 +31,10 @@ typedef enum ENScnBufferType {
 
 //ScnBufferRef
 
+/** @struct ScnBufferRef
+ *  @brief ScnBuffer shared pointer. An object that stores any payload to be synced-to and used-by the gpu.
+ */
+
 #define ScnBufferRef_Zero   ScnObjRef_Zero
 
 SCN_REF_STRUCT_METHODS_DEC(ScnBuffer)

@@ -11,10 +11,18 @@
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/core/ScnContext.h"
 
+/**
+ * @brief An unordered array.
+ */
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/**
+ * @brief Macro that defines an struct with the necesary variables for an unordered array.
+ */
 #define ScnArrayStruct(NAME, TYPE)     \
     struct { \
         TYPE        *arr; \
@@ -22,6 +30,10 @@ extern "C" {
         ScnSI32     sz;  \
         ScnSI32     growth;  \
     } NAME
+
+/**
+ * @brief Macro that initializes an unordered array.
+ */
 
 #define ScnArray_init(CTX_REF, ARRSTPTR, INITIAL_SZ, GROWTH, ARR_TYPE) \
     { \
@@ -36,6 +48,10 @@ extern "C" {
         (ARRSTPTR)->growth = GROWTH; \
     }
 
+/**
+ * @brief Macro that destroys an unordered array.
+ */
+
 #define ScnArray_destroy(CTX_REF, ARRSTPTR) \
     { \
         if((ARRSTPTR)->arr != NULL){ \
@@ -45,13 +61,24 @@ extern "C" {
         (ARRSTPTR)->sz = (ARRSTPTR)->use = 0; \
     }
 
+/**
+ * @brief Macro that empties an unordered array.
+ */
+
 #define ScnArray_empty(ARRSTPTR)  (ARRSTPTR)->use = 0
+
+/**
+ * @brief Macro that adds an element to an unordered array.
+ */
 
 #define ScnArray_addPtr(CTX_REF, ARRSTPTR, ITM_PTR, ARR_TYPE) \
         (ARR_TYPE*) ScnArray_addPtr_(CTX_REF, (void**)&(ARRSTPTR)->arr, &(ARRSTPTR)->use, &(ARRSTPTR)->sz, (ARRSTPTR)->growth, sizeof((ARRSTPTR)->arr[0]), ITM_PTR, sizeof(*(ITM_PTR)), SCN_DBG_STR("ScnArraySorted_addPtr::" #ARRSTPTR))
 
 void*   ScnArray_addPtr_(ScnContextRef ctx, void** pArr, ScnSI32* use, ScnSI32* sz, const ScnSI32 growth, const ScnSI32 arrItmSz, const void* itmPtr, const ScnSI32 itmSz, const char* dbgHint);
 
+/**
+ * @brief Macro that walks all the elements of an unordered array.
+ */
 
 #define ScnArray_foreach(ARRSTPTR, ARR_TYPE, VAR_NAME, ...) \
     if((ARRSTPTR)->arr != NULL){ \

@@ -16,6 +16,10 @@ extern "C" {
 
 //ENScnGpuDataType
 
+/** @enum ENScnGpuDataType
+ *  @brief Data types to describe structures usedn in the gpu vertices and shaders.
+ */
+
 typedef enum ENScnGpuDataType {
     ENScnGpuDataType_SI8 = 0,
     ENScnGpuDataType_UI8,

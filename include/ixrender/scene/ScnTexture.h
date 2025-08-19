@@ -23,6 +23,10 @@ extern "C" {
 
 //ScnTextureRef
 
+/** @struct ScnTextureRef
+ *  @brief ScnTexture shared pointer. An object that contains one cpu-texture and one-or-more gpu-textures (for the render slots).
+ */
+
 #define ScnTextureRef_Zero   ScnObjRef_Zero
 
 SCN_REF_STRUCT_METHODS_DEC(ScnTexture)

@@ -18,6 +18,10 @@ extern "C" {
 
 //ENScnVertexType
 
+/** @enum ENScnVertexType
+ *  @brief Predefined vertices types (zero, one, two or three textures coordinates).
+ */
+
 #define ENScnVertexType_Count_Zeroes    { 0, 0, 0, 0 }
 
 typedef enum ENScnVertexType {
@@ -39,6 +43,12 @@ typedef enum ENScnVertexType {
 
 #define STScnVertexIdx_Zero     { 0 }
 
+/** @struct STScnVertexIdx
+ *  @brief Vertex index.
+ *  @var STScnVertexIdx::i
+ *  Index's value.
+ */
+
 //Vertex without texture
 typedef struct STScnVertexIdx {
     ScnUI32     i;
@@ -55,6 +65,16 @@ typedef struct STScnVertexIdx {
 #define ScnVertex2D_SZ            12u
 
 #define STScnVertex2D_Zero     { 0.f, 0.f, STScnColor8_Zero }
+
+/** @struct STScnVertex2D
+ *  @brief Zero texture vertex.
+ *  @var STScnVertex2D::x
+ *  X position.
+ *  @var STScnVertex2D::y
+ *  Y position.
+ *  @var STScnVertex2D::color
+ *  Color value.
+ */
 
 //Vertex without texture
 typedef struct STScnVertex2D {
@@ -76,6 +96,18 @@ typedef struct STScnVertex2D {
 #define ScnVertex2DTex_SZ         20u
 
 #define STScnVertex2DTex_Zero     { 0.f, 0.f, STScnColor8_Zero, STScnPoint2D_Zero }
+
+/** @struct STScnVertex2DTex
+ *  @brief One texture vertex.
+ *  @var STScnVertex2DTex::x
+ *  X position.
+ *  @var STScnVertex2DTex::y
+ *  Y position.
+ *  @var STScnVertex2DTex::color
+ *  Color value.
+ *  @var STScnVertex2DTex::tex
+ *  Texture's coordinate.
+ */
 
 //Vertex with one texture
 typedef struct STScnVertex2DTex {
@@ -101,6 +133,20 @@ typedef struct STScnVertex2DTex {
 #define ScnVertex2DTex2_SZ          28u
 
 #define STScnVertex2DTex2_Zero     { 0.f, 0.f, STScnColor8_Zero, STScnPoint2D_Zero, STScnPoint2D_Zero }
+
+/** @struct STScnVertex2DTex2
+ *  @brief Two textures vertex.
+ *  @var STScnVertex2DTex2::x
+ *  X position.
+ *  @var STScnVertex2DTex2::y
+ *  Y position.
+ *  @var STScnVertex2DTex2::color
+ *  Color value.
+ *  @var STScnVertex2DTex2::tex
+ *  First texture's coordinate.
+ *  @var STScnVertex2DTex2::tex2
+ *  Second texture's coordinate.
+ */
 
 //Vertex with 2 textures
 typedef struct STScnVertex2DTex2 {
@@ -129,6 +175,22 @@ typedef struct STScnVertex2DTex2 {
 
 #define STScnVertex2DTex3_Zero     { 0.f, 0.f, STScnColor8_Zero, STScnPoint2D_Zero, STScnPoint2D_Zero, STScnPoint2D_Zero }
 
+/** @struct STScnVertex2DTex3
+ *  @brief Three textures vertex.
+ *  @var STScnVertex2DTex3::x
+ *  X position.
+ *  @var STScnVertex2DTex3::y
+ *  Y position.
+ *  @var STScnVertex2DTex3::color
+ *  Color value.
+ *  @var STScnVertex2DTex3::tex
+ *  First texture's coordinate.
+ *  @var STScnVertex2DTex3::tex2
+ *  Second texture's coordinate.
+ *  @var STScnVertex2DTex3::tex3
+ *  Third texture's coordinate.
+ */
+
 //Vertex with 3 textures
 typedef struct STScnVertex2DTex3 {
     ScnFLOAT        x;
@@ -138,109 +200,6 @@ typedef struct STScnVertex2DTex3 {
     STScnPoint2D    tex2;
     STScnPoint2D    tex3;
 } STScnVertex2DTex3;
-
-
-//
-
-//-------------------
-//-- STScnVertex2DF
-//-------------------
-
-//These MACROs are useful for shader code.
-#define ScnVertex2DF_IDX_x        0u
-#define ScnVertex2DF_IDX_y        4u
-#define ScnVertex2DF_IDX_color_r  8u
-#define ScnVertex2DF_IDX_color_g  12u
-#define ScnVertex2DF_IDX_color_b  16u
-#define ScnVertex2DF_IDX_color_a  20u
-#define ScnVertex2DF_SZ           24u
-
-//Vertex without texture
-typedef struct STScnVertex2DF {
-    ScnFLOAT        x;
-    ScnFLOAT        y;
-    STScnColor      color;
-} STScnVertex2DF;
-
-//--------------------
-//-- STScnVertex2DTexF
-//--------------------
-//
-//These MACROs are useful for shader code.
-#define ScnVertex2DTexF_IDX_x         0u
-#define ScnVertex2DTexF_IDX_y         4u
-#define ScnVertex2DTexF_IDX_color_r   8u
-#define ScnVertex2DTexF_IDX_color_g   12u
-#define ScnVertex2DTexF_IDX_color_b   16u
-#define ScnVertex2DTexF_IDX_color_a   20u
-#define ScnVertex2DTexF_IDX_tex_x     24u
-#define ScnVertex2DTexF_IDX_tex_y     28u
-#define ScnVertex2DTexF_SZ            32u
-
-//Vertex with one texture
-typedef struct STScnVertex2DTexF {
-    ScnFLOAT        x;
-    ScnFLOAT        y;
-    STScnColor      color;
-    STScnPoint2D  tex;
-} STScnVertex2DTexF;
-
-
-//--------------------
-//-- STScnVertex2DTex2F
-//--------------------
-
-//These MACROs are useful for shader code.
-#define ScnVertex2DTex2F_IDX_x        0u
-#define ScnVertex2DTex2F_IDX_y        4u
-#define ScnVertex2DTex2F_IDX_color_r  8u
-#define ScnVertex2DTex2F_IDX_color_g  12u
-#define ScnVertex2DTex2F_IDX_color_b  16u
-#define ScnVertex2DTex2F_IDX_color_a  20u
-#define ScnVertex2DTex2F_IDX_tex_x    24u
-#define ScnVertex2DTex2F_IDX_tex_y    28u
-#define ScnVertex2DTex2F_IDX_tex2_x   32u
-#define ScnVertex2DTex2F_IDX_tex2_y   36u
-#define ScnVertex2DTex2F_SZ           40u
-
-//Vertex with 2 textures
-typedef struct STScnVertex2DTex2F {
-    ScnFLOAT        x;
-    ScnFLOAT        y;
-    STScnColor      color;
-    STScnPoint2D    tex;
-    STScnPoint2D    tex2;
-} STScnVertex2DTex2F;
-
-
-//--------------------
-//-- STScnVertex2DTex3F
-//--------------------
-
-//These MACROs are useful for shader code.
-#define ScnVertex2DTex3F_IDX_x        0u
-#define ScnVertex2DTex3F_IDX_y        4u
-#define ScnVertex2DTex3F_IDX_color_r  8u
-#define ScnVertex2DTex3F_IDX_color_g  12u
-#define ScnVertex2DTex3F_IDX_color_b  16u
-#define ScnVertex2DTex3F_IDX_color_a  20u
-#define ScnVertex2DTex3F_IDX_tex_x    24u
-#define ScnVertex2DTex3F_IDX_tex_y    28u
-#define ScnVertex2DTex3F_IDX_tex2_x   32u
-#define ScnVertex2DTex3F_IDX_tex2_y   36u
-#define ScnVertex2DTex3F_IDX_tex3_x   40u
-#define ScnVertex2DTex3F_IDX_tex3_y   44u
-#define ScnVertex2DTex3F_SZ           48u
-
-//Vertex with 3 textures
-typedef struct STScnVertex2DTex3F {
-    ScnFLOAT        x;
-    ScnFLOAT        y;
-    STScnColor      color;
-    STScnPoint2D    tex;
-    STScnPoint2D    tex2;
-    STScnPoint2D    tex3;
-} STScnVertex2DTex3F;
 
 #ifdef __cplusplus
 } //extern "C"

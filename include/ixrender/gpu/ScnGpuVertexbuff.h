@@ -42,6 +42,17 @@ typedef struct STScnGpuVertexbuffCfg {
 
 //STScnGpuVertexbuffApiItf
 
+/** @struct STScnGpuVertexbuffApiItf
+ *  @brief Vertex buffer's API interface.
+ *  @var STScnGpuVertexbuffApiItf::free
+ *  Method to free the buffer.
+ *  @var STScnGpuVertexbuffApiItf::sync
+ *  Method to synchronize the buffer's data.
+ *  @var STScnGpuVertexbuffApiItf::activate
+ *  Method to bind the buffers to the render job.
+ *  @var STScnGpuVertexbuffApiItf::deactivate
+ *  Method to unbind the buffers to the render job.
+ */
 typedef struct STScnGpuVertexbuffApiItf {
     void    (*free)(void* data);
     //
@@ -54,18 +65,55 @@ typedef struct STScnGpuVertexbuffApiItf {
 
 //ScnGpuVertexbuffRef
 
+/** @struct ScnGpuVertexbuffRef
+ *  @brief ScnGpuVertexbuff shared pointer. An abstract object based on the currently used API.
+ */
+
 #define ScnGpuVertexbuffRef_Zero   ScnObjRef_Zero
 
 SCN_REF_STRUCT_METHODS_DEC(ScnGpuVertexbuff)
 
 //
 
-ScnBOOL             ScnGpuVertexbuff_prepare(ScnGpuVertexbuffRef ref, const STScnGpuVertexbuffApiItf* itf, void* itfParam);
-void*               ScnGpuVertexBuff_getApiItfParam(ScnGpuVertexbuffRef ref);
+/**
+ * @brief Prepares the gpu abstract object with the provided interface.
+ * @param ref Reference to object.
+ * @param itf Interface to the API.
+ * @param itfParam Parameter to be given to the interface's  methods.
+ * @return ScnTRUE on success, ScnFALSE otherwise.
+ */
+ScnBOOL ScnGpuVertexbuff_prepare(ScnGpuVertexbuffRef ref, const STScnGpuVertexbuffApiItf* itf, void* itfParam);
 
-ScnBOOL             ScnGpuVertexbuff_sync(ScnGpuVertexbuffRef ref, const STScnGpuVertexbuffCfg* const cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
-ScnBOOL             ScnGpuVertexbuff_activate(ScnGpuVertexbuffRef ref);
-ScnBOOL             ScnGpuVertexbuff_deactivate(ScnGpuVertexbuffRef ref);
+/**
+ * @brief Retrieves the gpu abstract object pointer.
+ * @param ref Reference to object.
+ * @return Abstract object's pointer on success, NULL otherwise.
+ */
+void* ScnGpuVertexBuff_getApiItfParam(ScnGpuVertexbuffRef ref);
+
+/**
+ * @brief Synchronizes the vertex buffer's data.
+ * @param ref Reference to object.
+ * @param cfg The vertex buffer's configuration.
+ * @param vBuff The vertices buffer.
+ * @param idxBuff The indices buffer.
+ * @return ScnTRUE on success, ScnFALSE otherwise.
+ */
+ScnBOOL ScnGpuVertexbuff_sync(ScnGpuVertexbuffRef ref, const STScnGpuVertexbuffCfg* const cfg, ScnGpuBufferRef vBuff, ScnGpuBufferRef idxBuff);
+
+/**
+ * @brief Binds the vertex buffer.
+ * @param ref Reference to object.
+ * @return ScnTRUE on success, ScnFALSE otherwise.
+ */
+ScnBOOL ScnGpuVertexbuff_activate(ScnGpuVertexbuffRef ref);
+
+/**
+ * @brief Unbinds the vertex buffer.
+ * @param ref Reference to object.
+ * @return ScnTRUE on success, ScnFALSE otherwise.
+ */
+ScnBOOL ScnGpuVertexbuff_deactivate(ScnGpuVertexbuffRef ref);
 
 #ifdef __cplusplus
 } //extern "C"

@@ -17,6 +17,16 @@ extern "C" {
 
 //STScnNode2dProps
 
+/** @struct STScnGpuModelProps2d
+ *  @brief Properties for the model rendering.
+ *  @var STScnGpuModelProps2d::c8
+ *  Color multiplier to be applied to the model vertices.
+ *  @var STScnGpuModelProps2d::matrix
+ *  Matrix multiplier to be applied to the model vertices.
+ *  @var STScnGpuModelProps2d::texs
+ *  Textures colors formats. Only provided/required if STScnGpuDeviceDesc::isTexFmtInfoRequired is !ScnFALSE.
+ */
+
 #define STScnGpuModelProps2d_Extra_Zero  { { 0u, 0u, 0u } }
 #define STScnGpuModelProps2d_Zero        { STScnColor8_Zero, STScnMatrix2D_Zero, STScnGpuModelProps2d_Extra_Zero }
 #define STScnGpuModelProps2d_Identity    { STScnColor8_255, STScnMatrix2D_Identity, STScnGpuModelProps2d_Extra_Zero }
@@ -30,6 +40,12 @@ typedef struct STScnGpuModelProps2d {
     } texs;
 } STScnGpuModelProps2d;
 
+/**
+ * @brief Multiplies two model properties: colors and matrices.
+ * @param obj First property.
+ * @param other Second property.
+ * @return Multiplied model properties.
+ */
 #ifndef SNC_COMPILING_SHADER
 SC_INLN STScnGpuModelProps2d ScnGpuModelProps2d_multiply(const STScnGpuModelProps2d* const obj, const STScnGpuModelProps2d* const other){
     return SCN_ST(STScnGpuModelProps2d,

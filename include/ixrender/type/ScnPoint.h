@@ -14,11 +14,29 @@
 extern "C" {
 #endif
 
+//STScnPoint2D
+
+/** @struct STScnPoint2D
+ *  @brief 2d ScnFLOAT point.
+ *  @var STScnPoint2D::x
+ *  X position
+ *  @var STScnPoint2D::y
+ *  Y position
+ */
 typedef struct STScnPoint2D {
     ScnFLOAT    x;
     ScnFLOAT    y;
 } STScnPoint2D;
 
+//STScnPoint2DI
+
+/** @struct STScnPoint2DI
+ *  @brief 2d ScnSI32 point.
+ *  @var STScnPoint2DI::x
+ *  X position
+ *  @var STScnPoint2DI::y
+ *  Y position
+ */
 typedef struct STScnPoint2DI {
     ScnSI32     x;
     ScnSI32     y;

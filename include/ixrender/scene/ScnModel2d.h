@@ -25,6 +25,10 @@ extern "C" {
 
 //ScnModel2dRef
 
+/** @struct ScnModel2dRef
+ *  @brief ScnModel2d shared pointer. An object that contains the render commands for a model, including its vertices and indices.
+ */
+
 #define ScnModel2dRef_Zero   ScnObjRef_Zero
 
 SCN_REF_STRUCT_METHODS_DEC(ScnModel2d)

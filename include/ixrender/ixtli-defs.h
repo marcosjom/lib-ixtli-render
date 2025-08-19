@@ -8,8 +8,19 @@
 #ifndef ixtli_defs_h
 #define ixtli_defs_h
 
+/**
+ * @brief If defined, assertions and other defensive validations in code are activated at compile-time.
+ */
 //#define SCN_DEBUG
+
+/**
+ * @brief If defined, all SCN_PRINTF_ calls are removed from code at compile-time; this includes verbose, info, warnings and errors.
+ */
 //#define SCN_SILENT_MODE
+
+/**
+ * @brief If defined, all SCN_PRINTF_VERB and SCN_PRINTF_INFO are enabled at compile-time.
+ */
 //#define SCN_VERBOSE_MODE
 
 #ifdef SCN_DEBUG
@@ -165,12 +176,42 @@ extern "C" {
 #endif
 
 //string.h
+
+/**
+ * @brief Wrapper for memset() standard function.
+ * @note This wapper is implemented to avoid exposing "string.h" in the public headers.
+ * @note See memset() documentation for behavior, parameters and returned value.
+ */
 void* ScnMemset(void* dst, const ScnSI32 ch, const ScnUI32 count);
+
+/**
+ * @brief Wrapper for memcpy() standard function.
+ * @note This wapper is implemented to avoid exposing "string.h" in the public headers.
+ * @note See memcpy() documentation for behavior, parameters and returned value.
+ */
 void* ScnMemcpy(void* dst, const void* src, const ScnUI32 count);
+
+/**
+ * @brief Wrapper for memmove() standard function.
+ * @note This wapper is implemented to avoid exposing "string.h" in the public headers.
+ * @note See memmove() documentation for behavior, parameters and returned value.
+ */
 void* ScnMemmove(void* dst, const void* src, const ScnUI32 count);
 
 //math.h
+
+/**
+ * @brief Wrapper for sinf() standard function.
+ * @note This wapper is implemented to avoid exposing "math.h" in the public headers.
+ * @note See sinf() documentation for behavior, parameters and returned value.
+ */
 ScnFLOAT ScnSinf(ScnFLOAT num);
+
+/**
+ * @brief Wrapper for cosf() standard function.
+ * @note This wapper is implemented to avoid exposing "math.h" in the public headers.
+ * @note See cosf() documentation for behavior, parameters and returned value.
+ */
 ScnFLOAT ScnCosf(ScnFLOAT num);
 
 #ifdef __cplusplus

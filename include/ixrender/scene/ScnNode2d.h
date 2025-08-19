@@ -22,6 +22,10 @@ extern "C" {
 
 //ScnNode2dRef
 
+/** @struct ScnNode2dRef
+ *  @brief ScnNode2d shared pointer. An object that contains the scene relative properties (color and matrix multipliers) for a render node.
+ */
+
 #define ScnNode2dRef_Zero   ScnObjRef_Zero
 
 SCN_REF_STRUCT_METHODS_DEC(ScnNode2d)

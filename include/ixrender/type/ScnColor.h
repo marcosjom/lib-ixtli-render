@@ -16,6 +16,21 @@ extern "C" {
 
 #define ScnColor_areEqual(ONE, OTHER)    ((ONE).r == (OTHER).r && (ONE).g == (OTHER).g && (ONE).b == (OTHER).b && (ONE).a == (OTHER).a)
 
+//STScnColor
+
+/** @struct STScnColor
+ *  @brief Float-based r-g-b-a color.
+ *  @note It allows accessing its components as an c[4] array.
+ *  @var STScnColor::r
+ *  Red color value.
+ *  @var STScnColor::g
+ *  Green color value.
+ *  @var STScnColor::b
+ *  Blue color value.
+ *  @var STScnColor::a
+ *  Alpha color value.
+ */
+
 #define STScnColor_Zero  { { { 0.f, 0.f, 0.f, 0.f } } }
 
 typedef struct STScnColor {
@@ -26,6 +41,8 @@ typedef struct STScnColor {
         };
     };
 } STScnColor;
+
+//STScnColor8
 
 #define SCN_COLOR8_R_MSK             0xFF000000u    //1111-1111 0000-0000 0000-0000 0000-0000b
 #define SCN_COLOR8_R_BIT_FIRST       0x1000000u    //0000-0001 0000-0000 0000-0000 0000-0000b
@@ -54,6 +71,19 @@ typedef struct STScnColor {
 
 #define STScnColor8_Zero  { { { 0, 0, 0, 0 } } }
 #define STScnColor8_255   { { { 255, 255, 255, 255 } } }
+
+/** @struct STScnColor8
+ *  @brief UI8-based r-g-b-a color.
+ *  @note It allows accessing its components as an c[4] array and a v32 value.
+ *  @var STScnColor8::r
+ *  Red color value.
+ *  @var STScnColor8::g
+ *  Green color value.
+ *  @var STScnColor8::b
+ *  Blue color value.
+ *  @var STScnColor8::a
+ *  Alpha color value.
+ */
 
 typedef struct STScnColor8 {
     union {

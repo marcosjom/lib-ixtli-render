@@ -16,6 +16,20 @@ extern "C" {
 
 //ScnRenderApiItf
 
+/** @struct STScnTransform2d
+ *  @brief 2d trsnaformations for a scene node.
+ *  @var STScnTransform2d::sx
+ *  Width scale.
+ *  @var STScnTransform2d::sy
+ *  Height scale.
+ *  @var STScnTransform2d::tx
+ *  X translation.
+ *  @var STScnTransform2d::sy
+ *  Y translation.
+ *  @var STScnTransform2d::deg
+ *  Rotation in degrees.
+ */
+
 #define STScnTransform2d_Zero     { 0.f, 0.f, 0.f, 0.f, 0.f }
 #define STScnTransform2d_Identity { 1.f, 1.f, 0.f, 0.f, 0.f }
 

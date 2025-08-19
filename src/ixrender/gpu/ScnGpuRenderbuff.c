@@ -41,8 +41,8 @@ void ScnGpuRenderbuff_destroyOpq(void* obj){
     //api
     {
         if(opq->api.data != NULL){
-            if(opq->api.itf.destroy != NULL){
-                (*opq->api.itf.destroy)(opq->api.data, opq->api.itfParam);
+            if(opq->api.itf.free != NULL){
+                (*opq->api.itf.free)(opq->api.data, opq->api.itfParam);
             }
             opq->api.data = NULL;
         }
@@ -63,35 +63,8 @@ ScnBOOL ScnGpuRenderbuff_prepare(ScnGpuRenderbuffRef ref, const STScnGpuRenderbu
     ScnBOOL r = ScnFALSE;
     STScnGpuRenderbuffOpq* opq = (STScnGpuRenderbuffOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
-    if(cfg != NULL && cfg->width > 0 && cfg->height > 0 && opq->cfg.width == 0 && itf != NULL && itf->create != NULL && itf->destroy != NULL){
-        void* data = (*itf->create)(cfg, itfParam);
-        if(data != NULL){
-            opq->cfg = *cfg;
-            //ScnStruct_stRelease(ScnGpuRenderbuffCfg_getSharedStructMap(), &opq->cfg, sizeof(opq->cfg));
-            //ScnStruct_stClone(ScnGpuRenderbuffCfg_getSharedStructMap(), cfg, sizeof(*cfg), &opq->cfg, sizeof(opq->cfg));
-            //api
-            {
-                if(opq->api.data != NULL){
-                    if(opq->api.itf.destroy != NULL){
-                        (*opq->api.itf.destroy)(opq->api.data, opq->api.itfParam);
-                    }
-                    opq->api.data = NULL;
-                }
-                ScnMemory_setZeroSt(opq->api.itf);
-                opq->api.itfParam = NULL;
-                //
-                if(itf != NULL){
-                    opq->api.itf = *itf;
-                    opq->api.itfParam = itfParam;
-                }
-                //data
-                opq->api.data = data; data = NULL; //consume
-            }
-        }
-        //destroy (if not consumed)
-        if(data != NULL && itf->destroy != NULL){
-            (*itf->destroy)(data, itfParam);
-        }
+    if(cfg != NULL && cfg->width > 0 && cfg->height > 0 && opq->cfg.width == 0 && itf != NULL && itf->free != NULL){
+        //ToDo: implement
     }
     ScnMutex_unlock(opq->mutex);
     return r;

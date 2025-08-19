@@ -16,6 +16,18 @@ extern "C" {
 
 // STScnRect
 
+/** @struct STScnRect
+ *  @brief 2d ScnFLOAT rectangle.
+ *  @var STScnRect::x
+ *  X position
+ *  @var STScnRect::y
+ *  Y position
+ *  @var STScnRect::width
+ *  X width
+ *  @var STScnRect::height
+ *  Y height
+ */
+
 #define STScnRect_Zero { 0.f, 0.f, 0.f, 0.f }
 
 typedef struct STScnRect {
@@ -26,6 +38,18 @@ typedef struct STScnRect {
 } STScnRect;
 
 // STScnRectI
+
+/** @struct STScnRectI
+ *  @brief 2d ScnSI32 rectangle.
+ *  @var STScnRectI::x
+ *  X position
+ *  @var STScnRectI::y
+ *  Y position
+ *  @var STScnRectI::width
+ *  X width
+ *  @var STScnRectI::height
+ *  Y height
+ */
 
 #define STScnRectI_Zero { 0, 0, 0, 0 }
 
@@ -38,6 +62,18 @@ typedef struct STScnRectI {
 
 // STScnRectU
 
+/** @struct STScnRectU
+ *  @brief 2d ScnUI32 rectangle.
+ *  @var STScnRectU::x
+ *  X position
+ *  @var STScnRectU::y
+ *  Y position
+ *  @var STScnRectU::width
+ *  X width
+ *  @var STScnRectU::height
+ *  Y height
+ */
+
 #define STScnRectU_Zero { 0u, 0u, 0u, 0u }
 
 typedef struct STScnRectU {
@@ -49,6 +85,18 @@ typedef struct STScnRectU {
 
 // STScnRectI16
 
+/** @struct STScnRectI16
+ *  @brief 2d ScnSI16 rectangle.
+ *  @var STScnRectI16::x
+ *  X position
+ *  @var STScnRectI16::y
+ *  Y position
+ *  @var STScnRectI16::width
+ *  X width
+ *  @var STScnRectI16::height
+ *  Y height
+ */
+
 #define STScnRectI16_Zero { 0, 0, 0, 0 }
 
 typedef struct STScnRectI16 {
@@ -59,6 +107,18 @@ typedef struct STScnRectI16 {
 } STScnRectI16;
 
 // STScnRectU16
+
+/** @struct STScnRectU16
+ *  @brief 2d ScnUI16 rectangle.
+ *  @var STScnRectU16::x
+ *  X position
+ *  @var STScnRectU16::y
+ *  Y position
+ *  @var STScnRectU16::width
+ *  X width
+ *  @var STScnRectU16::height
+ *  Y height
+ */
 
 #define STScnRectU16_Zero { 0u, 0u, 0u, 0u }
 

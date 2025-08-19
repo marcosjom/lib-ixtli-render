@@ -1,12 +1,12 @@
 //
-//  ScnApiMetal.h
+//  ScnApiDX12.h
 //  ixtli-render
 //
-//  Created by Marcos Ortega on 27/7/25.
+//  Created by Marcos Ortega on 14/8/25.
 //
 
-#ifndef ScnApiMetal_h
-#define ScnApiMetal_h
+#ifndef ScnApiDX12_h
+#define ScnApiDX12_h
 
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/gpu/ScnGpuDevice.h"
@@ -17,14 +17,14 @@ extern "C" {
 #endif
 
 /**
- * @brief Retrieves the interface for Apple's Metal render API.
+ * @brief Retrieves the interface for Microsoft's DirectX12 render API.
  * @param dst Destination for the interface.
  * @return ScnTRUE on success, ScnFALSE otherwise.
  */
-ScnBOOL ScnApiMetal_getApiItf(STScnApiItf* dst);
+ScnBOOL ScnApiDX12_getApiItf(STScnApiItf* dst);
 
 #ifdef __cplusplus
 } //extern "C"
 #endif
 
-#endif /* ScnApiMetal_h */
+#endif /* ScnApiDX12_h */

@@ -31,6 +31,10 @@ typedef enum ScnRenderJobPushMode_ {
 
 //ScnRenderJobRef
 
+/** @struct ScnRenderJobRef
+ *  @brief ScnRenderJob shared pointer. An object that contains commands to render a full or partial scene, including a retained map of the used objects (textures, buffers, ...).
+ */
+
 #define ScnRenderJobRef_Zero   ScnObjRef_Zero
 
 SCN_REF_STRUCT_METHODS_DEC(ScnRenderJob)

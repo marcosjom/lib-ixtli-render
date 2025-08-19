@@ -16,6 +16,16 @@ extern "C" {
 
 //STScnGpuDeviceDesc
 
+/** @struct STScnGpuDeviceDesc
+ *  @brief Description of a GPU device and its requirements.
+ *  @var STScnGpuDeviceDesc::isTexFmtInfoRequired
+ *  Describes if the fragment shaders requires the texture's color formats to be provided with the model properties.
+ *  @var STScnGpuDeviceDesc::offsetsAlign
+ *  Describes the alignment required for buffers offsets.
+ *  @var STScnGpuDeviceDesc::memBlockAlign
+ *  Describes the alignment required for gpu-memory operations.
+ */
+
 #define STScnGpuDeviceDesc_Zero   { ScnFALSE, 0, 0 }
 
 typedef struct STScnGpuDeviceDesc {

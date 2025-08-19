@@ -22,6 +22,24 @@ extern "C" {
 
 //ScnRenderApiItf
 
+/** @struct STScnApiItf
+ *  @brief Render API's interface. Thsi is the main bridge between the library and the OS's render API.
+ *  @var STScnApiItf::allocDevice
+ *  Method to allocate a gpu device.
+ *  @var STScnApiItf::dev
+ *  Interface for a gpu device.
+ *  @var STScnApiItf::buff
+ *  Interface for a gpu buffer.
+ *  @var STScnApiItf::vertexBuff
+ *  Interface for a gpu vertex buffer.
+ *  @var STScnApiItf::tex
+ *  Interface for a gpu texture.
+ *  @var STScnApiItf::rbuff
+ *  Interface for a gpu render buffer.
+ *  @var STScnApiItf::fbuff
+ *  Interface for a gpu frame buffer.
+ */
+
 typedef struct STScnApiItf {
     ScnGpuDeviceRef             (*allocDevice)(ScnContextRef ctx, const STScnGpuDeviceCfg* cfg);
     STScnGpuDeviceApiItf        dev;    //device

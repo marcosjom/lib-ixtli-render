@@ -73,6 +73,34 @@
 		2C0C0F432E4A0D7D0059A78F /* ScnMutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0C0EE02E4A0D7D0059A78F /* ScnMutex.c */; };
 		2C0C0F442E4A0D7D0059A78F /* ScnModel2d.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0C0EEE2E4A0D7D0059A78F /* ScnModel2d.c */; };
 		2C0C0F452E4A0D7D0059A78F /* ScnBitmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2C0C0EF72E4A0D7D0059A78F /* ScnBitmap.c */; };
+		2CA243692E533E1A000A41C8 /* ScnApiMetalSampler.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243682E533E1A000A41C8 /* ScnApiMetalSampler.m */; };
+		2CA2436A2E533E1A000A41C8 /* ScnApiMetalSampler.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CA243672E533E1A000A41C8 /* ScnApiMetalSampler.h */; };
+		2CA2436B2E533E1A000A41C8 /* ScnApiMetalSampler.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243682E533E1A000A41C8 /* ScnApiMetalSampler.m */; };
+		2CA2436E2E533E31000A41C8 /* ScnApiMetalDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CA2436C2E533E31000A41C8 /* ScnApiMetalDevice.h */; };
+		2CA2436F2E533E31000A41C8 /* ScnApiMetalDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA2436D2E533E31000A41C8 /* ScnApiMetalDevice.m */; };
+		2CA243702E533E31000A41C8 /* ScnApiMetalDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA2436D2E533E31000A41C8 /* ScnApiMetalDevice.m */; };
+		2CA243732E533E5D000A41C8 /* ScnApiMetalBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243722E533E5D000A41C8 /* ScnApiMetalBuffer.m */; };
+		2CA243742E533E5D000A41C8 /* ScnApiMetalBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CA243712E533E5D000A41C8 /* ScnApiMetalBuffer.h */; };
+		2CA243752E533E5D000A41C8 /* ScnApiMetalBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243722E533E5D000A41C8 /* ScnApiMetalBuffer.m */; };
+		2CA243782E533E79000A41C8 /* ScnApiMetalVertexbuff.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243772E533E79000A41C8 /* ScnApiMetalVertexbuff.m */; };
+		2CA243792E533E79000A41C8 /* ScnApiMetalVertexbuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CA243762E533E79000A41C8 /* ScnApiMetalVertexbuff.h */; };
+		2CA2437A2E533E79000A41C8 /* ScnApiMetalVertexbuff.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243772E533E79000A41C8 /* ScnApiMetalVertexbuff.m */; };
+		2CA2437D2E533ECB000A41C8 /* ScnApiMetalTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CA2437B2E533ECB000A41C8 /* ScnApiMetalTexture.h */; };
+		2CA2437E2E533ECB000A41C8 /* ScnApiMetalTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA2437C2E533ECB000A41C8 /* ScnApiMetalTexture.m */; };
+		2CA2437F2E533ECB000A41C8 /* ScnApiMetalTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA2437C2E533ECB000A41C8 /* ScnApiMetalTexture.m */; };
+		2CA243822E533EEC000A41C8 /* ScnApiMetalRenderStates.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243812E533EEC000A41C8 /* ScnApiMetalRenderStates.m */; };
+		2CA243832E533EEC000A41C8 /* ScnApiMetalRenderStates.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CA243802E533EEC000A41C8 /* ScnApiMetalRenderStates.h */; };
+		2CA243842E533EEC000A41C8 /* ScnApiMetalRenderStates.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243812E533EEC000A41C8 /* ScnApiMetalRenderStates.m */; };
+		2CA243872E533F05000A41C8 /* ScnApiMetalFramebuff.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243862E533F05000A41C8 /* ScnApiMetalFramebuff.m */; };
+		2CA243882E533F05000A41C8 /* ScnApiMetalFramebuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CA243852E533F05000A41C8 /* ScnApiMetalFramebuff.h */; };
+		2CA243892E533F05000A41C8 /* ScnApiMetalFramebuff.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243862E533F05000A41C8 /* ScnApiMetalFramebuff.m */; };
+		2CA2438C2E533F1A000A41C8 /* ScnApiMetalRenderJobState.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA2438B2E533F1A000A41C8 /* ScnApiMetalRenderJobState.m */; };
+		2CA2438D2E533F1A000A41C8 /* ScnApiMetalRenderJobState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CA2438A2E533F1A000A41C8 /* ScnApiMetalRenderJobState.h */; };
+		2CA2438E2E533F1A000A41C8 /* ScnApiMetalRenderJobState.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA2438B2E533F1A000A41C8 /* ScnApiMetalRenderJobState.m */; };
+		2CA243912E533F2A000A41C8 /* ScnApiMetalRenderJob.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243902E533F2A000A41C8 /* ScnApiMetalRenderJob.m */; };
+		2CA243922E533F2A000A41C8 /* ScnApiMetalRenderJob.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CA2438F2E533F2A000A41C8 /* ScnApiMetalRenderJob.h */; };
+		2CA243932E533F2A000A41C8 /* ScnApiMetalRenderJob.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243902E533F2A000A41C8 /* ScnApiMetalRenderJob.m */; };
+		2CA243952E5345C0000A41C8 /* ScnApiItf.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CA243942E5345C0000A41C8 /* ScnApiItf.h */; };
 		2CBB25CB2E4A2E3400FB68FE /* ScnVertices.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2C0C0ED52E4A0D7D0059A78F /* ScnVertices.metal */; };
 /* End PBXBuildFile section */
 
@@ -185,6 +213,28 @@
 		2C0C0F802E4A0F050059A78F /* MetalKitViewDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MetalKitViewDelegate.h; path = ../../../demos/MetalKitViewDelegate.h; sourceTree = SOURCE_ROOT; };
 		2C0C0F812E4A0F050059A78F /* MetalKitViewDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MetalKitViewDelegate.m; path = ../../../demos/MetalKitViewDelegate.m; sourceTree = SOURCE_ROOT; };
 		2C0C0F822E4A0F050059A78F /* nicabird.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = nicabird.png; path = ../../../demos/nicabird.png; sourceTree = SOURCE_ROOT; };
+		2C52E9BD2E4E6B8F00520297 /* ScnVertices.hlsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = ScnVertices.hlsl; sourceTree = "<group>"; };
+		2C52E9BF2E4E6B8F00520297 /* ScnApiDX12.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ScnApiDX12.cpp; sourceTree = "<group>"; };
+		2C52E9C12E4E6BAE00520297 /* ScnApiDX12.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnApiDX12.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/api/ScnApiDX12.h"; sourceTree = "<absolute>"; };
+		2CA243672E533E1A000A41C8 /* ScnApiMetalSampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScnApiMetalSampler.h; sourceTree = "<group>"; };
+		2CA243682E533E1A000A41C8 /* ScnApiMetalSampler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScnApiMetalSampler.m; sourceTree = "<group>"; };
+		2CA2436C2E533E31000A41C8 /* ScnApiMetalDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScnApiMetalDevice.h; sourceTree = "<group>"; };
+		2CA2436D2E533E31000A41C8 /* ScnApiMetalDevice.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScnApiMetalDevice.m; sourceTree = "<group>"; };
+		2CA243712E533E5D000A41C8 /* ScnApiMetalBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScnApiMetalBuffer.h; sourceTree = "<group>"; };
+		2CA243722E533E5D000A41C8 /* ScnApiMetalBuffer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScnApiMetalBuffer.m; sourceTree = "<group>"; };
+		2CA243762E533E79000A41C8 /* ScnApiMetalVertexbuff.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScnApiMetalVertexbuff.h; sourceTree = "<group>"; };
+		2CA243772E533E79000A41C8 /* ScnApiMetalVertexbuff.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScnApiMetalVertexbuff.m; sourceTree = "<group>"; };
+		2CA2437B2E533ECB000A41C8 /* ScnApiMetalTexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScnApiMetalTexture.h; sourceTree = "<group>"; };
+		2CA2437C2E533ECB000A41C8 /* ScnApiMetalTexture.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScnApiMetalTexture.m; sourceTree = "<group>"; };
+		2CA243802E533EEC000A41C8 /* ScnApiMetalRenderStates.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScnApiMetalRenderStates.h; sourceTree = "<group>"; };
+		2CA243812E533EEC000A41C8 /* ScnApiMetalRenderStates.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScnApiMetalRenderStates.m; sourceTree = "<group>"; };
+		2CA243852E533F05000A41C8 /* ScnApiMetalFramebuff.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScnApiMetalFramebuff.h; sourceTree = "<group>"; };
+		2CA243862E533F05000A41C8 /* ScnApiMetalFramebuff.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScnApiMetalFramebuff.m; sourceTree = "<group>"; };
+		2CA2438A2E533F1A000A41C8 /* ScnApiMetalRenderJobState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScnApiMetalRenderJobState.h; sourceTree = "<group>"; };
+		2CA2438B2E533F1A000A41C8 /* ScnApiMetalRenderJobState.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScnApiMetalRenderJobState.m; sourceTree = "<group>"; };
+		2CA2438F2E533F2A000A41C8 /* ScnApiMetalRenderJob.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScnApiMetalRenderJob.h; sourceTree = "<group>"; };
+		2CA243902E533F2A000A41C8 /* ScnApiMetalRenderJob.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScnApiMetalRenderJob.m; sourceTree = "<group>"; };
+		2CA243942E5345C0000A41C8 /* ScnApiItf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnApiItf.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/api/ScnApiItf.h"; sourceTree = "<absolute>"; };
 		2CBB25C42E4A2E2C00FB68FE /* ixtli-render.metallib */ = {isa = PBXFileReference; explicitFileType = "archive.metal-library"; includeInIndex = 0; path = "ixtli-render.metallib"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -240,6 +290,24 @@
 			children = (
 				2C0C0ED62E4A0D7D0059A78F /* shaders */,
 				2C0C0ED72E4A0D7D0059A78F /* ScnApiMetal.m */,
+				2CA243672E533E1A000A41C8 /* ScnApiMetalSampler.h */,
+				2CA243682E533E1A000A41C8 /* ScnApiMetalSampler.m */,
+				2CA2436C2E533E31000A41C8 /* ScnApiMetalDevice.h */,
+				2CA2436D2E533E31000A41C8 /* ScnApiMetalDevice.m */,
+				2CA243712E533E5D000A41C8 /* ScnApiMetalBuffer.h */,
+				2CA243722E533E5D000A41C8 /* ScnApiMetalBuffer.m */,
+				2CA243762E533E79000A41C8 /* ScnApiMetalVertexbuff.h */,
+				2CA243772E533E79000A41C8 /* ScnApiMetalVertexbuff.m */,
+				2CA2437B2E533ECB000A41C8 /* ScnApiMetalTexture.h */,
+				2CA2437C2E533ECB000A41C8 /* ScnApiMetalTexture.m */,
+				2CA243802E533EEC000A41C8 /* ScnApiMetalRenderStates.h */,
+				2CA243812E533EEC000A41C8 /* ScnApiMetalRenderStates.m */,
+				2CA243852E533F05000A41C8 /* ScnApiMetalFramebuff.h */,
+				2CA243862E533F05000A41C8 /* ScnApiMetalFramebuff.m */,
+				2CA2438A2E533F1A000A41C8 /* ScnApiMetalRenderJobState.h */,
+				2CA2438B2E533F1A000A41C8 /* ScnApiMetalRenderJobState.m */,
+				2CA2438F2E533F2A000A41C8 /* ScnApiMetalRenderJob.h */,
+				2CA243902E533F2A000A41C8 /* ScnApiMetalRenderJob.m */,
 			);
 			name = metal;
 			path = ../../../src/ixrender/api/metal;
@@ -248,8 +316,11 @@
 		2C0C0ED92E4A0D7D0059A78F /* api */ = {
 			isa = PBXGroup;
 			children = (
+				2CA243942E5345C0000A41C8 /* ScnApiItf.h */,
 				2C0C0F4F2E4A0E140059A78F /* ScnApiMetal.h */,
+				2C52E9C12E4E6BAE00520297 /* ScnApiDX12.h */,
 				2C0C0ED82E4A0D7D0059A78F /* metal */,
+				2C52E9C02E4E6B8F00520297 /* dx12 */,
 			);
 			name = api;
 			path = ../../../src/ixrender/api;
@@ -315,8 +386,6 @@
 			children = (
 				2C0C0F6F2E4A0E550059A78F /* ScnResourceMode.h */,
 				2C0C0F712E4A0E550059A78F /* ScnTransform2d.h */,
-				2C0C0F722E4A0E550059A78F /* ScnVertexbuff.h */,
-				2C0C0F732E4A0E550059A78F /* ScnVertexbuffs.h */,
 				2C0C0F742E4A0E550059A78F /* ScnVertices.h */,
 				2C0C0F672E4A0E550059A78F /* ScnBuffer.h */,
 				2C0C0EEC2E4A0D7D0059A78F /* ScnBuffer.c */,
@@ -335,7 +404,9 @@
 				2C0C0EF22E4A0D7D0059A78F /* ScnRenderJob.c */,
 				2C0C0F702E4A0E550059A78F /* ScnTexture.h */,
 				2C0C0EF32E4A0D7D0059A78F /* ScnTexture.c */,
+				2C0C0F722E4A0E550059A78F /* ScnVertexbuff.h */,
 				2C0C0EF42E4A0D7D0059A78F /* ScnVertexbuff.c */,
+				2C0C0F732E4A0E550059A78F /* ScnVertexbuffs.h */,
 				2C0C0EF52E4A0D7D0059A78F /* ScnVertexbuffs.c */,
 			);
 			name = scene;
@@ -407,6 +478,23 @@
 			path = ../../../demos;
 			sourceTree = SOURCE_ROOT;
 		};
+		2C52E9BE2E4E6B8F00520297 /* shaders */ = {
+			isa = PBXGroup;
+			children = (
+				2C52E9BD2E4E6B8F00520297 /* ScnVertices.hlsl */,
+			);
+			path = shaders;
+			sourceTree = "<group>";
+		};
+		2C52E9C02E4E6B8F00520297 /* dx12 */ = {
+			isa = PBXGroup;
+			children = (
+				2C52E9BE2E4E6B8F00520297 /* shaders */,
+				2C52E9BF2E4E6B8F00520297 /* ScnApiDX12.cpp */,
+			);
+			path = dx12;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -414,6 +502,16 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CA243832E533EEC000A41C8 /* ScnApiMetalRenderStates.h in Headers */,
+				2CA243742E533E5D000A41C8 /* ScnApiMetalBuffer.h in Headers */,
+				2CA2436E2E533E31000A41C8 /* ScnApiMetalDevice.h in Headers */,
+				2CA243882E533F05000A41C8 /* ScnApiMetalFramebuff.h in Headers */,
+				2CA2436A2E533E1A000A41C8 /* ScnApiMetalSampler.h in Headers */,
+				2CA243792E533E79000A41C8 /* ScnApiMetalVertexbuff.h in Headers */,
+				2CA243922E533F2A000A41C8 /* ScnApiMetalRenderJob.h in Headers */,
+				2CA2438D2E533F1A000A41C8 /* ScnApiMetalRenderJobState.h in Headers */,
+				2CA243952E5345C0000A41C8 /* ScnApiItf.h in Headers */,
+				2CA2437D2E533ECB000A41C8 /* ScnApiMetalTexture.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -526,7 +624,9 @@
 				2C0C0F262E4A0D7D0059A78F /* ScnContext.c in Sources */,
 				2C0C0F272E4A0D7D0059A78F /* ScnRenderCmds.c in Sources */,
 				2C0C0F292E4A0D7D0059A78F /* ScnMemBlock.c in Sources */,
+				2CA243932E533F2A000A41C8 /* ScnApiMetalRenderJob.m in Sources */,
 				2C0C0F2A2E4A0D7D0059A78F /* ScnGpuVertexbuff.c in Sources */,
+				2CA243892E533F05000A41C8 /* ScnApiMetalFramebuff.m in Sources */,
 				2C0C0F2B2E4A0D7D0059A78F /* ScnTexture.c in Sources */,
 				2C0C0F2C2E4A0D7D0059A78F /* ScnVertexbuffs.c in Sources */,
 				2C0C0F2D2E4A0D7D0059A78F /* ScnArraySorted.c in Sources */,
@@ -540,19 +640,26 @@
 				2C0C0F352E4A0D7D0059A78F /* ScnGpuTexture.c in Sources */,
 				2C0C0F362E4A0D7D0059A78F /* ScnGpuBuffer.c in Sources */,
 				2C0C0F372E4A0D7D0059A78F /* ScnRange.c in Sources */,
+				2CA2438E2E533F1A000A41C8 /* ScnApiMetalRenderJobState.m in Sources */,
 				2C0C0F382E4A0D7D0059A78F /* ScnGpuDevice.c in Sources */,
 				2C0C0F392E4A0D7D0059A78F /* ScnBitmapProps.c in Sources */,
 				2C0C0F3A2E4A0D7D0059A78F /* ScnMemory.c in Sources */,
+				2CA2436F2E533E31000A41C8 /* ScnApiMetalDevice.m in Sources */,
 				2C0C0F3B2E4A0D7D0059A78F /* ScnArray.c in Sources */,
 				2C0C0F3C2E4A0D7D0059A78F /* ScnGpuSampler.c in Sources */,
+				2CA2437E2E533ECB000A41C8 /* ScnApiMetalTexture.m in Sources */,
 				2C0C0F3D2E4A0D7D0059A78F /* ScnApiMetal.m in Sources */,
 				2C0C0F3E2E4A0D7D0059A78F /* ScnFramebuff.c in Sources */,
+				2CA243752E533E5D000A41C8 /* ScnApiMetalBuffer.m in Sources */,
 				2C0C0F3F2E4A0D7D0059A78F /* ScnGpuRenderbuff.c in Sources */,
+				2CA243842E533EEC000A41C8 /* ScnApiMetalRenderStates.m in Sources */,
 				2C0C0F402E4A0D7D0059A78F /* ScnSharedPtr.c in Sources */,
 				2C0C0F412E4A0D7D0059A78F /* ScnGpuRenderJob.c in Sources */,
 				2C0C0F422E4A0D7D0059A78F /* ScnRenderCmd.c in Sources */,
 				2C0C0F432E4A0D7D0059A78F /* ScnMutex.c in Sources */,
 				2C0C0F442E4A0D7D0059A78F /* ScnModel2d.c in Sources */,
+				2CA2437A2E533E79000A41C8 /* ScnApiMetalVertexbuff.m in Sources */,
+				2CA2436B2E533E1A000A41C8 /* ScnApiMetalSampler.m in Sources */,
 				2C0C0F452E4A0D7D0059A78F /* ScnBitmap.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -566,7 +673,9 @@
 				2C0C0F032E4A0D7D0059A78F /* ScnContext.c in Sources */,
 				2C0C0F042E4A0D7D0059A78F /* ScnRenderCmds.c in Sources */,
 				2C0C0F062E4A0D7D0059A78F /* ScnMemBlock.c in Sources */,
+				2CA243912E533F2A000A41C8 /* ScnApiMetalRenderJob.m in Sources */,
 				2C0C0F072E4A0D7D0059A78F /* ScnGpuVertexbuff.c in Sources */,
+				2CA243872E533F05000A41C8 /* ScnApiMetalFramebuff.m in Sources */,
 				2C0C0F082E4A0D7D0059A78F /* ScnTexture.c in Sources */,
 				2C0C0F092E4A0D7D0059A78F /* ScnVertexbuffs.c in Sources */,
 				2C0C0F0A2E4A0D7D0059A78F /* ScnArraySorted.c in Sources */,
@@ -580,19 +689,26 @@
 				2C0C0F122E4A0D7D0059A78F /* ScnGpuTexture.c in Sources */,
 				2C0C0F132E4A0D7D0059A78F /* ScnGpuBuffer.c in Sources */,
 				2C0C0F142E4A0D7D0059A78F /* ScnRange.c in Sources */,
+				2CA2438C2E533F1A000A41C8 /* ScnApiMetalRenderJobState.m in Sources */,
 				2C0C0F152E4A0D7D0059A78F /* ScnGpuDevice.c in Sources */,
 				2C0C0F162E4A0D7D0059A78F /* ScnBitmapProps.c in Sources */,
 				2C0C0F172E4A0D7D0059A78F /* ScnMemory.c in Sources */,
+				2CA243702E533E31000A41C8 /* ScnApiMetalDevice.m in Sources */,
 				2C0C0F182E4A0D7D0059A78F /* ScnArray.c in Sources */,
 				2C0C0F192E4A0D7D0059A78F /* ScnGpuSampler.c in Sources */,
+				2CA2437F2E533ECB000A41C8 /* ScnApiMetalTexture.m in Sources */,
 				2C0C0F1A2E4A0D7D0059A78F /* ScnApiMetal.m in Sources */,
 				2C0C0F1B2E4A0D7D0059A78F /* ScnFramebuff.c in Sources */,
+				2CA243732E533E5D000A41C8 /* ScnApiMetalBuffer.m in Sources */,
 				2C0C0F1C2E4A0D7D0059A78F /* ScnGpuRenderbuff.c in Sources */,
+				2CA243822E533EEC000A41C8 /* ScnApiMetalRenderStates.m in Sources */,
 				2C0C0F1D2E4A0D7D0059A78F /* ScnSharedPtr.c in Sources */,
 				2C0C0F1E2E4A0D7D0059A78F /* ScnGpuRenderJob.c in Sources */,
 				2C0C0F1F2E4A0D7D0059A78F /* ScnRenderCmd.c in Sources */,
 				2C0C0F202E4A0D7D0059A78F /* ScnMutex.c in Sources */,
 				2C0C0F212E4A0D7D0059A78F /* ScnModel2d.c in Sources */,
+				2CA243782E533E79000A41C8 /* ScnApiMetalVertexbuff.m in Sources */,
+				2CA243692E533E1A000A41C8 /* ScnApiMetalSampler.m in Sources */,
 				2C0C0F222E4A0D7D0059A78F /* ScnBitmap.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -619,6 +735,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_ASSIGN_ENUM = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -656,7 +773,11 @@
 					"$(inherited)",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
@@ -683,6 +804,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_ASSIGN_ENUM = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -714,7 +836,11 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;

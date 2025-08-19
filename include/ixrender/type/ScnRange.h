@@ -19,6 +19,14 @@ extern "C" {
 
 //STScnRange
 
+/** @struct STScnRange
+ *  @brief ScnFLOAT based range.
+ *  @var STScnRange::start
+ *  Range's start.
+ *  @var STScnRange::size
+ *  Range's size.
+ */
+
 #define STScnRange_Zero   { 0.f, 0.f }
 
 typedef struct STScnRange {
@@ -31,6 +39,14 @@ ScnSI32 ScnCompare_STScnRange(const void* data1, const void* data2, const ScnUI3
 #endif
 
 //STScnRangeI
+
+/** @struct STScnRangeI
+ *  @brief ScnSI32 based range.
+ *  @var STScnRangeI::start
+ *  Range's start.
+ *  @var STScnRangeI::size
+ *  Range's size.
+ */
 
 #define STScnRangeI_Zero   { 0, 0 }
 
@@ -45,6 +61,14 @@ ScnSI32 ScnCompare_STScnRangeI(const void* data1, const void* data2, const ScnUI
 
 //STScnRangeU
 
+/** @struct STScnRangeU
+ *  @brief ScnUI32 based range.
+ *  @var STScnRangeU::start
+ *  Range's start.
+ *  @var STScnRangeU::size
+ *  Range's size.
+ */
+
 #define STScnRangeU_Zero   { 0u, 0u }
 
 typedef struct STScnRangeU {
@@ -56,7 +80,16 @@ typedef struct STScnRangeU {
 ScnSI32 ScnCompare_STScnRangeU(const void* data1, const void* data2, const ScnUI32 dataSz);
 #endif
 
-// STScnAABBox3d
+// STScnRngLimits
+
+/** @struct STScnRngLimits
+ *  @brief ScnFLOAT based limits.
+ *  @note Min/max sides are relative to the context, it could mean a mathematical order or left-is-min, right-is-max.
+ *  @var STScnRangeU::min
+ *  Limit's min side value.
+ *  @var STScnRangeU::max
+ *  Limit's max side value.
+ */
 
 #define STScnRngLimits_Zero     { 0.f, 0.f }
 #define STScnRngLimits_Identity { 0.f, 1.f }

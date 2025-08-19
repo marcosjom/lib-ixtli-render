@@ -18,6 +18,14 @@ extern "C" {
 
 //STScnNode2dProps
 
+/** @struct STScnGpuFramebuffProps
+ *  @brief Properties for the scene rendering over the framebuffer.
+ *  @var STScnGpuFramebuffProps::viewport
+ *  Framebuffer surface's viewport rectangle.
+ *  @var STScnGpuFramebuffProps::ortho
+ *  Scene orthogonal boundaries' box.
+ */
+
 #define STScnGpuFramebuffProps_Zero        { STScnRectU_Zero, STScnAABBox3d_Zero }
 
 typedef struct STScnGpuFramebuffProps {

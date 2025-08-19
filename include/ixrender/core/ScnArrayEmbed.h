@@ -10,12 +10,17 @@
 
 #include "ixrender/core/ScnArray.h"
 
-//An optimized array that shares the same space between one embedded slot and a array at heap.
-//Great for cases where zero-or-one item is stored most of the time.
+/**
+ * @brief An optimized array that shares the same space between one embedded slot and a array at heap. Great for cases where zero-or-one item is stored most of the time.
+ */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @brief Macro that defines an struct with the necesary variables for an unordered array.
+ */
 
 #define ScnArrayEmbedStruct(NAME, TYPE)     \
     struct { \
@@ -30,6 +35,10 @@ extern "C" {
         }; \
     } NAME
 
+/**
+ * @brief Macro that initializes an unordered array.
+ */
+
 #define ScnArrayEmbed_init(CTX_REF, ARRSTPTR, INITIAL_SZ, GROWTH, ARR_TYPE) \
     if(INITIAL_SZ <= 1){ \
         (ARRSTPTR)->areMany = ScnFALSE; \
@@ -40,6 +49,10 @@ extern "C" {
         ScnArray_init(CTX_REF, &(ARRSTPTR)->many, INITIAL_SZ, GROWTH, ARR_TYPE); \
     }
 
+/**
+ * @brief Macro that destroys an unordered array.
+ */
+
 #define ScnArrayEmbed_destroy(CTX_REF, ARRSTPTR) \
     if((ARRSTPTR)->areMany){ \
         ScnArray_destroy(CTX_REF, &(ARRSTPTR)->many); \
@@ -47,11 +60,22 @@ extern "C" {
         (ARRSTPTR)->embedded.isSet = ScnFALSE; \
     }
 
+/**
+ * @brief Macro to get the current use of the unordered array.
+ */
+
 #define ScnArrayEmbed_getUse(ARRSTPTR) \
     ((ARRSTPTR)->areMany ? (ARRSTPTR)->many.use : (ARRSTPTR)->embedded.isSet ? 1 : 0)
 
+/**
+ * @brief Macro to get the pointer to the elements of the unordered array.
+ */
 #define ScnArrayEmbed_getItmsPtr(ARRSTPTR) \
     ((ARRSTPTR)->areMany ? (ARRSTPTR)->many.arr : (ARRSTPTR)->embedded.isSet ? &(ARRSTPTR)->embedded.one : NULL)
+
+/**
+ * @brief Macro that empties an unordered array.
+ */
 
 #define ScnArrayEmbed_empty(ARRSTPTR) \
     if(!(ARRSTPTR)->areMany){ \
@@ -59,6 +83,10 @@ extern "C" {
     } else { \
         ScnArray_empty(&(ARRSTPTR)->many); \
     }
+
+/**
+ * @brief Macro that adds an element to an unordered array.
+ */
 
 #define ScnArrayEmbed_addPtr(PTRDST, CTX_REF, ARRSTPTR, ITM_PTR, ARR_TYPE) \
     PTRDST = NULL; \
@@ -85,6 +113,9 @@ extern "C" {
         PTRDST = ScnArray_addPtr(CTX_REF, &(ARRSTPTR)->many, ITM_PTR, ARR_TYPE); \
     }
 
+/**
+ * @brief Macro that walks all the elements of an unordered array.
+ */
 
 #define ScnArrayEmbed_foreach(ARRSTPTR, ARR_TYPE, VAR_NAME, ...) \
     if(!(ARRSTPTR)->areMany){ \

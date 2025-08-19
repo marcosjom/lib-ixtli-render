@@ -54,6 +54,13 @@ typedef struct STScnGpuTextureChanges {
 
 //STScnGpuTextureApiItf
 
+/** @struct STScnGpuTextureApiItf
+ *  @brief Texture's API interface.
+ *  @var STScnGpuTextureApiItf::free
+ *  Method to free the texture.
+ *  @var STScnGpuTextureApiItf::sync
+ *  Method to synchronize the texture's data.
+ */
 typedef struct STScnGpuTextureApiItf {
     void        (*free)(void* data);
     //
@@ -62,16 +69,42 @@ typedef struct STScnGpuTextureApiItf {
 
 //ScnGpuTextureRef
 
+/** @struct ScnGpuTextureRef
+ *  @brief ScnGpuTexture shared pointer. An abstract object based on the currently used API.
+ */
+
 #define ScnGpuTextureRef_Zero   ScnObjRef_Zero
 
 SCN_REF_STRUCT_METHODS_DEC(ScnGpuTexture)
 
 //
 
-ScnBOOL     ScnGpuTexture_prepare(ScnGpuTextureRef ref, const STScnGpuTextureApiItf* itf, void* itfParam);
-void*       ScnGpuTexture_getApiItfParam(ScnGpuTextureRef ref);
-//
-ScnBOOL     ScnGpuTexture_sync(ScnGpuTextureRef ref, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData, const STScnGpuTextureChanges* const changes);
+/**
+ * @brief Prepares the gpu abstract object with the provided interface.
+ * @param ref Reference to object.
+ * @param itf Interface to the API.
+ * @param itfParam Parameter to be given to the interface's  methods.
+ * @return ScnTRUE on success, ScnFALSE otherwise.
+ */
+ScnBOOL ScnGpuTexture_prepare(ScnGpuTextureRef ref, const STScnGpuTextureApiItf* itf, void* itfParam);
+
+/**
+ * @brief Retrieves the gpu abstract object pointer.
+ * @param ref Reference to object.
+ * @return Abstract object's pointer on success, NULL otherwise.
+ */
+void* ScnGpuTexture_getApiItfParam(ScnGpuTextureRef ref);
+
+/**
+ * @brief Synchronizes the texture's data.
+ * @param ref Reference to object.
+ * @param cfg The texture's configuration.
+ * @param srcProps The data's properties.
+ * @param srcData The data's buffer.
+ * @param changes The changes's to be synchronized.
+ * @return ScnTRUE on success, ScnFALSE otherwise.
+ */
+ScnBOOL ScnGpuTexture_sync(ScnGpuTextureRef ref, const STScnGpuTextureCfg* const cfg, const STScnBitmapProps* const srcProps, const void* srcData, const STScnGpuTextureChanges* const changes);
 
 
 #ifdef __cplusplus

@@ -18,6 +18,10 @@ extern "C" {
 
 //ScnFramebuffRef
 
+/** @struct ScnFramebuffRef
+ *  @brief ScnFramebuff shared pointer. An object that defines a render destination.
+ */
+
 #define ScnFramebuffRef_Zero   ScnObjRef_Zero
 
 SCN_REF_STRUCT_METHODS_DEC(ScnFramebuff)
