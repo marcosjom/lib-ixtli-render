@@ -101,6 +101,8 @@
 		2CA243922E533F2A000A41C8 /* ScnApiMetalRenderJob.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CA2438F2E533F2A000A41C8 /* ScnApiMetalRenderJob.h */; };
 		2CA243932E533F2A000A41C8 /* ScnApiMetalRenderJob.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243902E533F2A000A41C8 /* ScnApiMetalRenderJob.m */; };
 		2CA243952E5345C0000A41C8 /* ScnApiItf.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CA243942E5345C0000A41C8 /* ScnApiItf.h */; };
+		2CA243C42E55DFEA000A41C8 /* ScnTextureMaker.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243C32E55DCB1000A41C8 /* ScnTextureMaker.c */; };
+		2CA243C52E55DFEA000A41C8 /* ScnTextureMaker.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243C32E55DCB1000A41C8 /* ScnTextureMaker.c */; };
 		2CBB25CB2E4A2E3400FB68FE /* ScnVertices.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2C0C0ED52E4A0D7D0059A78F /* ScnVertices.metal */; };
 /* End PBXBuildFile section */
 
@@ -155,10 +157,6 @@
 		2C0C0EFD2E4A0D7D0059A78F /* ScnRender.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnRender.c; path = ../../../src/ixrender/ScnRender.c; sourceTree = SOURCE_ROOT; };
 		2C0C0F462E4A0D8E0059A78F /* ScnMemMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnMemMap.h; path = ../../../src/utils/ScnMemMap.h; sourceTree = SOURCE_ROOT; };
 		2C0C0F472E4A0D8E0059A78F /* ScnMemMap.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnMemMap.c; path = ../../../src/utils/ScnMemMap.c; sourceTree = SOURCE_ROOT; };
-		2C0C0F482E4A0D8E0059A78F /* ScnPngLoader.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnPngLoader.c; path = ../../../src/utils/ScnPngLoader.c; sourceTree = SOURCE_ROOT; };
-		2C0C0F492E4A0D8E0059A78F /* SncPngLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SncPngLoader.h; path = ../../../src/utils/SncPngLoader.h; sourceTree = SOURCE_ROOT; };
-		2C0C0F4A2E4A0D8E0059A78F /* spng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = spng.h; path = ../../../src/utils/spng.h; sourceTree = SOURCE_ROOT; };
-		2C0C0F4B2E4A0D8E0059A78F /* spng.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = spng.c; path = ../../../src/utils/spng.c; sourceTree = SOURCE_ROOT; };
 		2C0C0F4D2E4A0DEF0059A78F /* ixtli-defs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "ixtli-defs.h"; path = "../../../include/ixrender/ixtli-defs.h"; sourceTree = SOURCE_ROOT; };
 		2C0C0F4E2E4A0DEF0059A78F /* ScnRender.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnRender.h; path = ../../../include/ixrender/ScnRender.h; sourceTree = SOURCE_ROOT; };
 		2C0C0F4F2E4A0E140059A78F /* ScnApiMetal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnApiMetal.h; path = ../../../include/ixrender/api/ScnApiMetal.h; sourceTree = SOURCE_ROOT; };
@@ -209,10 +207,8 @@
 		2C0C0F7C2E4A0E6B0059A78F /* ScnRange.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnRange.h; path = ../../../include/ixrender/type/ScnRange.h; sourceTree = SOURCE_ROOT; };
 		2C0C0F7D2E4A0E6B0059A78F /* ScnRect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnRect.h; path = ../../../include/ixrender/type/ScnRect.h; sourceTree = SOURCE_ROOT; };
 		2C0C0F7E2E4A0E6B0059A78F /* ScnSize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnSize.h; path = ../../../include/ixrender/type/ScnSize.h; sourceTree = SOURCE_ROOT; };
-		2C0C0F7F2E4A0F050059A78F /* cat256.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cat256.png; path = ../../../demos/cat256.png; sourceTree = SOURCE_ROOT; };
 		2C0C0F802E4A0F050059A78F /* MetalKitViewDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MetalKitViewDelegate.h; path = ../../../demos/MetalKitViewDelegate.h; sourceTree = SOURCE_ROOT; };
 		2C0C0F812E4A0F050059A78F /* MetalKitViewDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MetalKitViewDelegate.m; path = ../../../demos/MetalKitViewDelegate.m; sourceTree = SOURCE_ROOT; };
-		2C0C0F822E4A0F050059A78F /* nicabird.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = nicabird.png; path = ../../../demos/nicabird.png; sourceTree = SOURCE_ROOT; };
 		2C52E9BD2E4E6B8F00520297 /* ScnVertices.hlsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = ScnVertices.hlsl; sourceTree = "<group>"; };
 		2C52E9BF2E4E6B8F00520297 /* ScnApiDX12.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ScnApiDX12.cpp; sourceTree = "<group>"; };
 		2C52E9C12E4E6BAE00520297 /* ScnApiDX12.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnApiDX12.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/api/ScnApiDX12.h"; sourceTree = "<absolute>"; };
@@ -235,6 +231,8 @@
 		2CA2438F2E533F2A000A41C8 /* ScnApiMetalRenderJob.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScnApiMetalRenderJob.h; sourceTree = "<group>"; };
 		2CA243902E533F2A000A41C8 /* ScnApiMetalRenderJob.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScnApiMetalRenderJob.m; sourceTree = "<group>"; };
 		2CA243942E5345C0000A41C8 /* ScnApiItf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnApiItf.h; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/include/ixrender/api/ScnApiItf.h"; sourceTree = "<absolute>"; };
+		2CA243C22E55DCB1000A41C8 /* ScnTextureMaker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScnTextureMaker.h; sourceTree = "<group>"; };
+		2CA243C32E55DCB1000A41C8 /* ScnTextureMaker.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ScnTextureMaker.c; sourceTree = "<group>"; };
 		2CBB25C42E4A2E2C00FB68FE /* ixtli-render.metallib */ = {isa = PBXFileReference; explicitFileType = "archive.metal-library"; includeInIndex = 0; path = "ixtli-render.metallib"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -457,10 +455,8 @@
 			children = (
 				2C0C0F462E4A0D8E0059A78F /* ScnMemMap.h */,
 				2C0C0F472E4A0D8E0059A78F /* ScnMemMap.c */,
-				2C0C0F482E4A0D8E0059A78F /* ScnPngLoader.c */,
-				2C0C0F492E4A0D8E0059A78F /* SncPngLoader.h */,
-				2C0C0F4A2E4A0D8E0059A78F /* spng.h */,
-				2C0C0F4B2E4A0D8E0059A78F /* spng.c */,
+				2CA243C22E55DCB1000A41C8 /* ScnTextureMaker.h */,
+				2CA243C32E55DCB1000A41C8 /* ScnTextureMaker.c */,
 			);
 			name = utils;
 			path = ../../../src/utils;
@@ -469,10 +465,8 @@
 		2C0C0F832E4A0F050059A78F /* demos */ = {
 			isa = PBXGroup;
 			children = (
-				2C0C0F7F2E4A0F050059A78F /* cat256.png */,
 				2C0C0F802E4A0F050059A78F /* MetalKitViewDelegate.h */,
 				2C0C0F812E4A0F050059A78F /* MetalKitViewDelegate.m */,
-				2C0C0F822E4A0F050059A78F /* nicabird.png */,
 			);
 			name = demos;
 			path = ../../../demos;
@@ -650,6 +644,7 @@
 				2CA2437E2E533ECB000A41C8 /* ScnApiMetalTexture.m in Sources */,
 				2C0C0F3D2E4A0D7D0059A78F /* ScnApiMetal.m in Sources */,
 				2C0C0F3E2E4A0D7D0059A78F /* ScnFramebuff.c in Sources */,
+				2CA243C42E55DFEA000A41C8 /* ScnTextureMaker.c in Sources */,
 				2CA243752E533E5D000A41C8 /* ScnApiMetalBuffer.m in Sources */,
 				2C0C0F3F2E4A0D7D0059A78F /* ScnGpuRenderbuff.c in Sources */,
 				2CA243842E533EEC000A41C8 /* ScnApiMetalRenderStates.m in Sources */,
@@ -699,6 +694,7 @@
 				2CA2437F2E533ECB000A41C8 /* ScnApiMetalTexture.m in Sources */,
 				2C0C0F1A2E4A0D7D0059A78F /* ScnApiMetal.m in Sources */,
 				2C0C0F1B2E4A0D7D0059A78F /* ScnFramebuff.c in Sources */,
+				2CA243C52E55DFEA000A41C8 /* ScnTextureMaker.c in Sources */,
 				2CA243732E533E5D000A41C8 /* ScnApiMetalBuffer.m in Sources */,
 				2C0C0F1C2E4A0D7D0059A78F /* ScnGpuRenderbuff.c in Sources */,
 				2CA243822E533EEC000A41C8 /* ScnApiMetalRenderStates.m in Sources */,

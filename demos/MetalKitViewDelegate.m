@@ -11,7 +11,7 @@
 #include "ixrender/api/ScnApiMetal.h"
 #include "ixrender/type/ScnBitmap.h"
 #include "../src/utils/ScnMemMap.h"
-#include "../src/utils/SncPngLoader.h"
+#include "../src/utils/ScnTextureMaker.h"
 
 // Custom memory allocation for this demos and tests,
 // for detecting memory-leaks using ScnMemMap.
@@ -93,41 +93,30 @@ NS_ASSUME_NONNULL_BEGIN
                 } else if(!ScnFramebuff_bindToOSView(framebuff, (__bridge void*)metalKitView)){
                     SCN_PRINTF_ERROR("ScnFramebuff_bindToOSView failed.\n");
                 } else {
-                    //load texture
-                    const char* texPath = [[NSString stringWithFormat:@"%@/cat256.png", [[NSBundle mainBundle] resourcePath]] UTF8String];
-                    if(!ScnPngLoader_loadFromPath(ctx, texPath, &bmp.props, (void**)&bmp.data.ptr, &bmp.data.use)){
-                        SCN_PRINTF_ERROR("ScnPngLoader_loadFromPath failed for: '%s'.\n", texPath);
-                    } else
-                    /*const char* texPath = "runtime-drawing";
-                    bmp.props       = ScnBitmapProps_build(256, 256, ENScnBitmapColor_RGBA8);
-                    bmp.data.use    = bmp.props.bytesPerLine * bmp.props.size.height;
-                    bmp.data.ptr    = (ScnBYTE*)ScnContext_malloc(ctx, bmp.data.use, SCN_DBG_STR("bmp.data.ptr "));
-                    {
-                        ScnUI32* p32 = (ScnUI32*)bmp.data.ptr;
-                        const ScnUI32* p32AfterEnd = p32 + (bmp.data.use / 4);
-                        while(p32 < p32AfterEnd){
-                            *p32 = (0xA0 << 24) | (0x10 << 16) | (0x25 << 8) | 0xFF;
-                            ++p32;
-                        }
-                    }*/
-                    {
-                        printf("PNG loaded: '%s'.\n", texPath);
+                    //build demo texture's bitmap
+                    ScnBitmapRef bmp = ScnTextureMaker_make(ctx, 256, 256, ENScnBitmapColor_RGBA8, 32);
+                    if(ScnBitmap_isNull(bmp)){
+                        SCN_PRINTF_ERROR("ScnTextureMaker_make failed.\n");
+                    } else {
+                        printf("Texture created.\n");
+                        void* bmpData = NULL;
+                        const STScnBitmapProps bmpProps = ScnBitmap_getProps(bmp, &bmpData);
                         STScnGpuTextureCfg texCfg = STScnGpuTextureCfg_Zero;
-                        texCfg.width = bmp.props.size.width;
-                        texCfg.height = bmp.props.size.height;
-                        texCfg.color = bmp.props.color;
-                        tex = ScnRender_allocTexture(render, ENScnResourceMode_Static, &texCfg, &bmp.props, bmp.data.ptr);
+                        texCfg.width    = bmpProps.size.width;
+                        texCfg.height   = bmpProps.size.height;
+                        texCfg.color    = bmpProps.color;
+                        tex = ScnRender_allocTexture(render, ENScnResourceMode_Static, &texCfg, &bmpProps, bmpData);
                         if(ScnTexture_isNull(tex)){
-                            SCN_PRINTF_ERROR("ScnRender_allocTexture failed for: '%s'.\n", texPath);
+                            SCN_PRINTF_ERROR("ScnRender_allocTexture failed.\n");
                         } else {
                             node = ScnNode2d_alloc(ctx);
                             model = ScnRender_allocModel(render);
                             if(ScnNode2d_isNull(node) || ScnModel2d_isNull(model)){
                                 SCN_PRINTF_ERROR("ScnNode2d_alloc or ScnRender_allocModel failed.\n");
                             } else {
-                                vertsSz = 3;
+                                vertsSz = 4;
                                 verts   = ScnModel2d_addDrawTex(model, ENScnRenderShape_TriangStrip, vertsSz, tex);
-                                [self updateModelVerts:metalKitView.drawableSize];
+                                [self updateModelVertsSquare:metalKitView.drawableSize];
                                 framesCount = 0;
                                 printf("Ixtli and demo initialized.\n");
                             }
@@ -172,7 +161,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)updateModelVerts:(CGSize)sz
+- (void)updateModelVertsTriang:(CGSize)sz
 {
     //build triangle with coord (0,0) as his center
     const float smallSz = (sz.width < sz.height ? sz.width : sz.height);
@@ -190,6 +179,36 @@ NS_ASSUME_NONNULL_BEGIN
     rad = DEG_2_RAD(90.f + (360.f * 2.f / 3.f));
     vs[2] = v = &verts.ptr[2]; v->x = smallSzHalf * cosf(rad); v->y = smallSzHalf * sinf(rad);  v->color.r = 155; v->color.g = 255; v->color.b = 55;  v->color.a = 255;
     v->tex.x = 1.f; v->tex.y = 1.f;
+    //move to the center of the viewport
+    ScnNode2d_setTranslateXY(node, sz.width / 2.f, sz.height / 2.f);
+}
+
+- (void)updateModelVertsSquare:(CGSize)sz
+{
+    //build triangle with coord (0,0) as his center
+    const float smallSz = (sz.width < sz.height ? sz.width : sz.height);
+    const float smallSzHalf = smallSz / 4.f;
+    STScnVertex2DTex *v, *vs[4];
+    //
+    vs[0] = v = &verts.ptr[0];
+    v->x = -smallSzHalf; v->y = -smallSzHalf;
+    v->tex.x = 0.f; v->tex.y = 0.f;
+    v->color.r = 255; v->color.g = 55;  v->color.b = 155; v->color.a = 255;
+    //
+    vs[1] = v = &verts.ptr[1];
+    v->x = smallSzHalf; v->y = -smallSzHalf;
+    v->tex.x = 1.f; v->tex.y = 0.f;
+    v->color.r = 255; v->color.g = 55;  v->color.b = 155; v->color.a = 255;
+    //
+    vs[2] = v = &verts.ptr[2];
+    v->x = -smallSzHalf; v->y = smallSzHalf;
+    v->tex.x = 0.f; v->tex.y = 1.f;
+    v->color.r = 255; v->color.g = 55;  v->color.b = 155; v->color.a = 255;
+    //
+    vs[3] = v = &verts.ptr[3];
+    v->x = smallSzHalf; v->y = smallSzHalf;
+    v->tex.x = 1.f; v->tex.y = 1.f;
+    v->color.r = 255; v->color.g = 55;  v->color.b = 155; v->color.a = 255;
     //move to the center of the viewport
     ScnNode2d_setTranslateXY(node, sz.width / 2.f, sz.height / 2.f);
 }
@@ -226,7 +245,7 @@ NS_ASSUME_NONNULL_BEGIN
     //NSLog(@"MetalKitViewDelegate, mtkView:drawableSizeWillChange(%f, %f).\n", size.width, size.height);
     //sync model vertices
     if(!ScnModel2d_isNull(model)){
-        [self updateModelVerts:size];
+        [self updateModelVertsSquare:size];
         ScnModel2d_v1FlagForSync(model, verts, vertsSz);
     }
     //sync framebuffer

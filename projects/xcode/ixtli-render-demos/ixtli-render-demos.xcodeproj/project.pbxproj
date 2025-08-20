@@ -9,18 +9,12 @@
 /* Begin PBXBuildFile section */
 		2C5CD0D82E36BC55007BBDA6 /* libixtli-render-mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C5CCF982E3535FC007BBDA6 /* libixtli-render-mac.a */; };
 		2C82A8D82E4E011500EC8C38 /* libixtli-render-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C82A8D72E4E011500EC8C38 /* libixtli-render-ios.a */; };
+		2CA243C82E55E62B000A41C8 /* ScnTextureMaker.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243C72E55E62B000A41C8 /* ScnTextureMaker.c */; };
+		2CA243C92E55E62B000A41C8 /* ScnTextureMaker.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243C72E55E62B000A41C8 /* ScnTextureMaker.c */; };
 		2CB10D712E40C3630056266A /* MetalKitViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D6F2E40C3630056266A /* MetalKitViewDelegate.m */; };
 		2CB10D722E40C3630056266A /* MetalKitViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D6F2E40C3630056266A /* MetalKitViewDelegate.m */; };
 		2CB10D7A2E40C3870056266A /* ScnMemMap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D762E40C3870056266A /* ScnMemMap.c */; };
-		2CB10D7B2E40C3870056266A /* ScnPngLoader.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D772E40C3870056266A /* ScnPngLoader.c */; };
 		2CB10D802E40C3870056266A /* ScnMemMap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D762E40C3870056266A /* ScnMemMap.c */; };
-		2CB10D812E40C3870056266A /* ScnPngLoader.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D772E40C3870056266A /* ScnPngLoader.c */; };
-		2CB10D872E40C7150056266A /* nicabird.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CB10D862E40C7150056266A /* nicabird.png */; };
-		2CB10D882E40C7150056266A /* nicabird.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CB10D862E40C7150056266A /* nicabird.png */; };
-		2CB10D8C2E40DC930056266A /* spng.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D8B2E40DC930056266A /* spng.c */; };
-		2CB10D8D2E40DC930056266A /* spng.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D8B2E40DC930056266A /* spng.c */; };
-		2CB10D962E40E34D0056266A /* cat256.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CB10D932E40E34D0056266A /* cat256.png */; };
-		2CB10D982E40E34D0056266A /* cat256.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CB10D932E40E34D0056266A /* cat256.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,16 +25,12 @@
 		2C82A8D72E4E011500EC8C38 /* libixtli-render-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libixtli-render-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C9C87CB2E3CBCB8008005C8 /* ixtli-render-demos-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ixtli-render-demos-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C9C88152E3CC31C008005C8 /* libixtlu-render-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libixtlu-render-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CA243C62E55E62B000A41C8 /* ScnTextureMaker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScnTextureMaker.h; sourceTree = "<group>"; };
+		2CA243C72E55E62B000A41C8 /* ScnTextureMaker.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ScnTextureMaker.c; sourceTree = "<group>"; };
 		2CB10D6E2E40C3630056266A /* MetalKitViewDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MetalKitViewDelegate.h; path = ../../../demos/MetalKitViewDelegate.h; sourceTree = SOURCE_ROOT; };
 		2CB10D6F2E40C3630056266A /* MetalKitViewDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MetalKitViewDelegate.m; path = ../../../demos/MetalKitViewDelegate.m; sourceTree = SOURCE_ROOT; };
 		2CB10D752E40C3870056266A /* ScnMemMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnMemMap.h; path = ../../../src/utils/ScnMemMap.h; sourceTree = SOURCE_ROOT; };
 		2CB10D762E40C3870056266A /* ScnMemMap.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnMemMap.c; path = ../../../src/utils/ScnMemMap.c; sourceTree = SOURCE_ROOT; };
-		2CB10D772E40C3870056266A /* ScnPngLoader.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnPngLoader.c; path = ../../../src/utils/ScnPngLoader.c; sourceTree = SOURCE_ROOT; };
-		2CB10D782E40C3870056266A /* SncPngLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SncPngLoader.h; path = ../../../src/utils/SncPngLoader.h; sourceTree = SOURCE_ROOT; };
-		2CB10D862E40C7150056266A /* nicabird.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = nicabird.png; path = ../../../demos/nicabird.png; sourceTree = SOURCE_ROOT; };
-		2CB10D8A2E40DC930056266A /* spng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = spng.h; path = ../../../src/utils/spng.h; sourceTree = SOURCE_ROOT; };
-		2CB10D8B2E40DC930056266A /* spng.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = spng.c; path = ../../../src/utils/spng.c; sourceTree = SOURCE_ROOT; };
-		2CB10D932E40E34D0056266A /* cat256.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cat256.png; path = ../../../demos/cat256.png; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -106,8 +96,6 @@
 			children = (
 				2CB10D6E2E40C3630056266A /* MetalKitViewDelegate.h */,
 				2CB10D6F2E40C3630056266A /* MetalKitViewDelegate.m */,
-				2CB10D862E40C7150056266A /* nicabird.png */,
-				2CB10D932E40E34D0056266A /* cat256.png */,
 			);
 			name = demos;
 			path = ../../../demos;
@@ -118,10 +106,8 @@
 			children = (
 				2CB10D752E40C3870056266A /* ScnMemMap.h */,
 				2CB10D762E40C3870056266A /* ScnMemMap.c */,
-				2CB10D782E40C3870056266A /* SncPngLoader.h */,
-				2CB10D772E40C3870056266A /* ScnPngLoader.c */,
-				2CB10D8A2E40DC930056266A /* spng.h */,
-				2CB10D8B2E40DC930056266A /* spng.c */,
+				2CA243C62E55E62B000A41C8 /* ScnTextureMaker.h */,
+				2CA243C72E55E62B000A41C8 /* ScnTextureMaker.c */,
 			);
 			name = utils;
 			path = ../../../src/utils;
@@ -238,8 +224,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2CB10D872E40C7150056266A /* nicabird.png in Resources */,
-				2CB10D982E40E34D0056266A /* cat256.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -247,8 +231,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2CB10D882E40C7150056266A /* nicabird.png in Resources */,
-				2CB10D962E40E34D0056266A /* cat256.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -259,10 +241,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CA243C92E55E62B000A41C8 /* ScnTextureMaker.c in Sources */,
 				2CB10D712E40C3630056266A /* MetalKitViewDelegate.m in Sources */,
 				2CB10D802E40C3870056266A /* ScnMemMap.c in Sources */,
-				2CB10D812E40C3870056266A /* ScnPngLoader.c in Sources */,
-				2CB10D8D2E40DC930056266A /* spng.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,10 +251,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CA243C82E55E62B000A41C8 /* ScnTextureMaker.c in Sources */,
 				2CB10D722E40C3630056266A /* MetalKitViewDelegate.m in Sources */,
 				2CB10D7A2E40C3870056266A /* ScnMemMap.c in Sources */,
-				2CB10D7B2E40C3870056266A /* ScnPngLoader.c in Sources */,
-				2CB10D8C2E40DC930056266A /* spng.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
