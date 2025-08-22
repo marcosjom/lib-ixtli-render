@@ -29,6 +29,8 @@ extern "C" {
  *  Sorted array of non-overlaping ranges; empty if all is ScnTRUE.
  */
 
+#define ScnChangesRngs_Zero { ScnContextRef_Zero, ScnFALSE, 0, ScnArraySorted_Zero }
+
 typedef struct STScnChangesRngs {
     ScnContextRef   ctx;
     ScnBOOL         all; //the whole buffer must be synchronized
@@ -76,7 +78,7 @@ ScnBOOL ScnChangesRngs_mergeRng(STScnChangesRngs* obj, const STScnRangeU* rng);
  * @param obj Objetc's pointer.
  * @param other Ranges to add or merge.
  */
-void    ScnChangesRngs_mergeWithOther(STScnChangesRngs* obj, const STScnChangesRngs* const other);
+void ScnChangesRngs_mergeWithOther(STScnChangesRngs* obj, const STScnChangesRngs* const other);
 
 /**
  * @brief Validates the current non-overlaping ranges array and accumulation.

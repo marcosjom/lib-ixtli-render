@@ -653,10 +653,10 @@ ScnBOOL ScnModel2d_i3UpdateTexture(ScnModel2dRef ref, STScnVertexIdxPtr ptr, Scn
 
 //draw commands to consumer
 
-ScnBOOL ScnModel2d_sendRenderCmds(ScnModel2dRef ref, const STScnGpuModelProps2d* const props, STScnModel2dPushItf* itf, void* itfParam){
+ScnBOOL ScnModel2d_sendRenderCmds(ScnModel2dRef ref, const STScnGpuModelProps2d* const props, ScnModel2dPushCmdsFunc fnc, void* fncParam){
     ScnBOOL r = ScnFALSE;
     STScnModel2dOpq* opq = (STScnModel2dOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    if(!(itf != NULL && itf->addCommandsWithProps != NULL)){
+    if(fnc == NULL){
         return r;
     }
     ScnMutex_lock(opq->mutex);
@@ -664,7 +664,7 @@ ScnBOOL ScnModel2d_sendRenderCmds(ScnModel2dRef ref, const STScnGpuModelProps2d*
         const STScnModel2dCmd* cmds = ScnArrayEmbed_getItmsPtr(&opq->cmds);
         const ScnUI32 cmdsSz = ScnArrayEmbed_getUse(&opq->cmds);
         //void* data, const STScnNode2dProps* props, const STScnModel2dCmd* cmds, const ScnUI32 cmdsSz
-        r = (*itf->addCommandsWithProps)(itfParam, props, cmds, cmdsSz);
+        r = (*fnc)(fncParam, props, cmds, cmdsSz);
     }
     ScnMutex_unlock(opq->mutex);
     return r;

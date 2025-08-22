@@ -9,90 +9,16 @@
 #define ScnMemBlock_h
 
 #include "ixrender/ixtli-defs.h"
+#include "ixrender/core/ScnAbsPtr.h"
+#include "ixrender/core/ScnMemBlockPtr.h"
+#include "ixrender/core/ScnMemBlockAllocItf.h"
+#include "ixrender/core/ScnMemBlockCfg.h"
 #include "ixrender/core/ScnObjRef.h"
 #include "ixrender/type/ScnRange.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-//STScnMemBlockPtr
-
-/** @struct STScnMemBlockPtr
- *  @brief Describes a block of allocated memory.
- *  @var STScnMemBlockPtr::ptr
- *  Pointer to memory.
- *  @var STScnMemBlockPtr::sz
- *  Size of memory block.
- */
-
-#define STScnMemBlockPtr_Zero { NULL, 0 }
-
-typedef struct STScnMemBlockPtr {
-    void*       ptr;  //pointer returned by 'ScnMemBlock_malloc'
-    ScnUI32     sz;   //size at 'ScnMemBlock_malloc' call
-} STScnMemBlockPtr;
-
-//STScnAbsPtr, abstract pointer
-
-/** @struct STScnAbsPtr
- *  @brief Describes a reserved memory chunk.
- *  @var STScnAbsPtr::ptr
- *  Pointer to memory. This pointer is an absolute address and should be valid until freed.
- *  @var STScnAbsPtr::idx
- *  Relative index; index zero is the first address.
- *  @var STScnAbsPtr::itfParam
- *  Opaque object to which this chunk belongs.
- */
-
-#define STScnAbsPtr_Zero { NULL, 0, NULL }
-
-typedef struct STScnAbsPtr {
-    void*       ptr;    //memory address, must be first element of struct to allow casting struct to a bare-pointer.
-    ScnUI32     idx;    //abstract address
-    void*       itfParam; //object to wich the memory block belongs (the ScnMemBlock itself if no custom itf was provided)
-} STScnAbsPtr;
-
-//STScnMemBlockCfg
-
-/** @struct STScnMemBlockCfg
- *  @brief Memory block configuration.
- *  @var STScnMemBlockCfg::size
- *  Size of the block in bytes; the size never changes once the block is allocated.
- *  @var STScnMemBlockCfg::sizeAlign
- *  Alignment of the block's size. A block bigger that the requested size could be allocated to respect this alignment.
- *  @var STScnMemBlockCfg::idxsAlign
- *  Block's internal allocations aligment. A chunk bigger than the requjest size could be allocated to respect this alignment.
- *  @var STScnMemBlockCfg::isIdxZeroValid
- *  Determines if the idx==0 is a valid address for allocations; if not, idx=idxsAlign is the first address asignable.
- */
-
-#define STScnMemBlockCfg_Zero { 0, 0, 0, ScnFALSE }
-
-typedef struct STScnMemBlockCfg {
-    ScnUI32 size;           //ammount of bytes allocable (including the idx-0)
-    ScnUI32 sizeAlign;      //whole memory block size alignment
-    ScnUI32 idxsAlign;      //individual pointers alignment
-    ScnBOOL isIdxZeroValid; //idx=0 is an assignable address, if not, the first assignable address is 'idxsAlign * 1'.
-} STScnMemBlockCfg;
-
-//STScnMemBlockItf
-
-/** @struct STScnMemBlockItf
- *  @brief Interface for allocation of the ScnMemBlock internal fixed memory chunk.
- *  @note The memory chunk could be a system memory chunk or another abstract object, like a gpu-heap.
- *  @var STScnMemBlockItf::malloc
- *  Method for allocating the memory chunk.
- *  @var STScnMemBlockItf::free
- *  Method for freeing the memory chunk.
- */
-
-#define STScnMemBlockAllocItf_Zero  { NULL, NULL }
-
-typedef struct STScnMemBlockAllocItf {
-    void*   (*malloc)(const ScnUI32 size, const char* dbgHintStr, void* itfParam);
-    void    (*free)(void* ptr, void* itfParam);
-} STScnMemBlockAllocItf;
 
 //ScnMemBlockRef
 
@@ -186,30 +112,24 @@ void ScnMemBlock_clear(ScnMemBlockRef ref); //clears the index, all pointers are
 
 //dbg
 
-//STScnMemPushPtrsItf
+//ScnMemBlockPushBlockPtrsFunc
 
-/** @struct STScnMemPushPtrsItf
- *  @brief Interface to pass forward the pointers allocated inside a ScnMemChunk.
- *  @var STScnMemPushPtrsItf::pushBlockPtrs
- *  Method to which the allocated pointers will be pushed to.
+/** @typedef ScnMemBlockPushBlockPtrsFunc
+ *  @brief Function to send a allocated pointers o.
  */
 
-#define STScnMemPushPtrsItf_Zero  { NULL }
-
-typedef struct STScnMemPushPtrsItf {
-    ScnBOOL (*pushBlockPtrs)(void* data, const ScnUI32 rootIndex, const void* rootAddress, const STScnMemBlockPtr* const ptrs, const ScnUI32 ptrsSz);
-} STScnMemPushPtrsItf;
+typedef ScnBOOL (*ScnMemBlockPushBlockPtrsFunc)(void* data, const ScnUI32 rootIndex, const void* rootAddress, const STScnMemBlockPtr* const ptrs, const ScnUI32 ptrsSz);
 
 /**
  * @brief Sends the allocation-index to the specified interface.
  * @note Intended for debug purposes only.
  * @param ref Reference to object.
  * @param rootIndexToPass Index/offset value to be passed down to the interface.
- * @param itf Interface to pass the pointers to.
- * @param itfParam Param to pass the interface methods.
+ * @param fnc Method to pass the pointers to.
+ * @param fncParam Param to pass to the method.
  * @return ScnTRUE on success, ScnFALSE otherwise.
  */
-ScnBOOL ScnMemBlock_pushPtrs(ScnMemBlockRef ref, const ScnUI32 rootIndexToPass, STScnMemPushPtrsItf* itf, void* itfParam);
+ScnBOOL ScnMemBlock_pushPtrs(ScnMemBlockRef ref, const ScnUI32 rootIndexToPass, ScnMemBlockPushBlockPtrsFunc fnc, void* fncParam);
 
 /**
  * @brief Validates the allocated-pointers index, gaps and internal variables. All gaps and pointers should be sequential.

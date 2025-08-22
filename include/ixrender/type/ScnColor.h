@@ -44,33 +44,30 @@ typedef struct STScnColor {
 
 //STScnColor8
 
-#define SCN_COLOR8_R_MSK             0xFF000000u    //1111-1111 0000-0000 0000-0000 0000-0000b
-#define SCN_COLOR8_R_BIT_FIRST       0x1000000u    //0000-0001 0000-0000 0000-0000 0000-0000b
-#define SCN_COLOR8_R_BIT_LAST        0x80000000u    //1000-0000 0000-0000 0000-0000 0000-0000b
-#define SCN_COLOR8_R_MSK_MAX         0xFFu        //
+#define SCN_COLOR8_R_MSK             0xFF000000u //1111-1111 0000-0000 0000-0000 0000-0000b
+#define SCN_COLOR8_R_BIT_FIRST       0x1000000u  //0000-0001 0000-0000 0000-0000 0000-0000b
+#define SCN_COLOR8_R_BIT_LAST        0x80000000u //1000-0000 0000-0000 0000-0000 0000-0000b
+#define SCN_COLOR8_R_MSK_MAX         0xFFu       //
 //
-#define SCN_COLOR8_G_MSK             0xFF0000u    //0000-0000 1111-1111 0000-0000 0000-0000b
-#define SCN_COLOR8_G_BIT_FIRST       0x10000u    //0000-0000 0000-0001 0000-0000 0000-0000b
-#define SCN_COLOR8_G_BIT_LAST        0x800000u    //0000-0000 1000-0000 0000-0000 0000-0000b
-#define SCN_COLOR8_G_MSK_MAX         0xFFu        //
+#define SCN_COLOR8_G_MSK             0xFF0000u  //0000-0000 1111-1111 0000-0000 0000-0000b
+#define SCN_COLOR8_G_BIT_FIRST       0x10000u   //0000-0000 0000-0001 0000-0000 0000-0000b
+#define SCN_COLOR8_G_BIT_LAST        0x800000u  //0000-0000 1000-0000 0000-0000 0000-0000b
+#define SCN_COLOR8_G_MSK_MAX         0xFFu      //
 //
-#define SCN_COLOR8_B_MSK             0xFFFF00u    //0000-0000 0000-0000 1111-1111 0000-0000b
-#define SCN_COLOR8_B_BIT_FIRST       0x100u        //0000-0000 0000-0000 0000-0001 0000-0000b
-#define SCN_COLOR8_B_BIT_LAST        0x8000u        //0000-0000 0000-0000 1000-0000 0000-0000b
-#define SCN_COLOR8_B_MSK_MAX         0xFFu        //
+#define SCN_COLOR8_B_MSK             0xFFFF00u  //0000-0000 0000-0000 1111-1111 0000-0000b
+#define SCN_COLOR8_B_BIT_FIRST       0x100u     //0000-0000 0000-0000 0000-0001 0000-0000b
+#define SCN_COLOR8_B_BIT_LAST        0x8000u    //0000-0000 0000-0000 1000-0000 0000-0000b
+#define SCN_COLOR8_B_MSK_MAX         0xFFu      //
 //
-#define SCN_COLOR8_A_MSK             0xFFu        //0000-0000 0000-0000 0000-0000 1111-1111b
-#define SCN_COLOR8_A_BIT_FIRST       0x1u        //0000-0000 0000-0000 0000-0000 0000-0001b
-#define SCN_COLOR8_A_BIT_LAST        0x80u        //0000-0000 0000-0000 0000-0000 1000-0000b
-#define SCN_COLOR8_A_MSK_MAX         0xFFu        //
+#define SCN_COLOR8_A_MSK             0xFFu      //0000-0000 0000-0000 0000-0000 1111-1111b
+#define SCN_COLOR8_A_BIT_FIRST       0x1u       //0000-0000 0000-0000 0000-0000 0000-0001b
+#define SCN_COLOR8_A_BIT_LAST        0x80u      //0000-0000 0000-0000 0000-0000 1000-0000b
+#define SCN_COLOR8_A_MSK_MAX         0xFFu      //
 
 #define ScnColor8_getR(V32)          (((V32) / SCN_COLOR8_R_BIT_FIRST) % (SCN_COLOR8_R_MSK_MAX + 1u))
 #define ScnColor8_getG(V32)          (((V32) / SCN_COLOR8_G_BIT_FIRST) % (SCN_COLOR8_G_MSK_MAX + 1u))
 #define ScnColor8_getB(V32)          (((V32) / SCN_COLOR8_B_BIT_FIRST) % (SCN_COLOR8_B_MSK_MAX + 1u))
 #define ScnColor8_getA(V32)          (((V32) / SCN_COLOR8_A_BIT_FIRST) % (SCN_COLOR8_A_MSK_MAX + 1u))
-
-#define STScnColor8_Zero  { { { 0, 0, 0, 0 } } }
-#define STScnColor8_255   { { { 255, 255, 255, 255 } } }
 
 /** @struct STScnColor8
  *  @brief UI8-based r-g-b-a color.
@@ -84,6 +81,9 @@ typedef struct STScnColor {
  *  @var STScnColor8::a
  *  Alpha color value.
  */
+
+#define STScnColor8_Zero  { { { 0, 0, 0, 0 } } }
+#define STScnColor8_255   { { { 255, 255, 255, 255 } } }
 
 typedef struct STScnColor8 {
     union {

@@ -9,26 +9,47 @@
 #define ScnSharedPtr_h
 
 #include "ixrender/ixtli-defs.h"
-#include "ixrender/core/ScnMemory.h"
+#include "ixrender/core/ScnMemoryItf.h"
 #include "ixrender/core/ScnMutex.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct STScnSharedPtr;
-//
 struct STScnContextItf;    //external
 
 // STScnSharedPtr (provides the retain/release model)
 
 typedef void (*ScnSharedPtrDestroyOpqFunc)(void* opq);
 
+// STScnSharedPtr (provides retain/release model)
+
+/** @struct STScnSharedPtr
+ *  @brief Shared pointer.
+ *  @var STScnSharedPtr::opq
+ *  Opaque internal pointer.
+ *  @var STScnSharedPtr::mutex
+ *  Mutex for the retain-count.
+ *  @var STScnSharedPtr::retainCount
+ *  Retain count.
+ *  @var STScnSharedPtr::memItf
+ *  Memory allocator interface.
+ *  @var STScnSharedPtr::opqDestroyFunc
+ *  Function to be called to destroy and free the opaque pointer.
+ */
+typedef struct STScnSharedPtr {
+    void*           opq;        //opaque object, must be first member to allow toll-free casting
+    ScnMutexRef     mutex;
+    ScnSI32         retainCount;
+    STScnMemoryItf  memItf;
+    ScnSharedPtrDestroyOpqFunc opqDestroyFunc;
+} STScnSharedPtr;
+
 /**
  * @brief Allocates a shared pointer.
  * @param ctx ScnContext interface to be used.
  * @param opqDestroyFunc Function for destruction and freeing of the allocated pointer.
- * @param opqDestroyFunc Parameter to be passed ot the destruction function.
+ * @param opq Parameter to be passed ot the destruction function.
  * @param optDbgHintStr String used as debuggin hint, optinal.
  * @return Allocated pointer on success, NULL otherwise.
  */
@@ -59,29 +80,6 @@ void ScnSharedPtr_retain(struct STScnSharedPtr* obj);
  * @return The retain-count after the operation.
  */
 ScnSI32 ScnSharedPtr_release(struct STScnSharedPtr* obj);
-
-// STScnSharedPtr (provides retain/release model)
-
-/** @struct STScnSharedPtr
- *  @brief Shared pointer.
- *  @var STScnSharedPtr::opq
- *  Opaque internal pointer.
- *  @var STScnSharedPtr::mutex
- *  Mutex for the retain-count.
- *  @var STScnSharedPtr::retainCount
- *  Retain count.
- *  @var STScnSharedPtr::memItf
- *  Memory allocator interface.
- *  @var STScnSharedPtr::opqDestroyFunc
- *  Function to be called to destroy and free the opaque pointer.
- */
-typedef struct STScnSharedPtr {
-    void*           opq;        //opaque object, must be first member to allow toll-free casting
-    ScnMutexRef     mutex;
-    ScnSI32         retainCount;
-    STScnMemoryItf  memItf;
-    ScnSharedPtrDestroyOpqFunc opqDestroyFunc;
-} STScnSharedPtr;
 
 #ifdef __cplusplus
 } //extern "C"

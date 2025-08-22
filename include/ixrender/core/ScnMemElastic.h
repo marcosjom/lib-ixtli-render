@@ -11,40 +11,12 @@
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/core/ScnObjRef.h"
 #include "ixrender/core/ScnMemBlock.h"
+#include "ixrender/core/ScnMemElasticCfg.h"
 #include "ixrender/type/ScnRange.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-//STScnMemBlockCfg
-
-/** @struct STScnMemElasticCfg
- *  @brief Elastic memory block configuration.
- *  @var STScnMemElasticCfg::sizePerBlock
- *  Size per memory block in the elastic chain.
- *  @var STScnMemElasticCfg::sizeInitial
- *  Minimal initial size in bytes to be allocated in the elastic memory block.
- *  @var STScnMemElasticCfg::sizeMax
- *  Maximun size in bytes to be allocated in the elastic memory block, zero means unlimited.
- *  @var STScnMemElasticCfg::sizeAlign
- *  Alignment of each block's size.
- *  @var STScnMemElasticCfg::idxsAlign
- *  Block's internal allocations aligment. A chunk bigger than the requjest size could be allocated to respect this alignment.
- *  @var STScnMemElasticCfg::isIdxZeroValid
- *  Determines if the idx==0 is a valid address for allocations; if not, idx=idxsAlign is the first address asignable.
- */
-
-#define STScnMemElasticCfg_Zero { 0, 0, 0, 0, 0, ScnFALSE }
-
-typedef struct STScnMemElasticCfg {
-    ScnUI32 sizePerBlock;   //ammount of bytes allocable per block (including the idx-0)
-    ScnUI32 sizeInitial;    //memory to allocate initially
-    ScnUI32 sizeMax;        //max allowed size in bytes (0 is infinite)
-    ScnUI32 sizeAlign;      //whole memory block size alignment
-    ScnUI32 idxsAlign;      //individual pointers alignment
-    ScnBOOL isIdxZeroValid; //idx=0 is an assignable address
-} STScnMemElasticCfg;
 
 //ScnMemElasticRef
 
@@ -153,11 +125,11 @@ void ScnMemElastic_clear(ScnMemElasticRef ref);
  * @brief Sends the allocation-index to the specified interface.
  * @note Intended for debug purposes only.
  * @param ref Reference to object.
- * @param itf Interface to pass the pointers to.
- * @param itfParam Param to pass the interface methods.
+ * @param fnc Method to pass the pointers to.
+ * @param fncParam Param to pass the method.
  * @return ScnTRUE on success, ScnFALSE otherwise.
  */
-ScnBOOL ScnMemElastic_pushPtrs(ScnMemElasticRef ref, STScnMemPushPtrsItf* itf, void* itfParam);
+ScnBOOL ScnMemElastic_pushPtrs(ScnMemElasticRef ref, ScnMemBlockPushBlockPtrsFunc fnc, void* fncParam);
 
 /**
  * @brief Validates the allocated-pointers index, gaps and internal variables. All gaps and pointers should be sequential.

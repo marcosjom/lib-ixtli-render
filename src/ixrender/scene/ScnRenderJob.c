@@ -691,9 +691,7 @@ ScnBOOL ScnRenderJob_model2dAdd(ScnRenderJobRef ref, ScnModel2dRef model){
             SCN_ASSERT(!ScnMemElastic_isNull(opq->cmds.mPropsScns)) //program logic error
             SCN_ASSERT(!ScnMemElastic_isNull(opq->cmds.mPropsMdls)) //program logic error
             const STScnGpuModelProps2d tPrnt = f->stacks.transforms.arr[f->stacks.transforms.use - 1];
-            STScnModel2dPushItf itf = STScnModel2dPushItf_Zero;
-            itf.addCommandsWithProps = ScnRenderJob_model2dAdd_addCommandsWithPropsLockedOpq_;
-            if(!ScnModel2d_sendRenderCmds(model, &tPrnt, &itf, opq)){
+            if(!ScnModel2d_sendRenderCmds(model, &tPrnt, ScnRenderJob_model2dAdd_addCommandsWithPropsLockedOpq_, opq)){
                 SCN_PRINTF_ERROR("ScnRenderJob_framebuffPop::ScnModel2d_sendRenderCmds failed.\n");
             } else {
                 r = ScnTRUE;
@@ -734,9 +732,7 @@ ScnBOOL ScnRenderJob_model2dAddWithNodePropsAndMode(ScnRenderJobRef ref, ScnMode
                 } else {
                     const STScnGpuModelProps2d tPrnt = f->stacks.transforms.arr[f->stacks.transforms.use - 1];
                     const STScnGpuModelProps2d tM = ScnGpuModelProps2d_multiply(&tPrnt, &t);
-                    STScnModel2dPushItf itf = STScnModel2dPushItf_Zero;
-                    itf.addCommandsWithProps = ScnRenderJob_model2dAdd_addCommandsWithPropsLockedOpq_;
-                    if(!ScnModel2d_sendRenderCmds(model, &tM, &itf, opq)){
+                    if(!ScnModel2d_sendRenderCmds(model, &tM, ScnRenderJob_model2dAdd_addCommandsWithPropsLockedOpq_, opq)){
                         SCN_PRINTF_ERROR("ScnRenderJob_model2dAddWithNodeProps::ScnModel2d_sendRenderCmds failed.\n");
                     } else {
                         r = ScnTRUE;
@@ -744,14 +740,10 @@ ScnBOOL ScnRenderJob_model2dAddWithNodePropsAndMode(ScnRenderJobRef ref, ScnMode
                 }
                 break;
             case ScnRenderJobPushMode_Set:
-                {
-                    STScnModel2dPushItf itf = STScnModel2dPushItf_Zero;
-                    itf.addCommandsWithProps = ScnRenderJob_model2dAdd_addCommandsWithPropsLockedOpq_;
-                    if(!ScnModel2d_sendRenderCmds(model, &t, &itf, opq)){
-                        SCN_PRINTF_ERROR("ScnRenderJob_model2dAddWithNodeProps::ScnModel2d_sendRenderCmds failed.\n");
-                    } else {
-                        r = ScnTRUE;
-                    }
+                if(!ScnModel2d_sendRenderCmds(model, &t, ScnRenderJob_model2dAdd_addCommandsWithPropsLockedOpq_, opq)){
+                    SCN_PRINTF_ERROR("ScnRenderJob_model2dAddWithNodeProps::ScnModel2d_sendRenderCmds failed.\n");
+                } else {
+                    r = ScnTRUE;
                 }
                 break;
             default:

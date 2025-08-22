@@ -9,34 +9,22 @@
 #define ScnRenderCmd_h
 
 #include "ixrender/ixtli-defs.h"
-#include "ixrender/scene/ScnVertices.h"
+#include "ixrender/scene/ScnVertex.h"
 #include "ixrender/scene/ScnVertexbuffs.h"
 #include "ixrender/scene/ScnFramebuff.h"
 #include "ixrender/scene/ScnNode2dProps.h"
 #include "ixrender/scene/ScnTexture.h"
+#include "ixrender/scene/ScnRenderShape.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-//ENScnRenderShape
-
-typedef enum ENScnRenderShape {
-    ENScnRenderShape_Compute = 0, //compute vertices but not drawn
-    //
-    ENScnRenderShape_Texture,     //same as 'ENScnRenderShape_TriangStrip' with possible bitblit-optimization if matrix has no rotation.
-    ENScnRenderShape_TriangStrip, //triangles-strip, most common shape
-    ENScnRenderShape_TriangFan,   //triangles-fan
-    //
-    ENScnRenderShape_LineStrip,   //lines-strip
-    ENScnRenderShape_LineLoop,    //lines-loop
-    ENScnRenderShape_Lines,       //lines
-    ENScnRenderShape_Points,      //points
-    //Count
-    ENScnRenderShape_Count
-} ENScnRenderShape;
-
 //ENScnRenderCmd
+
+/** @enum ENScnRenderCmd
+ *  @brief Render's commands.
+ */
 
 typedef enum ENScnRenderCmd {
     ENScnRenderCmd_None = 0       //do nothing
@@ -58,6 +46,12 @@ typedef enum ENScnRenderCmd {
 } ENScnRenderCmd;
 
 //ENScnRenderCmd
+
+/** @struct STScnRenderCmd
+ *  @brief Render packaged command.
+ *  @var STScnRenderCmd::cmdId
+ *  Command identifier.
+ */
 
 typedef struct STScnRenderCmd {
     ENScnRenderCmd cmdId;          //id of the command
@@ -106,65 +100,6 @@ typedef struct STScnRenderCmd {
         } drawIndexes;
     };
 } STScnRenderCmd;
-
-//ENScnModelDrawCmdType
-
-typedef enum ENScnModelDrawCmdType {
-    ENScnModelDrawCmdType_Undef = 0,
-    //2D vertex drawing
-    ENScnModelDrawCmdType_2Dv0,
-    ENScnModelDrawCmdType_2Dv1,
-    ENScnModelDrawCmdType_2Dv2,
-    ENScnModelDrawCmdType_2Dv3,
-    //2D indexed drawing
-    ENScnModelDrawCmdType_2Di0,
-    ENScnModelDrawCmdType_2Di1,
-    ENScnModelDrawCmdType_2Di2,
-    ENScnModelDrawCmdType_2Di3,
-    //
-    ENScnModelDrawCmdType_Count,
-} ENScnModelDrawCmdType;
-
-//STScnModel2dCmd
-
-typedef struct STScnModel2dCmd {
-    ENScnModelDrawCmdType   type;
-    ENScnRenderShape        shape;
-    ScnVertexbuffsRef       vbuffs;
-    //verts
-    struct {
-        union {
-            STScnVertex2DPtr    v0;
-            STScnVertex2DTexPtr v1;
-            STScnVertex2DTex2Ptr v2;
-            STScnVertex2DTex3Ptr v3;
-        };
-        ScnUI32 count;
-    } verts;
-    //idxs
-    struct {
-        union {
-            STScnVertexIdxPtr   i0;
-            STScnVertexIdxPtr   i1;
-            STScnVertexIdxPtr   i2;
-            STScnVertexIdxPtr   i3;
-        };
-        ScnUI32 count;
-    } idxs;
-    //texs
-    ScnTextureRef texs[ENScnGpuTextureIdx_Count];
-} STScnModel2dCmd;
-
-void ScnModel2dCmd_init(STScnModel2dCmd* obj);
-void ScnModel2dCmd_destroy(STScnModel2dCmd* obj);
-
-//STScnGpuBufferApiItf
-
-#define STScnModel2dPushItf_Zero  { NULL }
-
-typedef struct STScnModel2dPushItf {
-    ScnBOOL (*addCommandsWithProps)(void* data, const STScnGpuModelProps2d* const props, const STScnModel2dCmd* const cmds, const ScnUI32 cmdsSz);
-} STScnModel2dPushItf;
 
 #ifdef __cplusplus
 } //extern "C"

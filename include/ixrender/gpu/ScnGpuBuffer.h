@@ -12,7 +12,7 @@
 #include "ixrender/core/ScnObjRef.h"
 #include "ixrender/core/ScnMemElastic.h"
 #include "ixrender/type/ScnRange.h"
-#include "ixrender/scene/ScnVertices.h"
+#include "ixrender/scene/ScnVertex.h"
 
 #ifdef __cplusplus
 extern "C" {

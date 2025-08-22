@@ -20,6 +20,8 @@
 extern "C" {
 #endif
 
+#define ScnArray_Zero   { NULL, 0, 0, 0 }
+
 /**
  * @brief Macro that defines an struct with the necesary variables for an unordered array.
  */

@@ -1,5 +1,5 @@
 //
-//  ScnMemory.h
+//  ScnMemoryItf.h
 //  ixtli-render
 //
 //  Created by Marcos Ortega on 26/7/25.

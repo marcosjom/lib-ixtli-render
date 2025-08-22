@@ -19,6 +19,14 @@ extern "C" {
 
 //STScnNode2dProps
 
+/** @struct STScnNode2dProps
+ *  @brief Describes the properties of a node in the scene tree.
+ *  @var STScnNode2dProps::c8
+ *  Node's color multiplier.
+ *  @var STScnNode2dProps::tform
+ *  Node's transformation (translation, rotation and scale)
+ */
+
 #define STScnNode2dProps_Zero        { STScnColor8_Zero, STScnTransform2d_Zero }
 #define STScnNode2dProps_Identity    { STScnColor8_255, STScnTransform2d_Identity }
 
@@ -27,6 +35,11 @@ typedef struct STScnNode2dProps {
     STScnTransform2d    tform;  //transform
 } STScnNode2dProps;
 
+/**
+ * @brief Converts a scene node props to gpu node render props.
+ * @param obj Scene node props to transform.
+ * @return The equivalent gpu render props.
+ */
 SC_INLN STScnGpuModelProps2d ScnNode2dProps_toGpuTransform(const STScnNode2dProps* const obj){
     return SCN_ST(STScnGpuModelProps2d,
         {

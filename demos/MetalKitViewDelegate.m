@@ -121,6 +121,7 @@ NS_ASSUME_NONNULL_BEGIN
                                 printf("Ixtli and demo initialized.\n");
                             }
                         }
+                        ScnBitmap_releaseAndNull(&bmp);
                     }
                 }
             }

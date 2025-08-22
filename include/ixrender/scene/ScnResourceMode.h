@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-/** @struct ENScnResourceMode
+/** @enum ENScnResourceMode
  *  @brief This library's resources modes (buffers, textures, ...).
  */
 

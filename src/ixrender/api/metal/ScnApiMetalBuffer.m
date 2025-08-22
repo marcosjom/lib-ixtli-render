@@ -142,16 +142,13 @@ ScnBOOL ScnApiMetalBuffer_syncValidate_pushBlockPtrs_(void* data, const ScnUI32 
 ScnBOOL ScnApiMetalBuffer_syncValidate_(STScnApiMetalBuffer* obj, ScnMemElasticRef mem){
     ScnBOOL r = ScnTRUE;
     ScnApiMetalBuffer_syncValidate_st st;
-    STScnMemPushPtrsItf itf;
-    ScnMemory_setZeroSt(itf);
     ScnMemory_setZeroSt(st);
-    itf.pushBlockPtrs   = ScnApiMetalBuffer_syncValidate_pushBlockPtrs_;
     st.obj              = obj;
     st.usedAddressesRng = ScnMemElastic_getUsedAddressesRng(mem);
     st.leftLimitFnd     = 0xFFFFFFFFu;
     st.rghtLimitFnd     = 0;
     {
-        r = ScnMemElastic_pushPtrs(mem, &itf, &st);
+        r = ScnMemElastic_pushPtrs(mem, ScnApiMetalBuffer_syncValidate_pushBlockPtrs_, &st);
     }
     SCN_ASSERT(st.leftLimitFnd == st.usedAddressesRng.start && st.rghtLimitFnd == (st.usedAddressesRng.start + st.usedAddressesRng.size)) //program logic error, the used-address-rng notified by the elastic-memory was miscalculated
     return r;

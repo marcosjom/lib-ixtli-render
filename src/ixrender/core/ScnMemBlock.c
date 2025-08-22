@@ -437,16 +437,16 @@ ScnBOOL ScnMemBlock_validateIndexLockepOpq_(STScnMemBlockOpq* opq){
 
 //dbg
 
-ScnBOOL ScnMemBlock_pushPtrs(ScnMemBlockRef ref, const ScnUI32 rootIndexToPass, STScnMemPushPtrsItf* itf, void* itfParam){
+ScnBOOL ScnMemBlock_pushPtrs(ScnMemBlockRef ref, const ScnUI32 rootIndexToPass, ScnMemBlockPushBlockPtrsFunc fnc, void* fncParam){
     ScnBOOL r = ScnFALSE;
     STScnMemBlockOpq* opq = (STScnMemBlockOpq*)ScnSharedPtr_getOpq(ref.ptr);
-    if(itf == NULL || itf->pushBlockPtrs == NULL){
+    if(fnc == NULL){
         //missing params
         return ScnFALSE;
     }
     ScnMutex_lock(opq->mutex);
     {
-        r = (*itf->pushBlockPtrs)(itfParam, rootIndexToPass, opq->chunk.ptr, opq->ptrs.arr, opq->ptrs.use);
+        r = (*fnc)(fncParam, rootIndexToPass, opq->chunk.ptr, opq->ptrs.arr, opq->ptrs.use);
     }
     ScnMutex_unlock(opq->mutex);
     return r;

@@ -30,7 +30,7 @@ extern "C" {
 
 typedef struct STScnGpuFramebuffProps {
     STScnRectU      viewport;   //render viewport
-    STScnAABBox3d   ortho;      //render orthogonal box
+    STScnAABBox3d   ortho;      //render scene's orthogonal box
 } STScnGpuFramebuffProps;
 
 #ifdef __cplusplus

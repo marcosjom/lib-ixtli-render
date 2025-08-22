@@ -8,7 +8,7 @@
 #include "ixrender/type/ScnBitmapProps.h"
 #include "ixrender/gpu/ScnGpuFramebuffProps.h"
 #include "ixrender/gpu/ScnGpuModelProps2d.h"
-#include "ixrender/scene/ScnVertices.h"
+#include "ixrender/scene/ScnVertex.h"
 
 
 #include <metal_stdlib>

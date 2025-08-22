@@ -1,37 +1,21 @@
 //
-//  ScnVertices.h
+//  ScnVertex.h
 //  ixtli-render-mac
 //
 //  Created by Marcos Ortega on 27/7/25.
 //
 
-#ifndef ScnVertices_h
-#define ScnVertices_h
+#ifndef ScnVertex_h
+#define ScnVertex_h
 
 #include "ixrender/ixtli-defs.h"
 #include "ixrender/type/ScnPoint.h"
 #include "ixrender/type/ScnColor.h"
+#include "ixrender/scene/ScnVertexType.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-//ENScnVertexType
-
-/** @enum ENScnVertexType
- *  @brief Predefined vertices types (zero, one, two or three textures coordinates).
- */
-
-#define ENScnVertexType_Count_Zeroes    { 0, 0, 0, 0 }
-
-typedef enum ENScnVertexType {
-    ENScnVertexType_2DColor = 0,    //2D, no texture
-    ENScnVertexType_2DTex,          //2D, one texture
-    ENScnVertexType_2DTex2,         //2D, two textures
-    ENScnVertexType_2DTex3,         //2D, three textures
-    //
-    ENScnVertexType_Count
-} ENScnVertexType;
 
 //-------------------
 //-- STScnVertexIdx

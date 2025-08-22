@@ -23,6 +23,9 @@ extern "C" {
  *  @var STScnPoint2D::y
  *  Y position
  */
+
+#define STScnPoint2D_Zero    { 0.f, 0.f }
+
 typedef struct STScnPoint2D {
     ScnFLOAT    x;
     ScnFLOAT    y;
@@ -37,6 +40,9 @@ typedef struct STScnPoint2D {
  *  @var STScnPoint2DI::y
  *  Y position
  */
+
+#define STScnPoint2DI_Zero  { 0, 0 }
+
 typedef struct STScnPoint2DI {
     ScnSI32     x;
     ScnSI32     y;

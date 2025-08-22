@@ -6,7 +6,7 @@
 //
 
 #include "ixrender/core/ScnSharedPtr.h"
-#include "ixrender/core/ScnMemory.h"
+#include "ixrender/core/ScnMemoryItf.h"
 #include "ixrender/core/ScnMutex.h"
 #include "ixrender/core/ScnContext.h"
 

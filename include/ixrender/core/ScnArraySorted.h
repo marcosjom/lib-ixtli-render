@@ -20,6 +20,8 @@
 extern "C" {
 #endif
 
+#define ScnArraySorted_Zero   { NULL, 0, 0, 0, NULL }
+
 /**
  * @brief Macro that defines an struct with the necesary variables for an sorted array.
  */

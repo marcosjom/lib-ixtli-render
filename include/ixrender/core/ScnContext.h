@@ -9,37 +9,12 @@
 #define ScnContext_h
 
 #include "ixrender/ixtli-defs.h"
-#include "ixrender/core/ScnMemory.h"
+#include "ixrender/core/ScnContextItf.h"
 #include "ixrender/core/ScnMutex.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-//STScnContextItf
-
-/** @struct STScnContextItf
- *  @brief Context interface.
- *  @var STScnContextItf::mem
- *  Memory allocation interface.
- *  @var STScnContextItf::mutex
- *  Mutexes interface.
- */
-
-typedef struct STScnContextItf {
-    STScnMemoryItf  mem;
-    STScnMutexItf   mutex;
-} STScnContextItf;
-
-STScnContextItf ScnContextItf_getDefault(void);
-
-//Links NULL methods to a DEFAULT implementation,
-//this reduces the need to check for functions NULL pointers.
-/**
- * @brief Links the passed interface NULL methods to a DEFAULT implementation. This reduces the need to check for functions NULL pointers.
- * @param itf Interface to be populated.
- */
-void ScnContextItf_fillMissingMembers(STScnContextItf* itf);
 
 //ScnContextRef
 

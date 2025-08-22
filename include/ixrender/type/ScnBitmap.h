@@ -19,24 +19,6 @@
 extern "C" {
 #endif
 
-//STScnBitmap
-
-/** @struct STScnBitmap
- *  @brief Image bitmap.
- *  @var STScnBitmap::props
- *  Bitmap description.
- *  @var STScnBitmap::data
- *  Bitmap buffer containing the payload.
- *  @var STScnBitmap::dataSz
- *  Bitmap buffer's size in bytes.
- */
-
-typedef struct STScnBitmap {
-    STScnBitmapProps    props;
-    ScnBYTE*            data;
-    ScnUI32*            dataSz;
-} STScnBitmap;
-
 //ScnBitmapRef
 
 /** @struct ScnBitmapRef

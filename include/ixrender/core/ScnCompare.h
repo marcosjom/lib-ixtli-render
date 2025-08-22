@@ -14,11 +14,6 @@
 extern "C" {
 #endif
 
-//Signature of methods used to compare two structs or variables. Used for ordered arrays.
-//Returns:  - zero if 'data1 == data2'
-//          - a positive value if 'data1 > data2'
-//          - a negative value otherwise ('data1 < data2' or invalid input)
-
 /** @brief Compare function definition.
  *  @param data1 Left side value's pointer.
  *  @param data2 Right side value's pointer.

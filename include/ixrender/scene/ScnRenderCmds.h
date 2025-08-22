@@ -12,103 +12,43 @@
 #include "ixrender/core/ScnArray.h"
 #include "ixrender/core/ScnArraySorted.h"
 #include "ixrender/core/ScnMemElastic.h"
+#include "ixrender/gpu/ScnGpuDeviceDesc.h"
+#include "ixrender/gpu/ScnGpuFramebuffProps.h"
+#include "ixrender/gpu/ScnGpuModelProps2d.h"
 #include "ixrender/scene/ScnFramebuff.h"
 #include "ixrender/scene/ScnVertexbuff.h"
 #include "ixrender/scene/ScnTexture.h"
 #include "ixrender/scene/ScnRenderCmd.h"
-#include "ixrender/gpu/ScnGpuDeviceDesc.h"
-#include "ixrender/gpu/ScnGpuFramebuffProps.h"
-#include "ixrender/gpu/ScnGpuModelProps2d.h"
+#include "ixrender/scene/ScnRenderFbuffState.h"
+#include "ixrender/scene/ScnRenderJobObj.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-//STScnRenderFbuffProps
-
-#define STScnRenderFbuffProps_Zero   { STScnGpuFramebuffProps_Zero, STScnAbsPtr_Zero }
-
-typedef struct STScnRenderFbuffProps {
-    STScnGpuFramebuffProps  props;
-    STScnAbsPtr             ptr;
-} STScnRenderFbuffProps;
-
-//STScnRenderFbuffState
-
-typedef struct STScnRenderFbuffState {
-    ScnContextRef       ctx;
-    ScnFramebuffRef     fbuff;
-    //stacks
-    struct {
-        ScnArrayStruct(props, STScnRenderFbuffProps);       //stack of props (viewport, ortho, ...)
-        ScnArrayStruct(transforms, STScnGpuModelProps2d);   //stack of transformations (color, matrix, ...)
-    } stacks;
-    //active (last state, helps to reduce redundant cmds)
-    struct {
-        ScnVertexbuffRef vbuff;
-        //texs
-        struct {
-            ScnTextureRef refs[ENScnGpuTextureIdx_Count];
-            ScnUI32     changesSeq;
-        } texs;
-    } active;
-} STScnRenderFbuffState;
-
-void ScnRenderFbuffState_init(ScnContextRef ctx, STScnRenderFbuffState* obj);
-void ScnRenderFbuffState_destroy(STScnRenderFbuffState* obj);
-//
-
-SC_INLN void ScnRenderFbuffState_resetActiveState(STScnRenderFbuffState* obj){
-    ScnMemory_setZeroSt(obj->active);
-}
-
-
-SC_INLN void ScnRenderFbuffState_reset(STScnRenderFbuffState* obj){
-    ScnArray_empty(&obj->stacks.props);
-    ScnArray_empty(&obj->stacks.transforms);
-    ScnRenderFbuffState_resetActiveState(obj);
-}
-
-SC_INLN ScnBOOL ScnRenderFbuffState_addProps(STScnRenderFbuffState* obj, const STScnRenderFbuffProps* const p){
-    return ScnArray_addPtr(obj->ctx, &obj->stacks.props, p, STScnRenderFbuffProps) != NULL ? ScnTRUE : ScnFALSE;
-}
-
-SC_INLN ScnBOOL ScnRenderFbuffState_addTransform(STScnRenderFbuffState* obj, const STScnGpuModelProps2d* const t){
-    return ScnArray_addPtr(obj->ctx, &obj->stacks.transforms, t, STScnGpuModelProps2d) != NULL ? ScnTRUE : ScnFALSE;
-}
-
-//ENScnRenderJobObjType
-
-typedef enum ENScnRenderJobObjType {
-    ENScnRenderJobObjType_Unknown = 0,
-    ENScnRenderJobObjType_Buff,
-    ENScnRenderJobObjType_Framebuff,
-    ENScnRenderJobObjType_Vertexbuff,
-    ENScnRenderJobObjType_Texture,
-    //
-    ENScnRenderJobObjType_Count
-} ENScnRenderJobObjType;
-
-//STScnRenderJobObj
-
-typedef struct STScnRenderJobObj {
-    ENScnRenderJobObjType   type;
-    union {
-        ScnObjRef           objRef;     //generic ref (compatible will all bellow it)
-        ScnBufferRef        buff;
-        ScnFramebuffRef     framebuff;
-        ScnVertexbuffRef    vertexbuff;
-        ScnTextureRef       texture;
-    };
-} STScnRenderJobObj;
-
-void ScnRenderJobObj_init(STScnRenderJobObj* obj);
-void ScnRenderJobObj_destroy(STScnRenderJobObj* obj);
-//
-ScnSI32 ScnCompare_ScnRenderJobObj(const void* data1, const void* data2, const ScnUI32 dataSz);
-
-
 //STScnRenderCmds
+
+/** @struct STScnRenderCmds
+ *  @brief Render job's commands container.
+ *  @var STScnRenderCmds::ctx
+ *  Context
+ *  @var STScnRenderCmds::isPrepared
+ *  Flag activated after a succesful call to prepare.
+ *  @var STScnRenderCmds::gpuDevDesc
+ *  Gpu device reference.
+ *  @var STScnRenderCmds::mPropsScns
+ *  Buffer's reference with scene properties.
+ *  @var STScnRenderCmds::mPropsMdls
+ *  Buffer's reference with models properties.
+ *  @var STScnRenderCmds::stackUse
+ *  Real usage of the framebuffers state stack. The stack slots are reused.
+ *  @var STScnRenderCmds::stack
+ *  Framebuffers state stack.
+ *  @var STScnRenderCmds::cmds
+ *  Render commands array.
+ *  @var STScnRenderCmds::objs
+ *  Map of objects used by the commands.
+ */
 
 typedef struct STScnRenderCmds {
     ScnContextRef       ctx;
@@ -124,13 +64,51 @@ typedef struct STScnRenderCmds {
     ScnArraySortedStruct(objs, STScnRenderJobObj);      //unique references of objects using for thias job
 } STScnRenderCmds;
 
-void    ScnRenderCmds_init(ScnContextRef ctx, STScnRenderCmds* obj);
-void    ScnRenderCmds_destroy(STScnRenderCmds* obj);
-//
+/**
+ * @brief Initializes the commands container.
+ * @param ctx Context.
+ * @param obj Reference to object.
+ */
+void ScnRenderCmds_init(ScnContextRef ctx, STScnRenderCmds* obj);
+
+/**
+ * @brief Destroys the commands container.
+ * @param obj Reference to object.
+ */
+void ScnRenderCmds_destroy(STScnRenderCmds* obj);
+
+/**
+ * @brief Prepares the commands container for adding commands.
+ * @param obj Reference to object.
+ * @param gpuDevDesc Reference to gpu device.
+ * @param propsScnsPerBlock Ammount of scene properties per memory block in the elastic memory used for storing them.
+ * @param propsMdlsPerBlock Ammount of models properties per memory block in the elastic memory used for storing them.
+ * @return ScnTRUE on success, ScnFALSE otherwise.
+ */
 ScnBOOL ScnRenderCmds_prepare(STScnRenderCmds* obj, const STScnGpuDeviceDesc* gpuDevDesc, const ScnUI32 propsScnsPerBlock, const ScnUI32 propsMdlsPerBlock);
-//
-void    ScnRenderCmds_reset(STScnRenderCmds* obj);
+
+/**
+ * @brief Resets a commands container to its prepared state.
+ * @param obj Reference to object.
+ */
+void ScnRenderCmds_reset(STScnRenderCmds* obj);
+
+/**
+ * @brief Adds a command to the container.
+ * @param obj Reference to object.
+ * @param cmd Command to add.
+ * @return ScnTRUE on success, ScnFALSE otherwise.
+ */
 ScnBOOL ScnRenderCmds_add(STScnRenderCmds* obj, const STScnRenderCmd* const cmd);
+
+/**
+ * @brief Adds an object to the container's map, as used by a command. Objects are added and retained once.
+ * @param obj Reference to object.
+ * @param type Object's type.
+ * @param objRef Object's reference.
+ * @param optDstIsFirstUse Destination to flag that determines if the object was added in this call or if already was in the map; optional.
+ * @return ScnTRUE on success, ScnFALSE otherwise.
+ */
 ScnBOOL ScnRenderCmds_addUsedObj(STScnRenderCmds* obj, const ENScnRenderJobObjType type, ScnObjRef* objRef, ScnBOOL* optDstIsFirstUse);
 
 #ifdef __cplusplus

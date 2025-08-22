@@ -8,7 +8,7 @@
 #ifndef ScnAABBox3d_h
 #define ScnAABBox3d_h
 
-#include "ixrender/type/ScnRange.h"
+#include "ixrender/type/ScnRngLimits.h"
 
 //Axis Aligned Bounding Box
 

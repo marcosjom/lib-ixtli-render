@@ -11,12 +11,14 @@
 #include "ixrender/core/ScnArray.h"
 
 /**
- * @brief An optimized array that shares the same space between one embedded slot and a array at heap. Great for cases where zero-or-one item is stored most of the time.
+ * @brief An optimized array that shares the same space between one embedded slot and a heap array. Great for cases where zero-or-one item is stored most of the time.
  */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define ScnArrayEmbed_Zero(TYPE)   { ScnFALSE, { { ScnFALSE, 0, TYPE ## _Zero } } }
 
 /**
  * @brief Macro that defines an struct with the necesary variables for an unordered array.

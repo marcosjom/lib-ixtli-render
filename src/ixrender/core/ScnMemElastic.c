@@ -422,7 +422,7 @@ void ScnMemElastic_clear(ScnMemElasticRef ref){ //clears the index, all pointers
 
 //dbg
 
-ScnBOOL ScnMemElastic_pushPtrs(ScnMemElasticRef ref, STScnMemPushPtrsItf* itf, void* itfParam){
+ScnBOOL ScnMemElastic_pushPtrs(ScnMemElasticRef ref, ScnMemBlockPushBlockPtrsFunc fnc, void* fncParam){
     ScnBOOL r = ScnFALSE;
     STScnMemElasticOpq* opq = (STScnMemElasticOpq*)ScnSharedPtr_getOpq(ref.ptr);
     ScnMutex_lock(opq->mutex);
@@ -431,7 +431,7 @@ ScnBOOL ScnMemElastic_pushPtrs(ScnMemElasticRef ref, STScnMemPushPtrsItf* itf, v
         const STScnMemElasticBlock* bAfterEnd = b + opq->blocks.use;
         r = ScnTRUE;
         while(b < bAfterEnd){
-            if(!ScnMemBlock_pushPtrs(b->block, b->iOffset, itf, itfParam)){
+            if(!ScnMemBlock_pushPtrs(b->block, b->iOffset, fnc, fncParam)){
                 r = ScnFALSE;
                 break;
             }
