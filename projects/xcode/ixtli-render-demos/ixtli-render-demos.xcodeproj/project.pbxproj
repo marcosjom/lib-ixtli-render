@@ -7,72 +7,123 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2C5CD0D82E36BC55007BBDA6 /* libixtli-render-mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C5CCF982E3535FC007BBDA6 /* libixtli-render-mac.a */; };
-		2C82A8D82E4E011500EC8C38 /* libixtli-render-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C82A8D72E4E011500EC8C38 /* libixtli-render-ios.a */; };
-		2CA243C82E55E62B000A41C8 /* ScnTextureMaker.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243C72E55E62B000A41C8 /* ScnTextureMaker.c */; };
-		2CA243C92E55E62B000A41C8 /* ScnTextureMaker.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CA243C72E55E62B000A41C8 /* ScnTextureMaker.c */; };
-		2CB10D712E40C3630056266A /* MetalKitViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D6F2E40C3630056266A /* MetalKitViewDelegate.m */; };
-		2CB10D722E40C3630056266A /* MetalKitViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D6F2E40C3630056266A /* MetalKitViewDelegate.m */; };
-		2CB10D7A2E40C3870056266A /* ScnMemMap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D762E40C3870056266A /* ScnMemMap.c */; };
-		2CB10D802E40C3870056266A /* ScnMemMap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D762E40C3870056266A /* ScnMemMap.c */; };
+		2CA244A12E5A33D0000A41C8 /* ScnVertices.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2CA244A02E5A33D0000A41C8 /* ScnVertices.metal */; };
+		2CA244A22E5A33D0000A41C8 /* ScnVertices.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2CA244A02E5A33D0000A41C8 /* ScnVertices.metal */; };
+		2CA244A32E5A33D0000A41C8 /* ScnVertices.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2CA244A02E5A33D0000A41C8 /* ScnVertices.metal */; };
+		2CA244A42E5A33D0000A41C8 /* ScnVertices.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2CA244A02E5A33D0000A41C8 /* ScnVertices.metal */; };
+		2CA244A52E5A3559000A41C8 /* MTKViewDelegateHelloTriang.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA244342E589C61000A41C8 /* MTKViewDelegateHelloTriang.m */; };
+		2CA244A62E5A3559000A41C8 /* MTKViewDelegateHelloTriang.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA244342E589C61000A41C8 /* MTKViewDelegateHelloTriang.m */; };
+		2CA244A72E5A39F2000A41C8 /* libixtli-render-mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C5CCF982E3535FC007BBDA6 /* libixtli-render-mac.a */; };
+		2CA244A82E5A39F7000A41C8 /* libixtli-render-mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C5CCF982E3535FC007BBDA6 /* libixtli-render-mac.a */; };
+		2CA244AA2E5A39FA000A41C8 /* libixtli-render-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA244A92E5A39FA000A41C8 /* libixtli-render-ios.a */; };
+		2CA244AC2E5A39FE000A41C8 /* libixtli-render-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA244AB2E5A39FE000A41C8 /* libixtli-render-ios.a */; };
+		2CA244AD2E5A3A1F000A41C8 /* ScnMemMap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D762E40C3870056266A /* ScnMemMap.c */; };
+		2CA244AE2E5A3A1F000A41C8 /* ScnMemMap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D762E40C3870056266A /* ScnMemMap.c */; };
+		2CA244AF2E5A3A1F000A41C8 /* ScnMemMap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D762E40C3870056266A /* ScnMemMap.c */; };
+		2CA244B02E5A3A1F000A41C8 /* ScnMemMap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2CB10D762E40C3870056266A /* ScnMemMap.c */; };
+		2CA244B12E5A3C9C000A41C8 /* MTKViewDelegateHelloTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA244322E589C61000A41C8 /* MTKViewDelegateHelloTexture.m */; };
+		2CA244B22E5A3C9C000A41C8 /* MTKViewDelegateHelloTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA244322E589C61000A41C8 /* MTKViewDelegateHelloTexture.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		2C5CCF942E3535B5007BBDA6 /* libixtli-render.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libixtli-render.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C5CCF962E3535C8007BBDA6 /* libixtli-render-osx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libixtli-render-osx.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C5CCF982E3535FC007BBDA6 /* libixtli-render-mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libixtli-render-mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2C5CD0C52E36B74F007BBDA6 /* ixtli-render-demos-mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ixtli-render-demos-mac.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C82A8D72E4E011500EC8C38 /* libixtli-render-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libixtli-render-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2C9C87CB2E3CBCB8008005C8 /* ixtli-render-demos-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ixtli-render-demos-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C9C88152E3CC31C008005C8 /* libixtlu-render-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libixtlu-render-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CA243C62E55E62B000A41C8 /* ScnTextureMaker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScnTextureMaker.h; sourceTree = "<group>"; };
 		2CA243C72E55E62B000A41C8 /* ScnTextureMaker.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ScnTextureMaker.c; sourceTree = "<group>"; };
-		2CB10D6E2E40C3630056266A /* MetalKitViewDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MetalKitViewDelegate.h; path = ../../../demos/MetalKitViewDelegate.h; sourceTree = SOURCE_ROOT; };
-		2CB10D6F2E40C3630056266A /* MetalKitViewDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MetalKitViewDelegate.m; path = ../../../demos/MetalKitViewDelegate.m; sourceTree = SOURCE_ROOT; };
+		2CA244312E589C61000A41C8 /* MTKViewDelegateHelloTexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTKViewDelegateHelloTexture.h; sourceTree = "<group>"; };
+		2CA244322E589C61000A41C8 /* MTKViewDelegateHelloTexture.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTKViewDelegateHelloTexture.m; sourceTree = "<group>"; };
+		2CA244332E589C61000A41C8 /* MTKViewDelegateHelloTriang.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTKViewDelegateHelloTriang.h; sourceTree = "<group>"; };
+		2CA244342E589C61000A41C8 /* MTKViewDelegateHelloTriang.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTKViewDelegateHelloTriang.m; sourceTree = "<group>"; };
+		2CA244392E5A333D000A41C8 /* hellotriang-mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "hellotriang-mac.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CA244502E5A3357000A41C8 /* hellotriang-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "hellotriang-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CA2446E2E5A3387000A41C8 /* hellotexture-mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "hellotexture-mac.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CA244852E5A339C000A41C8 /* hellotexture-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "hellotexture-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CA244A02E5A33D0000A41C8 /* ScnVertices.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; name = ScnVertices.metal; path = "/Volumes/MacSSD_HFS/NIBSA_proyectos/CltMarcosOrtega/lib-ixtli-render/src/ixrender/api/metal/shaders/ScnVertices.metal"; sourceTree = "<absolute>"; };
+		2CA244A92E5A39FA000A41C8 /* libixtli-render-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libixtli-render-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CA244AB2E5A39FE000A41C8 /* libixtli-render-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libixtli-render-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CB10D752E40C3870056266A /* ScnMemMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScnMemMap.h; path = ../../../src/utils/ScnMemMap.h; sourceTree = SOURCE_ROOT; };
 		2CB10D762E40C3870056266A /* ScnMemMap.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ScnMemMap.c; path = ../../../src/utils/ScnMemMap.c; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		2C9C87E12E3CBCBA008005C8 /* Exceptions for "ixtli-render-demos-ios" folder in "ixtli-render-demos-ios" target */ = {
+		2CA244662E5A3359000A41C8 /* Exceptions for "hellotriang-ios" folder in "hellotriang-ios" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 2C9C87CA2E3CBCB8008005C8 /* ixtli-render-demos-ios */;
+			target = 2CA2444F2E5A3357000A41C8 /* hellotriang-ios */;
+		};
+		2CA2449B2E5A339E000A41C8 /* Exceptions for "hellotexture-ios" folder in "hellotexture-ios" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 2CA244842E5A339C000A41C8 /* hellotexture-ios */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		2C5CD0C62E36B74F007BBDA6 /* ixtli-render-demos-mac */ = {
+		2CA2443A2E5A333D000A41C8 /* hellotriang-mac */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "ixtli-render-demos-mac";
+			path = "hellotriang-mac";
 			sourceTree = "<group>";
 		};
-		2C9C87CC2E3CBCB8008005C8 /* ixtli-render-demos-ios */ = {
+		2CA244512E5A3357000A41C8 /* hellotriang-ios */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				2C9C87E12E3CBCBA008005C8 /* Exceptions for "ixtli-render-demos-ios" folder in "ixtli-render-demos-ios" target */,
+				2CA244662E5A3359000A41C8 /* Exceptions for "hellotriang-ios" folder in "hellotriang-ios" target */,
 			);
-			path = "ixtli-render-demos-ios";
+			path = "hellotriang-ios";
+			sourceTree = "<group>";
+		};
+		2CA2446F2E5A3387000A41C8 /* hellotexture-mac */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "hellotexture-mac";
+			sourceTree = "<group>";
+		};
+		2CA244862E5A339C000A41C8 /* hellotexture-ios */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2CA2449B2E5A339E000A41C8 /* Exceptions for "hellotexture-ios" folder in "hellotexture-ios" target */,
+			);
+			path = "hellotexture-ios";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		2C5CD0C22E36B74F007BBDA6 /* Frameworks */ = {
+		2CA244362E5A333D000A41C8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2C5CD0D82E36BC55007BBDA6 /* libixtli-render-mac.a in Frameworks */,
+				2CA244A72E5A39F2000A41C8 /* libixtli-render-mac.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2C9C87C82E3CBCB8008005C8 /* Frameworks */ = {
+		2CA2444D2E5A3357000A41C8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2C82A8D82E4E011500EC8C38 /* libixtli-render-ios.a in Frameworks */,
+				2CA244AA2E5A39FA000A41C8 /* libixtli-render-ios.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2CA2446B2E5A3387000A41C8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2CA244A82E5A39F7000A41C8 /* libixtli-render-mac.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2CA244822E5A339C000A41C8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2CA244AC2E5A39FE000A41C8 /* libixtli-render-ios.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,6 +133,8 @@
 		2C5CCF932E3535B5007BBDA6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2CA244AB2E5A39FE000A41C8 /* libixtli-render-ios.a */,
+				2CA244A92E5A39FA000A41C8 /* libixtli-render-ios.a */,
 				2C82A8D72E4E011500EC8C38 /* libixtli-render-ios.a */,
 				2C9C88152E3CC31C008005C8 /* libixtlu-render-ios.a */,
 				2C5CCF982E3535FC007BBDA6 /* libixtli-render-mac.a */,
@@ -91,11 +144,21 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		2CA2449F2E5A33B1000A41C8 /* shaders */ = {
+			isa = PBXGroup;
+			children = (
+				2CA244A02E5A33D0000A41C8 /* ScnVertices.metal */,
+			);
+			path = shaders;
+			sourceTree = "<group>";
+		};
 		2CB10D702E40C3630056266A /* demos */ = {
 			isa = PBXGroup;
 			children = (
-				2CB10D6E2E40C3630056266A /* MetalKitViewDelegate.h */,
-				2CB10D6F2E40C3630056266A /* MetalKitViewDelegate.m */,
+				2CA244332E589C61000A41C8 /* MTKViewDelegateHelloTriang.h */,
+				2CA244342E589C61000A41C8 /* MTKViewDelegateHelloTriang.m */,
+				2CA244312E589C61000A41C8 /* MTKViewDelegateHelloTexture.h */,
+				2CA244322E589C61000A41C8 /* MTKViewDelegateHelloTexture.m */,
 			);
 			name = demos;
 			path = ../../../demos;
@@ -116,10 +179,13 @@
 		2CD60FCC2E34FC46007BAF4D = {
 			isa = PBXGroup;
 			children = (
+				2CA2449F2E5A33B1000A41C8 /* shaders */,
 				2CB10D702E40C3630056266A /* demos */,
 				2CB10D792E40C3870056266A /* utils */,
-				2C5CD0C62E36B74F007BBDA6 /* ixtli-render-demos-mac */,
-				2C9C87CC2E3CBCB8008005C8 /* ixtli-render-demos-ios */,
+				2CA2443A2E5A333D000A41C8 /* hellotriang-mac */,
+				2CA244512E5A3357000A41C8 /* hellotriang-ios */,
+				2CA2446F2E5A3387000A41C8 /* hellotexture-mac */,
+				2CA244862E5A339C000A41C8 /* hellotexture-ios */,
 				2C5CCF932E3535B5007BBDA6 /* Frameworks */,
 				2CD60FD62E34FC46007BAF4D /* Products */,
 			);
@@ -128,8 +194,10 @@
 		2CD60FD62E34FC46007BAF4D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2C5CD0C52E36B74F007BBDA6 /* ixtli-render-demos-mac.app */,
-				2C9C87CB2E3CBCB8008005C8 /* ixtli-render-demos-ios.app */,
+				2CA244392E5A333D000A41C8 /* hellotriang-mac.app */,
+				2CA244502E5A3357000A41C8 /* hellotriang-ios.app */,
+				2CA2446E2E5A3387000A41C8 /* hellotexture-mac.app */,
+				2CA244852E5A339C000A41C8 /* hellotexture-ios.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -137,48 +205,92 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2C5CD0C42E36B74F007BBDA6 /* ixtli-render-demos-mac */ = {
+		2CA244382E5A333D000A41C8 /* hellotriang-mac */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2C5CD0D52E36B752007BBDA6 /* Build configuration list for PBXNativeTarget "ixtli-render-demos-mac" */;
+			buildConfigurationList = 2CA244492E5A333F000A41C8 /* Build configuration list for PBXNativeTarget "hellotriang-mac" */;
 			buildPhases = (
-				2C5CD0C12E36B74F007BBDA6 /* Sources */,
-				2C5CD0C22E36B74F007BBDA6 /* Frameworks */,
-				2C5CD0C32E36B74F007BBDA6 /* Resources */,
+				2CA244352E5A333D000A41C8 /* Sources */,
+				2CA244362E5A333D000A41C8 /* Frameworks */,
+				2CA244372E5A333D000A41C8 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				2C5CD0C62E36B74F007BBDA6 /* ixtli-render-demos-mac */,
+				2CA2443A2E5A333D000A41C8 /* hellotriang-mac */,
 			);
-			name = "ixtli-render-demos-mac";
+			name = "hellotriang-mac";
 			packageProductDependencies = (
 			);
-			productName = "ixtli-render-demos-mac";
-			productReference = 2C5CD0C52E36B74F007BBDA6 /* ixtli-render-demos-mac.app */;
+			productName = "hellotriang-mac";
+			productReference = 2CA244392E5A333D000A41C8 /* hellotriang-mac.app */;
 			productType = "com.apple.product-type.application";
 		};
-		2C9C87CA2E3CBCB8008005C8 /* ixtli-render-demos-ios */ = {
+		2CA2444F2E5A3357000A41C8 /* hellotriang-ios */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2C9C87E22E3CBCBA008005C8 /* Build configuration list for PBXNativeTarget "ixtli-render-demos-ios" */;
+			buildConfigurationList = 2CA244672E5A3359000A41C8 /* Build configuration list for PBXNativeTarget "hellotriang-ios" */;
 			buildPhases = (
-				2C9C87C72E3CBCB8008005C8 /* Sources */,
-				2C9C87C82E3CBCB8008005C8 /* Frameworks */,
-				2C9C87C92E3CBCB8008005C8 /* Resources */,
+				2CA2444C2E5A3357000A41C8 /* Sources */,
+				2CA2444D2E5A3357000A41C8 /* Frameworks */,
+				2CA2444E2E5A3357000A41C8 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				2C9C87CC2E3CBCB8008005C8 /* ixtli-render-demos-ios */,
+				2CA244512E5A3357000A41C8 /* hellotriang-ios */,
 			);
-			name = "ixtli-render-demos-ios";
+			name = "hellotriang-ios";
 			packageProductDependencies = (
 			);
-			productName = "ixtlu-render-demos-ios";
-			productReference = 2C9C87CB2E3CBCB8008005C8 /* ixtli-render-demos-ios.app */;
+			productName = "hellotriang-ios";
+			productReference = 2CA244502E5A3357000A41C8 /* hellotriang-ios.app */;
+			productType = "com.apple.product-type.application";
+		};
+		2CA2446D2E5A3387000A41C8 /* hellotexture-mac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2CA2447E2E5A3389000A41C8 /* Build configuration list for PBXNativeTarget "hellotexture-mac" */;
+			buildPhases = (
+				2CA2446A2E5A3387000A41C8 /* Sources */,
+				2CA2446B2E5A3387000A41C8 /* Frameworks */,
+				2CA2446C2E5A3387000A41C8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				2CA2446F2E5A3387000A41C8 /* hellotexture-mac */,
+			);
+			name = "hellotexture-mac";
+			packageProductDependencies = (
+			);
+			productName = "hellotexture-mac";
+			productReference = 2CA2446E2E5A3387000A41C8 /* hellotexture-mac.app */;
+			productType = "com.apple.product-type.application";
+		};
+		2CA244842E5A339C000A41C8 /* hellotexture-ios */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2CA2449C2E5A339E000A41C8 /* Build configuration list for PBXNativeTarget "hellotexture-ios" */;
+			buildPhases = (
+				2CA244812E5A339C000A41C8 /* Sources */,
+				2CA244822E5A339C000A41C8 /* Frameworks */,
+				2CA244832E5A339C000A41C8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				2CA244862E5A339C000A41C8 /* hellotexture-ios */,
+			);
+			name = "hellotexture-ios";
+			packageProductDependencies = (
+			);
+			productName = "hellotexture-ios";
+			productReference = 2CA244852E5A339C000A41C8 /* hellotexture-ios.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -191,10 +303,16 @@
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
-					2C5CD0C42E36B74F007BBDA6 = {
+					2CA244382E5A333D000A41C8 = {
 						CreatedOnToolsVersion = 16.4;
 					};
-					2C9C87CA2E3CBCB8008005C8 = {
+					2CA2444F2E5A3357000A41C8 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					2CA2446D2E5A3387000A41C8 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					2CA244842E5A339C000A41C8 = {
 						CreatedOnToolsVersion = 16.4;
 					};
 				};
@@ -213,21 +331,37 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2C5CD0C42E36B74F007BBDA6 /* ixtli-render-demos-mac */,
-				2C9C87CA2E3CBCB8008005C8 /* ixtli-render-demos-ios */,
+				2CA244382E5A333D000A41C8 /* hellotriang-mac */,
+				2CA2444F2E5A3357000A41C8 /* hellotriang-ios */,
+				2CA2446D2E5A3387000A41C8 /* hellotexture-mac */,
+				2CA244842E5A339C000A41C8 /* hellotexture-ios */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		2C5CD0C32E36B74F007BBDA6 /* Resources */ = {
+		2CA244372E5A333D000A41C8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2C9C87C92E3CBCB8008005C8 /* Resources */ = {
+		2CA2444E2E5A3357000A41C8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2CA2446C2E5A3387000A41C8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2CA244832E5A339C000A41C8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -237,38 +371,60 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		2C5CD0C12E36B74F007BBDA6 /* Sources */ = {
+		2CA244352E5A333D000A41C8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2CA243C92E55E62B000A41C8 /* ScnTextureMaker.c in Sources */,
-				2CB10D712E40C3630056266A /* MetalKitViewDelegate.m in Sources */,
-				2CB10D802E40C3870056266A /* ScnMemMap.c in Sources */,
+				2CA244AD2E5A3A1F000A41C8 /* ScnMemMap.c in Sources */,
+				2CA244A52E5A3559000A41C8 /* MTKViewDelegateHelloTriang.m in Sources */,
+				2CA244A22E5A33D0000A41C8 /* ScnVertices.metal in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2C9C87C72E3CBCB8008005C8 /* Sources */ = {
+		2CA2444C2E5A3357000A41C8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2CA243C82E55E62B000A41C8 /* ScnTextureMaker.c in Sources */,
-				2CB10D722E40C3630056266A /* MetalKitViewDelegate.m in Sources */,
-				2CB10D7A2E40C3870056266A /* ScnMemMap.c in Sources */,
+				2CA244AE2E5A3A1F000A41C8 /* ScnMemMap.c in Sources */,
+				2CA244A12E5A33D0000A41C8 /* ScnVertices.metal in Sources */,
+				2CA244A62E5A3559000A41C8 /* MTKViewDelegateHelloTriang.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2CA2446A2E5A3387000A41C8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2CA244B12E5A3C9C000A41C8 /* MTKViewDelegateHelloTexture.m in Sources */,
+				2CA244AF2E5A3A1F000A41C8 /* ScnMemMap.c in Sources */,
+				2CA244A32E5A33D0000A41C8 /* ScnVertices.metal in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2CA244812E5A339C000A41C8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2CA244A42E5A33D0000A41C8 /* ScnVertices.metal in Sources */,
+				2CA244B02E5A3A1F000A41C8 /* ScnMemMap.c in Sources */,
+				2CA244B22E5A3C9C000A41C8 /* MTKViewDelegateHelloTexture.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		2C5CD0D62E36B752007BBDA6 /* Debug */ = {
+		2CA2444A2E5A333F000A41C8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "ixtli-render-demos-mac/ixtli_render_demos_mac.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "hellotriang-mac/hellotriang_mac.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6UE6B358D8;
+				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
@@ -277,23 +433,26 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.mortegam.ixtli-render.demos.mac";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.mortegam.hellotriang-mac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Debug;
 		};
-		2C5CD0D72E36B752007BBDA6 /* Release */ = {
+		2CA2444B2E5A333F000A41C8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "ixtli-render-demos-mac/ixtli_render_demos_mac.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "hellotriang-mac/hellotriang_mac.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6UE6B358D8;
+				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
@@ -302,15 +461,16 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.mortegam.ixtli-render.demos.mac";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.mortegam.hellotriang-mac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Release;
 		};
-		2C9C87E32E3CBCBA008005C8 /* Debug */ = {
+		2CA244682E5A3359000A41C8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -319,21 +479,19 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6UE6B358D8;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "ixtli-render-demos-ios/Info.plist";
+				INFOPLIST_FILE = "hellotriang-ios/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				MTL_COMPILER_FLAGS = "-fmetal-enable-logging";
-				MTL_LANGUAGE_REVISION = Metal32;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.mortegam.ixtli-render.demos.ios";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.mortegam.hellotriang-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -341,7 +499,7 @@
 			};
 			name = Debug;
 		};
-		2C9C87E42E3CBCBA008005C8 /* Release */ = {
+		2CA244692E5A3359000A41C8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -350,19 +508,134 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6UE6B358D8;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "ixtli-render-demos-ios/Info.plist";
+				INFOPLIST_FILE = "hellotriang-ios/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.mortegam.ixtli-render.demos.ios";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.mortegam.hellotriang-ios";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		2CA2447F2E5A3389000A41C8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "hellotexture-mac/hellotexture_mac.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6UE6B358D8;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.mortegam.hellotexture-mac";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Debug;
+		};
+		2CA244802E5A3389000A41C8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "hellotexture-mac/hellotexture_mac.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6UE6B358D8;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.mortegam.hellotexture-mac";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Release;
+		};
+		2CA2449D2E5A339E000A41C8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6UE6B358D8;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "hellotexture-ios/Info.plist";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.mortegam.hellotexture-ios";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2CA2449E2E5A339E000A41C8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6UE6B358D8;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "hellotexture-ios/Info.plist";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.mortegam.hellotexture-ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -505,20 +778,38 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2C5CD0D52E36B752007BBDA6 /* Build configuration list for PBXNativeTarget "ixtli-render-demos-mac" */ = {
+		2CA244492E5A333F000A41C8 /* Build configuration list for PBXNativeTarget "hellotriang-mac" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				2C5CD0D62E36B752007BBDA6 /* Debug */,
-				2C5CD0D72E36B752007BBDA6 /* Release */,
+				2CA2444A2E5A333F000A41C8 /* Debug */,
+				2CA2444B2E5A333F000A41C8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2C9C87E22E3CBCBA008005C8 /* Build configuration list for PBXNativeTarget "ixtli-render-demos-ios" */ = {
+		2CA244672E5A3359000A41C8 /* Build configuration list for PBXNativeTarget "hellotriang-ios" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				2C9C87E32E3CBCBA008005C8 /* Debug */,
-				2C9C87E42E3CBCBA008005C8 /* Release */,
+				2CA244682E5A3359000A41C8 /* Debug */,
+				2CA244692E5A3359000A41C8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2CA2447E2E5A3389000A41C8 /* Build configuration list for PBXNativeTarget "hellotexture-mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2CA2447F2E5A3389000A41C8 /* Debug */,
+				2CA244802E5A3389000A41C8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2CA2449C2E5A339E000A41C8 /* Build configuration list for PBXNativeTarget "hellotexture-ios" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2CA2449D2E5A339E000A41C8 /* Debug */,
+				2CA2449E2E5A339E000A41C8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

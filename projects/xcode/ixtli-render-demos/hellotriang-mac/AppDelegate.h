@@ -1,0 +1,14 @@
+//
+//  AppDelegate.h
+//  hellotriang-mac
+//
+//  Created by Marcos Ortega on 23/8/25.
+//
+
+#import <Cocoa/Cocoa.h>
+
+@interface AppDelegate : NSObject <NSApplicationDelegate>
+
+
+@end
+
