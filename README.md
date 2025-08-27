@@ -4,6 +4,12 @@ Ixtli ("face" in Nahuatl) is a C library for cross-platform rendering on Mac, iO
 
 It offers a pre-shaders style fixed pipeline for simple rendering, and allows custom shaders implementation (including for compute).
 
+# Status
+
+[!IMPORTANT]
+This is a work-in-progress project, with core and Metal-API already implemented. Progress/status of features are mentioned below.
+
+
 # Licence
 
 MIT, see LICENSE file
@@ -11,8 +17,6 @@ MIT, see LICENSE file
 # Origin
 
 Created by [Marcos Ortega](https://mortegam.com/), this project aims to replace the rendering engine used by him for the last 12 years to build crossplatform visual apps.
-
-This is a work-in-progress, with Metal support already implemented.
 
 # Features
 
@@ -193,6 +197,12 @@ Please explore the demos folder for IDE workspaces.
 Please visit NicaBird's page or download the app; it is free.
 
 ![nicabird.png](./README.assets/nicabird.png "nicabird")
+
+## Signit Safe
+
+Please visit SignitSafe's page or download the app; it is free.
+
+![signitsafe.png](./README.assets/signitsafe.png "signitsafe")
 
 # Contact
 
