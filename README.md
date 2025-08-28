@@ -194,13 +194,13 @@ Please explore the demos folder for IDE workspaces.
 
 ## Nica Bird
 
-Please visit NicaBird's page or download the app; it is free.
+Please visit [Nica Bird's page](https://mortegam.com/nicabird/) or download the app; it is free.
 
 ![nicabird.png](./README.assets/nicabird.png "nicabird")
 
 ## Signit Safe
 
-Please visit SignitSafe's page or download the app; it is free.
+Please visit [SignitS afe's page](https://mortegam.com/) or download the app; it is free.
 
 ![signitsafe.png](./README.assets/signitsafe.png "signitsafe")
 
